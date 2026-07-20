@@ -1,0 +1,12 @@
+<div class="relative w-full h-full overflow-hidden {{ class }}">
+  @for (image of images; track $index) {
+    <div
+      class="absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out"
+      [style.opacity]="$index === currentIndex() ? 1 : 0"
+      [style.zIndex]="$index === currentIndex() ? 1 : 0"
+    >
+      <div class="bg-black/50 absolute h-full w-full"></div>
+      <img [src]="image" alt="Slide {{ $index + 1 }}" class="w-full h-full object-cover" />
+    </div>
+  }
+</div>

@@ -1,16 +1,21 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { KeyValuePipe, NgTemplateOutlet } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  Directive,
+  input,
+  signal,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { NavbarComponent } from './shared/components/navbar/navbar';
+import { TuiRoot } from '@taiga-ui/core';
 
 @Component({
+  imports: [RouterOutlet, TuiRoot],
   selector: 'app-root',
-  imports: [RouterOutlet],
-  template: `
-    <h1>Hello, {{ title() }}</h1>
-
-    <router-outlet />
-  `,
-  styles: [],
+  standalone: true,
+  templateUrl: './app.html',
 })
-export class App {
-  protected readonly title = signal('hrms-frontend');
-}
+export default class App {}

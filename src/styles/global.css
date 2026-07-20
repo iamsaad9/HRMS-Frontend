@@ -1,0 +1,20 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import 'tailwindcss';
+
+:root{
+    --theme:#111113;
+    --primary:#3f3d41;
+    --secondary:#D6D6D6;
+}
+
+
+[tuiTheme="dark"] {
+  --tui-background-base: var(--secondary) !important;
+  --tui-background-base-alt: var(--secondary) !important;
+}
+
+html,body{
+  padding: 0px;
+  margin: 0px;
+}

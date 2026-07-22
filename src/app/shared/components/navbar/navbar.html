@@ -1,5 +1,5 @@
 <header
-  class="flex justify-between w-full h-14 items-center gap-3 bg-linear-to-r from-(--theme) to-(--primary) px-3 sm:px-4 text-(--secondary) shadow-lg"
+  class="flex justify-between w-full h-14 items-center gap-3 xl:gap-5 bg-linear-to-r from-(--theme) to-(--primary) px-3 sm:px-4 text-(--secondary) shadow-lg"
 >
   <!-- Mobile menu toggle -->
 
@@ -32,7 +32,7 @@
   <!-- Left Side -->
   <div class="flex gap-3 xl:gap-5">
     <!-- Logo -->
-    <div class="flex shrink-0 items-center gap-2">
+    <div class="hidden sm:flex shrink-0 items-center gap-2">
       <div
         class="grid h-8 w-8 place-items-center rounded-md bg-(--secondary) text-[#1B1E27] font-semibold"
       >
@@ -51,7 +51,7 @@
   <!-- Right Side -->
   <div class="flex flex-1 gap-2 xl:gap-5 justify-end items-center">
     <!-- Search -->
-    <div class="hidden lg:flex justify-end px-1 flex-1">
+    <!-- <div class="hidden lg:flex justify-end px-1 flex-1">
       <div class="relative w-full max-w-md">
         <label
           class="bg-(--secondary) relative flex w-full items-center gap-2 rounded-lg border px-3 py-1.5 transition-colors"
@@ -90,7 +90,8 @@
                   <li>
                     <button
                       type="button"
-                      class="flex w-full items-center gap-3 px-3 py-2 text-left text-sm text-(--primary) hover:bg-[#8B8E9C]/10 transition-colors"
+                      [routerLink]="result.route"
+                      class="flex w-full items-center gap-3 px-3 py-2 text-left text-sm text-(--primary) hover:bg-[#8B8E9C]/10 transition-colors cursor-pointer"
                     >
                       <span
                         class="shrink-0 rounded bg-[#8B8E9C]/15 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-[#8B8E9C]"
@@ -110,12 +111,43 @@
           </div>
         }
       </div>
-    </div>
+    </div> -->
+
+    <tui-textfield iconStart="@tui.search" tuiTextfieldSize="s" class="flex flex-1 max-w-[30rem]">
+      <input placeholder="Search" tuiInput [(ngModel)]="searchQuery" />
+
+      @if (searchResults().length > 0) {
+        <!-- 1. Use tui-data-list instead of tui-data-list-wrapper -->
+        <tui-data-list *tuiDropdown class="z-10 w-full max-h-80 overflow-y-auto">
+          @for (item of searchResults(); track item.id) {
+            <button
+              tuiOption
+              type="button"
+              [routerLink]="item.route"
+              class="flex flex-col items-start p-2 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              <!-- Title & Category Badge -->
+              <div class="flex items-center justify-between w-full">
+                <span class="font-semibold text-sm">{{ item.name }}</span>
+                <span
+                  class="text-[10px] px-2 py-0.5 bg-(--secondary) text-(--theme) rounded-full font-medium"
+                >
+                  {{ item.category }}
+                </span>
+              </div>
+
+              <!-- Description -->
+              <p class="text-xs text-left text-(--secondary) line-clamp-1 w-full">
+                {{ item.description }}
+              </p>
+            </button>
+          }
+        </tui-data-list>
+      }
+    </tui-textfield>
 
     <!-- Actions -->
     <div class="flex shrink-0 items-center gap-1 lg:gap-2">
-      <mat-icon class="lg:hidden!">search</mat-icon>
-
       <button
         class="xl:flex items-center text-sm font-medium transition-opacity hover:opacity-90 cursor-pointer"
         tuiChevron

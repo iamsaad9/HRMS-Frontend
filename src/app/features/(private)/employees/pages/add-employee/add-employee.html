@@ -1,1 +1,44 @@
-<p>add-employee works!</p>
+<div class="w-full sm:w-[80%] mx-auto p-5" tuiTheme="light">
+  <!-- Stepper Header -->
+  <tui-tabs
+    [activeItemIndex]="activeStepIndex()"
+    (activeItemIndexChange)="selectStep($event)"
+    class="w-full"
+    underline="#333"
+  >
+    @for (step of steps; track step.id; let last = $last) {
+      <button
+        tuiTab
+        type="button"
+        class="step flex items-center justify-center text-(--theme)!"
+        [disabled]="isStepDisabled(step.id)"
+      >
+        {{ step.title }}
+        @if (!last) {
+          <tui-icon icon="@tui.chevron-right" class="separator ml-2" />
+        }
+      </button>
+    }
+  </tui-tabs>
+
+  <!-- Step Content Views -->
+  <div class="mt-6">
+    @switch (activeStepIndex()) {
+      @case (0) {
+        <app-employee-details (formSubmitted)="unlockAndNavigateTo(1)" />
+      }
+      @case (1) {
+        <app-employee-experience
+          (stepBack)="previousStep()"
+          (formSubmitted)="unlockAndNavigateTo(2)"
+        />
+      }
+      @case (2) {
+        <div>
+          <!-- Additional Documents Component -->
+          <h4 class="text-lg font-medium">Step 3: Additional Documents</h4>
+        </div>
+      }
+    }
+  </div>
+</div>

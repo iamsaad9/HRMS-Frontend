@@ -7,11 +7,20 @@ import {
   signal,
 } from '@angular/core';
 import { TuiActiveZone, TuiObscured } from '@taiga-ui/cdk';
-import { TuiButton, TuiDataList, TuiDropdown, TuiTitle } from '@taiga-ui/core';
-import { TuiChevron } from '@taiga-ui/kit';
+import {
+  TuiButton,
+  TuiDataList,
+  TuiDropdown,
+  TuiTitle,
+  TuiTextfieldComponent,
+  TuiIcon,
+} from '@taiga-ui/core';
+import { TuiChevron, TuiDataListWrapperComponent, TuiStringifyContentPipe } from '@taiga-ui/kit';
 import { DropDownItem, DropdownSelectorComponent } from '../dropdown-selector/dropdown-selector';
 import { MatIcon } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { TuiFilterByInputPipe, TuiInput, TuiSelectLike } from '@taiga-ui/core';
+import { FormsModule } from '@angular/forms';
 
 interface ExampleAction {
   readonly icon: string;
@@ -31,6 +40,7 @@ interface Routes {
 @Component({
   selector: 'app-navbar',
   imports: [
+    FormsModule,
     TuiActiveZone,
     TuiChevron,
     TuiDataList,
@@ -39,6 +49,17 @@ interface Routes {
     TuiTitle,
     DropdownSelectorComponent,
     MatIcon,
+    RouterLink,
+    TuiTextfieldComponent,
+    TuiIcon,
+    TuiChevron,
+    TuiDropdown,
+    TuiFilterByInputPipe,
+    TuiIcon,
+    TuiInput,
+    TuiSelectLike,
+    TuiDataListWrapperComponent,
+    TuiStringifyContentPipe,
   ],
   standalone: true,
   templateUrl: './navbar.html',
@@ -72,7 +93,7 @@ export class NavbarComponent {
   });
   activeIndex = signal(-1);
   menuToggle = output<void>();
-
+  protected readonly stringifyRoute = (item: Routes): string => item.name;
   protected readonly actions: readonly ExampleAction[] = [
     {
       icon: 'add',
@@ -272,7 +293,7 @@ export class NavbarComponent {
   protected readonly mockRoutes: Routes[] = [
     {
       id: 'route_1',
-      name: 'New Employee Onboarding',
+      name: 'New Employee',
       description: 'Add and onboard a new team member to the system',
       route: '/employee/new',
       category: 'Employee Management',

@@ -3,7 +3,7 @@
 @import 'tailwindcss';
 
 :root{
-    --theme:#111113;
+    --theme:#1d1d1d;
     --primary:#3f3d41;
     --secondary:#D6D6D6;
 }
@@ -18,3 +18,15 @@ html,body{
   padding: 0px;
   margin: 0px;
 }
+
+[tuiAppearance][data-appearance=primary] {
+  background: var(--theme);
+}
+[tuiAppearance][data-appearance=secondary],[tuiAppearance][data-appearance=flat]{
+  color:var(--theme);
+}
+
+[tuiAppearance][data-appearance=textfield] [tuiInput][chrome-autofilled], [tuiAppearance][data-appearance=textfield] [tuiInput]:-webkit-autofill {
+      box-shadow: 0 0 0 100rem var(--secondary) inset !important;
+}
+

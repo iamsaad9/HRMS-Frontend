@@ -35,6 +35,7 @@ import {
 } from '@taiga-ui/kit';
 import { TuiForm, TuiHeader } from '@taiga-ui/layout';
 import { MatIcon } from '@angular/material/icon';
+import { EmployeeDetailsForm } from '../../../model/employee-model';
 @Component({
   selector: 'app-employee-details',
   standalone: true,
@@ -47,22 +48,16 @@ import { MatIcon } from '@angular/material/icon';
     TuiChevron,
     TuiDataListWrapper,
     TuiError,
-    TuiForm,
     TuiGroup,
-    TuiHeader,
-    TuiIcon,
     TuiInput,
     TuiInputDate,
     TuiInputNumber,
     TuiInputPhone,
     TuiInputSlider,
     TuiLabel,
-    TuiPassword,
     TuiRadio,
     TuiSelect,
     TuiTitle,
-    TuiTooltip,
-    TuiInputColorComponent,
     MatIcon,
   ],
   templateUrl: './employee-details.html',
@@ -70,7 +65,7 @@ import { MatIcon } from '@angular/material/icon';
 })
 export class EmployeeDetails {
   // Signal output to notify parent stepper to move forward
-  readonly formSubmitted = output<typeof this.form.value>();
+  readonly formSubmitted = output<EmployeeDetailsForm>();
 
   protected readonly departments = [
     'Engineering',
@@ -81,19 +76,27 @@ export class EmployeeDetails {
   ];
 
   protected form = new FormGroup({
-    fullName: new FormControl('', Validators.required),
-    email: new FormControl('', [Validators.required, Validators.email]),
-    phone: new FormControl('', Validators.required),
-    dob: new FormControl<TuiDay | null>(null, Validators.required),
-    department: new FormControl(this.departments[0], Validators.required),
-    employmentType: new FormControl('full-time', Validators.required),
-    isRemote: new FormControl(false),
-    requiresVisa: new FormControl(false),
+    fullName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    email: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
+    phone: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    dob: new FormControl<TuiDay | null>(null, [Validators.required]),
+    department: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    employmentType: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    isRemote: new FormControl(false, { nonNullable: true }),
+    requireVisa: new FormControl(false, { nonNullable: true }),
   });
 
-  protected onSubmit(): void {
+  protected onSubmit(data: EmployeeDetailsForm): void {
     if (this.form.valid) {
-      this.formSubmitted.emit(this.form.value);
+      const value = this.form.getRawValue();
+
+      this.formSubmitted.emit({
+        ...value,
+        dob: value.dob?.toLocalNativeDate() ?? null,
+      });
     } else {
       this.form.markAllAsTouched();
     }

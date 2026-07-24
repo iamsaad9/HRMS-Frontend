@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormControl, FormsModule } from '@angular/forms';
-import { TuiIcon, TuiNumberFormat, TuiTextfield } from '@taiga-ui/core';
+import { FormsModule } from '@angular/forms';
+import { TuiIcon, TuiTextfield } from '@taiga-ui/core';
 import { TuiInputNumber, TuiTabs } from '@taiga-ui/kit';
 import { EmployeeDetails } from '../../components/employee-form/employee-details/employee-details';
 import { EmployeeExperience } from '../../components/employee-form/employee-experience/employee-experience';
+import { AddEmployeeForm, EmployeeDetailsForm, ExperienceForm } from '../../model/employee-model';
 
 export interface StepConfig {
   id: number;
@@ -16,7 +17,6 @@ export interface StepConfig {
     FormsModule,
     TuiIcon,
     TuiInputNumber,
-    TuiNumberFormat,
     TuiTabs,
     TuiTextfield,
     EmployeeDetails,
@@ -32,16 +32,23 @@ export class AddEmployee {
     { id: 2, title: 'Additional Documents' },
   ];
 
-  protected employeeDetailsData = signal<any>(null);
-  protected workExperienceData = signal<any>(null);
+  protected addEmployeeForm = signal<AddEmployeeForm>({
+    fullName: '',
+    email: '',
+    phone: '',
+    dob: new Date(),
+    department: '',
+    employmentType: '',
+    isRemote: false,
+    requireVisa: false,
+    experiences: [],
+    educations: [],
+  });
 
-  // Active step index
+  protected employeeDetailsData = signal<EmployeeDetailsForm | null>(null);
+  protected workExperienceData = signal<ExperienceForm | null>(null);
   protected activeStepIndex = signal<number>(0);
-
-  // Set of unlocked step IDs for O(1) checks and immutability
-  protected unlockedSteps = signal<Set<number>>(new Set([0, 1, 2]));
-
-  // --- Step Navigation Helpers ---
+  protected unlockedSteps = signal<Set<number>>(new Set([0]));
 
   protected isStepDisabled(stepId: number): boolean {
     return !this.unlockedSteps().has(stepId);
@@ -60,5 +67,29 @@ export class AddEmployee {
 
   protected previousStep(): void {
     this.activeStepIndex.update((curr) => Math.max(0, curr - 1));
+  }
+
+  protected onEmployeeDetailsSubmission(data: EmployeeDetailsForm): void {
+    console.log('Employee Details Data:', data);
+    this.addEmployeeForm.update((current) => ({
+      ...current,
+      ...data,
+    }));
+    this.unlockAndNavigateTo(1);
+  }
+
+  protected onWorkExperienceSubmission(data: ExperienceForm) {
+    console.log('Work Experience Data:', data);
+    this.addEmployeeForm.update((current) => ({
+      ...current,
+      workExperience: data.experiences ?? [],
+      education: data.educations ?? [],
+    }));
+    this.unlockAndNavigateTo(2);
+  }
+
+  protected submitFullPayload(): void {
+    const payload = this.addEmployeeForm();
+    console.log('Final Payload ready for backend:', payload);
   }
 }

@@ -21,24 +21,18 @@
     }
   </tui-tabs>
 
-  <!-- Step Content Views -->
-  <div class="mt-6">
-    @switch (activeStepIndex()) {
-      @case (0) {
-        <app-employee-details (formSubmitted)="unlockAndNavigateTo(1)" />
-      }
-      @case (1) {
-        <app-employee-experience
-          (stepBack)="previousStep()"
-          (formSubmitted)="unlockAndNavigateTo(2)"
-        />
-      }
-      @case (2) {
-        <div>
-          <!-- Additional Documents Component -->
-          <h4 class="text-lg font-medium">Step 3: Additional Documents</h4>
-        </div>
-      }
-    }
+  <div class="mt-6" [hidden]="activeStepIndex() !== 0">
+    <app-employee-details (formSubmitted)="onEmployeeDetailsSubmission($event)" />
+  </div>
+
+  <div class="mt-6" [hidden]="activeStepIndex() !== 1">
+    <app-employee-experience
+      (stepBack)="previousStep()"
+      (formSubmitted)="onWorkExperienceSubmission($event)"
+    />
+  </div>
+
+  <div [hidden]="activeStepIndex() !== 2">
+    <button TuiButton (click)="submitFullPayload()">Add Employee</button>
   </div>
 </div>

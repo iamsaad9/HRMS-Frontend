@@ -1,14 +1,17 @@
-interface AddEmployeeForm {
+export interface EmployeeDetailsForm {
   fullName: string;
   email: string;
-  phone: number;
-  dob: Date;
+  phone: string;
+  dob: Date | null;
   department: string;
-  employementType: string;
+  employmentType: string;
   isRemote: boolean;
   requireVisa: boolean;
-  workExperience: Experience[];
-  education: Education[];
+}
+
+export interface ExperienceForm {
+  experiences: Experience[];
+  educations: Education[];
 }
 
 interface Experience {
@@ -26,3 +29,5 @@ interface Education {
   startDate: Date;
   endDate?: Date;
 }
+
+export interface AddEmployeeForm extends EmployeeDetailsForm, ExperienceForm {}

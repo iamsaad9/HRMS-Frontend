@@ -1,6 +1,6 @@
 <form
   [formGroup]="form"
-  (ngSubmit)="onSubmit()"
+  (ngSubmit)="onSubmit($event)"
   class="flex flex-col gap-3 w-full p-4 text-(--theme)"
 >
   <header>
@@ -93,7 +93,7 @@
       Remote Worker
     </label>
     <label tuiLabel class="cursor-pointer">
-      <input formControlName="requiresVisa" tuiCheckbox type="checkbox" />
+      <input formControlName="requireVisa" tuiCheckbox type="checkbox" />
       Requires Work Visa Sponsorship
     </label>
   </fieldset>

@@ -32,6 +32,7 @@ import {
 import { TuiChevron } from '@taiga-ui/kit';
 import { TuiInputDateRange } from '@taiga-ui/kit';
 import { TuiElasticContainer } from '@taiga-ui/layout';
+import { ExperienceForm } from '../../../model/employee-model';
 @Component({
   selector: 'app-employee-experience',
   standalone: true,
@@ -63,7 +64,7 @@ import { TuiElasticContainer } from '@taiga-ui/layout';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeExperience {
-  readonly formSubmitted = output<typeof this.form.value>();
+  readonly formSubmitted = output<ExperienceForm>();
   readonly stepBack = output<void>();
   protected value = new TuiDayRange(new TuiDay(2017, 0, 15), new TuiDay(2017, 0, 20));
   protected isCurrentJob = signal(false);
@@ -78,8 +79,6 @@ export class EmployeeExperience {
     },
   ];
   protected form = new FormGroup({
-    companyName: new FormControl('', Validators.required),
-    jobTitle: new FormControl('', Validators.required),
     experiences: new FormArray<FormGroup>([
       new FormGroup({
         companyName: new FormControl('', Validators.required),
@@ -97,10 +96,6 @@ export class EmployeeExperience {
         period: new FormControl<TuiDayRange | null>(null, Validators.required),
       }),
     ]),
-    employmentPeriod: new FormControl<TuiDayRange | null>(null), // Range if past job
-    startDate: new FormControl<TuiDay | null>(null), // Single date if current job
-    isCurrent: new FormControl(false),
-    responsibilities: new FormControl('', [Validators.maxLength(500)]),
   });
 
   get experiences(): FormArray {
@@ -165,9 +160,9 @@ export class EmployeeExperience {
   }
 
   // --- ACTIONS ---
-  protected onSubmit(): void {
+  protected onSubmit(data: ExperienceForm): void {
     if (this.form.valid) {
-      this.formSubmitted.emit(this.form.value);
+      this.formSubmitted.emit(this.form.getRawValue() as ExperienceForm);
     } else {
       this.form.markAllAsTouched();
     }

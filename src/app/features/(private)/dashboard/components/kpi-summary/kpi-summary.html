@@ -9,7 +9,7 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="grid grid-cols-1 gap-4">
     <!-- CARD 1: Headcount Target with TuiProgressCircle -->
     <div
       tuiCardLarge
@@ -56,26 +56,13 @@
         <!-- Taiga UI Ring Chart -->
         <div class="flex items-center justify-center gap-2">
           <tui-ring-chart
-            class="h-20! w-20!"
+            class="h-24! w-24!"
             [value]="attendanceValues()"
             [(activeItemIndex)]="activeItemIndex"
           >
             <span>{{ sum | tuiAmount: 'RUB' }}</span>
+            <div>{{ label }}</div>
           </tui-ring-chart>
-          <div class="legend flex flex-col gap-1">
-            @for (label of labels; track label) {
-              <tui-legend-item
-                size="s"
-                class="itemv"
-                [active]="isItemActive($index)"
-                [color]="`var(--tui-chart-categorical-${$index.toString().padStart(2, '0')})`"
-                [text]="label"
-                (tuiHoveredChange)="onHover($index, !!$event)"
-              >
-                <span class="text-xs">{{ attendanceValues()[$index] || 0 }}</span>
-              </tui-legend-item>
-            }
-          </div>
         </div>
       </div>
     </div>

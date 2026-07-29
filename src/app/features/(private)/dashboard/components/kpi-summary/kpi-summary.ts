@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { KpiCard } from '../../dashboard.model';
-import { TuiPoint } from '@taiga-ui/core';
+import { TuiExpand, TuiPoint } from '@taiga-ui/core';
 import {
   TuiRingChart,
   TuiLineChart,
@@ -9,9 +9,9 @@ import {
   TuiLegendItem,
   TuiArcChart,
 } from '@taiga-ui/addon-charts';
-import { TuiProgressCircle } from '@taiga-ui/kit';
+import { TuiAccordion, TuiChevron, TuiProgressCircle } from '@taiga-ui/kit';
 import { FormsModule } from '@angular/forms';
-import { TuiCardLarge, TuiHeader, TuiSubheaderComponent } from '@taiga-ui/layout';
+import { TuiCard, TuiCardLarge, TuiHeader, TuiSubheaderComponent } from '@taiga-ui/layout';
 import { tuiSum } from '@taiga-ui/cdk';
 import { MatIcon } from '@angular/material/icon';
 import { TuiAmountPipe } from '@taiga-ui/addon-commerce';
@@ -30,7 +30,10 @@ import { TuiAmountPipe } from '@taiga-ui/addon-commerce';
     TuiLegendItem,
     TuiArcChart,
     MatIcon,
-    TuiSubheaderComponent,
+    TuiCard,
+    TuiChevron,
+    TuiAccordion,
+    TuiExpand,
   ],
   templateUrl: './kpi-summary.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,6 +44,7 @@ export class KpiSummary {
   readonly headcountProgress = signal<number>(0.925);
   protected activeItemIndex = Number.NaN;
   protected readonly sum = tuiSum(...this.attendanceValues());
+  protected collapsed = signal(false);
   readonly payrollTrendData: readonly TuiPoint[] = [
     [0, 160],
     [1, 165],
@@ -49,6 +53,12 @@ export class KpiSummary {
     [4, 180],
     [5, 184.5],
   ];
+  expanded = true;
+
+  toggleExpand(): void {
+    this.expanded = !this.expanded;
+  }
+
   protected isItemActive(index: number): boolean {
     return this.activeItemIndex === index;
   }

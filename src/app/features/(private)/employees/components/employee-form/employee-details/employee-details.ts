@@ -6,15 +6,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { TuiDay, TuiTime } from '@taiga-ui/cdk';
+import { TuiDay } from '@taiga-ui/cdk';
 import {
   TuiButton,
   TuiCheckbox,
-  TuiDataList,
-  TuiDropdown,
   TuiError,
   TuiGroup,
-  TuiIcon,
   TuiInput,
   TuiLabel,
   TuiRadio,
@@ -28,12 +25,8 @@ import {
   TuiInputNumber,
   TuiInputPhone,
   TuiInputSlider,
-  TuiPassword,
   TuiSelect,
-  TuiTooltip,
-  TuiInputColorComponent,
 } from '@taiga-ui/kit';
-import { TuiForm, TuiHeader } from '@taiga-ui/layout';
 import { MatIcon } from '@angular/material/icon';
 import { EmployeeDetailsForm } from '../../../model/employee-model';
 @Component({
@@ -64,7 +57,6 @@ import { EmployeeDetailsForm } from '../../../model/employee-model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeDetails {
-  // Signal output to notify parent stepper to move forward
   readonly formSubmitted = output<EmployeeDetailsForm>();
 
   protected readonly departments = [

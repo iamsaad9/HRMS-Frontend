@@ -26,6 +26,7 @@ interface ExampleAction {
   readonly icon: string;
   readonly description: string;
   readonly title: string;
+  readonly route: string;
 }
 
 interface Routes {
@@ -49,11 +50,11 @@ interface Routes {
     TuiTitle,
     DropdownSelectorComponent,
     MatIcon,
-    RouterLink,
     TuiTextfieldComponent,
     TuiChevron,
     TuiDropdown,
     TuiInput,
+    RouterLink,
   ],
   standalone: true,
   templateUrl: './navbar.html',
@@ -93,16 +94,19 @@ export class NavbarComponent {
       icon: 'add',
       title: 'Create Employee',
       description: 'Create and Employee',
+      route: 'employee/new',
     },
     {
       icon: 'delete',
       title: 'Remove Employee',
       description: 'Delete and Employee',
+      route: 'employee/all',
     },
     {
       icon: 'arrow_downward',
       title: 'Download Report',
       description: 'Download any report',
+      route: 'reports/download',
     },
   ];
 
@@ -151,6 +155,13 @@ export class NavbarComponent {
       this.searchFocused.set(false);
       this.activeIndex.set(-1); // Reset highlight when leaving input
     }, 150);
+  }
+
+  protected handleItemClick(item: Routes): void {
+    console.log('User selected route:', item.name);
+    const url = this.router.serializeUrl(this.router.createUrlTree([item.route]));
+    window.open(url, '_blank', 'noopener,noreferrer');
+    this.searchQuery.set('');
   }
 
   protected readonly mockDropdownItems: DropDownItem[] = [

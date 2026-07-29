@@ -25,10 +25,6 @@
     </ng-template>
   </button>
 
-  <!-- @for (item of mockDropdownItems; track item.title) {
-        <app-dropdown-selector [dropDownItem]="item" />
-      } -->
-
   <!-- Left Side -->
   <div class="flex gap-3 xl:gap-5">
     <!-- Logo -->
@@ -50,70 +46,7 @@
 
   <!-- Right Side -->
   <div class="flex flex-1 gap-2 xl:gap-5 justify-end items-center">
-    <!-- Search -->
-    <!-- <div class="hidden lg:flex justify-end px-1 flex-1">
-      <div class="relative w-full max-w-md">
-        <label
-          class="bg-(--secondary) relative flex w-full items-center gap-2 rounded-lg border px-3 py-1.5 transition-colors"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.6"
-            stroke-linecap="round"
-            class="shrink-0 text-(--primary)"
-          >
-            <circle cx="11" cy="11" r="6.5" />
-            <path d="m20 20-4.3-4.3" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search products, orders, customers…"
-            [value]="searchQuery()"
-            (input)="searchQuery.set($any($event.target).value)"
-            (focus)="searchFocused.set(true)"
-            (blur)="onSearchBlur()"
-            class="bg-transparent text-sm text-(--primary) placeholder:text-[#8B8E9C] focus:outline-none flex-1!"
-          />
-        </label>
-
-        @if (searchFocused() && searchQuery().trim().length > 0) {
-          <div
-            class="absolute left-0 right-0 top-[calc(100%+6px)] z-50 max-h-80 overflow-y-auto rounded-lg border bg-(--secondary) shadow-lg"
-          >
-            @if (searchResults().length > 0) {
-              <ul class="divide-y divide-[#8B8E9C]/15">
-                @for (result of searchResults(); track result.id) {
-                  <li>
-                    <button
-                      type="button"
-                      [routerLink]="result.route"
-                      class="flex w-full items-center gap-3 px-3 py-2 text-left text-sm text-(--primary) hover:bg-[#8B8E9C]/10 transition-colors cursor-pointer"
-                    >
-                      <span
-                        class="shrink-0 rounded bg-[#8B8E9C]/15 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-[#8B8E9C]"
-                      >
-                        {{ result.category }}
-                      </span>
-                      <span class="truncate">{{ result.name }}</span>
-                    </button>
-                  </li>
-                }
-              </ul>
-            } @else {
-              <p class="px-3 py-4 text-center text-sm text-[#8B8E9C]">
-                No results for "{{ searchQuery() }}"
-              </p>
-            }
-          </div>
-        }
-      </div>
-    </div> -->
-
-    <tui-textfield iconStart="@tui.search" tuiTextfieldSize="s" class="flex flex-1 max-w-[30rem]">
+    <tui-textfield iconStart="@tui.search" tuiTextfieldSize="s" class="flex flex-1 max-w-120">
       <input placeholder="Search" tuiInput [(ngModel)]="searchQuery" />
 
       @if (searchResults().length > 0) {
@@ -123,7 +56,7 @@
             <button
               tuiOption
               type="button"
-              [routerLink]="item.route"
+              (click)="handleItemClick(item)"
               class="flex flex-col items-start p-2 hover:bg-gray-100 rounded-md transition-colors"
             >
               <!-- Title & Category Badge -->
@@ -164,7 +97,12 @@
         <ng-template #dropdownContent>
           <tui-data-list class="bg-(--theme)/50">
             @for (action of actions; track action.title) {
-              <button tuiOption type="button" (click)="onSelect(action)">
+              <button
+                tuiOption
+                type="button"
+                (click)="onSelect(action)"
+                [routerLink]="action.route"
+              >
                 <div class="flex items-center justify-center gap-2">
                   <mat-icon class="scale-70">{{ action.icon }}</mat-icon>
                   <span tuiTitle class="text-sm!">

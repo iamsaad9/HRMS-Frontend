@@ -1,0 +1,153 @@
+<div tuiCardLarge class="p-6 bg-(--secondary)/50! gap-2!">
+  <div class="flex items-center justify-start gap-2">
+    <mat-icon class="text-(--theme)!">person</mat-icon>
+    <div>
+      <h1 class="text-xl! text-(--primary)! font-bold! flex justify-start items-center">
+        My Profile
+      </h1>
+      <span class="text-sm text-(--theme)/50">Edit and View your profile details</span>
+    </div>
+  </div>
+
+  <div class="grid! grid-cols-1! lg:grid-cols-3! gap-6">
+    <!-- Profile & Today's Shift Card -->
+    <div
+      tuiCardLarge
+      class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between"
+    >
+      <div>
+        <!-- Profile Header -->
+        <div class="flex items-center gap-4 pb-6 border-b border-slate-100">
+          <div tuiAvatar="@tui.user" class="!w-16 !h-16 rounded-full ring-2 ring-slate-100"></div>
+
+          <div class="flex-1 min-w-0">
+            <h3 class="text-xl font-bold text-(--primary) truncate">
+              {{ user.name }}
+            </h3>
+            <p class="text-sm text-(--primary)/50 font-medium">
+              {{ user.role }}
+            </p>
+            <span
+              class="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-slate-100 text-(--primary)/50 font-semibold"
+            >
+              {{ user.department }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Today's Attendance Status -->
+        <div class="mt-6">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-sm font-semibold text-(--primary)/50 uppercase tracking-wider">
+              Today's Shift
+            </span>
+            <span
+              [class]="
+                'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ' +
+                (user.todayStatus.isClockedIn
+                  ? 'bg-emerald-50 text-emerald-600'
+                  : 'bg-amber-50 text-amber-600')
+              "
+            >
+              <span
+                [class]="
+                  'w-2 h-2 rounded-full ' +
+                  (user.todayStatus.isClockedIn ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500')
+                "
+              ></span>
+              {{ user.todayStatus.isClockedIn ? 'Clocked In' : 'Clocked Out' }}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-xs text-(--primary)/50 block font-medium">Start Time</span>
+              <span class="text-lg font-bold text-(--primary) mt-0.5 block">
+                {{ user.todayStatus.startTime }}
+              </span>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-xs text-(--primary)/50 block font-medium">End Time</span>
+              <span class="text-lg font-bold text-(--primary) mt-0.5 block">
+                {{ user.todayStatus.endTime || '--:--' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Status Note -->
+      <div
+        class="mt-6 pt-4 border-t border-slate-100 text-xs text-(--primary)/50 flex items-center justify-between"
+      >
+        <span>Standard Shift: 9:00 AM - 5:00 PM</span>
+        <tui-icon icon="tuiIconClock" class="!w-4 !h-4 text-(--primary)/50"></tui-icon>
+      </div>
+    </div>
+
+    <!-- 7 Days Clock-in / Clock-out History Card -->
+    <div
+      tuiCardLarge
+      class="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col"
+    >
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-xl font-bold text-(--primary)">Shift History</h3>
+          <p class="text-sm text-(--primary)/50">Last 7 days attendance record</p>
+        </div>
+        <!-- <tui-badge size="m" status="neutral" class="!text-(--primary)/50"> 7 Days </tui-badge> -->
+      </div>
+
+      <!-- Table container -->
+      <div class="overflow-x-auto flex-1">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr
+              class="border-b border-slate-100 text-(--primary)/50 uppercase text-xs tracking-wider"
+            >
+              <th class="py-3 px-2 font-semibold">Date</th>
+              <th class="py-3 px-2 font-semibold">Clock In</th>
+              <th class="py-3 px-2 font-semibold">Clock Out</th>
+              <th class="py-3 px-2 font-semibold text-right">Total Hours</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (item of clockHistory; track $index) {
+              <tr class="hover:bg-slate-50/60 transition-colors">
+                <td class="py-2 px-2 font-semibold text-(--primary)">
+                  {{ item.date }}
+                </td>
+                <td class="py-2 px-2 text-(--primary)">
+                  <span class="inline-flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    {{ item.clockIn }}
+                  </span>
+                </td>
+                <td class="py-2 px-2 text-(--primary)">
+                  <span class="inline-flex items-center gap-1.5">
+                    <span
+                      class="w-1.5 h-1.5 rounded-full"
+                      [class.bg-amber-500]="item.clockOut !== '--:--'"
+                      [class.bg-slate-300]="item.clockOut === '--:--'"
+                    ></span>
+                    {{ item.clockOut }}
+                  </span>
+                </td>
+                <td class="py-2 px-2 text-right font-medium text-(--primary)/50">
+                  <span
+                    [class]="
+                      item.totalHours === 'In Progress' ? 'text-emerald-600 font-semibold' : ''
+                    "
+                  >
+                    {{ item.totalHours }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

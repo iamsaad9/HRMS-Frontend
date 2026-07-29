@@ -1,2 +1,14 @@
-<p>dashboard works!</p>
-<div class="">asdasd</div>
+<div class="flex flex-col gap-5">
+  <div class="flex items-center justify-between">
+    <header class="text-3xl! text-(--theme) font-bold!">
+      Welcome Back <span class="text-blue-500">Saad</span>!
+    </header>
+
+    <h1 class="text-black font-semibold text-sm flex items-center justify-center gap-2">
+      <mat-icon>access_time</mat-icon>{{ currentDate | date: 'mediumDate' }}
+    </h1>
+  </div>
+  <app-kpi-summary></app-kpi-summary>
+  <app-user-cards></app-user-cards>
+  <app-performance-section></app-performance-section>
+</div>

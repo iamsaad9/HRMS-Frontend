@@ -5,7 +5,7 @@
       <h1 class="text-xl! text-(--primary)! font-bold! flex justify-start items-center">
         My Profile
       </h1>
-      <span class="text-sm text-(--theme)/50">Edit and View your profile details</span>
+      <span class="text-sm text-(--primary)/80">Edit and View your profile details</span>
     </div>
   </div>
 
@@ -24,11 +24,11 @@
             <h3 class="text-xl font-bold text-(--primary) truncate">
               {{ user.name }}
             </h3>
-            <p class="text-sm text-(--primary)/50 font-medium">
+            <p class="text-sm text-(--primary)/80 font-medium">
               {{ user.role }}
             </p>
             <span
-              class="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-slate-100 text-(--primary)/50 font-semibold"
+              class="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-slate-100 text-(--primary)/80 font-semibold"
             >
               {{ user.department }}
             </span>
@@ -38,7 +38,7 @@
         <!-- Today's Attendance Status -->
         <div class="mt-6">
           <div class="flex items-center justify-between mb-4">
-            <span class="text-sm font-semibold text-(--primary)/50 uppercase tracking-wider">
+            <span class="text-sm font-semibold text-(--primary)/80 uppercase tracking-wider">
               Today's Shift
             </span>
             <span
@@ -61,14 +61,14 @@
 
           <div class="grid grid-cols-2 gap-3">
             <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
-              <span class="text-xs text-(--primary)/50 block font-medium">Start Time</span>
+              <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
               <span class="text-lg font-bold text-(--primary) mt-0.5 block">
                 {{ user.todayStatus.startTime }}
               </span>
             </div>
 
             <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
-              <span class="text-xs text-(--primary)/50 block font-medium">End Time</span>
+              <span class="text-xs text-(--primary)/80 block font-medium">End Time</span>
               <span class="text-lg font-bold text-(--primary) mt-0.5 block">
                 {{ user.todayStatus.endTime || '--:--' }}
               </span>
@@ -79,10 +79,10 @@
 
       <!-- Quick Status Note -->
       <div
-        class="mt-6 pt-4 border-t border-slate-100 text-xs text-(--primary)/50 flex items-center justify-between"
+        class="mt-6 pt-4 border-t border-slate-100 text-xs text-(--primary)/80 flex items-center justify-between"
       >
         <span>Standard Shift: 9:00 AM - 5:00 PM</span>
-        <tui-icon icon="tuiIconClock" class="!w-4 !h-4 text-(--primary)/50"></tui-icon>
+        <tui-icon icon="tuiIconClock" class="!w-4 !h-4 text-(--primary)/80"></tui-icon>
       </div>
     </div>
 
@@ -94,9 +94,9 @@
       <div class="flex items-center justify-between">
         <div>
           <h3 class="text-xl font-bold text-(--primary)">Shift History</h3>
-          <p class="text-sm text-(--primary)/50">Last 7 days attendance record</p>
+          <p class="text-sm text-(--primary)/80">Last 7 days attendance record</p>
         </div>
-        <!-- <tui-badge size="m" status="neutral" class="!text-(--primary)/50"> 7 Days </tui-badge> -->
+        <!-- <tui-badge size="m" status="neutral" class="!text-(--primary)/80"> 7 Days </tui-badge> -->
       </div>
 
       <!-- Table container -->
@@ -104,7 +104,7 @@
         <table class="w-full text-left text-sm border-collapse">
           <thead>
             <tr
-              class="border-b border-slate-100 text-(--primary)/50 uppercase text-xs tracking-wider"
+              class="border-b border-slate-100 text-(--primary)/80 uppercase text-xs tracking-wider"
             >
               <th class="py-3 px-2 font-semibold">Date</th>
               <th class="py-3 px-2 font-semibold">Clock In</th>
@@ -134,7 +134,7 @@
                     {{ item.clockOut }}
                   </span>
                 </td>
-                <td class="py-2 px-2 text-right font-medium text-(--primary)/50">
+                <td class="py-2 px-2 text-right font-medium text-(--primary)/80">
                   <span
                     [class]="
                       item.totalHours === 'In Progress' ? 'text-emerald-600 font-semibold' : ''

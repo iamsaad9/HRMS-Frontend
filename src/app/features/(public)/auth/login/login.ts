@@ -18,6 +18,7 @@ import { PasswordValidator } from '../components/password-validator/password-val
     PasswordValidator,
   ],
   templateUrl: './login.html',
+  styleUrl: './login.scss',
 })
 export class Login {
   private fb = inject(FormBuilder);

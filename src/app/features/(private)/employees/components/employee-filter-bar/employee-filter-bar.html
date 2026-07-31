@@ -1,0 +1,111 @@
+<div
+  tuiCardLarge
+  class="mb-4 flex flex-col gap-2! rounded-xl border border-slate-200 bg-(--secondary)/20! text-(--primary)! p-4"
+>
+  <!-- TOP ROW: Search Bar & Actions (Apply / Reset) -->
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <!-- Search Bar -->
+
+    <tui-textfield
+      iconStart="@tui.search"
+      tuiTextfieldSize="m"
+      class="w-full bg-(--background_light)! items-center! rounded-lg"
+    >
+      <input
+        placeholder="Search by name, email..."
+        class="text-(--primary)! placeholder:text-(--primary)/60!"
+        tuiInput
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        (keyup.enter)="applyFilter()"
+      />
+    </tui-textfield>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-2 self-end sm:self-auto">
+      <button
+        type="button"
+        tuiButton
+        appearance="primary"
+        size="m"
+        class="cursor-pointer"
+        (click)="applyFilter()"
+      >
+        Apply Filters
+      </button>
+
+      @if (hasActiveFilters) {
+        <button
+          type="button"
+          tuiButton
+          appearance="flat"
+          size="m"
+          class="cursor-pointer! text-slate-600 hover:text-slate-900"
+          (click)="clear()"
+        >
+          Reset
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- BOTTOM ROW: Dropdown Filters Grid -->
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- Department Filter -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium">Department</label>
+      <tui-textfield
+        tuiChevron
+        tuiTextfieldSize="m"
+        class="w-full bg-white! rounded-lg"
+        [tuiTextfieldCleaner]="true"
+      >
+        <input
+          placeholder="All Departments"
+          tuiSelect
+          [ngModel]="selectedDepartment()"
+          (ngModelChange)="selectedDepartment.set($event)"
+        />
+        <tui-data-list-wrapper *tuiDropdown [items]="departments" class="bg-white!" />
+      </tui-textfield>
+    </div>
+
+    <!-- Role Filter -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium">Role</label>
+      <tui-textfield
+        tuiChevron
+        tuiTextfieldSize="m"
+        class="w-full bg-white! rounded-lg"
+        [tuiTextfieldCleaner]="true"
+      >
+        <input
+          placeholder="All Roles"
+          tuiSelect
+          [ngModel]="selectedRole()"
+          (ngModelChange)="selectedRole.set($event)"
+        />
+        <tui-data-list-wrapper *tuiDropdown [items]="roles" class="bg-white!" />
+      </tui-textfield>
+    </div>
+
+    <!-- Status Filter -->
+    <div class="flex flex-col gap-1 sm:col-span-2 lg:col-span-1">
+      <label class="text-xs font-medium">Status</label>
+      <tui-textfield
+        tuiChevron
+        tuiTextfieldSize="m"
+        class="w-full bg-white! rounded-lg"
+        [tuiTextfieldCleaner]="true"
+      >
+        <input
+          placeholder="All Statuses"
+          tuiSelect
+          [ngModel]="selectedStatus()"
+          (ngModelChange)="selectedStatus.set($event)"
+        />
+        <tui-data-list-wrapper *tuiDropdown [items]="statuses" class="bg-white!" />
+      </tui-textfield>
+    </div>
+  </div>
+</div>

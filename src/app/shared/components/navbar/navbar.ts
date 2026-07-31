@@ -212,14 +212,20 @@ export class NavbarComponent {
     },
     {
       icon: 'people_outline',
-      title: 'Team',
-      description: 'Manage team members and roles',
+      title: 'Employee',
+      description: 'Manage employee and roles',
       childItems: [
         {
+          icon: 'add',
+          title: 'Add Employee',
+          description: 'Add an employees',
+          routeTo: '/employee/new',
+        },
+        {
           icon: 'person_outline',
-          title: 'Members',
-          description: 'View all team members',
-          routeTo: '/team/members',
+          title: 'All Employees',
+          description: 'View all employees',
+          routeTo: '/employee/all',
         },
         {
           icon: 'security',
@@ -375,6 +381,14 @@ export class NavbarComponent {
       route: '/settings/general',
       category: 'Administration',
       tags: ['shifts', 'branches', 'office', 'calendar', 'holidays'],
+    },
+    {
+      id: 'route_11',
+      name: 'All Employees',
+      description: 'View and Edit all employees',
+      route: '/employee/all',
+      category: 'Employee Management',
+      tags: ['all', 'employee', 'team', 'emp'],
     },
   ];
 }

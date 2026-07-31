@@ -3,7 +3,8 @@
 @import 'tailwindcss';
 
 :root{
-    --theme:#1d1d1d;
+    --theme:#A3192D;
+    --theme_primary:#811323;
     --primary:#3f3d41;
     --secondary:#D6D6D6;
     --background_light:white;
@@ -32,3 +33,9 @@ html,body{
       box-shadow: 0 0 0 100rem var(--secondary) inset !important;
 }
 
+[_nghost-ng-c3848752412]{
+  background-color: #A3192D !important;
+}
+[tuiAppearance][data-appearance=icon]{
+  color:var(--theme) !important;
+}

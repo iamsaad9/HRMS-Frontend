@@ -4,6 +4,7 @@ import { Login } from './features/(public)/auth/login/login';
 import MainLayout from './features/(private)/main-layout';
 import { Dashboard } from './features/(private)/dashboard/pages/dashboard';
 import { AddEmployee } from './features/(private)/employees/pages/add-employee/add-employee';
+import { EmployeeList } from './features/(private)/employees/pages/employee-list/employee-list';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -15,6 +16,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: Dashboard },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'employee/new', component: AddEmployee },
+      { path: 'employee/all', component: EmployeeList },
     ],
   },
 

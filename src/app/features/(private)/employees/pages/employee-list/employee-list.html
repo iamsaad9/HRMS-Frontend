@@ -1,1 +1,140 @@
-<p>employee-list works!</p>
+<app-employee-filter-bar [employees]="employees" (filterChange)="filter = $event" />
+
+<div class="table-scroll bg-(--secondary)/20!">
+  <table tuiTable class="employee-table" [size]="size" [(ngModel)]="selected">
+    <thead>
+      <tr>
+        <th tuiTh class="col-checkbox">
+          <div [tuiCell]="size">
+            <input tuiCheckbox tuiCheckboxTable type="checkbox" [size]="size === 'l' ? 'm' : 's'" />
+            <span tuiTitle>Employee</span>
+          </div>
+        </th>
+        <th tuiTh class="col-department">Department</th>
+        <th tuiTh>Role</th>
+        <th tuiTh>Status</th>
+        <th tuiTh class="col-tags">Skills</th>
+        <th tuiTh [style.width.rem]="9">Workload</th>
+        <th tuiTh class="col-actions">Actions</th>
+      </tr>
+    </thead>
+    <tbody tuiTbody>
+      @for (employee of employees; track employee.id) {
+        <tr>
+          <td tuiTd class="col-checkbox">
+            <div [tuiCell]="size">
+              <div
+                [style.background]="employee.name | tuiAutoColor"
+                [tuiAvatar]="employee.name | tuiInitials"
+              ></div>
+              <input
+                tuiCheckbox
+                type="checkbox"
+                [size]="size === 'l' ? 'm' : 's'"
+                [tuiCheckboxRow]="employee"
+              />
+              <span tuiTitle>
+                {{ employee.name }}
+                <span tuiSubtitle>{{ employee.email }}</span>
+              </span>
+            </div>
+          </td>
+          <td tuiTd class="col-department">
+            {{ employee.department }}
+          </td>
+          <td tuiTd>
+            {{ employee.role }}
+          </td>
+          <td tuiTd>
+            <span class="p-1 px-2 rounded-full bg-green-100 text-xs">
+              {{ employee.status }}
+            </span>
+          </td>
+          <td tuiTd class="col-tags">
+            <tui-items-with-more>
+              @for (tag of employee.tags; track tag) {
+                <div *tuiItem tuiBadge [style.margin-inline-end.rem]="0.25">
+                  {{ tag }}
+                </div>
+              }
+              <ng-template let-number tuiMore>
+                <button
+                  appearance="action-grayscale"
+                  tuiDropdownAlign="end"
+                  tuiDropdownAuto
+                  tuiLink
+                  type="button"
+                  [style.text-decoration-style]="'dashed'"
+                  [tuiDropdown]="dropdown"
+                >
+                  + {{ employee.tags.length - number - 1 }}
+                </button>
+                <ng-template #dropdown>
+                  <div tuiItemGroup [style.padding]="'1rem 0.75rem 0.75rem 1rem'">
+                    @for (tag of employee.tags; track tag) {
+                      @if ($index > number) {
+                        <div tuiBadge>{{ tag }}</div>
+                      }
+                    }
+                  </div>
+                </ng-template>
+              </ng-template>
+            </tui-items-with-more>
+          </td>
+          <td tuiTd>
+            <span tuiStatus>
+              <progress
+                tuiProgressBar
+                [style.width.rem]="5"
+                style="--tui-progress-color: var(--theme)"
+                [value]="employee.workload / 100"
+              ></progress>
+              {{ employee.workload }}%
+            </span>
+          </td>
+          <td tuiTd class="col-actions">
+            <span tuiStatus>
+              <button
+                appearance="action"
+                iconStart="@tui.pencil"
+                size="xs"
+                tuiIconButton
+                type="button"
+                (click)="onEdit(employee)"
+                class="text-(--theme)!"
+              >
+                Edit
+              </button>
+              <button
+                appearance="action"
+                iconStart="@tui.eye"
+                size="xs"
+                tuiIconButton
+                type="button"
+                (click)="onEdit(employee)"
+                class="text-(--theme)!"
+              >
+                Edit
+              </button>
+              <button
+                appearance="action"
+                iconStart="@tui.ellipsis"
+                size="xs"
+                tuiIconButton
+                type="button"
+                (click)="onMore(employee)"
+                class="text-(--theme)!"
+              >
+                More
+              </button>
+            </span>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td tuiTd [attr.colspan]="7" class="empty-state">No employees to show.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

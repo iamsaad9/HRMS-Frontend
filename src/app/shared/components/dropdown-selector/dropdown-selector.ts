@@ -1,9 +1,9 @@
-import { Component, computed, input, model, signal } from '@angular/core';
+import { Component, computed, inject, input, model, signal } from '@angular/core';
 import { ChangeDetectionStrategy, output } from '@angular/core';
 import { TuiActiveZone, TuiObscured } from '@taiga-ui/cdk';
 import { TuiButton, TuiDataList, TuiDropdown, TuiTitle } from '@taiga-ui/core';
 import { TuiChevron } from '@taiga-ui/kit';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 
 // export interface DropdownAction {
@@ -27,6 +27,7 @@ export interface DropDownItem {
 })
 export class DropdownSelectorComponent {
   protected readonly open = signal(false);
+  private readonly router = inject(Router);
 
   protected toggleDropdown(): void {
     this.open.update((isOpen) => !isOpen);
@@ -42,6 +43,11 @@ export class DropdownSelectorComponent {
     if (!active) {
       this.open.set(false);
     }
+  }
+
+  protected navigateTo(route: string | undefined): void {
+    this.open.set(false);
+    this.router.navigate([route]);
   }
 
   public readonly dropDownItem = input.required<DropDownItem>();

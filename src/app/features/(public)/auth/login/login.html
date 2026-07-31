@@ -1,8 +1,25 @@
 <div class="h-screen w-full overflow-hidden flex bg-linear-to-br from-(--theme) to-(--theme)/80">
   <div
-    class="w-full lg:w-1/2 flex items-center justify-center lg:justify-start p-8 lg:p-16 xl:ml-20"
+    class="relative overflow-hidden w-full lg:w-1/2 flex items-center justify-center lg:justify-start p-8 lg:p-16 xl:pl-36 min-h-screen"
   >
-    <div class="w-full max-w-md">
+    <!-- Animated Background Layer -->
+    <div class="bg-bubbles">
+      <ul>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+      </ul>
+    </div>
+
+    <!-- Main Content (z-10 ensures clicks & focus work properly) -->
+    <div class="w-full max-w-md relative z-10">
       <div class="flex items-center justify-start gap-5">
         <div class="mb-8 relative">
           @if (isSignUp()) {
@@ -155,7 +172,7 @@
       </p>
     </div>
 
-    <span class="absolute bottom-5 left-5 text-(--secondary)/30 text-sm"
+    <span class="absolute bottom-5 left-5 text-(--secondary)/40 text-sm z-10"
       >Developed by VergeDesk Solutions © 2026</span
     >
   </div>
@@ -163,6 +180,8 @@
   <div
     class="hidden lg:flex lg:w-1/2 bg-linear-to-b from-black to-silver-500 overflow-hidden shadow-md shadow-black"
   >
-    <app-auto-slideshow class="relative w-full h-full overflow-hidden"></app-auto-slideshow>
+    <div class="relative w-full h-full overflow-hidden">
+      <img [src]="'/images/slideshow/slide2.jpg'" alt="Slide " class="w-full h-full object-cover" />
+    </div>
   </div>
 </div>

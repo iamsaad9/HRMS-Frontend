@@ -1,6 +1,6 @@
 <!-- Parent trigger button -->
 <button
-  class="text-(--secondary) text-base cursor-pointer flex items-center"
+  class="text-(--background_light) text-base cursor-pointer flex items-center"
   type="button"
   [tuiDropdown]="dropDownItem().childItems ? dropdownContent : ''"
   [tuiDropdownManual]="open()"
@@ -20,7 +20,7 @@
 
   <ng-template #dropdownContent>
     @if (dropDownItem().childItems) {
-      <tui-data-list tuiDataListDropdownManager class="bg-(--theme)/50 p-1!">
+      <tui-data-list tuiDataListDropdownManager class="bg-(--theme)">
         @for (item of dropDownItem().childItems; track item.title) {
           @if (item.childItems) {
             <button
@@ -44,11 +44,11 @@
                 }
               </div>
               <ng-template #subMenu>
-                <tui-data-list class="bg-(--theme)/50 p-1!">
+                <tui-data-list class="bg-(--theme)">
                   @for (subItem of item.childItems; track subItem.title) {
                     <button
                       tuiOption
-                      [routerLink]="subItem.routeTo"
+                      (click)="navigateTo(subItem.routeTo)"
                       type="button"
                       class="p-2 w-full flex flex-col items-start!"
                     >
@@ -72,7 +72,7 @@
           } @else {
             <button
               tuiOption
-              [routerLink]="item.routeTo"
+              (click)="navigateTo(item.routeTo)"
               type="button"
               class="p-2 w-full flex flex-col items-start!"
             >

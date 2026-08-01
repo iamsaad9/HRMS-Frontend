@@ -1,7 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { delay, tap } from 'rxjs/operators';
+import { RegisterCommand, RegisterResponse } from './auth.model';
+import { ApiResponse } from '../../../core/models/api-response.model';
 
 export interface AuthResponse {
   accessToken: string;
@@ -11,12 +13,16 @@ export interface AuthResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
-
-  private baseUrl = 'https://localhost:5001/api/auth';
+  private apiUrl = 'https://localhost:7085/api/Auth';
 
   login(data: any) {
-    return this.http.post<AuthResponse>(`${this.baseUrl}/login`, data);
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data);
   }
+
+  register(command: RegisterCommand): Observable<ApiResponse<RegisterResponse>> {
+    return this.http.post<ApiResponse<RegisterResponse>>(`${this.apiUrl}/Register`, command);
+  }
+
   refreshToken() {
     console.log('🔥 REFRESH TOKEN API CALLED');
 

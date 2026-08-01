@@ -1,7 +1,7 @@
 <form
   [formGroup]="form"
   (ngSubmit)="onSubmit($event)"
-  class="flex flex-col gap-8 p-4 text-(--theme)"
+  class="flex flex-col gap-8 p-4 text-(--theme2)"
 >
   <header>
     <h3 tuiTitle="m">
@@ -12,7 +12,7 @@
 
   <!-- ================= WORK EXPERIENCE SECTION ================= -->
   <section class="flex flex-col gap-4">
-    <div class="flex items-center justify-between border-b border-black/10 pb-2">
+    <div class="flex items-center justify-between border-b border-(--background_dark)/10 pb-2">
       <h4 class="font-semibold text-lg">Work Experience</h4>
       <button size="s" tuiButton type="button" (click)="addExperience()">+ Add Experience</button>
     </div>
@@ -22,7 +22,7 @@
         @for (exp of experiences.controls; track $index) {
           <div
             [formGroupName]="$index"
-            class="p-4 rounded-lg flex flex-col gap-4 border border-black/10"
+            class="p-4 rounded-lg flex flex-col gap-4 border border-(--background_dark)/10"
           >
             <!-- Header Bar -->
             <div class="flex items-center justify-between">
@@ -138,7 +138,7 @@
 
   <!-- ================= EDUCATION SECTION ================= -->
   <section class="flex flex-col gap-4 mt-4">
-    <div class="flex items-center justify-between border-b border-black/10 pb-2">
+    <div class="flex items-center justify-between border-b border-(--background_dark)/10 pb-2">
       <h4 class="font-semibold text-lg">Education</h4>
       <button size="s" tuiButton type="button" (click)="addEducation()">+ Add Education</button>
     </div>
@@ -148,7 +148,7 @@
         @for (edu of educations.controls; track $index) {
           <div
             [formGroupName]="$index"
-            class="p-4 border rounded-lg flex flex-col gap-4 border-black/10"
+            class="p-4 border rounded-lg flex flex-col gap-4 border-(--background_dark)/10"
           >
             <!-- Header Bar -->
             <div class="flex items-center justify-between">
@@ -231,11 +231,11 @@
   </section>
 
   <!-- ================= FORM ACTIONS ================= -->
-  <footer class="flex justify-between items-center pt-4 border-t border-black/10">
+  <footer class="flex justify-between items-center pt-4 border-t border-(--background_dark)/10">
     <button
       tuiButton
       type="button"
-      class="bg-black/10! text-(--theme)! gap-0!"
+      class="bg-(--background_dark)/10! text-(--theme2)! gap-0!"
       size="m"
       (click)="onBack()"
     >

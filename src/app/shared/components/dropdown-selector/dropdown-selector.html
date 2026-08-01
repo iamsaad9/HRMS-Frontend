@@ -1,6 +1,6 @@
 <!-- Parent trigger button -->
 <button
-  class="text-(--background_light) text-base cursor-pointer flex items-center"
+  class="text-(--background_dark) text-base cursor-pointer flex items-center"
   type="button"
   [tuiDropdown]="dropDownItem().childItems ? dropdownContent : ''"
   [tuiDropdownManual]="open()"
@@ -20,7 +20,7 @@
 
   <ng-template #dropdownContent>
     @if (dropDownItem().childItems) {
-      <tui-data-list tuiDataListDropdownManager class="bg-(--theme)">
+      <tui-data-list tuiDataListDropdownManager class="bg-(--background_light)">
         @for (item of dropDownItem().childItems; track item.title) {
           @if (item.childItems) {
             <button
@@ -31,32 +31,36 @@
               [tuiDropdown]="subMenu"
               [tuiDropdownSided]="isMobile() ? false : true"
               type="button"
-              class="p-2 w-full flex justify-start"
+              class="p-2 w-full flex justify-start hover:bg-(--theme2)/20!"
             >
-              <div class="flex items-center justify-center gap-2">
+              <div class="flex items-center justify-center gap-2 text-(--background_dark)">
                 <mat-icon class="scale-70">{{ item.icon }}</mat-icon>
                 <span tuiTitle class="text-xs lg:text-sm">
                   {{ item.title }}
-                  <span tuiSubtitle class="text-[0.7rem] lg:text-xs">{{ item.description }}</span>
+                  <span tuiSubtitle class="text-[0.7rem] lg:text-xs text-(--background_dark)!">{{
+                    item.description
+                  }}</span>
                 </span>
                 @if (item.childItems) {
                   <mat-icon class="scale-60 lg:scale-70 font-light">keyboard_arrow_right</mat-icon>
                 }
               </div>
               <ng-template #subMenu>
-                <tui-data-list class="bg-(--theme)">
+                <tui-data-list class="bg-(--background_light)">
                   @for (subItem of item.childItems; track subItem.title) {
                     <button
                       tuiOption
                       (click)="navigateTo(subItem.routeTo)"
                       type="button"
-                      class="p-2 w-full flex flex-col items-start!"
+                      class="p-2 w-full flex flex-col items-start! hover:bg-(--theme2)/20!"
                     >
-                      <div class="flex flex-row items-start justify-start gap-2">
+                      <div
+                        class="flex flex-row items-start justify-start gap-2 text-(--background_dark)!"
+                      >
                         <mat-icon class="scale-70">{{ subItem.icon }}</mat-icon>
                         <span tuiTitle class="text-[0.8rem] sm:text-xs lg:text-sm">
                           {{ subItem.title }}
-                          <span tuiSubtitle class="text-[0.7rem] lg:text-xs">{{
+                          <span tuiSubtitle class="text-[0.7rem] lg:text-xs text-(--primary)!">{{
                             subItem.description
                           }}</span>
                         </span>
@@ -74,13 +78,15 @@
               tuiOption
               (click)="navigateTo(item.routeTo)"
               type="button"
-              class="p-2 w-full flex flex-col items-start!"
+              class="p-2 w-full flex flex-col items-start! text-(--background_dark)! hover:bg-(--theme2)/20!"
             >
               <div class="flex items-center justify-start gap-2">
                 <mat-icon class="scale-60 lg:scale-70">{{ item.icon }}</mat-icon>
                 <span tuiTitle class="text-xs lg:text-sm">
                   {{ item.title }}
-                  <span tuiSubtitle class="text-[0.7rem] lg:text-xs">{{ item.description }}</span>
+                  <span tuiSubtitle class="text-[0.7rem] lg:text-xs text-(--primary)!">{{
+                    item.description
+                  }}</span>
                 </span>
               </div>
             </button>

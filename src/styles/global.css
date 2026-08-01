@@ -3,11 +3,14 @@
 @import 'tailwindcss';
 
 :root{
-    --theme:#A3192D;
+  --theme1:#f7a833;
+    --theme2:#A3192D;
+    --theme3:#19528e;
     --theme_primary:#811323;
     --primary:#3f3d41;
     --secondary:#D6D6D6;
     --background_light:white;
+    --background_dark:#1d1d1d;
 }
 
 
@@ -23,19 +26,29 @@ html,body{
 }
 
 [tuiAppearance][data-appearance=primary] {
-  background: var(--theme);
+  background: var(--theme2);
 }
 [tuiAppearance][data-appearance=secondary],[tuiAppearance][data-appearance=flat]{
-  color:var(--theme);
+  color:var(--theme2);
 }
 
 [tuiAppearance][data-appearance=textfield] [tuiInput][chrome-autofilled], [tuiAppearance][data-appearance=textfield] [tuiInput]:-webkit-autofill {
-      box-shadow: 0 0 0 100rem var(--secondary) inset !important;
+      box-shadow: 0 0 0 100rem transparent inset !important;
 }
 
 [_nghost-ng-c3848752412]{
   background-color: #A3192D !important;
 }
 [tuiAppearance][data-appearance=icon]{
-  color:var(--theme) !important;
+  color:var(--theme2) !important;
 }
+
+[_nghost-ng-c3848752412] {
+  background-color: transparent !important;
+  color:#1d1d1d !important;
+}
+
+[tuiAppearance][data-appearance=textfield][data-focus=true]{
+  outline: 1.5px solid var(--theme2) !important;
+}
+

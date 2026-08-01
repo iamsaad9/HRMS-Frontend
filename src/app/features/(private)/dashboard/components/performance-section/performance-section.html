@@ -1,6 +1,6 @@
 <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20!">
   <div class="flex items-center justify-start gap-2">
-    <mat-icon class="text-(--theme)!">track_changes</mat-icon>
+    <mat-icon class="text-(--theme2)!">track_changes</mat-icon>
     <div>
       <h1 class="text-xl! text-(--primary)! font-bold! flex justify-start items-center">
         My Performance
@@ -71,7 +71,7 @@
     <!-- CARD 2: Team Members Card (Spans 1 column) -->
     <div
       tuiCardLarge
-      class="flex flex-col rounded-xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-1"
+      class="flex flex-col rounded-xl border border-slate-200 bg-(--background_light) p-6 shadow-sm lg:col-span-1"
     >
       <!-- Header -->
       <div
@@ -98,7 +98,7 @@
                 <div tuiAvatar="@tui.user"></div>
                 <!-- Presence indicator -->
                 <span
-                  class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-slate-900"
+                  class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full ring-2 ring-(--background_light) dark:ring-slate-900"
                   [ngClass]="{
                     'bg-emerald-500': member.status === 'online',
                     'bg-amber-500': member.status === 'busy',
@@ -130,7 +130,7 @@
 
       <!-- Action Button -->
       <button
-        class="mt-auto w-full rounded-lg border py-2 text-center text-sm font-semibold text-white transition bg-(--theme) cursor-pointer hover:scale-102"
+        class="mt-auto w-full rounded-lg border py-2 text-center text-sm font-semibold text-(--background_light) transition bg-(--theme2) cursor-pointer hover:scale-102"
       >
         View All Team Analytics
       </button>

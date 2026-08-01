@@ -1,12 +1,15 @@
 <div class="flex flex-col gap-5">
-  <div class="flex items-center justify-between">
-    <header class="text-3xl! text-(--primary) font-bold!">
-      Welcome Back <span class="text-(--theme)">Saad</span>!
-    </header>
+  <div class="flex flex-col gap-5">
+    <app-main-heading title="Dashboard"></app-main-heading>
+    <div class="flex items-center justify-between">
+      <header class="text-3xl! text-(--primary) font-bold!">
+        Welcome Back <span class="text-(--theme2)">Saad</span>!
+      </header>
 
-    <h1 class="text-(--primary) font-semibold text-sm flex items-center justify-center gap-2">
-      <mat-icon>access_time</mat-icon>{{ currentDate | date: 'mediumDate' }}
-    </h1>
+      <h1 class="text-(--primary) font-semibold text-sm flex items-center justify-center gap-2">
+        <mat-icon>access_time</mat-icon>{{ currentDate | date: 'mediumDate' }}
+      </h1>
+    </div>
   </div>
 
   <div class="flex flex-col md:flex-row w-full gap-5">

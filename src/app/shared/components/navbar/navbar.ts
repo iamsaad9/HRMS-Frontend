@@ -55,6 +55,7 @@ interface Routes {
     TuiDropdown,
     TuiInput,
     RouterLink,
+    TuiIcon,
   ],
   standalone: true,
   templateUrl: './navbar.html',

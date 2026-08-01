@@ -1,11 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { AuthService } from '../auth.service';
 import { HttpClient } from '@angular/common/http';
 import { AutoSlideshowComponent } from '../components/auto-slideshow/auto-slideshow';
 import { MatIconModule } from '@angular/material/icon';
 import { PasswordValidator } from '../components/password-validator/password-validator';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +24,6 @@ import { PasswordValidator } from '../components/password-validator/password-val
 export class Login {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private http = inject(HttpClient);
 
   isSignUp = signal<boolean>(false);
   isLoading = signal<boolean>(false);
@@ -37,6 +37,8 @@ export class Login {
   });
 
   signInForm = this.fb.group({
+    firstName: ['', [Validators.required]],
+    lastName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
   });
@@ -46,6 +48,29 @@ export class Login {
   }
 
   onSubmit(): void {
-    this.http.get('https://fake-api.com/test').subscribe();
+    this.isLoading.set(true);
+    if (this.isSignUp()) {
+      const registerPayload = this.signInForm.getRawValue();
+      console.log('🔐 Registering user with payload:', registerPayload);
+      this.authService
+        .register({
+          Email: registerPayload.email ?? '',
+          Password: registerPayload.password ?? '',
+        })
+        .pipe(finalize(() => this.isLoading.set(false)))
+        .subscribe({
+          next: (response) => {
+            console.log('✅ Registration successful:', response);
+            this.isSignUp.set(false);
+            this.signInForm.reset();
+          },
+          error: (error) => {
+            console.error('❌ Registration failed:', error);
+            this.errorMessage.set(error.error?.message || 'Registration failed. Please try again.');
+          },
+        });
+    } else {
+      // this.login();
+    }
   }
 }

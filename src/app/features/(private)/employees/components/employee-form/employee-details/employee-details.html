@@ -1,7 +1,7 @@
 <form
   [formGroup]="form"
   (ngSubmit)="onSubmit($event)"
-  class="flex flex-col gap-3 w-full p-4 text-(--theme)"
+  class="flex flex-col gap-3 w-full p-4 text-(--theme2)"
 >
   <header>
     <h3 tuiTitle="m">
@@ -99,7 +99,7 @@
   </fieldset>
 
   <!-- Submit Action -->
-  <footer class="flex justify-end gap-3 pt-4 border-t border-black/10">
+  <footer class="flex justify-end gap-3 pt-4 border-t border-(--background_dark)/10">
     <button tuiButton type="submit" class="gap-0!" size="m" [disabled]="form.invalid">
       Continue to Work Experience <mat-icon>keyboard_arrow_right</mat-icon>
     </button>

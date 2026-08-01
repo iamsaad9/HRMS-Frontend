@@ -5,7 +5,7 @@
       [style.opacity]="$index === currentIndex() ? 1 : 0"
       [style.zIndex]="$index === currentIndex() ? 1 : 0"
     >
-      <div class="bg-black/50 absolute h-full w-full"></div>
+      <div class="bg-(--background_dark)/50 absolute h-full w-full"></div>
       <img [src]="image" alt="Slide {{ $index + 1 }}" class="w-full h-full object-cover" />
     </div>
   }

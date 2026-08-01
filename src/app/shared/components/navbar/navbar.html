@@ -1,5 +1,5 @@
 <header
-  class="flex flex-col justify-between w-full items-center gap-3 bg-linear-to-r from-(--theme) to-(--theme_primary) p-5 text-(--background_light) shadow-lg rounded-b-xl"
+  class="flex flex-col justify-between w-full items-center gap-3 backdrop-blur-md p-5 text-(--background_dark) shadow-lg rounded-b-xl"
 >
   <!-- <div class="flex items-center justify-between w-full">
     <div class="flex gap-5">
@@ -40,7 +40,7 @@
     >
       <mat-icon (click)="menuToggle.emit()">menu</mat-icon>
       <ng-template #dropdownNav>
-        <tui-data-list class="bg-(--theme)/50">
+        <tui-data-list class="bg-(--theme2)/50">
           @for (item of mockDropdownItems; track item.title) {
             <button tuiOption type="button">
               <app-dropdown-selector [dropDownItem]="item" [isMobile]="true" />
@@ -53,13 +53,11 @@
     <!-- Left Side -->
     <div class="flex gap-3 xl:gap-5">
       <!-- Logo -->
-      <div class="hidden sm:flex shrink-0 items-center gap-2">
-        <div
-          class="grid h-8 w-8 place-items-center rounded-md bg-(--secondary) text-[#1B1E27] font-semibold"
-        >
-          S
-        </div>
-      </div>
+      <img
+        src="https://as-suffa.org/wp-content/uploads/2021/04/as-suffa-master-logo.png"
+        alt="Company_Logo"
+        class="w-24 rounded-none bg-transparent text-(--background_light)"
+      />
 
       <!-- Navbar -->
       <nav class="hidden lg:flex gap-2 lg:gap-3 xl:gap-5 items-center">
@@ -74,7 +72,7 @@
       <tui-textfield
         iconStart="@tui.search"
         tuiTextfieldSize="s"
-        class="flex flex-1 max-w-120 bg-(--secondary)! text-(--theme)!"
+        class="flex flex-1 max-w-120 bg-(--secondary)/60! text-(--theme2)!"
       >
         <input
           placeholder="Search"
@@ -84,27 +82,29 @@
         />
 
         @if (searchResults().length > 0) {
-          <!-- 1. Use tui-data-list instead of tui-data-list-wrapper -->
-          <tui-data-list *tuiDropdown class="z-10 w-full max-h-80 overflow-y-auto bg-(theme)!">
+          <tui-data-list
+            *tuiDropdown
+            class="z-10 w-full max-h-80 overflow-y-auto bg-(--background_light)"
+          >
             @for (item of searchResults(); track item.id) {
               <button
                 tuiOption
                 type="button"
                 (click)="handleItemClick(item)"
-                class="flex flex-col items-start p-2 hover:bg-gray-100 rounded-md transition-colors"
+                class="flex flex-col items-start gap-0! p-2 hover:bg-(--theme2)/20! rounded-md transition-colors text-(--background_dark)!"
               >
                 <!-- Title & Category Badge -->
                 <div class="flex items-center justify-between w-full">
                   <span class="font-semibold text-sm">{{ item.name }}</span>
                   <span
-                    class="text-[10px] px-2 py-0.5 bg-(--secondary) text-(--theme) rounded-full font-medium"
+                    class="text-[10px] px-2 py-0.5 bg-(--secondary)/50 text-(--theme2) rounded-full font-medium"
                   >
                     {{ item.category }}
                   </span>
                 </div>
 
                 <!-- Description -->
-                <p class="text-xs text-left text-(--secondary) line-clamp-1 w-full">
+                <p class="text-xs text-left text-(--primary) line-clamp-1 w-full">
                   {{ item.description }}
                 </p>
               </button>
@@ -114,7 +114,7 @@
       </tui-textfield>
 
       <!-- Actions -->
-      <div class="flex shrink-0 items-center gap-1 lg:gap-2 text-(--background_light)">
+      <div class="flex shrink-0 items-center gap-1 lg:gap-2">
         <button
           class="xl:flex items-center text-sm font-medium transition-opacity hover:opacity-90 cursor-pointer"
           tuiChevron
@@ -129,19 +129,22 @@
         >
           <mat-icon>add</mat-icon>
           <ng-template #dropdownContent>
-            <tui-data-list class="bg-(--theme)! text-(--background_light)">
+            <tui-data-list class="bg-(--background_light)!">
               @for (action of actions; track action.title) {
                 <button
                   tuiOption
                   type="button"
+                  class="hover:bg-(--theme2)/20!"
                   (click)="onSelect(action)"
                   [routerLink]="action.route"
                 >
-                  <div class="flex items-center justify-center gap-2">
+                  <div class="flex items-center justify-center gap-2 text-(--background_dark)!">
                     <mat-icon class="scale-70">{{ action.icon }}</mat-icon>
                     <span tuiTitle class="text-sm!">
                       {{ action.title }}
-                      <span tuiSubtitle class="text-xs!">{{ action.description }}</span>
+                      <span tuiSubtitle class="text-xs! text-(--primary)!">{{
+                        action.description
+                      }}</span>
                     </span>
                   </div>
                 </button>
@@ -152,25 +155,12 @@
 
         <button
           type="button"
-          class="relative grid h-9 w-9 place-items-center rounded-md text-(--background_light) hover:bg-[#232734]"
-          aria-label="Notifications"
+          class="relative grid h-9 w-9 place-items-center rounded-md cursor-pointer"
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.6"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M6 9.5a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13.5 6 9.5" />
-            <path d="M10 19a2 2 0 0 0 4 0" />
-          </svg>
+          <mat-icon class="scale-80">notifications_none</mat-icon>
           @if (notificationCount() > 0) {
             <span
-              class="absolute right-1.5 top-1.5 grid h-4 w-4 place-items-center rounded-full bg-(--secondary) text-[10px] font-semibold text-[#1B1E27]"
+              class="absolute right-0.5 top-0.5 grid h-4 w-4 place-items-center rounded-full bg-(--theme2) text-[10px] font-semibold text-(--background_light)"
             >
               {{ notificationCount() }}
             </span>

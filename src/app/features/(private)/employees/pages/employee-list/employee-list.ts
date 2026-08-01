@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  EventEmitter,
+  Input,
+  Output,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   TuiButton,
@@ -23,6 +31,7 @@ import { TuiTable, TuiTableControl } from '@taiga-ui/addon-table';
 
 import { EmployeeFilter, EMPTY_EMPLOYEE_FILTER, type Employee } from '../../model/employee-model';
 import { EmployeeFilterBarComponent } from '../../components/employee-filter-bar/employee-filter-bar';
+import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 
 @Component({
   selector: 'app-employee-table',
@@ -36,7 +45,6 @@ import { EmployeeFilterBarComponent } from '../../components/employee-filter-bar
     TuiCell,
     TuiCheckbox,
     TuiDropdown,
-    TuiIcon,
     TuiInitialsPipe,
     TuiItemGroup,
     TuiItemsWithMore,
@@ -47,7 +55,7 @@ import { EmployeeFilterBarComponent } from '../../components/employee-filter-bar
     TuiTitle,
     TuiStatus,
     EmployeeFilterBarComponent,
-    TuiCardLarge,
+    MainHeading,
   ],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.less',
@@ -58,7 +66,7 @@ export class EmployeeList {
   // @Input({ required: true })
   // employees: readonly Employee[] = [];
 
-  protected filter: EmployeeFilter = EMPTY_EMPLOYEE_FILTER;
+  protected filter = signal<EmployeeFilter>({ ...EMPTY_EMPLOYEE_FILTER });
 
   @Output()
   readonly edit = new EventEmitter<Employee>();
@@ -77,6 +85,37 @@ export class EmployeeList {
   protected onMore(employee: Employee): void {
     this.more.emit(employee);
   }
+
+  protected onFilterChange(updatedFilter: EmployeeFilter): void {
+    this.filter.set(updatedFilter);
+  }
+
+  protected filteredEmployees = computed(() => {
+    const list = this.employees;
+    const currentFilter = this.filter();
+
+    return list.filter((emp) => {
+      // 1. Search filter
+      const matchesSearch =
+        !currentFilter.search ||
+        emp.name?.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
+        emp.email?.toLowerCase().includes(currentFilter.search.toLowerCase());
+
+      // 2. Department filter
+      const matchesDept = !currentFilter.department || emp.department === currentFilter.department;
+
+      // 3. Role filter
+      const matchesRole =
+        !currentFilter.role ||
+        (emp as any).role === currentFilter.role ||
+        (emp as any).designation === currentFilter.role;
+
+      // 4. Status filter
+      const matchesStatus = !currentFilter.status || emp.status === currentFilter.status;
+
+      return matchesSearch && matchesDept && matchesRole && matchesStatus;
+    });
+  });
 
   employees: Employee[] = [
     {

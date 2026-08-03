@@ -2,8 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { delay, tap } from 'rxjs/operators';
-import { RegisterCommand, RegisterResponse } from './auth.model';
-import { ApiResponse } from '../../../core/models/api-response.model';
+import {
+  LoginCommand,
+  LoginResponse,
+  RegisterCommand,
+  RegisterResponse,
+} from '../model/auth.model';
+import { ApiResponse } from '../../../../core/models/api-response.model';
 
 export interface AuthResponse {
   accessToken: string;
@@ -15,8 +20,8 @@ export class AuthService {
   private http = inject(HttpClient);
   private apiUrl = 'https://localhost:7085/api/Auth';
 
-  login(data: any) {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data);
+  login(command: LoginCommand): Observable<ApiResponse<LoginResponse>> {
+    return this.http.post<ApiResponse<LoginResponse>>(`${this.apiUrl}/Login`, command);
   }
 
   register(command: RegisterCommand): Observable<ApiResponse<RegisterResponse>> {

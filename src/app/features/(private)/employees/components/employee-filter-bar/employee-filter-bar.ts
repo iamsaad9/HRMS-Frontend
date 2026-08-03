@@ -57,16 +57,30 @@ export class EmployeeFilterBarComponent implements OnChanges {
   protected activeFilter: EmployeeFilter = { ...EMPTY_EMPLOYEE_FILTER };
 
   ngOnChanges(): void {
-    if (this.employees && this.employees.length > 0) {
+    if (this.employees?.length) {
       this.departments = [
-        ...new Set(this.employees.map((e) => e.department).filter(Boolean)),
-      ].sort();
-      this.roles = [
         ...new Set(
-          this.employees.map((e) => (e as any).role || (e as any).designation).filter(Boolean),
+          this.employees
+            .map((e) => e.department)
+            .filter((department): department is string => Boolean(department)),
         ),
       ].sort();
-      this.statuses = [...new Set(this.employees.map((e) => e.status).filter(Boolean))].sort();
+
+      this.roles = [
+        ...new Set(
+          this.employees
+            .map((e) => (e as any).role || (e as any).designation)
+            .filter((role): role is string => Boolean(role)),
+        ),
+      ].sort();
+
+      this.statuses = [
+        ...new Set(
+          this.employees
+            .map((e) => e.status)
+            .filter((status): status is string => Boolean(status)),
+        ),
+      ].sort();
     }
   }
 

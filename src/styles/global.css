@@ -44,11 +44,12 @@ html,body{
 }
 
 [_nghost-ng-c3848752412] {
-  background-color: transparent !important;
+  background-color: var(--background_light) !important;
   color:#1d1d1d !important;
 }
 
 [tuiAppearance][data-appearance=textfield][data-focus=true]{
   outline: 1.5px solid var(--theme2) !important;
 }
+
 

@@ -1,107 +1,154 @@
-<form
-  [formGroup]="form"
-  (ngSubmit)="onSubmit($event)"
-  class="flex flex-col gap-3 w-full p-4 text-(--theme2)"
->
-  <header>
-    <h3 tuiTitle="m">
-      Employee Details
-      <span tuiSubtitle>Step 1 of 3 — Personal & Basic Employment Information</span>
-    </h3>
-  </header>
+<div tuiCardLarge class="drop-shadow-sm">
+  <form
+    [formGroup]="form"
+    (ngSubmit)="onSubmit()"
+    class="flex flex-col gap-3 w-full p-4 text-(--theme2)"
+  >
+    <header>
+      <h3 tuiTitle="m">
+        Employee Details
+        <span tuiSubtitle class="text-(--primary)"
+          >Step 1 of 4 — Personal & Basic Employment Information</span
+        >
+      </h3>
+    </header>
 
-  <!-- Full Name & Email -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <tui-textfield>
-        <label tuiLabel>Full Name *</label>
-        <input formControlName="fullName" placeholder="e.g. John Doe" tuiInput />
-      </tui-textfield>
-      <tui-error formControlName="fullName" />
+    <!-- Full Name & Email -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <tui-textfield tuiTextfieldSize="m">
+          <label tuiLabel>
+            First Name
+            @if (isRequired('firstName')) {
+              <span class="text-red-500">*</span>
+            }
+          </label>
+          <input formControlName="firstName" placeholder="e.g. John" tuiInput />
+        </tui-textfield>
+        <tui-error formControlName="firstName" />
+      </div>
+
+      <div>
+        <tui-textfield tuiTextfieldSize="m">
+          <label tuiLabel
+            >Last Name
+            @if (isRequired('lastName')) {
+              <span class="text-red-500">*</span>
+            }
+          </label>
+          <input required formControlName="lastName" placeholder="e.g. Doe" tuiInput />
+        </tui-textfield>
+        <tui-error formControlName="lastName" />
+      </div>
+
+      <div>
+        <tui-textfield tuiTextfieldSize="m">
+          <label required tuiLabel
+            >Work Email
+            @if (isRequired('email')) {
+              <span class="text-red-500">*</span>
+            }
+          </label>
+          <input formControlName="email" type="email" placeholder="john.doe@company.com" tuiInput />
+        </tui-textfield>
+        <tui-error formControlName="email" />
+      </div>
     </div>
 
-    <div>
-      <tui-textfield>
-        <label tuiLabel>Work Email *</label>
-        <input formControlName="email" type="email" placeholder="john.doe@company.com" tuiInput />
-      </tui-textfield>
-      <tui-error formControlName="email" />
+    <!-- Phone & Date of Birth -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <tui-textfield tuiTextfieldSize="m">
+          <label tuiLabel
+            >Phone Number
+            @if (isRequired('phone')) {
+              <span class="text-red-500">*</span>
+            }
+          </label>
+          <input formControlName="phone" tuiInputPhone mask="+7 ### ###-##-##" autocomplete="tel" />
+        </tui-textfield>
+        <tui-error formControlName="phone" />
+      </div>
+
+      <div>
+        <tui-textfield tuiTextfieldSize="m">
+          <label tuiLabel
+            >Date of Birth
+            @if (isRequired('dob')) {
+              <span class="text-red-500">*</span>
+            }
+          </label>
+          <input formControlName="dob" placeholder="DD.MM.YYYY" tuiInputDate />
+          <tui-calendar *tuiDropdown />
+        </tui-textfield>
+        <tui-error formControlName="dob" />
+      </div>
     </div>
-  </div>
 
-  <!-- Phone & Date of Birth -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Department Selection -->
     <div>
-      <tui-textfield>
-        <label tuiLabel>Phone Number *</label>
-        <input formControlName="phone" tuiInputPhone mask="+7 ### ###-##-##" autocomplete="tel" />
+      <tui-textfield tuiTextfieldSize="m" tuiChevron [tuiTextfieldCleaner]="false">
+        <label tuiLabel
+          >Department
+          @if (isRequired('department')) {
+            <span class="text-red-500">*</span>
+          }
+        </label>
+        <input formControlName="department" tuiSelect />
+        <tui-data-list-wrapper *tuiDropdown [items]="departments" />
       </tui-textfield>
-      <tui-error formControlName="phone" />
+      <tui-error formControlName="department" />
     </div>
 
-    <div>
-      <tui-textfield>
-        <label tuiLabel>Date of Birth *</label>
-        <input formControlName="dob" placeholder="DD.MM.YYYY" tuiInputDate />
-        <tui-calendar *tuiDropdown />
-      </tui-textfield>
-      <tui-error formControlName="dob" />
-    </div>
-  </div>
-
-  <!-- Department Selection -->
-  <div>
-    <tui-textfield tuiChevron [tuiTextfieldCleaner]="false">
-      <label tuiLabel>Department *</label>
-      <input formControlName="department" tuiSelect />
-      <tui-data-list-wrapper *tuiDropdown [items]="departments" />
-    </tui-textfield>
-    <tui-error formControlName="department" />
-  </div>
-
-  <!-- Employment Type (Radio Group) -->
-  <div class="flex flex-col gap-2">
-    <label class="text-sm font-semibold text-gray-700">Employment Type</label>
-    <div tuiGroup [collapsed]="true" class="w-full">
-      <label tuiBlock>
-        Full-Time
-        <input
-          type="radio"
-          formControlName="employmentType"
-          value="full-time"
-          tuiRadio
-          [style.margin-inline-start]="'auto'"
-        />
+    <!-- Employment Type (Radio Group) -->
+    <div class="flex flex-col gap-2">
+      <label class="text-sm font-semibold text-gray-700"
+        >Employment Type
+        @if (isRequired('employmentType')) {
+          <span class="text-red-500">*</span>
+        }
       </label>
-      <label tuiBlock>
-        Part-Time / Contract
-        <input
-          type="radio"
-          formControlName="employmentType"
-          value="part-time"
-          tuiRadio
-          [style.margin-inline-start]="'auto'"
-        />
-      </label>
+      <div tuiGroup [collapsed]="true" class="w-full">
+        <label tuiBlock>
+          Full-Time
+          <input
+            type="radio"
+            formControlName="employmentType"
+            value="full-time"
+            tuiRadio
+            [style.margin-inline-start]="'auto'"
+          />
+        </label>
+        <label tuiBlock>
+          Part-Time / Contract
+          <input
+            type="radio"
+            formControlName="employmentType"
+            value="part-time"
+            tuiRadio
+            [style.margin-inline-start]="'auto'"
+          />
+        </label>
+      </div>
     </div>
-  </div>
 
-  <!-- Checkbox Preferences -->
-  <fieldset class="flex flex-col gap-2 border-0 pb-5 m-0">
-    <label tuiLabel class="cursor-pointer">
-      <input formControlName="isRemote" tuiCheckbox type="checkbox" />
-      Remote Worker
-    </label>
-    <label tuiLabel class="cursor-pointer">
-      <input formControlName="requireVisa" tuiCheckbox type="checkbox" />
-      Requires Work Visa Sponsorship
-    </label>
-  </fieldset>
+    <!-- Checkbox Preferences -->
+    <fieldset class="flex flex-col gap-2 border-0 pb-5 m-0">
+      <label tuiLabel class="cursor-pointer">
+        <input formControlName="isRemote" tuiCheckbox type="checkbox" />
+        Remote Worker
+      </label>
+      <label tuiLabel class="cursor-pointer">
+        <input formControlName="requireVisa" tuiCheckbox type="checkbox" />
+        Requires Work Visa Sponsorship
+      </label>
+    </fieldset>
 
-  <!-- Submit Action -->
-  <footer class="flex justify-end gap-3 pt-4 border-t border-(--background_dark)/10">
-    <button tuiButton type="submit" class="gap-0!" size="m" [disabled]="form.invalid">
-      Continue to Work Experience <mat-icon>keyboard_arrow_right</mat-icon>
-    </button>
-  </footer>
-</form>
+    <!-- Submit Action -->
+    <footer class="flex justify-end gap-3 pt-4 border-t border-(--background_dark)/10">
+      <button tuiButton type="submit" class="gap-0!" size="m">
+        Continue to Work Experience <mat-icon>keyboard_arrow_right</mat-icon>
+      </button>
+    </footer>
+  </form>
+</div>

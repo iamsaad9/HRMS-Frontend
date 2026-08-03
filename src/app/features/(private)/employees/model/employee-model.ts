@@ -1,12 +1,17 @@
 export interface EmployeeDetailsForm {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  phone: string;
+  phone: string | null;
   dob: Date | null;
-  department: string;
-  employmentType: string;
-  isRemote: boolean;
-  requireVisa: boolean;
+  department: string | null;
+  employmentType: string | null;
+  isRemote: boolean | null;
+  requireVisa: boolean | null;
+}
+
+export interface AdditionalDetailsForm {
+  password: string;
 }
 
 export interface ExperienceForm {
@@ -15,30 +20,30 @@ export interface ExperienceForm {
 }
 
 interface Experience {
-  companyName: string;
-  jobTitle: string;
-  isCurrent: boolean;
-  startDate: Date;
-  endDate?: Date;
-  keyResponsibilities: string;
+  companyName: string | null;
+  jobTitle: string | null;
+  isCurrent: boolean | null;
+  startDate: Date | null;
+  endDate?: Date | null;
+  keyResponsibilities: string | null;
 }
 
 interface Education {
-  institute: string;
-  degree: string;
-  startDate: Date;
-  endDate?: Date;
+  institute: string | null;
+  degree: string | null;
+  startDate: Date | null;
+  endDate?: Date | null;
 }
 
 export interface Employee {
   id: string;
   name: string;
   email: string;
-  role: string;
-  department: string;
-  status: string;
-  tags: string[];
-  workload: number; // 0-100, percent capacity
+  role: string | null;
+  department: string | null;
+  status: string | null;
+  tags: string[] | null;
+  workload: number | null; // 0-100, percent capacity
 }
 
 export interface EmployeeFilter {
@@ -74,4 +79,4 @@ export function filterEmployees(
   });
 }
 
-export interface AddEmployeeForm extends EmployeeDetailsForm, ExperienceForm {}
+export interface AddEmployeeCommand extends EmployeeDetailsForm, ExperienceForm {}

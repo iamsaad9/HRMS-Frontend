@@ -1,17 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { KpiCard } from '../../dashboard.model';
-import { TuiExpand, TuiPoint } from '@taiga-ui/core';
-import {
-  TuiRingChart,
-  TuiLineChart,
-  TuiAxes,
-  TuiLegendItem,
-  TuiArcChart,
-} from '@taiga-ui/addon-charts';
-import { TuiAccordion, TuiChevron, TuiProgressCircle } from '@taiga-ui/kit';
+import { TuiPoint } from '@taiga-ui/core';
+import { TuiRingChart, TuiArcChart } from '@taiga-ui/addon-charts';
+import { TuiAccordion, TuiProgressCircle } from '@taiga-ui/kit';
 import { FormsModule } from '@angular/forms';
-import { TuiCard, TuiCardLarge, TuiHeader, TuiSubheaderComponent } from '@taiga-ui/layout';
+import { TuiCard, TuiCardLarge, TuiHeader } from '@taiga-ui/layout';
 import { tuiSum } from '@taiga-ui/cdk';
 import { MatIcon } from '@angular/material/icon';
 import { TuiAmountPipe } from '@taiga-ui/addon-commerce';
@@ -27,13 +21,10 @@ import { TuiAmountPipe } from '@taiga-ui/addon-commerce';
     TuiProgressCircle,
     FormsModule,
     TuiHeader,
-    TuiLegendItem,
     TuiArcChart,
     MatIcon,
     TuiCard,
-    TuiChevron,
     TuiAccordion,
-    TuiExpand,
   ],
   templateUrl: './kpi-summary.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

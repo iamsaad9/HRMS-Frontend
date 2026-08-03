@@ -1,12 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, Validators, ReactiveFormsModule, FormControl } from '@angular/forms';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { AutoSlideshowComponent } from '../components/auto-slideshow/auto-slideshow';
 import { MatIconModule } from '@angular/material/icon';
 import { PasswordValidator } from '../components/password-validator/password-validator';
 import { finalize } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -24,6 +25,7 @@ import { finalize } from 'rxjs';
 export class Login {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   isSignUp = signal<boolean>(false);
   isLoading = signal<boolean>(false);
@@ -70,7 +72,25 @@ export class Login {
           },
         });
     } else {
-      // this.login();
+      const loginPayload = this.loginForm.getRawValue();
+      console.log('🔐 Logging in with payload:', loginPayload);
+      this.authService
+        .login({
+          email: loginPayload.email ?? '',
+          password: loginPayload.password ?? '',
+        })
+        .pipe(finalize(() => this.isLoading.set(false)))
+        .subscribe({
+          next: (response) => {
+            console.log('✅ Login successful:', response);
+            this.loginForm.reset();
+            this.router.navigate(['/dashboard']);
+          },
+          error: (error) => {
+            console.error('❌ Login failed:', error);
+            this.errorMessage.set(error.error?.message || 'Login failed. Please try again.');
+          },
+        });
     }
   }
 }

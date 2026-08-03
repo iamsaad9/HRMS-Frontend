@@ -1,12 +1,19 @@
-import { ChangeDetectionStrategy, Component, output } from '@angular/core';
 import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  output,
+} from '@angular/core';
+import {
+  AbstractControl,
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { TuiDay } from '@taiga-ui/cdk';
 import {
   TuiButton,
   TuiCheckbox,
@@ -29,12 +36,15 @@ import {
 } from '@taiga-ui/kit';
 import { MatIcon } from '@angular/material/icon';
 import { EmployeeDetailsForm } from '../../../model/employee-model';
+import { TuiCardLarge } from '@taiga-ui/layout';
+
 @Component({
   selector: 'app-employee-details',
   standalone: true,
   imports: [
     ReactiveFormsModule,
     FormsModule,
+    TuiCardLarge,
     TuiBlock,
     TuiButton,
     TuiCheckbox,
@@ -58,7 +68,8 @@ import { EmployeeDetailsForm } from '../../../model/employee-model';
 })
 export class EmployeeDetails {
   readonly formSubmitted = output<EmployeeDetailsForm>();
-
+  @Input({ required: true }) form!: FormGroup;
+  @Output() next = new EventEmitter<void>();
   protected readonly departments = [
     'Engineering',
     'Human Resources',
@@ -67,30 +78,16 @@ export class EmployeeDetails {
     'Finance',
   ];
 
-  protected form = new FormGroup({
-    fullName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    email: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.email],
-    }),
-    phone: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    dob: new FormControl<TuiDay | null>(null, [Validators.required]),
-    department: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    employmentType: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    isRemote: new FormControl(false, { nonNullable: true }),
-    requireVisa: new FormControl(false, { nonNullable: true }),
-  });
+  protected isRequired(controlPath: string): boolean {
+    const control = this.form.get(controlPath);
+    if (!control?.validator) return false;
 
-  protected onSubmit(data: EmployeeDetailsForm): void {
-    if (this.form.valid) {
-      const value = this.form.getRawValue();
+    const validator = control.validator({} as AbstractControl);
+    return !!validator?.['required'];
+  }
 
-      this.formSubmitted.emit({
-        ...value,
-        dob: value.dob?.toLocalNativeDate() ?? null,
-      });
-    } else {
-      this.form.markAllAsTouched();
-    }
+  protected onSubmit(): void {
+    this.form.markAllAsTouched();
+    this.next.emit();
   }
 }

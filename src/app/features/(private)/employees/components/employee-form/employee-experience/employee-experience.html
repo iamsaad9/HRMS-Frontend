@@ -1,251 +1,295 @@
-<form
-  [formGroup]="form"
-  (ngSubmit)="onSubmit($event)"
-  class="flex flex-col gap-8 p-4 text-(--theme2)"
->
-  <header>
-    <h3 tuiTitle="m">
-      Work Experience & Education
-      <span tuiSubtitle>Step 2 of 3 — Background and Qualifications</span>
-    </h3>
-  </header>
+<div tuiCardLarge class="drop-shadow-sm">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-8 p-4 text-(--theme2)">
+    <header>
+      <h3 tuiTitle="m">
+        Work Experience & Education
+        <span tuiSubtitle class="text-(--primary)"
+          >Step 2 of 4 — Background and Qualifications</span
+        >
+      </h3>
+    </header>
 
-  <!-- ================= WORK EXPERIENCE SECTION ================= -->
-  <section class="flex flex-col gap-4">
-    <div class="flex items-center justify-between border-b border-(--background_dark)/10 pb-2">
-      <h4 class="font-semibold text-lg">Work Experience</h4>
-      <button size="s" tuiButton type="button" (click)="addExperience()">+ Add Experience</button>
-    </div>
+    <!-- ================= WORK EXPERIENCE SECTION ================= -->
+    <section class="flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-(--background_dark)/10 pb-2">
+        <h4 class="font-semibold text-lg">Work Experience</h4>
+        <button size="s" tuiButton type="button" (click)="addExperience()">+ Add Experience</button>
+      </div>
 
-    <tui-elastic-container>
-      <div formArrayName="experiences" class="flex flex-col gap-4">
-        @for (exp of experiences.controls; track $index) {
-          <div
-            [formGroupName]="$index"
-            class="p-4 rounded-lg flex flex-col gap-4 border border-(--background_dark)/10"
-          >
-            <!-- Header Bar -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
+      <tui-elastic-container>
+        <div formArrayName="experiences" class="flex flex-col gap-4">
+          @for (exp of experiences.controls; track $index) {
+            <div
+              [formGroupName]="$index"
+              class="p-4 rounded-lg flex drop-shadow-sm flex-col gap-4 border border-(--background_dark)/10"
+            >
+              <!-- Header Bar -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <button
+                    appearance="secondary"
+                    size="s"
+                    tuiIconButton
+                    type="button"
+                    [tuiChevron]="experiencesState[$index].expanded"
+                    (click)="experiencesState[$index].expanded = !experiencesState[$index].expanded"
+                  >
+                    Expand
+                  </button>
+                  <span class="font-medium text-sm text-(--primary)">
+                    {{ exp.get('jobTitle')?.value || 'New Position' }}
+                    {{ exp.get('companyName')?.value ? 'at ' + exp.get('companyName')?.value : '' }}
+                  </span>
+                </div>
+
                 <button
-                  appearance="secondary"
+                  appearance="flat"
+                  iconStart="@tui.trash"
                   size="s"
                   tuiIconButton
                   type="button"
-                  [tuiChevron]="experiencesState[$index].expanded"
-                  (click)="experiencesState[$index].expanded = !experiencesState[$index].expanded"
+                  (click)="removeExperience($index)"
                 >
-                  Expand
+                  Remove
                 </button>
-                <span class="font-medium text-sm">
-                  {{ exp.get('jobTitle')?.value || 'New Position' }}
-                  {{ exp.get('companyName')?.value ? 'at ' + exp.get('companyName')?.value : '' }}
-                </span>
               </div>
 
-              <button
-                appearance="flat"
-                iconStart="@tui.trash"
-                size="s"
-                tuiIconButton
-                type="button"
-                (click)="removeExperience($index)"
-              >
-                Remove
-              </button>
-            </div>
+              <!-- Collapsible Body -->
+              <tui-expand [expanded]="experiencesState[$index].expanded">
+                <div class="flex flex-col gap-4 pt-2">
+                  <!-- Company & Title -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <tui-textfield tuiTextfieldSize="m">
+                        <label tuiLabel
+                          >Company Name
+                          @if (isRequired('companyName')) {
+                            <span class="text-red-500">*</span>
+                          }
+                        </label>
+                        <input
+                          formControlName="companyName"
+                          placeholder="e.g. Acme Corp"
+                          tuiInput
+                        />
+                      </tui-textfield>
+                      <tui-error formControlName="companyName" />
+                    </div>
 
-            <!-- Collapsible Body -->
-            <tui-expand [expanded]="experiencesState[$index].expanded">
-              <div class="flex flex-col gap-4 pt-2">
-                <!-- Company & Title -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <tui-textfield>
-                      <label tuiLabel>Company Name *</label>
-                      <input formControlName="companyName" placeholder="e.g. Acme Corp" tuiInput />
-                    </tui-textfield>
-                    <tui-error formControlName="companyName" />
+                    <div>
+                      <tui-textfield tuiTextfieldSize="m">
+                        <label tuiLabel
+                          >Job Title / Role
+                          @if (isRequired('jobTitle')) {
+                            <span class="text-red-500">*</span>
+                          }
+                        </label>
+                        <input
+                          formControlName="jobTitle"
+                          placeholder="e.g. Senior Engineer"
+                          tuiInput
+                        />
+                      </tui-textfield>
+                      <tui-error formControlName="jobTitle" />
+                    </div>
                   </div>
 
+                  <!-- Current Job Toggle -->
                   <div>
-                    <tui-textfield>
-                      <label tuiLabel>Job Title / Role *</label>
+                    <label tuiLabel class="cursor-pointer inline-flex items-center gap-2">
                       <input
-                        formControlName="jobTitle"
-                        placeholder="e.g. Senior Engineer"
-                        tuiInput
+                        type="checkbox"
+                        formControlName="isCurrent"
+                        tuiCheckbox
+                        (ngModelChange)="onCurrentJobToggle($event, $index)"
                       />
+                      I currently work here
+                    </label>
+                  </div>
+
+                  <!-- Date Range OR Start Date -->
+                  <div>
+                    @if (!exp.get('isCurrent')?.value) {
+                      <tui-textfield [tuiTextfieldCleaner]="false" tuiTextfieldSize="m">
+                        <label tuiLabel
+                          >Employment Period (Start – End)
+                          @if (isRequired('employmentPeriod')) {
+                            <span class="text-red-500">*</span>
+                          }
+                        </label>
+                        <input
+                          formControlName="employmentPeriod"
+                          placeholder="DD.MM.YYYY – DD.MM.YYYY"
+                          tuiInputDateRange
+                        />
+                        <tui-calendar-range *tuiDropdown />
+                      </tui-textfield>
+                      <tui-error formControlName="employmentPeriod" />
+                    } @else {
+                      <tui-textfield tuiTextfieldSize="m">
+                        <label tuiLabel
+                          >Start Date
+                          @if (isRequired('startDate')) {
+                            <span class="text-red-500">*</span>
+                          }
+                        </label>
+                        <input formControlName="startDate" placeholder="DD.MM.YYYY" tuiInputDate />
+                        <tui-calendar *tuiDropdown />
+                      </tui-textfield>
+                      <tui-error formControlName="startDate" />
+                    }
+                  </div>
+
+                  <!-- Responsibilities -->
+                  <div>
+                    <tui-textfield tuiTextfieldSize="m" class="min-h-25">
+                      <label tuiLabel
+                        >Key Responsibilities & Achievements
+                        @if (isRequired('responsibilities')) {
+                          <span class="text-red-500">*</span>
+                        }
+                      </label>
+                      <textarea
+                        formControlName="responsibilities"
+                        placeholder="Briefly describe key achievements..."
+                        tuiTextarea
+                      ></textarea>
                     </tui-textfield>
-                    <tui-error formControlName="jobTitle" />
                   </div>
                 </div>
+              </tui-expand>
+            </div>
+          }
+        </div>
+      </tui-elastic-container>
+    </section>
 
-                <!-- Current Job Toggle -->
-                <div>
-                  <label tuiLabel class="cursor-pointer inline-flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      formControlName="isCurrent"
-                      tuiCheckbox
-                      (ngModelChange)="onCurrentJobToggle($event, $index)"
-                    />
-                    I currently work here
-                  </label>
+    <!-- ================= EDUCATION SECTION ================= -->
+    <section class="flex flex-col gap-4 mt-4">
+      <div class="flex items-center justify-between border-b border-(--background_dark)/10 pb-2">
+        <h4 class="font-semibold text-lg">Education</h4>
+        <button size="s" tuiButton type="button" (click)="addEducation()">+ Add Education</button>
+      </div>
+
+      <tui-elastic-container>
+        <div formArrayName="educations" class="flex flex-col gap-4">
+          @for (edu of educations.controls; track $index) {
+            <div
+              [formGroupName]="$index"
+              class="p-4 border rounded-lg flex flex-col gap-4 border-(--background_dark)/10"
+            >
+              <!-- Header Bar -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <button
+                    appearance="secondary"
+                    size="s"
+                    tuiIconButton
+                    type="button"
+                    [tuiChevron]="educationsState[$index].expanded"
+                    (click)="educationsState[$index].expanded = !educationsState[$index].expanded"
+                  >
+                    Expand
+                  </button>
+                  <span class="font-medium text-sm">
+                    {{ edu.get('degree')?.value || 'New Degree' }}
+                    {{ edu.get('institution')?.value ? 'at ' + edu.get('institution')?.value : '' }}
+                  </span>
                 </div>
 
-                <!-- Date Range OR Start Date -->
-                <div>
-                  @if (!exp.get('isCurrent')?.value) {
-                    <tui-textfield [tuiTextfieldCleaner]="false">
-                      <label tuiLabel>Employment Period (Start – End) *</label>
+                <button
+                  appearance="flat"
+                  iconStart="@tui.trash"
+                  size="s"
+                  tuiIconButton
+                  type="button"
+                  (click)="removeEducation($index)"
+                >
+                  Remove
+                </button>
+              </div>
+
+              <!-- Collapsible Body -->
+              <tui-expand [expanded]="educationsState[$index].expanded">
+                <div class="flex flex-col gap-4 pt-2">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <tui-textfield tuiTextfieldSize="m">
+                        <label tuiLabel
+                          >Institution / University
+                          @if (isRequired('institution')) {
+                            <span class="text-red-500">*</span>
+                          }
+                        </label>
+                        <input
+                          formControlName="institution"
+                          placeholder="e.g. Stanford University"
+                          tuiInput
+                        />
+                      </tui-textfield>
+                      <tui-error formControlName="institution" />
+                    </div>
+
+                    <div>
+                      <tui-textfield tuiTextfieldSize="m">
+                        <label tuiLabel
+                          >Degree / Field of Study
+                          @if (isRequired('degree')) {
+                            <span class="text-red-500">*</span>
+                          }
+                        </label>
+                        <input
+                          formControlName="degree"
+                          placeholder="e.g. B.S. Computer Science"
+                          tuiInput
+                        />
+                      </tui-textfield>
+                      <tui-error formControlName="degree" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <tui-textfield tuiTextfieldSize="m" [tuiTextfieldCleaner]="false">
+                      <label tuiLabel
+                        >Period (Start – End)
+                        @if (isRequired('period')) {
+                          <span class="text-red-500">*</span>
+                        }
+                      </label>
                       <input
-                        formControlName="employmentPeriod"
+                        formControlName="period"
                         placeholder="DD.MM.YYYY – DD.MM.YYYY"
                         tuiInputDateRange
                       />
                       <tui-calendar-range *tuiDropdown />
                     </tui-textfield>
-                    <tui-error formControlName="employmentPeriod" />
-                  } @else {
-                    <tui-textfield>
-                      <label tuiLabel>Start Date *</label>
-                      <input formControlName="startDate" placeholder="DD.MM.YYYY" tuiInputDate />
-                      <tui-calendar *tuiDropdown />
-                    </tui-textfield>
-                    <tui-error formControlName="startDate" />
-                  }
+                    <tui-error formControlName="period" />
+                  </div>
                 </div>
-
-                <!-- Responsibilities -->
-                <div>
-                  <tui-textfield class="min-h-25">
-                    <label tuiLabel>Key Responsibilities & Achievements</label>
-                    <textarea
-                      formControlName="responsibilities"
-                      placeholder="Briefly describe key achievements..."
-                      tuiTextarea
-                    ></textarea>
-                  </tui-textfield>
-                </div>
-              </div>
-            </tui-expand>
-          </div>
-        }
-      </div>
-    </tui-elastic-container>
-  </section>
-
-  <!-- ================= EDUCATION SECTION ================= -->
-  <section class="flex flex-col gap-4 mt-4">
-    <div class="flex items-center justify-between border-b border-(--background_dark)/10 pb-2">
-      <h4 class="font-semibold text-lg">Education</h4>
-      <button size="s" tuiButton type="button" (click)="addEducation()">+ Add Education</button>
-    </div>
-
-    <tui-elastic-container>
-      <div formArrayName="educations" class="flex flex-col gap-4">
-        @for (edu of educations.controls; track $index) {
-          <div
-            [formGroupName]="$index"
-            class="p-4 border rounded-lg flex flex-col gap-4 border-(--background_dark)/10"
-          >
-            <!-- Header Bar -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <button
-                  appearance="secondary"
-                  size="s"
-                  tuiIconButton
-                  type="button"
-                  [tuiChevron]="educationsState[$index].expanded"
-                  (click)="educationsState[$index].expanded = !educationsState[$index].expanded"
-                >
-                  Expand
-                </button>
-                <span class="font-medium text-sm">
-                  {{ edu.get('degree')?.value || 'New Degree' }}
-                  {{ edu.get('institution')?.value ? 'at ' + edu.get('institution')?.value : '' }}
-                </span>
-              </div>
-
-              <button
-                appearance="flat"
-                iconStart="@tui.trash"
-                size="s"
-                tuiIconButton
-                type="button"
-                (click)="removeEducation($index)"
-              >
-                Remove
-              </button>
+              </tui-expand>
             </div>
+          }
+        </div>
+      </tui-elastic-container>
+    </section>
 
-            <!-- Collapsible Body -->
-            <tui-expand [expanded]="educationsState[$index].expanded">
-              <div class="flex flex-col gap-4 pt-2">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <tui-textfield>
-                      <label tuiLabel>Institution / University *</label>
-                      <input
-                        formControlName="institution"
-                        placeholder="e.g. Stanford University"
-                        tuiInput
-                      />
-                    </tui-textfield>
-                    <tui-error formControlName="institution" />
-                  </div>
+    <!-- ================= FORM ACTIONS ================= -->
+    <footer class="flex justify-between items-center pt-4 border-t border-(--background_dark)/10">
+      <button
+        tuiButton
+        type="button"
+        class="bg-(--background_dark)/10! text-(--theme2)! gap-0!"
+        size="m"
+        (click)="onBack()"
+      >
+        <mat-icon>keyboard_arrow_left</mat-icon>
+        Back
+      </button>
 
-                  <div>
-                    <tui-textfield>
-                      <label tuiLabel>Degree / Field of Study *</label>
-                      <input
-                        formControlName="degree"
-                        placeholder="e.g. B.S. Computer Science"
-                        tuiInput
-                      />
-                    </tui-textfield>
-                    <tui-error formControlName="degree" />
-                  </div>
-                </div>
-
-                <div>
-                  <tui-textfield [tuiTextfieldCleaner]="false">
-                    <label tuiLabel>Period (Start – End) *</label>
-                    <input
-                      formControlName="period"
-                      placeholder="DD.MM.YYYY – DD.MM.YYYY"
-                      tuiInputDateRange
-                    />
-                    <tui-calendar-range *tuiDropdown />
-                  </tui-textfield>
-                  <tui-error formControlName="period" />
-                </div>
-              </div>
-            </tui-expand>
-          </div>
-        }
-      </div>
-    </tui-elastic-container>
-  </section>
-
-  <!-- ================= FORM ACTIONS ================= -->
-  <footer class="flex justify-between items-center pt-4 border-t border-(--background_dark)/10">
-    <button
-      tuiButton
-      type="button"
-      class="bg-(--background_dark)/10! text-(--theme2)! gap-0!"
-      size="m"
-      (click)="onBack()"
-    >
-      <mat-icon>keyboard_arrow_left</mat-icon>
-      Back
-    </button>
-
-    <button tuiButton type="submit" size="m" class="gap-0!" [disabled]="form.invalid">
-      Continue to Documents
-      <mat-icon>keyboard_arrow_right</mat-icon>
-    </button>
-  </footer>
-</form>
+      <button tuiButton type="submit" size="m" class="gap-0!">
+        Continue to Documents
+        <mat-icon>keyboard_arrow_right</mat-icon>
+      </button>
+    </footer>
+  </form>
+</div>

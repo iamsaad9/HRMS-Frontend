@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core';
 import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  output,
+  signal,
+} from '@angular/core';
+import {
+  AbstractControl,
   FormArray,
   FormControl,
   FormGroup,
@@ -31,12 +40,13 @@ import {
 } from '@taiga-ui/kit';
 import { TuiChevron } from '@taiga-ui/kit';
 import { TuiInputDateRange } from '@taiga-ui/kit';
-import { TuiElasticContainer } from '@taiga-ui/layout';
+import { TuiCardLarge, TuiElasticContainer } from '@taiga-ui/layout';
 import { ExperienceForm } from '../../../model/employee-model';
 @Component({
   selector: 'app-employee-experience',
   standalone: true,
   imports: [
+    TuiCardLarge,
     ReactiveFormsModule,
     FormsModule,
     TuiButton,
@@ -64,6 +74,8 @@ import { ExperienceForm } from '../../../model/employee-model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeeExperience {
+  @Input({ required: true }) form!: FormGroup;
+  @Output() next = new EventEmitter<void>();
   readonly formSubmitted = output<ExperienceForm>();
   readonly stepBack = output<void>();
   protected value = new TuiDayRange(new TuiDay(2017, 0, 15), new TuiDay(2017, 0, 20));
@@ -78,25 +90,6 @@ export class EmployeeExperience {
       expanded: true,
     },
   ];
-  protected form = new FormGroup({
-    experiences: new FormArray<FormGroup>([
-      new FormGroup({
-        companyName: new FormControl('', Validators.required),
-        jobTitle: new FormControl('', Validators.required),
-        isCurrent: new FormControl(false),
-        employmentPeriod: new FormControl<TuiDayRange | null>(null, Validators.required),
-        startDate: new FormControl<TuiDay | null>(null),
-        responsibilities: new FormControl(''),
-      }),
-    ]),
-    educations: new FormArray<FormGroup>([
-      new FormGroup({
-        institution: new FormControl('', Validators.required),
-        degree: new FormControl('', Validators.required),
-        period: new FormControl<TuiDayRange | null>(null, Validators.required),
-      }),
-    ]),
-  });
 
   get experiences(): FormArray {
     return this.form.get('experiences') as FormArray;
@@ -138,7 +131,6 @@ export class EmployeeExperience {
     startControl.updateValueAndValidity();
   }
 
-  // --- EDUCATION HANDLERS ---
   get educations(): FormArray {
     return this.form.get('educations') as FormArray;
   }
@@ -159,13 +151,17 @@ export class EmployeeExperience {
     this.educationsState.splice(index, 1);
   }
 
-  // --- ACTIONS ---
-  protected onSubmit(data: ExperienceForm): void {
-    if (this.form.valid) {
-      this.formSubmitted.emit(this.form.getRawValue() as ExperienceForm);
-    } else {
-      this.form.markAllAsTouched();
-    }
+  protected isRequired(controlPath: string): boolean {
+    const control = this.form.get(controlPath);
+    if (!control?.validator) return false;
+
+    const validator = control.validator({} as AbstractControl);
+    return !!validator?.['required'];
+  }
+
+  protected onSubmit(): void {
+    this.form.markAllAsTouched();
+    this.next.emit();
   }
 
   protected onBack(): void {

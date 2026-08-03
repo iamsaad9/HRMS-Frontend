@@ -1,12 +1,19 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { TuiIcon, TuiTextfield } from '@taiga-ui/core';
-import { TuiInputNumber, TuiTabs } from '@taiga-ui/kit';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { TuiButton, TuiIcon } from '@taiga-ui/core';
+import { TuiTabs, TuiToast, TuiToastService } from '@taiga-ui/kit';
+import { TuiDay, TuiDayRange } from '@taiga-ui/cdk';
 import { EmployeeDetails } from '../../components/employee-form/employee-details/employee-details';
 import { EmployeeExperience } from '../../components/employee-form/employee-experience/employee-experience';
-import { AddEmployeeForm, EmployeeDetailsForm, ExperienceForm } from '../../model/employee-model';
+import { EmployeeDocuments } from '../../components/employee-form/employee-documents/employee-documents';
+import { EmployeeService } from '../../services/employee.service';
+import { AdditionalDetails } from '../../components/employee-form/additional-details/additional-details';
+import { MatIcon } from '@angular/material/icon';
+import { DynamicToast } from '../../../../../shared/components/toast/DynamicToast';
+import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
+import { finalize } from 'rxjs';
 
-export interface StepConfig {
+interface StepConfig {
   id: number;
   title: string;
 }
@@ -14,41 +21,101 @@ export interface StepConfig {
 @Component({
   selector: 'app-add-employee',
   imports: [
-    FormsModule,
     TuiIcon,
-    TuiInputNumber,
     TuiTabs,
-    TuiTextfield,
     EmployeeDetails,
     EmployeeExperience,
+    EmployeeDocuments,
+    AdditionalDetails,
+    MatIcon,
+    TuiToast,
+    TuiButton,
   ],
   templateUrl: './add-employee.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddEmployee {
+  private readonly employeeService = inject(EmployeeService);
+  private readonly toast = inject(TuiToastService);
+  protected isSubmiting = signal<Boolean>(false);
   protected readonly steps: StepConfig[] = [
     { id: 0, title: 'Employee Details' },
     { id: 1, title: 'Work Experience' },
-    { id: 2, title: 'Additional Documents' },
+    { id: 2, title: 'Related Documents' },
+    { id: 3, title: 'Additional Details' },
   ];
 
-  protected addEmployeeForm = signal<AddEmployeeForm>({
-    fullName: '',
-    email: '',
-    phone: '',
-    dob: new Date(),
-    department: '',
-    employmentType: '',
-    isRemote: false,
-    requireVisa: false,
-    experiences: [],
-    educations: [],
+  protected form = new FormGroup({
+    employeeDetails: new FormGroup({
+      firstName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      email: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.email],
+      }),
+      phone: new FormControl(''),
+      dob: new FormControl<TuiDay | null>(null),
+      department: new FormControl(''),
+      employmentType: new FormControl(''),
+      isRemote: new FormControl(false),
+      requireVisa: new FormControl(false),
+    }),
+
+    experiences: new FormArray<FormGroup>([
+      new FormGroup({
+        companyName: new FormControl(''),
+        jobTitle: new FormControl(''),
+        isCurrent: new FormControl(false),
+        employmentPeriod: new FormControl<TuiDayRange | null>(null),
+        startDate: new FormControl<TuiDay | null>(null),
+        responsibilities: new FormControl(''),
+      }),
+    ]),
+
+    educations: new FormArray<FormGroup>([
+      new FormGroup({
+        institution: new FormControl(''),
+        degree: new FormControl(''),
+        period: new FormControl<TuiDayRange | null>(null),
+      }),
+    ]),
+
+    documents: new FormGroup({
+      educationFiles: new FormControl<File[]>([], {
+        nonNullable: true,
+        validators: [maxFilesLength(5)],
+      }),
+      experienceFiles: new FormControl<File[]>([], {
+        nonNullable: true,
+        validators: [maxFilesLength(5)],
+      }),
+      identityFiles: new FormControl<File[]>([], {
+        nonNullable: true,
+        validators: [maxFilesLength(5)],
+      }),
+      otherFiles: new FormControl<File[]>([], {
+        nonNullable: true,
+        validators: [maxFilesLength(5)],
+      }),
+    }),
+
+    additionalDetails: new FormGroup({
+      password: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+    }),
   });
 
-  protected employeeDetailsData = signal<EmployeeDetailsForm | null>(null);
-  protected workExperienceData = signal<ExperienceForm | null>(null);
   protected activeStepIndex = signal<number>(0);
-  protected unlockedSteps = signal<Set<number>>(new Set([0]));
+  protected unlockedSteps = signal<Set<number>>(new Set([0, 1, 2, 3]));
+
+  private readonly stepSectionKeys: Record<number, string> = {
+    0: 'employeeDetails',
+    1: 'experiences',
+    2: 'documents',
+    3: 'additionalDetails',
+  };
 
   protected isStepDisabled(stepId: number): boolean {
     return !this.unlockedSteps().has(stepId);
@@ -60,36 +127,82 @@ export class AddEmployee {
     }
   }
 
-  protected unlockAndNavigateTo(nextStepId: number): void {
-    this.unlockedSteps.update((current) => new Set(current).add(nextStepId));
-    this.activeStepIndex.set(nextStepId);
+  protected goToStep(stepId: number): void {
+    this.unlockedSteps.update((current) => new Set(current).add(stepId));
+    this.activeStepIndex.set(stepId);
   }
 
   protected previousStep(): void {
     this.activeStepIndex.update((curr) => Math.max(0, curr - 1));
   }
 
-  protected onEmployeeDetailsSubmission(data: EmployeeDetailsForm): void {
-    console.log('Employee Details Data:', data);
-    this.addEmployeeForm.update((current) => ({
-      ...current,
-      ...data,
-    }));
-    this.unlockAndNavigateTo(1);
+  protected getStepColor(stepId: number): string {
+    const controlKey = this.stepSectionKeys[stepId];
+    const control = controlKey ? this.form.get(controlKey) : null;
+
+    if (!control || (!control.touched && !control.dirty)) {
+      return 'inherit';
+    }
+
+    return control.valid ? 'var(--tui-status-positive, green) !important' : '';
   }
 
-  protected onWorkExperienceSubmission(data: ExperienceForm) {
-    console.log('Work Experience Data:', data);
-    this.addEmployeeForm.update((current) => ({
-      ...current,
-      workExperience: data.experiences ?? [],
-      education: data.educations ?? [],
-    }));
-    this.unlockAndNavigateTo(2);
+  protected showDynamicToast(appearance: 'positive' | 'negative', message: string): void {
+    this.toast
+      .open(new PolymorpheusComponent(DynamicToast), {
+        data: {
+          message,
+          appearance,
+        },
+        autoClose: 3000,
+      })
+      .subscribe();
   }
 
   protected submitFullPayload(): void {
-    const payload = this.addEmployeeForm();
-    console.log('Final Payload ready for backend:', payload);
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.form.updateValueAndValidity();
+
+      const firstInvalidStep = Object.entries(this.stepSectionKeys).find(
+        ([, key]) => this.form.get(key)?.invalid,
+      );
+
+      if (firstInvalidStep) {
+        this.showDynamicToast('negative', 'Please fill required fields');
+        this.goToStep(Number(firstInvalidStep[0]));
+      }
+      return;
+    }
+
+    this.isSubmiting.set(true);
+    const value = this.form.getRawValue();
+    const payload = {
+      ...value.employeeDetails,
+      dob: value.employeeDetails.dob?.toLocalNativeDate() ?? null,
+      experiences: value.experiences,
+      educations: value.educations,
+      documents: value.documents,
+      ...value.additionalDetails,
+    };
+
+    this.employeeService
+      .addEmployee(payload)
+      .pipe(finalize(() => this.isSubmiting.set(false)))
+      .subscribe({
+        next: () => {
+          this.showDynamicToast('positive', 'Employee Created');
+        },
+        error: () => {
+          this.showDynamicToast('negative', 'Failed to create employee');
+        },
+      });
   }
+}
+
+function maxFilesLength(maxLength: number) {
+  return ({ value }: { value: File[] }) =>
+    value && value.length > maxLength
+      ? { maxLength: `Error: maximum limit - ${maxLength} files for upload` }
+      : null;
 }

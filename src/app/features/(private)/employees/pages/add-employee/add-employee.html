@@ -1,17 +1,17 @@
-<div class="w-full sm:w-[80%] mx-auto p-5" tuiTheme="light">
-  <!-- Stepper Header -->
+<div class="w-full sm:w-[60%] mx-auto p-5" tuiTheme="light">
   <tui-tabs
     [activeItemIndex]="activeStepIndex()"
     (activeItemIndexChange)="selectStep($event)"
     class="w-full"
-    underline="#333"
+    underline="#A3192D"
   >
     @for (step of steps; track step.id; let last = $last) {
       <button
         tuiTab
         type="button"
-        class="step flex items-center justify-center text-(--theme2)!"
+        class="step flex items-center justify-center text-(--primary)!"
         [disabled]="isStepDisabled(step.id)"
+        [style.color]="getStepColor(step.id)"
       >
         {{ step.title }}
         @if (!last) {
@@ -22,17 +22,49 @@
   </tui-tabs>
 
   <div class="mt-6" [hidden]="activeStepIndex() !== 0">
-    <app-employee-details (formSubmitted)="onEmployeeDetailsSubmission($event)" />
+    <app-employee-details [form]="form.controls.employeeDetails" (next)="goToStep(1)" />
   </div>
 
   <div class="mt-6" [hidden]="activeStepIndex() !== 1">
-    <app-employee-experience
+    <app-employee-experience [form]="form" (stepBack)="previousStep()" (next)="goToStep(2)" />
+  </div>
+
+  <div class="mt-6" [hidden]="activeStepIndex() !== 2">
+    <app-employee-documents
+      [form]="form.controls.documents"
       (stepBack)="previousStep()"
-      (formSubmitted)="onWorkExperienceSubmission($event)"
+      (next)="goToStep(3)"
     />
   </div>
 
-  <div [hidden]="activeStepIndex() !== 2">
-    <button TuiButton (click)="submitFullPayload()">Add Employee</button>
+  <div class="mt-6 flex flex-col gap-5" [hidden]="activeStepIndex() !== 3">
+    <!-- 1. Add relative and z-10 here so its contents stack above the footer -->
+    <app-additional-details class="relative z-10" [form]="form.controls.additionalDetails" />
+
+    <!-- 2. Add relative and z-0 to keep the footer below -->
+    <footer
+      class="relative z-0 flex justify-center gap-3 pt-4 border-t border-(--background_dark)/10"
+    >
+      <button
+        tuiButton
+        type="button"
+        class="bg-(--background_dark)/10! text-(--theme2)! gap-0!"
+        size="m"
+        (click)="previousStep()"
+      >
+        <mat-icon>keyboard_arrow_left</mat-icon>
+        Back
+      </button>
+      <button tuiButton (click)="submitFullPayload()" class="gap-0!" size="m">
+        @if (isSubmiting()) {
+          <span
+            class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"
+          ></span>
+          <span>Creating Employee..</span>
+        } @else {
+          Create Emlployee
+        }
+      </button>
+    </footer>
   </div>
 </div>

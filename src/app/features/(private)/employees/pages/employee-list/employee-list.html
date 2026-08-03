@@ -112,7 +112,7 @@
                     [style.text-decoration-style]="'dashed'"
                     [tuiDropdown]="dropdown"
                   >
-                    + {{ employee.tags.length - number - 1 }}
+                    + 1 more
                   </button>
                   <ng-template #dropdown>
                     <div tuiItemGroup [style.padding]="'1rem 0.75rem 0.75rem 1rem'">
@@ -132,7 +132,7 @@
                   tuiProgressBar
                   [style.width.rem]="5"
                   style="--tui-progress-color: var(--theme2)"
-                  [value]="employee.workload / 100"
+                  [value]="employee.workload ? employee.workload / 100 : null"
                 ></progress>
                 {{ employee.workload }}%
               </span>

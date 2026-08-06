@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, Input, input, signal } from '@angular/core';
 
 @Component({
   selector: 'app-main-heading',
@@ -7,4 +7,5 @@ import { Component, input } from '@angular/core';
 })
 export class MainHeading {
   title = input.required<string>();
+  description = input<string>();
 }

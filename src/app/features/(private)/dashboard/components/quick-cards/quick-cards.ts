@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { KpiCard } from '../../dashboard.model';
-import { TuiPoint } from '@taiga-ui/core';
+import { TuiPoint, TuiIcon } from '@taiga-ui/core';
 import { TuiRingChart, TuiArcChart } from '@taiga-ui/addon-charts';
-import { TuiAccordion, TuiProgressCircle } from '@taiga-ui/kit';
+import { TuiAccordion, TuiAvatar, TuiProgressCircle } from '@taiga-ui/kit';
 import { FormsModule } from '@angular/forms';
 import { TuiCard, TuiCardLarge, TuiHeader } from '@taiga-ui/layout';
 import { tuiSum } from '@taiga-ui/cdk';
@@ -25,11 +25,13 @@ import { TuiAmountPipe } from '@taiga-ui/addon-commerce';
     MatIcon,
     TuiCard,
     TuiAccordion,
+    TuiIcon,
+    TuiAvatar,
   ],
-  templateUrl: './kpi-summary.html',
+  templateUrl: './quick-cards.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class KpiSummary {
+export class QuickCards {
   readonly attendanceValues = signal<number[]>([57, 8, 4, 3]);
   readonly labels = ['Present', 'Absent', 'Leave', 'WFH'];
   readonly headcountProgress = signal<number>(0.925);
@@ -61,6 +63,19 @@ export class KpiSummary {
   protected get label(): string {
     return (Number.isNaN(this.index) ? 'Total' : this.labels[this.index]) ?? '';
   }
+
+  readonly user = {
+    name: 'Saad Masood',
+    role: 'Junior Associate Developer',
+    department: 'Development',
+    avatarUrl: 'https://i.pravatar.cc/150?img=68',
+    todayStatus: {
+      isClockedIn: true,
+      startTime: '09:00 AM',
+      endTime: null, // Set to string like '05:30 PM' when clocked out
+    },
+  };
+
   readonly kpiCards = signal<KpiCard[]>([
     {
       id: 'total-employees',

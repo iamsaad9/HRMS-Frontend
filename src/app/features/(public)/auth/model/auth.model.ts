@@ -1,22 +1,26 @@
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
+}
+
 export interface User {
-  id: string;
-  fullName: string;
+  userId: string;
   email: string;
-  role: string;
+  roles: string[];
+  permissions: string[];
+  employeeInfo: {
+    employeeId: string;
+    firstName: string;
+    lastName: string;
+    departmentId: string | null;
+    branchId: string | null;
+  };
 }
 
 export interface LoginCommand {
   email: string;
   password: string;
-}
-
-export interface LoginResponse {
-  id: string;
-  accessToken: string;
-  refreshToken: string;
-  fullName: string;
-  email: string;
-  role: string;
 }
 
 export interface RegisterCommand {

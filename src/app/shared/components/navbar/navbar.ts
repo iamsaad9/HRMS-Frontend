@@ -61,7 +61,7 @@ interface Routes {
   templateUrl: './navbar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'fixed inset-x-0 top-0 z-50 block h-14 shadow-sm',
+    class: 'fixed z-50',
   },
 })
 export class NavbarComponent {

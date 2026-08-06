@@ -1,30 +1,6 @@
 <header
-  class="flex flex-col justify-between items-center gap-3 backdrop-blur-md p-5 text-(--background_dark) shadow-lg rounded-b-xl"
+  class="min-w-screen flex flex-col justify-between items-center gap-3 bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) px-5 py-2 text-(--background_light) shadow-lg rounded-b-xl h-14"
 >
-  <!-- <div class="flex items-center justify-between w-full">
-    <div class="flex gap-5">
-      <div class="flex gap-2 items-center">
-        <mat-icon>phone</mat-icon>
-        <h1>0121 285 2777</h1>
-      </div>
-
-      <div class="flex gap-2 items-center">
-        <mat-icon>mail</mat-icon>
-        <h1>info@as-suffa.org</h1>
-      </div>
-    </div>
-
-    <div>
-      <ul class="flex gap-4 text-lg">
-        <li><a href="https://as-suffa.org/">HOME</a></li>
-        <li><a href="https://as-suffa.org/education/">EDUCATION</a></li>
-        <li><a href="https://relief.as-suffa.org/">RELIEF</a></li>
-        <li><a href="https://as-suffa.org/community/">COMMUNITY</a></li>
-        <li><a href="https://as-suffa.org/tours">TOURS</a></li>
-      </ul>
-    </div>
-  </div> -->
-
   <div class="flex justify-between items-center gap-3 xl:gap-5 w-full">
     <!-- Mobile menu toggle -->
 
@@ -40,10 +16,14 @@
     >
       <mat-icon (click)="menuToggle.emit()">menu</mat-icon>
       <ng-template #dropdownNav>
-        <tui-data-list class="bg-(--theme2)/50">
+        <tui-data-list class="bg-(--background_light)">
           @for (item of mockDropdownItems; track item.title) {
             <button tuiOption type="button">
-              <app-dropdown-selector [dropDownItem]="item" [isMobile]="true" />
+              <app-dropdown-selector
+                [dropDownItem]="item"
+                [isMobile]="true"
+                (closeMobile)="navMenuOpen.set(false)"
+              />
             </button>
           }
         </tui-data-list>
@@ -56,7 +36,7 @@
       <img
         src="https://as-suffa.org/wp-content/uploads/2021/04/as-suffa-master-logo.png"
         alt="Company_Logo"
-        class="w-24 rounded-none bg-transparent text-(--background_light)"
+        class="w-24 brightness-125 transition-transform hover:scale-105"
       />
 
       <!-- Navbar -->
@@ -72,11 +52,11 @@
       <tui-textfield
         iconStart="@tui.search"
         tuiTextfieldSize="s"
-        class="flex flex-1 max-w-120 bg-(--secondary)/60! text-(--theme2)!"
+        class="flex flex-1 max-w-120 bg-(--secondary)/20! text-(--background_light)!"
       >
         <input
           placeholder="Search"
-          class="text-(--primary)! placeholder:text-(--primary)!"
+          class="text-(--background_light)! placeholder:text-(--background_light)!"
           tuiInput
           [(ngModel)]="searchQuery"
         />

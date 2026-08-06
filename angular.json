@@ -65,7 +65,10 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular/build:dev-server",
+         "builder": "@angular/build:dev-server",
+          "options": {
+          "proxyConfig": "src/proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "hrms-frontend:build:production"

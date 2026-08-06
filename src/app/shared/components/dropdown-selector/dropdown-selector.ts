@@ -1,4 +1,14 @@
-import { Component, computed, inject, input, model, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  EventEmitter,
+  inject,
+  Input,
+  input,
+  model,
+  Output,
+  signal,
+} from '@angular/core';
 import { ChangeDetectionStrategy, output } from '@angular/core';
 import { TuiActiveZone, TuiObscured } from '@taiga-ui/cdk';
 import { TuiButton, TuiDataList, TuiDropdown, TuiTitle } from '@taiga-ui/core';
@@ -28,6 +38,9 @@ export interface DropDownItem {
 export class DropdownSelectorComponent {
   protected readonly open = signal(false);
   private readonly router = inject(Router);
+  public readonly dropDownItem = input.required<DropDownItem>();
+  public readonly isMobile = input<boolean>();
+  @Output() closeMobile = new EventEmitter<void>();
 
   protected toggleDropdown(): void {
     this.open.update((isOpen) => !isOpen);
@@ -47,9 +60,7 @@ export class DropdownSelectorComponent {
 
   protected navigateTo(route: string | undefined): void {
     this.open.set(false);
+    this.closeMobile.emit();
     this.router.navigate([route]);
   }
-
-  public readonly dropDownItem = input.required<DropDownItem>();
-  public readonly isMobile = input<boolean>();
 }

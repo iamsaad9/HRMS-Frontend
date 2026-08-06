@@ -49,6 +49,20 @@ export class Login {
     this.showPassword.update((value) => !value);
   }
 
+  onRefreshToken(): void {
+    this.authService.refreshToken().subscribe({
+      next: (response) => {
+        console.log('✅ Registration successful:', response);
+        this.isSignUp.set(false);
+        this.signInForm.reset();
+      },
+      error: (error) => {
+        console.error('❌ Registration failed:', error);
+        this.errorMessage.set(error.error?.message || 'Registration failed. Please try again.');
+      },
+    });
+  }
+
   onSubmit(): void {
     this.isLoading.set(true);
     if (this.isSignUp()) {

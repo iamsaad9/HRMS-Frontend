@@ -11,62 +11,6 @@
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     <!-- CARD 1: My Performance Analytics (Spans 2 columns on large screens) -->
-    <div
-      tuiCardLarge
-      class="flex flex-col justify-between rounded-xl p-6 shadow-sm lg:col-span-2 text-(--primary)"
-    >
-      <!-- Header -->
-      <div class="flex items-center justify-between">
-        <div>
-          <h3 class="text-lg font-bold">Work Hour Overview</h3>
-          <p class="text-xs text-(--primary)/80">Last 30 days work hour overview.</p>
-        </div>
-
-        <div class="flex items-center gap-x-2">
-          <span
-            class="inline-flex items-center rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20"
-          >
-            95% Score (Excellent)
-          </span>
-        </div>
-      </div>
-
-      <!-- Taiga UI Line Chart with Axes -->
-      <div class="mt-6 h-56 w-full">
-        <tui-axes
-          [axisXLabels]="axisXLabels"
-          [verticalLines]="performanceTrend.length"
-          [horizontalLines]="4"
-          class="h-full w-full"
-        >
-          <tui-line-chart
-            [value]="performanceTrend"
-            [width]="5"
-            [height]="100"
-            [filled]="true"
-            class="text-blue-500"
-          ></tui-line-chart>
-        </tui-axes>
-      </div>
-
-      <!-- Footer Stats -->
-      <div
-        class="mt-4 grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 pt-4 dark:divide-slate-800 dark:border-slate-800"
-      >
-        <div class="text-center">
-          <p class="text-xs text-slate-500">Tasks Completed</p>
-          <p class="text-lg font-semibold text-(--primary)">42 / 45</p>
-        </div>
-        <div class="text-center">
-          <p class="text-xs text-slate-500">On-Time Delivery</p>
-          <p class="text-lg font-semibold text-emerald-600">97.8%</p>
-        </div>
-        <div class="text-center">
-          <p class="text-xs text-slate-500">Overtime Hours</p>
-          <p class="text-lg font-semibold text-(--primary)">12.5 hrs</p>
-        </div>
-      </div>
-    </div>
 
     <!-- CARD 2: Team Members Card (Spans 1 column) -->
     <div
@@ -78,7 +22,7 @@
         class="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800"
       >
         <div>
-          <h3 class="text-lg font-bold text-(--primary)">Team Members</h3>
+          <h3 class="text-lg font-bold text-(--theme2)">Team Members</h3>
           <p class="text-xs text-(--primary)/80">Direct reports & presence status</p>
         </div>
         <span

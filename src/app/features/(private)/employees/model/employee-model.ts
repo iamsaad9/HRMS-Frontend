@@ -35,32 +35,55 @@ interface Education {
   endDate?: Date | null;
 }
 
+export interface CreateEmployeeResponse {
+  employeeId: string;
+  userId: string;
+  staffNo: string;
+  email: string;
+}
+
 export interface Employee {
   id: string;
-  name: string;
+  userId: string;
+  staffNo: string;
+  firstName: string;
+  fullName: string;
+  lastName: string;
   email: string;
+  departmentId?: string;
+  departmentName?: string;
+  branchId?: string;
+  branchName?: string;
+  jobTitleId?: string;
+  jobTitleName?: string;
+  managerId?: string;
+  managerName?: string;
+  isActive: boolean;
+  createdAtUtc: Date;
   role: string | null;
-  department: string | null;
   status: string | null;
-  tags: string[] | null;
-  workload: number | null; // 0-100, percent capacity
 }
 
 export interface EmployeeFilter {
   search: string;
-  department: string | null;
+  departmentId: string | null;
+  branchId: string | null;
+  managerId: string | null;
+  isActive: boolean;
   status: string | null;
   role: string | null;
 }
 
 export const EMPTY_EMPLOYEE_FILTER: EmployeeFilter = {
   search: '',
-  department: null,
+  departmentId: null,
+  branchId: null,
+  managerId: null,
+  isActive: true,
   status: null,
   role: '',
 };
 
-/** Pure filter fn — reuse it wherever the list needs to be narrowed (component, resolver, tests). */
 export function filterEmployees(
   employees: readonly Employee[],
   filter: EmployeeFilter,
@@ -70,12 +93,23 @@ export function filterEmployees(
   return employees.filter((employee) => {
     const matchesSearch =
       !search ||
-      employee.name.toLowerCase().includes(search) ||
+      employee.firstName.toLowerCase().includes(search) ||
+      employee.lastName.toLowerCase().includes(search) ||
       employee.email.toLowerCase().includes(search);
-    const matchesDepartment = !filter.department || employee.department === filter.department;
+    const matchesDepartment = !filter || employee.departmentId === filter.departmentId;
+    const matchesBranch = !filter.branchId || employee.branchId === filter.branchId;
+    const matchesManager = !filter.managerId || employee.managerId === filter.managerId;
     const matchesStatus = !filter.status || employee.status === filter.status;
+    const isActive = !filter.isActive || employee.isActive === filter.isActive;
 
-    return matchesSearch && matchesDepartment && matchesStatus;
+    return (
+      matchesSearch &&
+      matchesDepartment &&
+      matchesStatus &&
+      matchesBranch &&
+      matchesManager &&
+      isActive
+    );
   });
 }
 

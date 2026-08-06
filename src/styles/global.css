@@ -49,7 +49,6 @@ html,body{
 }
 
 [tuiAppearance][data-appearance=textfield][data-focus=true]{
-  outline: 1.5px solid var(--theme2) !important;
+  outline: 1.5px solid var(--secondary) !important;
 }
-
 

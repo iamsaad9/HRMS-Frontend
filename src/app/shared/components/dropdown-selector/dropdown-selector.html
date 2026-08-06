@@ -1,12 +1,11 @@
 <!-- Parent trigger button -->
 <button
-  class="text-(--background_dark) text-base cursor-pointer flex items-center"
+  class="text-(--background_dark) lg:text-(--background_light) text-shadow-lg text-base cursor-pointer flex items-center"
   type="button"
   [tuiDropdown]="dropDownItem().childItems ? dropdownContent : ''"
   [tuiDropdownManual]="open()"
   [tuiObscuredEnabled]="open()"
-  (click)="toggleDropdown()"
-  [routerLink]="dropDownItem().childItems ? null : dropDownItem().routeTo"
+  (click)="dropDownItem().childItems ? toggleDropdown() : navigateTo(dropDownItem().routeTo)"
   (tuiActiveZoneChange)="onActiveZone($event)"
   (tuiObscured)="onObscured($event)"
 >
@@ -31,7 +30,7 @@
               [tuiDropdown]="subMenu"
               [tuiDropdownSided]="isMobile() ? false : true"
               type="button"
-              class="p-2 w-full flex justify-start hover:bg-(--theme2)/20!"
+              class="p-2 w-full flex justify-start hover:bg-(--secondary)/50!"
             >
               <div class="flex items-center justify-center gap-2 text-(--background_dark)">
                 <mat-icon class="scale-70">{{ item.icon }}</mat-icon>
@@ -52,7 +51,7 @@
                       tuiOption
                       (click)="navigateTo(subItem.routeTo)"
                       type="button"
-                      class="p-2 w-full flex flex-col items-start! hover:bg-(--theme2)/20!"
+                      class="p-2 w-full flex flex-col items-start! hover:bg-(--secondary)/50!"
                     >
                       <div
                         class="flex flex-row items-start justify-start gap-2 text-(--background_dark)!"
@@ -78,7 +77,7 @@
               tuiOption
               (click)="navigateTo(item.routeTo)"
               type="button"
-              class="p-2 w-full flex flex-col items-start! text-(--background_dark)! hover:bg-(--theme2)/20!"
+              class="p-2 w-full flex flex-col items-start! text-(--background_dark)! hover:bg-(--secondary)/50!"
             >
               <div class="flex items-center justify-start gap-2">
                 <mat-icon class="scale-60 lg:scale-70">{{ item.icon }}</mat-icon>

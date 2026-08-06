@@ -1,19 +1,19 @@
 <div class="flex flex-col gap-5">
   <div class="flex flex-col gap-5">
-    <app-main-heading title="Dashboard"></app-main-heading>
     <div class="flex items-center justify-between">
-      <header class="text-3xl! text-(--primary) font-bold!">
+      <header class="text-3xl! text-(--primary) font-bold! mt-5">
         Welcome Back <span class="text-(--theme2)">Saad</span>!
       </header>
 
       <h1 class="text-(--primary) font-semibold text-sm flex items-center justify-center gap-2">
-        <mat-icon>access_time</mat-icon>{{ currentDate | date: 'mediumDate' }}
+        <mat-icon class="text-(--theme2)!">access_time</mat-icon
+        >{{ currentDate | date: 'mediumDate' }}
       </h1>
     </div>
   </div>
 
-  <div class="flex flex-col md:flex-row w-full gap-5">
-    <div class="flex flex-col gap-5 flex-1">
+  <div class="flex flex-col md:flex-row w-full gap-3">
+    <div class="flex flex-col gap-3 flex-1">
       <app-user-cards></app-user-cards>
       <app-performance-section></app-performance-section>
     </div>

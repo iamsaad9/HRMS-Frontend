@@ -27,23 +27,11 @@
         type="button"
         tuiButton
         iconStart="@tui.filter"
-        appearance="primary"
         size="s"
-        class="cursor-pointer"
+        class="cursor-pointer bg-(--theme3)! text-(--background_light)! hover:bg-(--theme3)/80!"
         (click)="applyFilter()"
       >
         Apply Filters
-      </button>
-
-      <button
-        type="button"
-        iconStart="@tui.download"
-        tuiButton
-        size="s"
-        class="cursor-pointer bg-(--secondary)! text-(--primary)! hover:bg-(--secondary)/80!"
-        (click)="applyFilter()"
-      >
-        Export
       </button>
 
       @if (hasActiveFilters) {
@@ -62,10 +50,54 @@
   </div>
 
   <!-- BOTTOM ROW: Dropdown Filters Grid -->
-  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-5">
     <!-- Department Filter -->
     <div class="flex flex-col gap-1">
       <label class="text-xs font-medium">Department</label>
+      <tui-textfield
+        tuiChevron
+        tuiTextfieldSize="m"
+        class="w-full bg-(--background_light)! rounded-lg"
+        [tuiTextfieldCleaner]="true"
+      >
+        <input
+          placeholder="All Departments"
+          tuiSelect
+          [ngModel]="selectedDepartment()"
+          (ngModelChange)="selectedDepartment.set($event)"
+        />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="departments"
+          class="bg-(--background_light)!"
+        />
+      </tui-textfield>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium">Branch</label>
+      <tui-textfield
+        tuiChevron
+        tuiTextfieldSize="m"
+        class="w-full bg-(--background_light)! rounded-lg"
+        [tuiTextfieldCleaner]="true"
+      >
+        <input
+          placeholder="All Departments"
+          tuiSelect
+          [ngModel]="selectedDepartment()"
+          (ngModelChange)="selectedDepartment.set($event)"
+        />
+        <tui-data-list-wrapper
+          *tuiDropdown
+          [items]="departments"
+          class="bg-(--background_light)!"
+        />
+      </tui-textfield>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium">Manager</label>
       <tui-textfield
         tuiChevron
         tuiTextfieldSize="m"

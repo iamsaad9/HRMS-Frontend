@@ -1,13 +1,44 @@
 <div class="flex flex-col gap-5">
-  <app-main-heading title="Employee List"> </app-main-heading>
+  <app-main-heading
+    title="Employee List"
+    description="List of all the employees in the organization"
+  >
+    <div class="flex gap-2">
+      <button
+        type="button"
+        iconStart="@tui.refresh-cw"
+        tuiButton
+        size="s"
+        class="cursor-pointer bg-(--theme3)! text-(--background_light)! hover:bg-(--theme3)/80!"
+      >
+        Refresh
+      </button>
 
-  <app-employee-filter-bar [employees]="employees" (filterChange)="onFilterChange($event)" />
+      <button
+        type="button"
+        iconStart="@tui.download"
+        tuiButton
+        size="s"
+        class="cursor-pointer bg-(--secondary)! text-(--primary)! hover:bg-(--secondary)/80!"
+      >
+        Export
+      </button>
+    </div>
+  </app-main-heading>
 
-  <div class="table-scroll bg-(--secondary)/20!">
-    <table tuiTable class="employee-table w-full" [size]="size" [(ngModel)]="selected">
-      <thead>
+  <!-- <app-employee-filter-bar [employees]="employees" (filterChange)="onFilterChange($event)" /> -->
+
+  <div class="table-scroll">
+    <table
+      tuiTable
+      class="employee-table w-full bg-(--secondary)/20"
+      [size]="size"
+      [(ngModel)]="selected"
+    >
+      <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
         <tr>
           <th tuiTh>Actions</th>
+          <th tuiTh>StaffNo</th>
           <th tuiTh class="col-checkbox">
             <div [tuiCell]="size">
               <input
@@ -19,11 +50,14 @@
               <span tuiTitle>Employee</span>
             </div>
           </th>
+          <th tuiTh class="">Email</th>
           <th tuiTh class="col-department">Department</th>
+          <th tuiTh>Branch</th>
+          <th tuiTh>Job Title</th>
+          <th tuiTh>Manager</th>
+          <th tuiTh>Is Active</th>
+          <th tuiTh>Created At</th>
           <th tuiTh>Role</th>
-          <th tuiTh>Status</th>
-          <th tuiTh class="col-tags">Skills</th>
-          <th tuiTh [style.width.rem]="9">Workload</th>
         </tr>
       </thead>
       <tbody tuiTbody>
@@ -38,20 +72,9 @@
                   tuiIconButton
                   type="button"
                   (click)="onMore(employee)"
-                  class="text-(--theme2)!"
+                  class="text-(--theme1)!"
                 >
                   More
-                </button>
-                <button
-                  appearance="action"
-                  iconStart="@tui.pencil"
-                  size="xs"
-                  tuiIconButton
-                  type="button"
-                  (click)="onEdit(employee)"
-                  class="text-(--theme2)!"
-                >
-                  Edit
                 </button>
                 <button
                   appearance="action"
@@ -60,17 +83,20 @@
                   tuiIconButton
                   type="button"
                   (click)="onEdit(employee)"
-                  class="text-(--theme2)!"
+                  class="text-(--theme1)!"
                 >
-                  Edit
+                  View
                 </button>
               </span>
+            </td>
+            <td tuiTd>
+              {{ employee.staffNo || 'N/A' }}
             </td>
             <td tuiTd class="col-checkbox">
               <div [tuiCell]="size">
                 <div
-                  [style.background]="employee.name | tuiAutoColor"
-                  [tuiAvatar]="employee.name | tuiInitials"
+                  [style.background]="employee.fullName | tuiAutoColor"
+                  [tuiAvatar]="employee.fullName | tuiInitials"
                 ></div>
                 <input
                   tuiCheckbox
@@ -79,63 +105,34 @@
                   [tuiCheckboxRow]="employee"
                 />
                 <span tuiTitle>
-                  {{ employee.name }}
-                  <span tuiSubtitle>{{ employee.email }}</span>
+                  {{ employee.fullName || 'N/A' }}
+                  <span tuiSubtitle>{{ employee.email || 'N/A' }}</span>
                 </span>
               </div>
             </td>
+            <td tuiTd>
+              {{ employee.email }}
+            </td>
             <td tuiTd class="col-department">
-              {{ employee.department }}
+              {{ employee.departmentName || 'N/A' }}
             </td>
             <td tuiTd>
-              {{ employee.role }}
+              {{ employee.branchName || 'N/A' }}
             </td>
             <td tuiTd>
-              <span class="p-1 px-2 rounded-full bg-green-100 text-xs">
-                {{ employee.status }}
-              </span>
-            </td>
-            <td tuiTd class="col-tags">
-              <tui-items-with-more>
-                @for (tag of employee.tags; track tag) {
-                  <div *tuiItem tuiBadge [style.margin-inline-end.rem]="0.25">
-                    {{ tag }}
-                  </div>
-                }
-                <ng-template let-number tuiMore>
-                  <button
-                    appearance="action-grayscale"
-                    tuiDropdownAlign="end"
-                    tuiDropdownAuto
-                    tuiLink
-                    type="button"
-                    [style.text-decoration-style]="'dashed'"
-                    [tuiDropdown]="dropdown"
-                  >
-                    + 1 more
-                  </button>
-                  <ng-template #dropdown>
-                    <div tuiItemGroup [style.padding]="'1rem 0.75rem 0.75rem 1rem'">
-                      @for (tag of employee.tags; track tag) {
-                        @if ($index > number) {
-                          <div tuiBadge>{{ tag }}</div>
-                        }
-                      }
-                    </div>
-                  </ng-template>
-                </ng-template>
-              </tui-items-with-more>
+              {{ employee.jobTitleName || 'N/A' }}
             </td>
             <td tuiTd>
-              <span tuiStatus>
-                <progress
-                  tuiProgressBar
-                  [style.width.rem]="5"
-                  style="--tui-progress-color: var(--theme2)"
-                  [value]="employee.workload ? employee.workload / 100 : null"
-                ></progress>
-                {{ employee.workload }}%
-              </span>
+              {{ employee.managerName || 'N/A' }}
+            </td>
+            <td tuiTd>
+              {{ employee.isActive || 'N/A' }}
+            </td>
+            <td tuiTd>
+              {{ employee.createdAtUtc }}
+            </td>
+            <td tuiTd>
+              {{ employee.role || 'N/A' }}
             </td>
           </tr>
         } @empty {

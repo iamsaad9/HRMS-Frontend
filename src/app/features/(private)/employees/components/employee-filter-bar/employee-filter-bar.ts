@@ -61,7 +61,7 @@ export class EmployeeFilterBarComponent implements OnChanges {
       this.departments = [
         ...new Set(
           this.employees
-            .map((e) => e.department)
+            .map((e) => e.departmentName)
             .filter((department): department is string => Boolean(department)),
         ),
       ].sort();
@@ -76,9 +76,7 @@ export class EmployeeFilterBarComponent implements OnChanges {
 
       this.statuses = [
         ...new Set(
-          this.employees
-            .map((e) => e.status)
-            .filter((status): status is string => Boolean(status)),
+          this.employees.map((e) => e.status).filter((status): status is string => Boolean(status)),
         ),
       ].sort();
     }
@@ -88,7 +86,7 @@ export class EmployeeFilterBarComponent implements OnChanges {
     this.activeFilter = {
       ...this.activeFilter,
       search: this.searchQuery().trim(),
-      department: this.selectedDepartment() || null,
+      departmentId: this.selectedDepartment() || null,
       role: (this.selectedRole() || null) as any,
       status: (this.selectedStatus() || null) as string | null,
     };
@@ -112,7 +110,7 @@ export class EmployeeFilterBarComponent implements OnChanges {
       this.selectedRole() ||
       this.selectedStatus() ||
       this.activeFilter.search ||
-      this.activeFilter.department ||
+      this.activeFilter.departmentId ||
       this.activeFilter.status,
     );
   }

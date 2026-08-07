@@ -1,5 +1,5 @@
 <header
-  class="min-w-screen flex flex-col justify-between items-center gap-3 bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) px-5 py-2 text-(--background_light) shadow-lg rounded-b-xl h-14"
+  class="min-w-screen flex flex-col justify-between items-center gap-3 bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) px-5 py-2 text-white shadow-lg rounded-b-xl h-14"
 >
   <div class="flex justify-between items-center gap-3 xl:gap-5 w-full">
     <!-- Mobile menu toggle -->
@@ -52,11 +52,11 @@
       <tui-textfield
         iconStart="@tui.search"
         tuiTextfieldSize="s"
-        class="flex flex-1 max-w-120 bg-(--secondary)/20! text-(--background_light)!"
+        class="flex flex-1 max-w-120 bg-(--secondary)/20! text-white/50!"
       >
         <input
           placeholder="Search"
-          class="text-(--background_light)! placeholder:text-(--background_light)!"
+          class="text-white! placeholder:text-white/50!"
           tuiInput
           [(ngModel)]="searchQuery"
         />
@@ -64,27 +64,27 @@
         @if (searchResults().length > 0) {
           <tui-data-list
             *tuiDropdown
-            class="z-10 w-full max-h-80 overflow-y-auto bg-(--background_light)"
+            class="z-10 w-full max-h-80 overflow-y-auto bg-white! dark:bg-(--background_light)!"
           >
             @for (item of searchResults(); track item.id) {
               <button
                 tuiOption
                 type="button"
                 (click)="handleItemClick(item)"
-                class="flex flex-col items-start gap-0! p-2 hover:bg-(--theme2)/20! rounded-md transition-colors text-(--background_dark)!"
+                class="flex flex-col items-start gap-0! p-2 hover:bg-(--primary)/10! rounded-md transition-colors text-(--background_light)!"
               >
                 <!-- Title & Category Badge -->
                 <div class="flex items-center justify-between w-full">
-                  <span class="font-semibold text-sm">{{ item.name }}</span>
+                  <span class="font-semibold text-sm text-(--primary)!">{{ item.name }}</span>
                   <span
-                    class="text-[10px] px-2 py-0.5 bg-(--secondary)/50 text-(--theme2) rounded-full font-medium"
+                    class="text-[10px] px-2 py-0.5 bg-(--secondary) text-(--theme2) dark:text-(--theme1) rounded-full font-medium"
                   >
                     {{ item.category }}
                   </span>
                 </div>
 
                 <!-- Description -->
-                <p class="text-xs text-left text-(--primary) line-clamp-1 w-full">
+                <p class="text-xs text-left text-(--primary)/50 line-clamp-1 w-full">
                   {{ item.description }}
                 </p>
               </button>
@@ -93,36 +93,52 @@
         }
       </tui-textfield>
 
+      <!-- Dark Mode -->
+      <button
+        tuiButton
+        type="button"
+        appearance="secondary"
+        size="s"
+        class=""
+        (click)="themeService.toggleTheme()"
+      >
+        @if (themeService.currentTheme() === 'light') {
+          <tui-icon class="scale-90 cursor-pointer" icon="@tui.moon" />
+        } @else {
+          <tui-icon class="scale-90 cursor-pointer" icon="@tui.sun" />
+        }
+      </button>
+
       <!-- Actions -->
       <div class="flex shrink-0 items-center gap-1 lg:gap-2">
         <button
           class="xl:flex items-center text-sm font-medium transition-opacity hover:opacity-90 cursor-pointer"
           tuiChevron
           type="button"
-          [attr.aria-expanded]="open()"
-          [tuiDropdown]="dropdownContent"
-          [tuiDropdownManual]="open()"
-          [tuiObscuredEnabled]="open()"
-          (click)="onClick()"
+          [attr.aria-expanded]="quickActionsOpen()"
+          [tuiDropdown]="quickActionsContent"
+          [tuiDropdownManual]="quickActionsOpen()"
+          [tuiObscuredEnabled]="quickActionsOpen()"
+          (click)="openQuickAddOpen()"
           (tuiActiveZoneChange)="onActiveZone($event)"
           (tuiObscured)="onObscured($event)"
         >
           <mat-icon>add</mat-icon>
-          <ng-template #dropdownContent>
+          <ng-template #quickActionsContent>
             <tui-data-list class="bg-(--background_light)!">
               @for (action of actions; track action.title) {
                 <button
                   tuiOption
                   type="button"
-                  class="hover:bg-(--theme2)/20!"
+                  class="hover:bg-(--primary)/10!"
                   (click)="onSelect(action)"
                   [routerLink]="action.route"
                 >
                   <div class="flex items-center justify-center gap-2 text-(--background_dark)!">
-                    <mat-icon class="scale-70">{{ action.icon }}</mat-icon>
-                    <span tuiTitle class="text-sm!">
+                    <mat-icon class="scale-80">{{ action.icon }}</mat-icon>
+                    <span tuiTitle class="text-sm! gap-0!">
                       {{ action.title }}
-                      <span tuiSubtitle class="text-xs! text-(--primary)!">{{
+                      <span tuiSubtitle class="text-xs! text-(--primary)/50!">{{
                         action.description
                       }}</span>
                     </span>
@@ -149,10 +165,73 @@
 
         <button
           type="button"
-          class="grid h-9 w-9 place-items-center rounded-full bg-[#2E3240] text-sm font-medium text-[#ECEAE3] hover:opacity-90"
-          aria-label="Account menu"
+          class="xl:flex items-center text-sm font-medium transition-opacity hover:opacity-90 cursor-pointer"
+          [attr.aria-expanded]="userDropdownOpen()"
+          [tuiDropdown]="userDropdownContent"
+          [tuiDropdownManual]="userDropdownOpen()"
+          [tuiObscuredEnabled]="userDropdownOpen()"
+          (click)="openUserDropDown()"
+          (tuiActiveZoneChange)="onActiveZone($event)"
+          (tuiObscured)="onObscured($event)"
         >
-          SA
+          <div
+            size="m"
+            tuiAvatar="@tui.user"
+            tuiAvatarOutline="var(--theme1)"
+            class="text-white! bg-black/20!"
+          >
+            <img alt="Alex Inkin" src="assets/images/avatar.jpg" />
+          </div>
+          <ng-template #userDropdownContent>
+            <tui-data-list class="bg-(--background_light)!">
+              <button tuiOption type="button" class="hover:bg-(--primary)/10!">
+                <div class="flex items-center gap-2 w-full text-(--background_dark)!">
+                  <tui-icon class="scale-80 shrink-0" icon="@tui.user-round" />
+
+                  <div class="flex items-center justify-between w-full">
+                    <!-- Left -->
+                    <span tuiTitle class="text-sm! gap-0!">
+                      Saad Masood
+                      <span tuiSubtitle class="text-xs! text-(--primary)/50!">
+                        saad@example.com
+                      </span>
+                    </span>
+
+                    <!-- Right -->
+                    <span
+                      class="rounded-full bg-(--primary)/10 px-2 py-1 text-xs font-medium text-(--primary)"
+                    >
+                      Admin
+                    </span>
+                  </div>
+                </div>
+              </button>
+
+              <button tuiOption type="button" class="hover:bg-(--primary)/10!">
+                <div class="flex items-center gap-2 text-(--background_dark)!">
+                  <tui-icon class="scale-80" icon="@tui.settings" />
+                  <span tuiTitle class="text-sm! gap-0!">
+                    Settings
+                    <span tuiSubtitle class="text-xs! text-(--primary)/50!">
+                      Manage account, security and preferences
+                    </span>
+                  </span>
+                </div>
+              </button>
+
+              <button tuiOption type="button" class="hover:bg-(--logout)!" (click)="onLogout()">
+                <div class="flex items-center justify-center gap-2 text-(--background_dark)!">
+                  <tui-icon class="scale-80 cursor-pointer" icon="@tui.log-out" />
+                  <span tuiTitle class="text-sm! gap-0!">
+                    Logout
+                    <span tuiSubtitle class="text-xs! text-(--primary)/50!"
+                      >Log out of current session</span
+                    >
+                  </span>
+                </div>
+              </button>
+            </tui-data-list>
+          </ng-template>
         </button>
       </div>
     </div>

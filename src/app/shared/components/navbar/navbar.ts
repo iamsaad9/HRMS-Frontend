@@ -21,6 +21,9 @@ import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { TuiFilterByInputPipe, TuiInput, TuiSelectLike } from '@taiga-ui/core';
 import { FormsModule } from '@angular/forms';
+import { ThemeService } from '../../../core/services/theme.service';
+import { TuiAvatar, TuiAvatarOutline } from '@taiga-ui/kit';
+import { AuthService } from '../../../features/(public)/auth/services/auth.service';
 
 interface ExampleAction {
   readonly icon: string;
@@ -56,6 +59,8 @@ interface Routes {
     TuiInput,
     RouterLink,
     TuiIcon,
+    TuiAvatar,
+    TuiAvatarOutline,
   ],
   standalone: true,
   templateUrl: './navbar.html',
@@ -111,14 +116,21 @@ export class NavbarComponent {
     },
   ];
 
-  protected readonly open = signal(false);
+  private readonly authService = inject(AuthService);
+  protected readonly quickActionsOpen = signal(false);
+  protected readonly userDropdownOpen = signal(false);
   protected readonly router = inject(Router);
   protected readonly navMenuOpen = signal(false);
   protected readonly selected = signal<ExampleAction | null>(null);
   protected readonly buttonLabel = computed(() => this.selected()?.title ?? 'Choose');
+  protected readonly themeService = inject(ThemeService);
 
-  protected onClick(): void {
-    this.open.update((open) => !open);
+  protected openQuickAddOpen(): void {
+    this.quickActionsOpen.update((open) => !open);
+  }
+
+  protected openUserDropDown(): void {
+    this.userDropdownOpen.update((open) => !open);
   }
 
   protected openNavMenu(): void {
@@ -127,21 +139,23 @@ export class NavbarComponent {
 
   protected onObscured(obscured: boolean): void {
     if (obscured) {
-      this.open.set(false);
+      this.quickActionsOpen.set(false);
       this.navMenuOpen.set(false);
+      this.userDropdownOpen.set(false);
     }
   }
 
   protected onActiveZone(active: boolean): void {
     if (!active) {
-      this.open.set(false);
+      this.quickActionsOpen.set(false);
       this.navMenuOpen.set(false);
+      this.userDropdownOpen.set(false);
     }
   }
 
   protected onSelect(action: ExampleAction): void {
     this.selected.set(action);
-    this.open.set(false);
+    this.quickActionsOpen.set(false);
   }
 
   protected navigateTo(routePath: string) {
@@ -163,6 +177,10 @@ export class NavbarComponent {
     const url = this.router.serializeUrl(this.router.createUrlTree([item.route]));
     window.open(url, '_blank', 'noopener,noreferrer');
     this.searchQuery.set('');
+  }
+
+  protected onLogout(): void {
+    this.authService.logout().subscribe();
   }
 
   protected readonly mockDropdownItems: DropDownItem[] = [
@@ -221,6 +239,12 @@ export class NavbarComponent {
           title: 'Add Employee',
           description: 'Add an employees',
           routeTo: '/employee/new',
+        },
+        {
+          icon: 'cloud_upload',
+          title: 'Bulk Upload Employee',
+          description: 'Bulk upload employee using CSV',
+          routeTo: '/employee/new/bulk-upload',
         },
         {
           icon: 'person_outline',

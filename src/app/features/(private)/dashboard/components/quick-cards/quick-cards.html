@@ -13,12 +13,15 @@
     <!-- CARD 1: Headcount Target with TuiProgressCircle -->
     <div
       tuiCardLarge
-      class="bg-(--background_light) rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between"
+      class="bg-(--background_light)! rounded-2xl p-6 border shadow-sm flex flex-col justify-between"
     >
       <div>
         <!-- Profile Header -->
-        <div class="flex items-center gap-4 pb-6 border-b border-slate-100">
-          <div tuiAvatar="@tui.user" class="!w-16 !h-16 rounded-full ring-2 ring-slate-100"></div>
+        <div class="flex items-center gap-4 pb-6 border-b border-(--primary)!">
+          <div
+            tuiAvatar="@tui.user"
+            class="!w-16 !h-16 rounded-full ring-2 ring-(--secondary)"
+          ></div>
 
           <div class="flex-1 min-w-0">
             <h3 class="text-xl font-bold text-(--theme2) truncate">
@@ -28,7 +31,7 @@
               {{ user.role }}
             </p>
             <span
-              class="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-slate-100 text-(--primary)/80 font-semibold"
+              class="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-(--secondary)/50 text-(--primary)/80 font-semibold"
             >
               {{ user.department }}
             </span>
@@ -60,14 +63,14 @@
           </div>
 
           <div class="grid grid-cols-2 gap-3">
-            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+            <div class="p-3.5 rounded-xl bg-(--secondary)/50">
               <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
               <span class="text-lg font-bold text-(--primary) mt-0.5 block">
                 {{ user.todayStatus.startTime }}
               </span>
             </div>
 
-            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+            <div class="p-3.5 rounded-xl bg-(--secondary)/50">
               <span class="text-xs text-(--primary)/80 block font-medium">End Time</span>
               <span class="text-lg font-bold text-(--primary) mt-0.5 block">
                 {{ user.todayStatus.endTime || '--:--' }}
@@ -87,7 +90,7 @@
 
     <div
       tuiCardLarge
-      class="flex flex-col justify-between rounded-xl p-5 text-(--primary) shadow-md hover:shadow-lg"
+      class="bg-(--background_light)! flex flex-col justify-between rounded-xl p-5 text-(--primary) shadow-md hover:shadow-lg"
     >
       <div tuiHeader class="flex items-center justify-between">
         <span class="text-sm font-medium text-(--theme2)">Total Headcount</span>
@@ -114,7 +117,7 @@
     <!-- CARD 2: Today's Attendance with TuiRingChart -->
     <div
       tuiCardLarge
-      class="flex flex-col justify-between rounded-xl p-5 text-(--primary) shadow-md hover:shadow-lg"
+      class="bg-(--background_light)! flex flex-col justify-between rounded-xl p-5 text-(--primary) shadow-md hover:shadow-lg"
     >
       <div tuiHeader class="flex items-center justify-between">
         <span class="text-sm font-medium text-(--theme2)">Today's Attendance</span>
@@ -144,7 +147,7 @@
     <!-- CARD 3: Monthly Payroll Sparkline with TuiLineChart -->
     <div
       tuiCardLarge
-      class="flex flex-col justify-between rounded-xl p-5 text-(--primary) shadow-md hover:shadow-lg"
+      class="bg-(--background_light)! flex flex-col justify-between rounded-xl p-5 text-(--primary) shadow-md hover:shadow-lg"
     >
       <div tuiHeader class="flex items-center justify-between">
         <span class="text-sm font-medium text-(--theme2)">Monthly Payroll</span>
@@ -162,7 +165,7 @@
     <!-- CARD 4: Pending Approvals Action Card -->
     <div
       tuiCardLarge
-      class="flex flex-col justify-between rounded-xl p-5 text-(--primary) shadow-md hover:shadow-lg"
+      class="bg-(--background_light)! flex flex-col justify-between rounded-xl p-5 text-(--primary) shadow-md hover:shadow-lg"
     >
       <div tuiHeader class="flex items-center justify-between">
         <span class="text-sm font-medium text-(--theme2)">Pending Approvals</span>

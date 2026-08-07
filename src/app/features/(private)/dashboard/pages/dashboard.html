@@ -1,14 +1,35 @@
-<div class="flex flex-col gap-5">
+<div class="flex flex-col gap-5 mt-5">
   <div class="flex flex-col gap-5">
     <div class="flex items-center justify-between">
-      <header class="text-3xl! text-(--primary) font-bold! mt-5">
-        Welcome Back <span class="text-(--theme2)">Saad</span>!
-      </header>
+      <div class="flex flex-col justify-center">
+        <header class="text-3xl! text-(--primary) font-bold! text-shadow-sm">
+          Welcome Back <span class="text-(--theme1)">Saad</span>!
+        </header>
 
-      <h1 class="text-(--primary) font-semibold text-sm flex items-center justify-center gap-2">
-        <mat-icon class="text-(--theme2)!">access_time</mat-icon
-        >{{ currentDate | date: 'mediumDate' }}
-      </h1>
+        <span class="text-sm text-(--primary)/80">Manage your dashboard</span>
+      </div>
+
+      <div class="flex gap-2 items-center">
+        <button
+          type="button"
+          tuiButton
+          iconStart="@tui.refresh-cw"
+          size="s"
+          class="cursor-pointer bg-(--theme3)! hover:bg-(--theme3)/80!"
+        >
+          Refresh
+        </button>
+        <button
+          type="button"
+          tuiButton
+          iconStart="@tui.download"
+          size="s"
+          class="cursor-pointer bg-(--secondary)! text-(--primary)! hover:bg-(--primary)/50"
+        >
+          Export
+        </button>
+        <app-dashboard-clock />
+      </div>
     </div>
   </div>
 

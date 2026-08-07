@@ -28,6 +28,7 @@
     "@taiga-ui/icons": "^5.5.0",
     "@taiga-ui/kit": "^5.17.0",
     "@taiga-ui/layout": "^5.17.0",
+    "papaparse": "^5.5.4",
     "primeng": "^21.1.9",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
@@ -37,6 +38,7 @@
     "@angular/cli": "^21.2.10",
     "@angular/compiler-cli": "^21.2.0",
     "@tailwindcss/postcss": "^4.1.12",
+    "@types/papaparse": "^5.5.2",
     "jsdom": "^28.0.0",
     "less": "^4.6.4",
     "postcss": "^8.5.3",

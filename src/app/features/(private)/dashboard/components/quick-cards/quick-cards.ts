@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { KpiCard } from '../../dashboard.model';
-import { TuiPoint, TuiIcon } from '@taiga-ui/core';
+import { TuiPoint, TuiIcon, TuiAppearance } from '@taiga-ui/core';
 import { TuiRingChart, TuiArcChart } from '@taiga-ui/addon-charts';
 import { TuiAccordion, TuiAvatar, TuiProgressCircle } from '@taiga-ui/kit';
 import { FormsModule } from '@angular/forms';
@@ -27,6 +27,7 @@ import { TuiAmountPipe } from '@taiga-ui/addon-commerce';
     TuiAccordion,
     TuiIcon,
     TuiAvatar,
+    TuiAppearance,
   ],
   templateUrl: './quick-cards.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

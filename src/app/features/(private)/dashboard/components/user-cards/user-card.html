@@ -13,9 +13,9 @@
     <!-- 7 Days Clock-in / Clock-out History Card -->
     <div
       tuiCardLarge
-      class="bg-(--background_light) rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col"
+      class="bg-(--background_light)! rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col"
     >
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between border-b border-(--secondary) pb-4">
         <div>
           <h3 class="text-xl font-bold text-(--theme2)">Shift History</h3>
           <p class="text-sm text-(--primary)/80">Last 7 days attendance record</p>
@@ -28,16 +28,16 @@
         <table class="w-full text-left text-sm border-collapse">
           <thead>
             <tr
-              class="border-b border-slate-100 text-(--primary)/80 uppercase text-xs tracking-wider"
+              class="border-b border-(--secondary) text-(--primary)/80 uppercase text-xs tracking-wider"
             >
               <th class="py-3 px-2 font-semibold">Date</th>
               <th class="py-3 px-2 font-semibold">Clock In</th>
               <th class="py-3 px-2 font-semibold">Clock Out</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
+          <tbody class="divide-y divide-(--secondary)">
             @for (item of clockHistory; track $index) {
-              <tr class="hover:bg-slate-50/60 transition-colors">
+              <tr class="hover:bg-(--secondary)/20 transition-colors cursor-pointer">
                 <td class="py-2 px-2 font-semibold text-(--primary)">
                   {{ item.date }}
                 </td>
@@ -66,10 +66,10 @@
 
     <div
       tuiCardLarge
-      class="flex flex-col justify-between rounded-xl col-span-2 p-6 shadow-sm text-(--primary)"
+      class="bg-(--background_light)! flex flex-col justify-between rounded-xl col-span-2 p-6 shadow-sm text-(--primary)"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between border-b border-(--secondary) pb-4">
         <div>
           <h3 class="text-lg font-bold text-(--theme2)">Work Hour Overview</h3>
           <p class="text-xs text-(--primary)/80">Last 30 days work hour overview.</p>

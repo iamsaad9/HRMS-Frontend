@@ -15,12 +15,10 @@
     <!-- CARD 2: Team Members Card (Spans 1 column) -->
     <div
       tuiCardLarge
-      class="flex flex-col rounded-xl border border-slate-200 bg-(--background_light) p-6 shadow-sm lg:col-span-1"
+      class="flex flex-col rounded-xl bg-(--background_light)! p-6 shadow-sm lg:col-span-1"
     >
       <!-- Header -->
-      <div
-        class="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800"
-      >
+      <div class="flex items-center justify-between border-b border-(--secondary) pb-4">
         <div>
           <h3 class="text-lg font-bold text-(--theme2)">Team Members</h3>
           <p class="text-xs text-(--primary)/80">Direct reports & presence status</p>
@@ -74,7 +72,8 @@
 
       <!-- Action Button -->
       <button
-        class="mt-auto w-full rounded-lg border py-2 text-center text-sm font-semibold text-(--background_light) transition bg-(--theme2) cursor-pointer hover:scale-102"
+        tuiButton
+        class="mt-auto w-full rounded-lg border py-2! text-center text-sm font-semibold text-(--background_light) transition bg-(--theme2) cursor-pointer hover:scale-102 block-0!"
       >
         View All Team Analytics
       </button>

@@ -1,26 +1,38 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 
 :root{
-  --theme1:#f7a833;
+   --theme1:#f7a833;
     --theme2:#A3192D;
     --theme3:#19528e;
+}
+[tuiTheme="light"]{
+ 
     --theme_primary:#811323;
     --primary:#3f3d41;
     --secondary:#D6D6D6;
     --background_light:white;
     --background_dark:#1d1d1d;
+    --logout:#ffc9c9;
 }
 
+[tuiTheme="dark"]{
+--theme_primary: #c23347;   
+--primary: #e4e4e6;        
+--secondary: #4a4a4a;       
+--background_light: #1d1d1d; 
+--background_dark: white; 
+--logout:#82181a;
+}
 
 [tuiTheme="dark"] {
-  --tui-background-base: var(--background_light) !important;
-  --tui-background-base-alt: var(--secondary) !important;
+  --tui-background-base: #1d1d1d !important;
 }
 
 html,body{
-  background: #1d1d1d;
+ font-family: "Plus Jakarta Sans", sans-serif !important;
   padding: 0px;
   margin: 0px;
 }

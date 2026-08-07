@@ -1,4 +1,4 @@
-<div class="w-full mx-auto p-5" tuiTheme="light">
+<div class="w-full mx-auto p-5 max-w-7xl">
   <tui-tabs
     [activeItemIndex]="activeStepIndex()"
     (activeItemIndexChange)="selectStep($event)"
@@ -57,12 +57,14 @@
       </button>
       <button tuiButton (click)="submitFullPayload()" class="gap-0!" size="m">
         @if (isSubmiting()) {
-          <span
-            class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"
-          ></span>
-          <span>Creating Employee..</span>
+          <div class="flex items-center justify-center gap-2">
+            <span
+              class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"
+            ></span>
+            <span>Creating Employee..</span>
+          </div>
         } @else {
-          Create Emlployee
+          <span>Creating Employee..</span>
         }
       </button>
     </footer>

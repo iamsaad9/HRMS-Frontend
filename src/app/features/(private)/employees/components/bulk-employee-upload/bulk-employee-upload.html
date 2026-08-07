@@ -1,0 +1,104 @@
+<div class="w-full flex flex-col gap-5 max-w-7xl mx-auto">
+  <header>
+    <app-main-heading
+      title="Employee Bulk Upload"
+      description="Add multiple employees using a CSV"
+    />
+  </header>
+
+  <div tuiCardLarge class="flex flex-col gap-5 p-4 w-full bg-(--secondary)/20! drop-shadow-sm">
+    @if (!control.value) {
+      <label tuiInputFiles class="h-50!">
+        <input
+          accept=".csv,text/csv"
+          tuiInputFiles
+          [formControl]="control"
+          class="border! border-(--theme1)!"
+        />
+      </label>
+    }
+
+    <tui-files class="tui-space_top-1">
+      @if (control.value | tuiFileRejected: { accept: '.csv,text/csv' } | async; as file) {
+        <tui-file state="error" [file]="file" (remove)="removeFile()" />
+      }
+      @if (loadedFiles$ | async; as file) {
+        <tui-file size="l" [file]="file" (remove)="removeFile()" />
+      }
+      @if (failedFiles$ | async; as file) {
+        <tui-file state="error" [file]="file" (remove)="removeFile()" />
+      }
+      @if (loadingFiles$ | async; as file) {
+        <tui-file state="loading" [file]="file" (remove)="removeFile()" />
+      }
+    </tui-files>
+
+    @if (rows().length > 0) {
+      <div class="flex items-center justify-between mt-4">
+        <span class="text-sm p-1 px-2 rounded-full bg-(--secondary)"
+          >{{ rows().length }} Rows Found</span
+        >
+        <button
+          tuiButton
+          type="button"
+          size="m"
+          class="bg-(--theme1)!"
+          (click)="startUpload()"
+          [disabled]="isUploading()"
+        >
+          <div class="flex items-center justify-center gap-2">
+            @if (isUploading()) {
+              <span
+                class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"
+              ></span>
+              <span>Uploading…</span>
+            } @else {
+              <span> Start Upload</span>
+            }
+          </div>
+        </button>
+      </div>
+
+      @if (isUploading() || successCount() > 0 || errorCount() > 0) {
+        <div class="flex items-center gap-3 mt-3">
+          <progress
+            class="flex-1"
+            [max]="max"
+            [value]="progressValue()"
+            [style.color]="progressColor()"
+            tuiProgressBar
+          ></progress>
+          <span class="text-sm whitespace-nowrap">{{ progressValue() }}%</span>
+        </div>
+        <div class="flex gap-4 text-sm mt-1">
+          <span appearance="positive" tuiChip> Success: {{ successCount() }} </span>
+          <span appearance="negative" tuiChip> Failed: {{ errorCount() }} </span>
+          <span tuiChip> Remaining: {{ rows().length - successCount() - errorCount() }} </span>
+
+          <span></span>
+        </div>
+      }
+
+      <div class="flex flex-col gap-2 mt-4">
+        @for (row of rows(); track row) {
+          <button
+            tuiAppearance="floating"
+            tuiSurface
+            type="button"
+            class="flex items-center justify-between w-full px-4 py-3 rounded-lg"
+          >
+            <span class="flex flex-col items-start text-left">
+              <span class="text-sm font-medium">{{ fullName(row) }}</span>
+              @if (row.status === 'error' && row.error) {
+                <span class="text-xs text-(--tui-status-negative)">{{ row.error }}</span>
+              }
+            </span>
+            <span [appearance]="badgeAppearance(row.status)" tuiBadge tuiStatus>
+              {{ badgeLabel(row.status) }}
+            </span>
+          </button>
+        }
+      </div>
+    }
+  </div>
+</div>

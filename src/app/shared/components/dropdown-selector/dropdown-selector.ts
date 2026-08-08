@@ -16,17 +16,16 @@ import { TuiChevron } from '@taiga-ui/kit';
 import { Router, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 
-// export interface DropdownAction {
-//   title: string;
-//   description?: string;
-// }
-
 export interface DropDownItem {
+  id: string;
   icon?: string;
   title: string;
   description: string;
   routeTo?: string;
+  category: string;
   childItems?: DropDownItem[];
+  tags?: string[];
+  permissions?: string;
 }
 
 @Component({

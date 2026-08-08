@@ -9,7 +9,7 @@
     <tui-textfield
       iconStart="@tui.search"
       tuiTextfieldSize="m"
-      class="w-full bg-(--background_light)! items-center! rounded-lg text-(--theme2)!"
+      class="w-full bg-(--background_light)! items-center! rounded-lg text-(--theme1)!"
     >
       <input
         placeholder="Search by name, email..."
@@ -28,7 +28,7 @@
         tuiButton
         iconStart="@tui.filter"
         size="s"
-        class="cursor-pointer bg-(--theme3)! text-(--background_light)! hover:bg-(--theme3)/80!"
+        class="cursor-pointer bg-(--theme3)! hover:bg-(--theme3)/80!"
         (click)="applyFilter()"
       >
         Apply Filters
@@ -40,7 +40,7 @@
           tuiButton
           appearance="flat"
           size="s"
-          class="cursor-pointer! text-slate-600 hover:text-slate-900"
+          class="cursor-pointer! hover:text-slate-900 bg-(--secondary)! text-white!"
           (click)="clear()"
         >
           Reset

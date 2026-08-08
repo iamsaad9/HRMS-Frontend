@@ -12,6 +12,8 @@ import { MatIcon } from '@angular/material/icon';
 import { DynamicToast } from '../../../../../shared/components/toast/DynamicToast';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { finalize } from 'rxjs';
+import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
+import { Router } from '@angular/router';
 
 interface StepConfig {
   id: number;
@@ -30,12 +32,15 @@ interface StepConfig {
     MatIcon,
     TuiToast,
     TuiButton,
+    MainHeading,
+    TuiButton,
   ],
   templateUrl: './add-employee.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddEmployee {
   private readonly employeeService = inject(EmployeeService);
+  protected readonly router = inject(Router);
   private readonly toast = inject(TuiToastService);
   protected isSubmiting = signal<Boolean>(false);
   protected readonly steps: StepConfig[] = [

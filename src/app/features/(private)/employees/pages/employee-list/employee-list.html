@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-5">
+<div class="flex flex-col gap-5 max-w-7xl mx-auto">
   <app-main-heading
     title="Employee List"
     description="List of all the employees in the organization"
@@ -26,8 +26,12 @@
     </div>
   </app-main-heading>
 
-  <!-- <app-employee-filter-bar [employees]="employees" (filterChange)="onFilterChange($event)" /> -->
+  <app-employee-filter-bar
+    [employees]="employees() ?? []"
+    (filterChange)="onFilterChange($event)"
+  />
 
+  <
   <div class="table-scroll">
     <table
       tuiTable
@@ -61,7 +65,7 @@
         </tr>
       </thead>
       <tbody tuiTbody>
-        @for (employee of filteredEmployees(); track employee.id) {
+        @for (employee of paginatedEmployees(); track employee.id) {
           <tr>
             <td tuiTd class="col-actions w-10">
               <span tuiStatus>
@@ -143,4 +147,19 @@
       </tbody>
     </table>
   </div>
+
+  @if (filteredEmployees().length > 0) {
+    <div class="flex items-center justify-between mt-3 text-(--theme1)!">
+      <span class="text-sm">
+        Showing {{ page() * pageSize + 1 }}–{{ page() * pageSize + paginatedEmployees().length }} of
+        {{ filteredEmployees().length }}
+      </span>
+
+      <tui-pagination
+        [length]="totalPages()"
+        [index]="page()"
+        (indexChange)="onPageChange($event)"
+      />
+    </div>
+  }
 </div>

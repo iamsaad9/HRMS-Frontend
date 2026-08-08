@@ -21,7 +21,7 @@
           @for (exp of experiences.controls; track $index) {
             <div
               [formGroupName]="$index"
-              class="p-4 rounded-lg flex drop-shadow-sm flex-col gap-4 border border-(--background_dark)/10"
+              class="p-4 rounded-lg flex drop-shadow-sm flex-col gap-4 border border-(--background_dark)/10 bg-(--background_light)"
             >
               <!-- Header Bar -->
               <div class="flex items-center justify-between">
@@ -176,7 +176,7 @@
           @for (edu of educations.controls; track $index) {
             <div
               [formGroupName]="$index"
-              class="p-4 border rounded-lg flex flex-col gap-4 border-(--background_dark)/10"
+              class="p-4 border rounded-lg flex flex-col gap-4 border-(--background_dark)/10 bg-(--background_light)"
             >
               <!-- Header Bar -->
               <div class="flex items-center justify-between">

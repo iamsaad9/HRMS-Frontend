@@ -1,7 +1,7 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TuiAppearance, TuiButton } from '@taiga-ui/core';
+import { TuiAppearance, TuiButton, TuiIcon } from '@taiga-ui/core';
 import {
   TuiBadge,
   TuiChip,
@@ -64,6 +64,7 @@ interface UploadRow {
     MainHeading,
     TuiCardLarge,
     TuiChip,
+    TuiIcon,
   ],
   templateUrl: './bulk-employee-upload.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

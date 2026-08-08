@@ -20,7 +20,7 @@ import { AuthService } from '../../../features/(public)/auth/services/auth.servi
       </div>
 
       <div class="flex justify-center gap-3">
-        <button tuiButton type="button" appearance="accent" size="m" (click)="keepAlive()">
+        <button tuiButton type="button" class="bg-(--theme2)!" size="m" (click)="keepAlive()">
           Keep Me Logged In
         </button>
         <button tuiButton type="button" appearance="secondary" size="m" (click)="logout()">

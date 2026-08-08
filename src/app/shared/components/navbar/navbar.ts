@@ -24,21 +24,13 @@ import { FormsModule } from '@angular/forms';
 import { ThemeService } from '../../../core/services/theme.service';
 import { TuiAvatar, TuiAvatarOutline } from '@taiga-ui/kit';
 import { AuthService } from '../../../features/(public)/auth/services/auth.service';
+import { DropdownItems } from '../../../core/config/navigation.config';
 
 interface ExampleAction {
   readonly icon: string;
   readonly description: string;
   readonly title: string;
   readonly route: string;
-}
-
-interface Routes {
-  id: string;
-  name: string;
-  description: string;
-  route: string;
-  category: string;
-  tags: string[];
 }
 
 @Component({
@@ -76,25 +68,44 @@ export class NavbarComponent {
   searchResults = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
 
-    // If query is empty or less than 2 characters, don't show any dropdown data
     if (query.length < 2) {
       return [];
     }
 
-    // 3. This is where the actual comparison happens!
-    return this.mockRoutes.filter((route) => {
-      const matchTitle = route.name.toLowerCase().includes(query);
-      const matchCategory = route.category.toLowerCase().includes(query);
+    // 1. Helper function to recursively flatten all items with a routeTo target
+    const flattenNavItems = (items: DropDownItem[]): DropDownItem[] => {
+      return items.reduce<DropDownItem[]>((acc, item) => {
+        // Include current item if it has an actionable route
+        if (item.routeTo) {
+          acc.push(item);
+        }
 
-      // Optional: checks your tag arrays if they are present in your interface
-      const matchTags = route.tags?.some((tag) => tag.toLowerCase().includes(query));
+        // Recursively collect actionable routes from childItems
+        if (item.childItems && item.childItems.length > 0) {
+          acc.push(...flattenNavItems(item.childItems));
+        }
 
-      return matchTitle || matchCategory || matchTags;
+        return acc;
+      }, []);
+    };
+
+    // 2. Extract all searchable leaf routes
+    const allRoutes = flattenNavItems(this.dropdownItems);
+
+    // 3. Filter the flat list based on the search query
+    return allRoutes.filter((route) => {
+      const matchTitle = route.title?.toLowerCase().includes(query) ?? false;
+      const matchDescription = route.description?.toLowerCase().includes(query) ?? false;
+      const matchCategory = route.category?.toLowerCase().includes(query) ?? false;
+      const matchTags = route.tags?.some((tag) => tag.toLowerCase().includes(query)) ?? false;
+
+      return matchTitle || matchDescription || matchCategory || matchTags;
     });
   });
   activeIndex = signal(-1);
   menuToggle = output<void>();
-  protected readonly stringifyRoute = (item: Routes): string => item.name;
+
+  protected readonly stringifyRoute = (item: DropDownItem): string => item.title;
   protected readonly actions: readonly ExampleAction[] = [
     {
       icon: 'add',
@@ -116,6 +127,7 @@ export class NavbarComponent {
     },
   ];
 
+  protected readonly dropdownItems = DropdownItems;
   private readonly authService = inject(AuthService);
   protected readonly quickActionsOpen = signal(false);
   protected readonly userDropdownOpen = signal(false);
@@ -124,6 +136,34 @@ export class NavbarComponent {
   protected readonly selected = signal<ExampleAction | null>(null);
   protected readonly buttonLabel = computed(() => this.selected()?.title ?? 'Choose');
   protected readonly themeService = inject(ThemeService);
+  protected readonly currentUser = this.authService.currentUser();
+  private readonly userPermissions = computed(
+    () => this.authService.currentUser()?.permissions ?? [],
+  );
+  protected readonly allowedDropDownItems = computed(() =>
+    this.filterByPermission(this.dropdownItems, this.userPermissions()),
+  );
+
+  protected filterByPermission(items: DropDownItem[], permissions: string[]): DropDownItem[] {
+    return items.reduce<DropDownItem[]>((acc, item) => {
+      const hasOwnAccess = !item.permissions || permissions.includes(item.permissions);
+
+      const filteredChildren = item.childItems
+        ? this.filterByPermission(item.childItems, permissions)
+        : undefined;
+
+      const hasVisibleChildren = !!filteredChildren && filteredChildren.length > 0;
+
+      if (hasOwnAccess || hasVisibleChildren) {
+        acc.push({
+          ...item,
+          ...(item.childItems ? { childItems: filteredChildren } : {}),
+        });
+      }
+
+      return acc;
+    }, []);
+  }
 
   protected openQuickAddOpen(): void {
     this.quickActionsOpen.update((open) => !open);
@@ -172,248 +212,12 @@ export class NavbarComponent {
     }, 150);
   }
 
-  protected handleItemClick(item: Routes): void {
-    console.log('User selected route:', item.name);
-    const url = this.router.serializeUrl(this.router.createUrlTree([item.route]));
-    window.open(url, '_blank', 'noopener,noreferrer');
+  protected handleItemClick(item: DropDownItem): void {
+    this.router.navigate([item.routeTo]);
     this.searchQuery.set('');
   }
 
   protected onLogout(): void {
     this.authService.logout().subscribe();
   }
-
-  protected readonly mockDropdownItems: DropDownItem[] = [
-    {
-      icon: 'dashboard',
-      title: 'Dashboard',
-      description: 'Overview of your account and activity',
-      routeTo: '/dashboard',
-    },
-    {
-      icon: 'file_copy',
-      title: 'Projects',
-      description: 'Manage all your projects',
-      childItems: [
-        {
-          icon: 'watch_later',
-          title: 'Active Projects',
-          description: 'View ongoing projects',
-          routeTo: '/projects/active',
-        },
-        {
-          icon: 'archive',
-          title: 'Archived Projects',
-          description: 'Browse archived projects',
-          routeTo: '/projects/archived',
-        },
-        {
-          icon: 'add',
-          title: 'Create Project',
-          description: 'Start a new project',
-          routeTo: '/projects/new',
-          childItems: [
-            {
-              icon: 'insert_drive_file',
-              title: 'Empty Project',
-              description: 'Start an empty project',
-              routeTo: '/project/empty/new',
-            },
-            {
-              icon: 'add_to_photos',
-              title: 'Template Project',
-              description: 'Start an template based project',
-              routeTo: '/project/template/new',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      icon: 'people_outline',
-      title: 'Employee',
-      description: 'Manage employee and roles',
-      childItems: [
-        {
-          icon: 'add',
-          title: 'Add Employee',
-          description: 'Add an employees',
-          routeTo: '/employee/new',
-        },
-        {
-          icon: 'cloud_upload',
-          title: 'Bulk Upload Employee',
-          description: 'Bulk upload employee using CSV',
-          routeTo: '/employee/new/bulk-upload',
-        },
-        {
-          icon: 'person_outline',
-          title: 'All Employees',
-          description: 'View all employees',
-          routeTo: '/employee/all',
-        },
-        {
-          icon: 'security',
-          title: 'Roles',
-          description: 'Manage user roles and permissions',
-          routeTo: '/team/roles',
-          childItems: [
-            {
-              icon: 'supervised_user_circle',
-              title: 'All Roles',
-              description: 'View all Roles',
-              routeTo: '/roles/all',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      icon: 'chrome_reader_mode',
-      title: 'Reports',
-      description: 'View analytics and reports',
-      childItems: [
-        {
-          icon: 'attach_money',
-          title: 'Sales Report',
-          description: 'Monthly sales analytics',
-          routeTo: '/reports/sales',
-        },
-        {
-          icon: 'attach_money',
-          title: 'Performance',
-          description: 'Track team performance',
-          routeTo: '/reports/performance',
-        },
-        {
-          icon: 'note_add',
-          title: 'Custom Reports',
-          description: 'Generate custom reports',
-          routeTo: '/reports/custom',
-        },
-      ],
-    },
-    {
-      icon: 'settings',
-      title: 'Settings',
-      description: 'Configure application preferences',
-      childItems: [
-        {
-          icon: 'person',
-          title: 'Profile',
-          description: 'Update your profile information',
-          routeTo: '/settings/profile',
-        },
-        {
-          icon: 'security',
-          title: 'Security',
-          description: 'Manage password and authentication',
-          routeTo: '/settings/security',
-        },
-        {
-          icon: 'notifications',
-          title: 'Notifications',
-          description: 'Configure notification preferences',
-          routeTo: '/settings/notifications',
-        },
-      ],
-    },
-    {
-      icon: 'help_outline',
-      title: 'Help Center',
-      description: 'Documentation and support resources',
-      routeTo: '/help',
-    },
-  ];
-
-  protected readonly mockRoutes: Routes[] = [
-    {
-      id: 'route_1',
-      name: 'New Employee',
-      description: 'Add and onboard a new team member to the system',
-      route: '/employee/new',
-      category: 'Employee Management',
-      tags: ['hire', 'staff', 'add', 'create', 'onboard'],
-    },
-    {
-      id: 'route_2',
-      name: 'Employee Directory',
-      description: 'View and search all active and former staff profiles',
-      route: '/employee/directory',
-      category: 'Employee Management',
-      tags: ['staff', 'list', 'profiles', 'members', 'find'],
-    },
-    {
-      id: 'route_3',
-      name: 'Update Employee Profile',
-      description: 'Edit current employee designations, bank details, or contact info',
-      route: '/employee/edit',
-      category: 'Employee Management',
-      tags: ['modify', 'change', 'details', 'update'],
-    },
-    {
-      id: 'route_4',
-      name: 'Request Leave / Time-Off',
-      description: 'Submit a new sick leave, casual leave, or vacation request',
-      route: '/leaves/request',
-      category: 'Time & Attendance',
-      tags: ['holiday', 'vacation', 'sick', 'time-off', 'absence'],
-    },
-    {
-      id: 'route_5',
-      name: 'Leave Approvals',
-      description: 'Review and approve or reject pending team leave requests',
-      route: '/leaves/approvals',
-      category: 'Time & Attendance',
-      tags: ['manager', 'approve', 'reject', 'status', 'pending'],
-    },
-    {
-      id: 'route_6',
-      name: 'Payroll Dashboard',
-      description: 'View monthly salary disbursements, bonuses, and slips',
-      route: '/finance/payroll',
-      category: 'Payroll & Finance',
-      tags: ['salary', 'pay', 'money', 'slip', 'bonus'],
-    },
-    {
-      id: 'route_7',
-      name: 'Tax Configurations',
-      description: 'Manage regional tax brackets, deductions, and declarations',
-      route: '/finance/tax-settings',
-      category: 'Payroll & Finance',
-      tags: ['tax', 'deductions', 'settings', 'compliance'],
-    },
-    {
-      id: 'route_8',
-      name: 'Active Performance Reviews',
-      description: 'Evaluate employee KPIs and peer feedback appraisal cycles',
-      route: '/performance/reviews',
-      category: 'Performance',
-      tags: ['appraisal', 'kpi', 'rating', 'evaluation', 'goals'],
-    },
-    {
-      id: 'route_9',
-      name: 'System Security Settings',
-      description: 'Manage user roles, permissions, and multi-factor authentication',
-      route: '/settings/security',
-      category: 'Administration',
-      tags: ['password', 'mfa', 'roles', 'permissions', 'admin'],
-    },
-    {
-      id: 'route_10',
-      name: 'Global HR Configurations',
-      description: 'Modify company branches, operational shifts, and holiday calendars',
-      route: '/settings/general',
-      category: 'Administration',
-      tags: ['shifts', 'branches', 'office', 'calendar', 'holidays'],
-    },
-    {
-      id: 'route_11',
-      name: 'All Employees',
-      description: 'View and Edit all employees',
-      route: '/employee/all',
-      category: 'Employee Management',
-      tags: ['all', 'employee', 'team', 'emp'],
-    },
-  ];
 }

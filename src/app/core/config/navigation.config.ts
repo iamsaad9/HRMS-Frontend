@@ -1,0 +1,167 @@
+import { DropDownItem } from '../../shared/components/dropdown-selector/dropdown-selector';
+
+export const DropdownItems: DropDownItem[] = [
+  {
+    id: '1',
+    icon: 'dashboard',
+    title: 'Dashboard',
+    description: 'Overview of your account and activity',
+    routeTo: '/dashboard',
+    tags: ['/', 'dashboard', 'home'],
+    category: 'Dashboard',
+  },
+  // {
+  //   icon: 'file_copy',
+  //   title: 'Projects',
+  //   description: 'Manage all your projects',
+  //   childItems: [
+  //     {
+  //       icon: 'watch_later',
+  //       title: 'Active Projects',
+  //       description: 'View ongoing projects',
+  //       routeTo: '/projects/active',
+  //     },
+  //     {
+  //       icon: 'archive',
+  //       title: 'Archived Projects',
+  //       description: 'Browse archived projects',
+  //       routeTo: '/projects/archived',
+  //     },
+  //     {
+  //       icon: 'add',
+  //       title: 'Create Project',
+  //       description: 'Start a new project',
+  //       routeTo: '/projects/new',
+  //       childItems: [
+  //         {
+  //           icon: 'insert_drive_file',
+  //           title: 'Empty Project',
+  //           description: 'Start an empty project',
+  //           routeTo: '/project/empty/new',
+  //         },
+  //         {
+  //           icon: 'add_to_photos',
+  //           title: 'Template Project',
+  //           description: 'Start an template based project',
+  //           routeTo: '/project/template/new',
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
+  {
+    id: '2',
+    icon: 'people_outline',
+    title: 'Employee',
+    category: 'Employee Management',
+    description: 'Manage employee and roles',
+    childItems: [
+      {
+        id: '2.1',
+        icon: 'add',
+        title: 'Add Employee',
+        description: 'Add an employees',
+        routeTo: '/employee/new',
+        tags: ['hire', 'new', 'staff', 'add', 'create', 'onboard'],
+        category: 'Employee Management',
+        permissions: 'users:create',
+      },
+      {
+        id: '2.2',
+        icon: 'cloud_upload',
+        title: 'Bulk Upload Employee',
+        description: 'Bulk upload employee using CSV',
+        routeTo: '/employee/new/bulk-upload',
+        tags: ['bulk', 'upload', 'new', 'employee'],
+        category: 'Employee Management',
+        permissions: 'users:create',
+      },
+      {
+        id: '2.3',
+        icon: 'person_outline',
+        title: 'All Employees',
+        description: 'View all employees',
+        routeTo: '/employee/all',
+        tags: ['staff', 'list', 'profiles', 'members', 'find'],
+        category: 'Employee Management',
+        permissions: 'users:read',
+      },
+      {
+        id: '2.4',
+        icon: 'security',
+        category: 'Employee Management',
+        title: 'Roles',
+        description: 'Manage user roles and permissions',
+        childItems: [
+          {
+            id: '2.4.1',
+            icon: 'supervised_user_circle',
+            title: 'All Roles',
+            description: 'View all Roles',
+            routeTo: '/roles/all',
+            category: 'Employee Management',
+          },
+        ],
+      },
+    ],
+  },
+  //   {
+  //     icon: 'chrome_reader_mode',
+  //     title: 'Reports',
+  //     description: 'View analytics and reports',
+  //     childItems: [
+  //       {
+  //         icon: 'attach_money',
+  //         title: 'Sales Report',
+  //         description: 'Monthly sales analytics',
+  //         routeTo: '/reports/sales',
+  //       },
+  //       {
+  //         icon: 'attach_money',
+  //         title: 'Performance',
+  //         description: 'Track team performance',
+  //         routeTo: '/reports/performance',
+  //       },
+  //       {
+  //         icon: 'note_add',
+  //         title: 'Custom Reports',
+  //         description: 'Generate custom reports',
+  //         routeTo: '/reports/custom',
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     icon: 'settings',
+  //     title: 'Settings',
+  //     description: 'Configure application preferences',
+  //     childItems: [
+  //       {
+  //         icon: 'person',
+  //         title: 'Profile',
+  //         description: 'Update your profile information',
+  //         routeTo: '/settings/profile',
+  //       },
+  //       {
+  //         icon: 'security',
+  //         title: 'Security',
+  //         description: 'Manage password and authentication',
+  //         routeTo: '/settings/security',
+  //       },
+  //       {
+  //         icon: 'notifications',
+  //         title: 'Notifications',
+  //         description: 'Configure notification preferences',
+  //         routeTo: '/settings/notifications',
+  //       },
+  //     ],
+  //   },
+  {
+    id: '3',
+    icon: 'help_outline',
+    title: 'Help Center',
+    description: 'Documentation and support resources',
+    category: 'User Help',
+    tags: ['help'],
+    routeTo: '/help',
+  },
+];

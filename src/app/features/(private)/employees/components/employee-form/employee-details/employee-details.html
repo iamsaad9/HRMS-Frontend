@@ -16,7 +16,7 @@
     <!-- Full Name & Email -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <tui-textfield tuiTextfieldSize="m">
+        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
           <label tuiLabel>
             First Name
             @if (isRequired('firstName')) {
@@ -29,7 +29,7 @@
       </div>
 
       <div>
-        <tui-textfield tuiTextfieldSize="m">
+        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
           <label tuiLabel
             >Last Name
             @if (isRequired('lastName')) {
@@ -42,7 +42,7 @@
       </div>
 
       <div>
-        <tui-textfield tuiTextfieldSize="m">
+        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
           <label required tuiLabel
             >Work Email
             @if (isRequired('email')) {
@@ -58,7 +58,7 @@
     <!-- Phone & Date of Birth -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <tui-textfield tuiTextfieldSize="m">
+        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
           <label tuiLabel
             >Phone Number
             @if (isRequired('phone')) {
@@ -71,7 +71,7 @@
       </div>
 
       <div>
-        <tui-textfield tuiTextfieldSize="m">
+        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
           <label tuiLabel
             >Date of Birth
             @if (isRequired('dob')) {
@@ -87,7 +87,12 @@
 
     <!-- Department Selection -->
     <div>
-      <tui-textfield tuiTextfieldSize="m" tuiChevron [tuiTextfieldCleaner]="false">
+      <tui-textfield
+        tuiTextfieldSize="m"
+        class="bg-(--background_light)!"
+        tuiChevron
+        [tuiTextfieldCleaner]="false"
+      >
         <label tuiLabel
           >Department
           @if (isRequired('department')) {
@@ -102,7 +107,7 @@
 
     <!-- Employment Type (Radio Group) -->
     <div class="flex flex-col gap-2">
-      <label class="text-sm font-semibold text-gray-700"
+      <label class="text-sm font-semibold text-(--primary)"
         >Employment Type
         @if (isRequired('employmentType')) {
           <span class="text-red-500">*</span>

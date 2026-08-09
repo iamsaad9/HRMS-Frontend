@@ -59,12 +59,17 @@
         </div>
       </div>
 
-      <form [formGroup]="isSignUp() ? signInForm : loginForm" class="space-y-2">
+      <form
+        [formGroup]="isSignUp() ? signInForm : loginForm"
+        (ngSubmit)="onSubmit()"
+        class="space-y-2"
+      >
         @if (isSignUp()) {
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm mb-2">First Name</label>
+              <label for="firstName" class="block text-sm mb-2">First Name</label>
               <input
+                id="firstName"
                 type="text"
                 formControlName="firstName"
                 placeholder="John"
@@ -74,8 +79,9 @@
               />
             </div>
             <div>
-              <label class="block text-sm mb-2">Last Name</label>
+              <label for="lastName" class="block text-sm mb-2">Last Name</label>
               <input
+                id="lastName"
                 type="text"
                 placeholder="Doe"
                 formControlName="lastName"
@@ -88,8 +94,9 @@
         }
 
         <div>
-          <label class="block text-sm mb-2">Email Address</label>
+          <label for="email" class="block text-sm mb-2">Email Address</label>
           <input
+            id="email"
             type="email"
             placeholder="you@example.com"
             name="email"
@@ -100,9 +107,10 @@
         </div>
 
         <div>
-          <label class="block text-sm mb-2">Password</label>
+          <label for="password" class="block text-sm mb-2">Password</label>
           <div class="relative">
             <input
+              id="password"
               #pwd
               [type]="showPassword() ? 'text' : 'password'"
               placeholder="Password"
@@ -148,7 +156,7 @@
           </div>
         </div>
         <button
-          type="button"
+          type="submit"
           (click)="onSubmit()"
           class="w-full text-lg py-2 m-0 bg-linear-to-r from-[#D6D6D6] to-[#d6d6d675] hover:scale-102 text-[#3f3d41] shadow-sm hover:shadow-lg font-medium rounded-xl cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >

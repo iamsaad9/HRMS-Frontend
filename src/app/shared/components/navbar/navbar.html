@@ -6,7 +6,7 @@
 
     <button
       class="lg:hidden items-center text-sm font-medium transition-opacity hover:opacity-90 cursor-pointer"
-      [attr.aria-expanded]="navMenuOpen()"
+      [attr.aria-expandRoutesed]="navMenuOpen()"
       [tuiDropdown]="dropdownNav"
       [tuiDropdownManual]="navMenuOpen()"
       [tuiObscuredEnabled]="navMenuOpen()"
@@ -17,7 +17,7 @@
       <mat-icon (click)="menuToggle.emit()">menu</mat-icon>
       <ng-template #dropdownNav>
         <tui-data-list class="bg-(--background_light)">
-          @for (item of mockDropdownItems; track item.title) {
+          @for (item of allowedDropDownItems(); track item.title) {
             <button tuiOption type="button">
               <app-dropdown-selector
                 [dropDownItem]="item"
@@ -41,7 +41,7 @@
 
       <!-- Navbar -->
       <nav class="hidden lg:flex gap-2 lg:gap-3 xl:gap-5 items-center">
-        @for (item of mockDropdownItems; track item.title) {
+        @for (item of allowedDropDownItems(); track item.title) {
           <app-dropdown-selector [dropDownItem]="item" />
         }
       </nav>
@@ -75,7 +75,7 @@
               >
                 <!-- Title & Category Badge -->
                 <div class="flex items-center justify-between w-full">
-                  <span class="font-semibold text-sm text-(--primary)!">{{ item.name }}</span>
+                  <span class="font-semibold text-sm text-(--primary)!">{{ item.title }}</span>
                   <span
                     class="text-[10px] px-2 py-0.5 bg-(--secondary) text-(--theme2) dark:text-(--theme1) rounded-full font-medium"
                   >
@@ -191,9 +191,9 @@
                   <div class="flex items-center justify-between w-full">
                     <!-- Left -->
                     <span tuiTitle class="text-sm! gap-0!">
-                      Saad Masood
+                      {{ currentUser?.employeeInfo?.firstName }}
                       <span tuiSubtitle class="text-xs! text-(--primary)/50!">
-                        saad@example.com
+                        {{ currentUser?.email }}
                       </span>
                     </span>
 
@@ -201,7 +201,7 @@
                     <span
                       class="rounded-full bg-(--primary)/10 px-2 py-1 text-xs font-medium text-(--primary)"
                     >
-                      Admin
+                      {{ currentUser?.roles }}
                     </span>
                   </div>
                 </div>

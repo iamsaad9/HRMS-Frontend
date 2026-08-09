@@ -89,6 +89,7 @@ export function filterEmployees(
   filter: EmployeeFilter,
 ): Employee[] {
   const search = filter.search.trim().toLowerCase();
+  const role = filter.role?.trim().toLowerCase();
 
   return employees.filter((employee) => {
     const matchesSearch =
@@ -96,11 +97,15 @@ export function filterEmployees(
       employee.firstName.toLowerCase().includes(search) ||
       employee.lastName.toLowerCase().includes(search) ||
       employee.email.toLowerCase().includes(search);
-    const matchesDepartment = !filter || employee.departmentId === filter.departmentId;
+    const matchesDepartment = !filter.departmentId || employee.departmentId === filter.departmentId;
     const matchesBranch = !filter.branchId || employee.branchId === filter.branchId;
     const matchesManager = !filter.managerId || employee.managerId === filter.managerId;
     const matchesStatus = !filter.status || employee.status === filter.status;
-    const isActive = !filter.isActive || employee.isActive === filter.isActive;
+    const matchesRole = !role || employee.role?.toLowerCase() === role;
+    const isActive =
+      filter.isActive === null ||
+      filter.isActive === undefined ||
+      employee.isActive === filter.isActive;
 
     return (
       matchesSearch &&
@@ -108,6 +113,7 @@ export function filterEmployees(
       matchesStatus &&
       matchesBranch &&
       matchesManager &&
+      matchesRole &&
       isActive
     );
   });

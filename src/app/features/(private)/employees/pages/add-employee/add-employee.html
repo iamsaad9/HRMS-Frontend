@@ -1,4 +1,17 @@
-<div class="w-full mx-auto p-5 max-w-7xl">
+<div class="w-full mx-auto max-w-7xl">
+  <app-main-heading title="Create Employee" description="Create an employee using the form below.">
+    <button
+      type="button"
+      tuiButton
+      iconStart="@tui.folder-up"
+      size="s"
+      class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
+      (click)="router.navigate(['/employee/new/bulk-upload'])"
+    >
+      Bulk Upload
+    </button>
+  </app-main-heading>
+
   <tui-tabs
     [activeItemIndex]="activeStepIndex()"
     (activeItemIndexChange)="selectStep($event)"
@@ -55,7 +68,13 @@
         <mat-icon>keyboard_arrow_left</mat-icon>
         Back
       </button>
-      <button tuiButton (click)="submitFullPayload()" class="gap-0!" size="m">
+      <button
+        tuiButton
+        (click)="submitFullPayload()"
+        class="gap-0!"
+        size="m"
+        [disabled]="isSubmiting()"
+      >
         @if (isSubmiting()) {
           <div class="flex items-center justify-center gap-2">
             <span
@@ -64,7 +83,7 @@
             <span>Creating Employee..</span>
           </div>
         } @else {
-          <span>Creating Employee..</span>
+          <span>Create Employee</span>
         }
       </button>
     </footer>

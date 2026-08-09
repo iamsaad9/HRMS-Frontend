@@ -61,9 +61,13 @@ export class AuthService {
           })
           .pipe(
             tap((meRes) => {
-              if (meRes.isSuccess && meRes.data) {
+              if (meRes?.isSuccess && meRes?.data) {
                 this.#currentUser.set(meRes.data);
+                return true;
               }
+
+              this.clearAuth();
+              return false;
             }),
             map((meRes) => meRes.isSuccess),
             catchError(() => {

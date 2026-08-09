@@ -3,36 +3,36 @@
 @import 'tailwindcss';
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 
-:root{
-   --theme1:#f7a833;
-    --theme2:#A3192D;
-    --theme3:#19528e;
-}
-[tuiTheme="light"]{
- 
-    --theme_primary:#811323;
-    --primary:#3f3d41;
-    --secondary:#D6D6D6;
-    --background_light:white;
-    --background_dark:#1d1d1d;
-    --logout:#ffc9c9;
+:root {
+  --theme1: #f7a833;
+  --theme2: #A3192D;
+  --theme3: #19528e;
 }
 
-[tuiTheme="dark"]{
---theme_primary: #c23347;   
---primary: #e4e4e6;        
---secondary: #4a4a4a;       
---background_light: #1d1d1d; 
---background_dark: white; 
---logout:#82181a;
+[tuiTheme="light"] {
+  --theme_primary: #811323;
+  --primary: #3f3d41;
+  --secondary: #D6D6D6;
+  --background_light: white;
+  --background_dark: #1d1d1d;
+  --logout: #ffc9c9;
+}
+
+[tuiTheme="dark"] {
+  --theme_primary: #c23347;   
+  --primary: #e4e4e6;        
+  --secondary: #4a4a4a;       
+  --background_light: #1d1d1d; 
+  --background_dark: white; 
+  --logout: #82181a;
 }
 
 [tuiTheme="dark"] {
   --tui-background-base: #1d1d1d !important;
 }
 
-html,body{
- font-family: "Plus Jakarta Sans", sans-serif !important;
+html, body {
+  font-family: "Plus Jakarta Sans", sans-serif !important;
   padding: 0px;
   margin: 0px;
 }
@@ -40,27 +40,27 @@ html,body{
 [tuiAppearance][data-appearance=primary] {
   background: var(--theme2);
 }
-[tuiAppearance][data-appearance=secondary],[tuiAppearance][data-appearance=flat]{
-  color:var(--theme2);
+
+[tuiAppearance][data-appearance=secondary],
+[tuiAppearance][data-appearance=flat] {
+  color: var(--theme2);
 }
 
-[tuiAppearance][data-appearance=textfield] [tuiInput][chrome-autofilled], [tuiAppearance][data-appearance=textfield] [tuiInput]:-webkit-autofill {
-      box-shadow: 0 0 0 100rem transparent inset !important;
+[tuiAppearance][data-appearance=textfield] [tuiInput][chrome-autofilled],
+[tuiAppearance][data-appearance=textfield] [tuiInput]:-webkit-autofill {
+  box-shadow: 0 0 0 100rem transparent inset !important;
 }
 
-[_nghost-ng-c3848752412]{
-  background-color: #A3192D !important;
-}
-[tuiAppearance][data-appearance=icon]{
-  color:var(--theme2) !important;
+[tuiAppearance][data-appearance=icon] {
+  color: var(--theme2) !important;
 }
 
-[_nghost-ng-c3848752412] {
+/* Replaced generated host rule with root host rule */
+tui-root {
   background-color: var(--background_light) !important;
-  color:#1d1d1d !important;
+  color: var(--primary) !important;
 }
 
-[tuiAppearance][data-appearance=textfield][data-focus=true]{
+[tuiAppearance][data-appearance=textfield][data-focus=true] {
   outline: 1.5px solid var(--secondary) !important;
 }
-

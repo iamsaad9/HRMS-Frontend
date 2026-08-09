@@ -25,6 +25,7 @@ export class EmployeeService {
         const newEmployee = response.data;
         if (response.isSuccess && newEmployee) {
           console.log('✅ Employee added successfully:', newEmployee);
+          this.#allEmployees.set(null);
         }
       }),
     );

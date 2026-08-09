@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, NgZone, OnDestroy } from '@angular/core';
 import { Subject, Subscription, timer, fromEvent, merge } from 'rxjs';
-import { takeUntil, switchMap, filter, takeWhile } from 'rxjs/operators';
+import { takeUntil, switchMap, filter, takeWhile, startWith } from 'rxjs/operators';
 import { AuthService } from '../../features/(public)/auth/services/auth.service';
 
 @Injectable({
@@ -11,7 +11,7 @@ export class InactivityService implements OnDestroy {
   private readonly ngZone = inject(NgZone);
 
   // Configuration (In Seconds)
-  private readonly IDLE_TIMEOUT_SEC = 300; // 2 mins idle
+  private readonly IDLE_TIMEOUT_SEC = 300; // 5 mins idle
   private readonly WARNING_COUNTDOWN_SEC = 15; // 15s modal timer
 
   readonly countdown = signal<number>(this.WARNING_COUNTDOWN_SEC);
@@ -36,6 +36,7 @@ export class InactivityService implements OnDestroy {
       this.activitySub = userActivity$
         .pipe(
           filter(() => !this.isWarningOpen()),
+          startWith(null),
           switchMap(() => timer(this.IDLE_TIMEOUT_SEC * 1000)),
           takeUntil(this.destroy$),
         )
@@ -79,7 +80,13 @@ export class InactivityService implements OnDestroy {
     this.isWarningOpen.set(false);
 
     this.authService.refreshToken().subscribe({
-      next: () => this.startMonitoring(),
+      next: (res) => {
+        if (res?.isSuccess && res?.data) {
+          this.startMonitoring();
+        } else {
+          this.handleAutoLogout();
+        }
+      },
       error: () => this.handleAutoLogout(),
     });
   }

@@ -1,0 +1,52 @@
+@if (item().childItems?.length) {
+  <button
+    tuiOption
+    tuiDropdownAuto
+    tuiDropdownHover
+    tuiDropdownAlign="end"
+    [tuiDropdown]="subMenu"
+    [tuiDropdownSided]="!isMobile()"
+    type="button"
+    class="p-2 w-full flex justify-start hover:bg-(--secondary)/50!"
+  >
+    <div class="flex items-center justify-center gap-2 text-(--background_dark)">
+      <mat-icon class="scale-80">{{ item().icon }}</mat-icon>
+      <span tuiTitle class="text-xs lg:text-sm">
+        {{ item().title }}
+        <span tuiSubtitle class="text-[0.7rem] lg:text-xs text-(--background_dark)!">
+          {{ item().description }}
+        </span>
+      </span>
+      <mat-icon class="scale-60 lg:scale-80 font-light">keyboard_arrow_right</mat-icon>
+    </div>
+  </button>
+
+  <ng-template #subMenu>
+    <tui-data-list class="bg-(--background_light)">
+      @for (child of item().childItems; track child.title) {
+        <app-dropdown-menu-item
+          [item]="child"
+          [isMobile]="isMobile()"
+          (navigate)="navigate.emit($event)"
+        />
+      }
+    </tui-data-list>
+  </ng-template>
+} @else {
+  <button
+    tuiOption
+    (click)="onLeafClick()"
+    type="button"
+    class="p-2 w-full flex flex-col items-start! text-(--background_dark)! hover:bg-(--secondary)/50!"
+  >
+    <div class="flex items-center justify-start gap-2">
+      <mat-icon class="scale-60 lg:scale-80">{{ item().icon }}</mat-icon>
+      <span tuiTitle class="text-xs lg:text-sm">
+        {{ item().title }}
+        <span tuiSubtitle class="text-[0.7rem] lg:text-xs text-(--primary)!">
+          {{ item().description }}
+        </span>
+      </span>
+    </div>
+  </button>
+}

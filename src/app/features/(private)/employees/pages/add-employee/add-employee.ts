@@ -12,6 +12,8 @@ import { MatIcon } from '@angular/material/icon';
 import { DynamicToast } from '../../../../../shared/components/toast/DynamicToast';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { finalize } from 'rxjs';
+import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
+import { Router } from '@angular/router';
 
 interface StepConfig {
   id: number;
@@ -30,12 +32,15 @@ interface StepConfig {
     MatIcon,
     TuiToast,
     TuiButton,
+    MainHeading,
+    TuiButton,
   ],
   templateUrl: './add-employee.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddEmployee {
   private readonly employeeService = inject(EmployeeService);
+  protected readonly router = inject(Router);
   private readonly toast = inject(TuiToastService);
   protected isSubmiting = signal<Boolean>(false);
   protected readonly steps: StepConfig[] = [
@@ -102,7 +107,14 @@ export class AddEmployee {
     additionalDetails: new FormGroup({
       password: new FormControl('', {
         nonNullable: true,
-        validators: [Validators.required],
+        validators: [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.pattern(/(?=.*[a-z])/), // At least one lowercase letter
+          Validators.pattern(/(?=.*[A-Z])/), // At least one uppercase letter
+          Validators.pattern(/(?=.*\d)/), // At least one digit
+          Validators.pattern(/(?=.*[@$!%*?&])/), // At least one special character
+        ],
       }),
     }),
   });
@@ -160,6 +172,9 @@ export class AddEmployee {
   }
 
   protected submitFullPayload(): void {
+    if (this.isSubmiting()) {
+      return;
+    }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.form.updateValueAndValidity();

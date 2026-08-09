@@ -107,7 +107,14 @@ export class AddEmployee {
     additionalDetails: new FormGroup({
       password: new FormControl('', {
         nonNullable: true,
-        validators: [Validators.required],
+        validators: [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.pattern(/(?=.*[a-z])/), // At least one lowercase letter
+          Validators.pattern(/(?=.*[A-Z])/), // At least one uppercase letter
+          Validators.pattern(/(?=.*\d)/), // At least one digit
+          Validators.pattern(/(?=.*[@$!%*?&])/), // At least one special character
+        ],
       }),
     }),
   });
@@ -165,6 +172,9 @@ export class AddEmployee {
   }
 
   protected submitFullPayload(): void {
+    if (this.isSubmiting()) {
+      return;
+    }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.form.updateValueAndValidity();

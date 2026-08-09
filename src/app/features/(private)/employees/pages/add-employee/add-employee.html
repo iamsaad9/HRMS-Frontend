@@ -68,7 +68,13 @@
         <mat-icon>keyboard_arrow_left</mat-icon>
         Back
       </button>
-      <button tuiButton (click)="submitFullPayload()" class="gap-0!" size="m">
+      <button
+        tuiButton
+        (click)="submitFullPayload()"
+        class="gap-0!"
+        size="m"
+        [disabled]="isSubmiting()"
+      >
         @if (isSubmiting()) {
           <div class="flex items-center justify-center gap-2">
             <span

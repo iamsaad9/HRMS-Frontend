@@ -64,10 +64,17 @@ export class Login {
   }
 
   onSubmit(): void {
+    if (this.isLoading()) return;
+
+    const activeForm = this.isSignUp() ? this.signInForm : this.loginForm;
+    if (activeForm.invalid) {
+      activeForm.markAllAsTouched();
+      return;
+    }
+
     this.isLoading.set(true);
     if (this.isSignUp()) {
       const registerPayload = this.signInForm.getRawValue();
-      console.log('🔐 Registering user with payload:', registerPayload);
       this.authService
         .register({
           Email: registerPayload.email ?? '',
@@ -87,7 +94,6 @@ export class Login {
         });
     } else {
       const loginPayload = this.loginForm.getRawValue();
-      console.log('🔐 Logging in with payload:', loginPayload);
       this.authService
         .login({
           email: loginPayload.email ?? '',

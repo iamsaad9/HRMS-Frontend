@@ -43,6 +43,7 @@ interface CsvEmployeeRow {
 type RowStatus = 'pending' | 'uploading' | 'success' | 'error';
 
 interface UploadRow {
+  id: string;
   data: CsvEmployeeRow;
   status: RowStatus;
   error?: string;
@@ -157,7 +158,11 @@ export class BulkEmployeeUpload {
         complete: (result) => {
           const parsedRows: UploadRow[] = result.data
             .filter((row) => row.email)
-            .map((row) => ({ data: row, status: 'pending' }));
+            .map((row, index) => ({
+              id: `csv-row-${index}-${row.email?.trim() ?? 'unknown'}`,
+              data: row,
+              status: 'pending',
+            }));
 
           subscriber.next(parsedRows);
           subscriber.complete();
@@ -167,59 +172,60 @@ export class BulkEmployeeUpload {
     });
   }
 
-  protected startUpload(): void {
-    const currentRows = this.rows();
-    if (!currentRows.length || this.isUploading()) {
-      return;
-    }
+protected startUpload(): void {
+  // Filter out rows that are already successfully created
+  const pendingRows = this.rows().filter(row => row.status !== 'success');
+  
+  if (!pendingRows.length || this.isUploading()) {
+    return;
+  }
 
-    this.isUploading.set(true);
-    this.successCount.set(0);
-    this.errorCount.set(0);
+  this.isUploading.set(true);
+  
+  // Note: Reset counts or keep incremental totals based on your UI needs
+  this.successCount.set(0);
+  this.errorCount.set(0);
 
-    from(currentRows)
-      .pipe(
-        concatMap((row) => {
-          this.updateRowStatus(row, 'uploading');
-          const payload = this.mapToCommand(row.data);
+  from(pendingRows)
+    .pipe(
+      concatMap((row) => {
+        this.updateRowStatus(row, 'uploading');
+        const payload = this.mapToCommand(row.data);
 
-          return this.employeeService.addEmployee(payload).pipe(
-            tap((response) => {
-              if (response.isSuccess) {
-                this.updateRowStatus(row, 'success');
-                this.successCount.update((c) => c + 1);
-              } else {
-                const message = response.message ?? 'This employee could not be added.';
-                this.updateRowStatus(row, 'error', message);
-                this.errorCount.update((c) => c + 1);
-              }
-            }),
-            catchError((error) => {
-              const message = this.extractErrorMessage(error);
+        return this.employeeService.addEmployee(payload).pipe(
+          tap((response) => {
+            if (response.isSuccess) {
+              this.updateRowStatus(row, 'success');
+              this.successCount.update((c) => c + 1);
+            } else {
+              const message = response.message ?? 'This employee could not be added.';
               this.updateRowStatus(row, 'error', message);
               this.errorCount.update((c) => c + 1);
-              return of(null);
-            }),
-            // Safety net: if for any reason (e.g. an interceptor swallowing the
-            // error and completing silently) neither tap nor catchError fired,
-            // don't leave the row stuck on "uploading" forever.
-            finalize(() => {
-              const current = this.rows().find((r) => r === row);
-              if (current?.status === 'uploading') {
-                this.updateRowStatus(row, 'error', 'Something went wrong. Please retry this row.');
-                this.errorCount.update((c) => c + 1);
-              }
-            }),
-          );
-        }),
-      )
-      .subscribe({
-        complete: () => {
-          this.isUploading.set(false);
-          this.showSummaryToast();
-        },
-      });
-  }
+            }
+          }),
+          catchError((error) => {
+            const message = this.extractErrorMessage(error);
+            this.updateRowStatus(row, 'error', message);
+            this.errorCount.update((c) => c + 1);
+            return of(null);
+          }),
+          finalize(() => {
+            const current = this.rows().find((r) => r.id === row.id);
+            if (current?.status === 'uploading') {
+              this.updateRowStatusById(row.id, 'error', 'Something went wrong. Please retry this row.');
+              this.errorCount.update((c) => c + 1);
+            }
+          }),
+        );
+      }),
+    )
+    .subscribe({
+      complete: () => {
+        this.isUploading.set(false);
+        this.showSummaryToast();
+      },
+    });
+}
 
   // Tries the common shapes backends use for error payloads so messages like
   // "Employee already exists" surface instead of a generic fallback.
@@ -279,8 +285,12 @@ export class BulkEmployeeUpload {
   }
 
   private updateRowStatus(target: UploadRow, status: RowStatus, error?: string): void {
+    this.updateRowStatusById(target.id, status, error);
+  }
+
+  private updateRowStatusById(id: string, status: RowStatus, error?: string): void {
     this.rows.update((current) =>
-      current.map((row) => (row === target ? { ...row, status, error } : row)),
+      current.map((row) => (row.id === id ? { ...row, status, error } : row)),
     );
   }
 

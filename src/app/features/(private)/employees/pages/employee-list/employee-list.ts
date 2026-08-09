@@ -140,8 +140,9 @@ export class EmployeeList implements OnInit {
         (emp as any).designation === currentFilter.role;
 
       const matchesStatus = !currentFilter.status || emp.status === currentFilter.status;
+      const matchIsActive = !currentFilter.isActive || emp.isActive === currentFilter.isActive;
 
-      return matchesSearch && matchesDept && matchesRole && matchesStatus;
+      return matchesSearch && matchesDept && matchesRole && matchesStatus && matchIsActive;
     });
   });
 

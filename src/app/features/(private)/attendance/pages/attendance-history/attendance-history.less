@@ -1,0 +1,69 @@
+:host {
+    display: block;
+}
+
+.toolbar {
+    margin-block-end: 1rem;
+}
+
+
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    overflow: hidden;
+    border-radius: 20px !important;
+}
+
+thead th {
+    color: white !important;
+    font-weight: 500 !important;
+}
+
+thead th,
+td {
+    background-color: transparent !important;
+    border: none !important;
+
+}
+
+[tuiCheckbox] {
+    --t-bs: var(--secondary) !important;
+    background-color: white;
+}
+
+.employee-table {
+    width: 100%;
+    min-width: 52rem;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--tui-text-secondary);
+    padding: 1.5rem 0;
+}
+
+@media (max-width: 960px) {
+    .employee-table {
+        min-width: 44rem;
+    }
+
+
+}
+
+@media (max-width: 720px) {
+    .employee-table {
+        min-width: 34rem;
+    }
+
+}
+
+[tuiAppearance][data-appearance=primary] {
+    background-color: var(--theme1);
+}
+
+[tuiAppearance][data-appearance=flat] {
+    color: var(--theme1);
+}

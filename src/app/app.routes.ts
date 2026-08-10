@@ -9,6 +9,7 @@ import { EmployeeList } from './features/(private)/employees/pages/employee-list
 import { guestGuard } from './core/guards/guest.guard';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { AttendanceHistory } from './features/(private)/attendance/pages/attendance-history/attendance-history';
 
 export const routes: Routes = [
   { path: 'login', canActivate: [guestGuard], component: Login },
@@ -37,6 +38,12 @@ export const routes: Routes = [
         component: EmployeeList,
         canActivate: [roleGuard],
         data: { roles: ['Admin', 'HR'] }, // Supports multiple allowed roles
+      },
+      {
+        path: 'attendance/history',
+        component: AttendanceHistory,
+        canActivate: [roleGuard],
+        data: { roles: ['Admin', 'User'] }, // Supports multiple allowed roles
       },
     ],
   },

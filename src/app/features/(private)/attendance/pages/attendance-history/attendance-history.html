@@ -1,0 +1,110 @@
+<div class="flex flex-col gap-5 max-w-7xl mx-auto">
+    <app-main-heading title="Attendance History" description="View punch history for an employee">
+        <div class="flex gap-2">
+            <button type="button" iconStart="@tui.refresh-cw" tuiButton size="s" [disabled]="!hasSearched()"
+                (click)="onRefresh()"
+                class="cursor-pointer bg-(--theme3)! text-white hover:bg-(--theme3)/80! disabled:opacity-40!">
+                Refresh
+            </button>
+
+            <button type="button" iconStart="@tui.download" tuiButton size="s" [disabled]="allRecords().length === 0"
+                (click)="onExport()"
+                class="cursor-pointer bg-(--secondary)! text-(--primary)! hover:bg-(--secondary)/80! disabled:opacity-40!">
+                Export
+            </button>
+        </div>
+    </app-main-heading>
+
+    <app-attendance-history-filter-bar (filterChange)="onFilterChange($event)" />
+
+    <!-- Week Navigation Bar -->
+    <div
+        class="flex items-center justify-between bg-(--secondary)/10 p-3 rounded-xl border border-gray-200 dark:border-gray-800">
+        <div class="flex items-center gap-3">
+            <span class="text-sm font-semibold text-(--primary)">
+                Week Range: <span class="font-normal">{{ dateRangeLabel() }}</span>
+            </span>
+
+            <!-- Loading Badge for loadMoreIfNeeded -->
+            @if (isLoadingMore) {
+            <span
+                class="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-md font-medium border border-amber-200 dark:border-amber-800 animate-pulse">
+                Fetching older history...
+            </span>
+            }
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button type="button" tuiButton size="s" appearance="flat" [disabled]="isLoadingMore"
+                (click)="previousWeek()" class="cursor-pointer disabled:opacity-40">
+                ← Previous Week
+            </button>
+
+            <button type="button" tuiButton size="s" appearance="flat" [disabled]="weekOffset() === 0 || isLoadingMore"
+                (click)="nextWeek()" class="cursor-pointer disabled:opacity-40">
+                Next Week →
+            </button>
+        </div>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-scroll">
+        <table tuiTable class="attendance-table w-full bg-(--secondary)/20" size="m">
+            <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
+                <tr>
+                    <th tuiTh>Actions</th>
+                    <th tuiTh>Date</th>
+                    <th tuiTh>Clock In</th>
+                    <th tuiTh>Clock Out</th>
+                    <th tuiTh>Break Start</th>
+                    <th tuiTh>Break End</th>
+                    <th tuiTh>Channel</th>
+                    <th tuiTh>Total Hours</th>
+                    <th tuiTh>Status</th>
+                </tr>
+            </thead>
+            <tbody tuiTbody>
+                @for (record of filledWeekRecords(); track record.attendanceDate) {
+                <tr [class.opacity-60]="!record.hasData" class="text-(--primary)">
+                    <td tuiTd class="col-actions w-5">
+                        <span tuiStatus>
+
+                            <button appearance="action" iconStart="@tui.pen" size="xs" tuiIconButton type="button"
+                                class="text-(--theme1)!">
+                                Edit
+                            </button>
+                        </span>
+                    </td>
+                    <!-- Date Column formatted with EEE (Mon, Tue, etc.) -->
+                    <td tuiTd class="font-medium">
+                        {{ record.attendanceDate | date: 'EEE, MMM d, y' }}
+                    </td>
+
+                    <td tuiTd>{{ record.clockIn ? (record.clockIn | date: 'shortTime') : 'N/A' }}</td>
+                    <td tuiTd>{{ record.clockOut ? (record.clockOut | date: 'shortTime') : 'N/A' }}</td>
+                    <td tuiTd>{{ record.breakStart ? (record.breakStart | date: 'shortTime') : 'N/A' }}</td>
+                    <td tuiTd>{{ record.breakEnd ? (record.breakEnd | date: 'shortTime') : 'N/A' }}</td>
+
+                    <td tuiTd>
+                        {{ record.hasData ? (channelLabels[record.channel!] || 'Unknown') : 'N/A' }}
+                    </td>
+
+                    <td tuiTd>
+                        {{ record.totalHours != null ? record.totalHours + ' hrs' : 'N/A' }}
+                    </td>
+
+                    <td tuiTd>
+                        @if (record.status) {
+                        <span tuiBadge [appearance]="statusAppearance(record.status)">
+                            {{ record.status }}
+                        </span>
+                        } @else {
+                        N/A
+                        }
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

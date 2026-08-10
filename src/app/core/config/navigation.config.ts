@@ -10,45 +10,26 @@ export const DropdownItems: DropDownItem[] = [
     tags: ['/', 'dashboard', 'home'],
     category: 'Dashboard',
   },
-  // {
-  //   icon: 'file_copy',
-  //   title: 'Projects',
-  //   description: 'Manage all your projects',
-  //   childItems: [
-  //     {
-  //       icon: 'watch_later',
-  //       title: 'Active Projects',
-  //       description: 'View ongoing projects',
-  //       routeTo: '/projects/active',
-  //     },
-  //     {
-  //       icon: 'archive',
-  //       title: 'Archived Projects',
-  //       description: 'Browse archived projects',
-  //       routeTo: '/projects/archived',
-  //     },
-  //     {
-  //       icon: 'add',
-  //       title: 'Create Project',
-  //       description: 'Start a new project',
-  //       routeTo: '/projects/new',
-  //       childItems: [
-  //         {
-  //           icon: 'insert_drive_file',
-  //           title: 'Empty Project',
-  //           description: 'Start an empty project',
-  //           routeTo: '/project/empty/new',
-  //         },
-  //         {
-  //           icon: 'add_to_photos',
-  //           title: 'Template Project',
-  //           description: 'Start an template based project',
-  //           routeTo: '/project/template/new',
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // },
+  {
+    id:'1.5',
+    icon: 'calendar_today',
+    title: 'Attendance',
+    description: 'Manage your attendance',
+     category: 'Attendance Management',
+    childItems: [
+      {
+        id:'1.5.1',
+        icon: 'history',
+        title: 'Attendance History',
+        description: 'View your all attendance',
+        routeTo: '/attendance/history',
+        tags: ['all','history','attendance','view','date'],
+        category: 'Attendance Management',
+        permissions: 'attendance:view',
+      },
+     
+    ],
+  },
   {
     id: '2',
     icon: 'people_outline',

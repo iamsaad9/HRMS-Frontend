@@ -11,7 +11,7 @@ export class InactivityService implements OnDestroy {
   private readonly ngZone = inject(NgZone);
 
   // Configuration (In Seconds)
-  private readonly IDLE_TIMEOUT_SEC = 300; // 5 mins idle
+  private readonly IDLE_TIMEOUT_SEC = 600; // 5 mins idle
   private readonly WARNING_COUNTDOWN_SEC = 15; // 15s modal timer
 
   readonly countdown = signal<number>(this.WARNING_COUNTDOWN_SEC);

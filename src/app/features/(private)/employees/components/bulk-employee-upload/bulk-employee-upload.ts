@@ -2,15 +2,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TuiAppearance, TuiButton, TuiIcon } from '@taiga-ui/core';
-import {
-  TuiBadge,
-  TuiChip,
-  TuiFiles,
-  TuiProgress,
-  TuiToastService,
-  type TuiFileLike,
-} from '@taiga-ui/kit';
-import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
+import { TuiBadge, TuiChip, TuiFiles, TuiProgress, type TuiFileLike } from '@taiga-ui/kit';
 import * as Papa from 'papaparse';
 import {
   catchError,
@@ -25,9 +17,9 @@ import {
   tap,
 } from 'rxjs';
 import { EmployeeService } from '../../services/employee.service';
-import { DynamicToast } from '../../../../../shared/components/toast/DynamicToast';
 import { TuiCardLarge, TuiSurface } from '@taiga-ui/layout';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
+import { ToastService } from '../../../../../core/services/toast.service';
 
 interface CsvEmployeeRow {
   firstName: string;
@@ -72,7 +64,7 @@ interface UploadRow {
 })
 export class BulkEmployeeUpload {
   private readonly employeeService = inject(EmployeeService);
-  private readonly toast = inject(TuiToastService);
+  private readonly toast = inject(ToastService);
 
   protected readonly control = new FormControl<TuiFileLike | null>(null, Validators.required);
 
@@ -122,7 +114,6 @@ export class BulkEmployeeUpload {
 
     if (!this.isCsv(file)) {
       this.failedFiles$.next(file);
-      this.showDynamicToast('negative', 'Please upload a .csv file.');
       return of(null);
     }
 
@@ -137,7 +128,6 @@ export class BulkEmployeeUpload {
       }),
       catchError((error) => {
         this.failedFiles$.next(file);
-        this.showDynamicToast('negative', `Failed to parse CSV: ${error.message}`);
         return of(null);
       }),
       finalize(() => this.loadingFiles$.next(null)),
@@ -172,60 +162,64 @@ export class BulkEmployeeUpload {
     });
   }
 
-protected startUpload(): void {
-  // Filter out rows that are already successfully created
-  const pendingRows = this.rows().filter(row => row.status !== 'success');
-  
-  if (!pendingRows.length || this.isUploading()) {
-    return;
-  }
+  protected startUpload(): void {
+    // Filter out rows that are already successfully created
+    const pendingRows = this.rows().filter((row) => row.status !== 'success');
 
-  this.isUploading.set(true);
-  
-  // Note: Reset counts or keep incremental totals based on your UI needs
-  this.successCount.set(0);
-  this.errorCount.set(0);
+    if (!pendingRows.length || this.isUploading()) {
+      return;
+    }
 
-  from(pendingRows)
-    .pipe(
-      concatMap((row) => {
-        this.updateRowStatus(row, 'uploading');
-        const payload = this.mapToCommand(row.data);
+    this.isUploading.set(true);
 
-        return this.employeeService.addEmployee(payload).pipe(
-          tap((response) => {
-            if (response.isSuccess) {
-              this.updateRowStatus(row, 'success');
-              this.successCount.update((c) => c + 1);
-            } else {
-              const message = response.message ?? 'This employee could not be added.';
+    // Note: Reset counts or keep incremental totals based on your UI needs
+    this.successCount.set(0);
+    this.errorCount.set(0);
+
+    from(pendingRows)
+      .pipe(
+        concatMap((row) => {
+          this.updateRowStatus(row, 'uploading');
+          const payload = this.mapToCommand(row.data);
+
+          return this.employeeService.addEmployee(payload).pipe(
+            tap((response) => {
+              if (response.isSuccess) {
+                this.updateRowStatus(row, 'success');
+                this.successCount.update((c) => c + 1);
+              } else {
+                const message = response.message ?? 'This employee could not be added.';
+                this.updateRowStatus(row, 'error', message);
+                this.errorCount.update((c) => c + 1);
+              }
+            }),
+            catchError((error) => {
+              const message = this.extractErrorMessage(error);
               this.updateRowStatus(row, 'error', message);
               this.errorCount.update((c) => c + 1);
-            }
-          }),
-          catchError((error) => {
-            const message = this.extractErrorMessage(error);
-            this.updateRowStatus(row, 'error', message);
-            this.errorCount.update((c) => c + 1);
-            return of(null);
-          }),
-          finalize(() => {
-            const current = this.rows().find((r) => r.id === row.id);
-            if (current?.status === 'uploading') {
-              this.updateRowStatusById(row.id, 'error', 'Something went wrong. Please retry this row.');
-              this.errorCount.update((c) => c + 1);
-            }
-          }),
-        );
-      }),
-    )
-    .subscribe({
-      complete: () => {
-        this.isUploading.set(false);
-        this.showSummaryToast();
-      },
-    });
-}
+              return of(null);
+            }),
+            finalize(() => {
+              const current = this.rows().find((r) => r.id === row.id);
+              if (current?.status === 'uploading') {
+                this.updateRowStatusById(
+                  row.id,
+                  'error',
+                  'Something went wrong. Please retry this row.',
+                );
+                this.errorCount.update((c) => c + 1);
+              }
+            }),
+          );
+        }),
+      )
+      .subscribe({
+        complete: () => {
+          this.isUploading.set(false);
+          this.showSummaryToast();
+        },
+      });
+  }
 
   // Tries the common shapes backends use for error payloads so messages like
   // "Employee already exists" surface instead of a generic fallback.
@@ -299,20 +293,8 @@ protected startUpload(): void {
     const failed = this.errorCount();
 
     if (failed === 0) {
-      this.showDynamicToast('positive', `All ${success} employees added successfully.`);
     } else if (success === 0) {
-      this.showDynamicToast('negative', `All ${failed} rows failed.`);
     } else {
-      this.showDynamicToast('negative', `${success} succeeded, ${failed} failed.`);
     }
-  }
-
-  protected showDynamicToast(appearance: 'positive' | 'negative', message: string): void {
-    this.toast
-      .open(new PolymorpheusComponent(DynamicToast), {
-        data: { message, appearance },
-        autoClose: 3000,
-      })
-      .subscribe();
   }
 }

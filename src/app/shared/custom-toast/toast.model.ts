@@ -1,0 +1,9 @@
+export type ToastType = 'success' | 'error' | 'warning' | 'info';
+
+export interface Toast {
+  id: string;
+  message: string;
+  title?: string;
+  type: ToastType;
+  duration?: number; // In milliseconds
+}

@@ -1,0 +1,320 @@
+// attendance.service.ts
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { catchError, finalize, Observable, of, tap, throwError } from 'rxjs';
+import { ApiResponse } from '../../../../core/models/api-response.model';
+import { LoadingService } from '../../../../core/services/loading.service';
+import {
+  AdjustmentActionCommand,
+  AdjustmentListParams,
+  AttendanceAdjustment,
+  AttendanceExportParams,
+  AttendanceHistoryParams,
+  AttendanceRecord,
+  AttendanceSummary,
+  AttendanceSummaryParams,
+  ClockActionCommand,
+  CreateAdjustmentCommand,
+  CreateShiftCommand,
+  DailyAttendance,
+  Shift,
+  TeamAttendanceParams,
+  TeamAttendanceRecord,
+} from '../model/attendance-model';
+import { ToastService } from '../../../../core/services/toast.service';
+
+@Injectable({ providedIn: 'root' })
+export class AttendanceService {
+  private apiUrl = '/api/Attendance';
+  private http = inject(HttpClient);
+  private loadingService = inject(LoadingService);
+
+  // ---- Cached state ----
+  #todayStatus = signal<DailyAttendance | null>(null);
+  todayStatus = this.#todayStatus.asReadonly();
+
+  #adjustments = signal<AttendanceAdjustment[] | null>(null);
+  allAdjustments = this.#adjustments.asReadonly();
+
+  #initialWeek = signal<AttendanceRecord[] | null>(null);
+  initialWeek = this.#initialWeek.asReadonly()
+
+  hasCachedAdjustments = computed(() => {
+    const list = this.allAdjustments();
+    return list !== null && list.length > 0;
+  });
+
+  isClockedIn = computed(() => this.#todayStatus()?.firstIn ?? false);
+  isOnBreak = computed(() => this.#todayStatus()?.isEarlyExist ?? false);
+
+  // ---------------------------------------------------------------
+  // Punch actions
+  // ---------------------------------------------------------------
+  clockIn(command: ClockActionCommand): Observable<ApiResponse<DailyAttendance>> {
+    return this.http.post<ApiResponse<DailyAttendance>>(`${this.apiUrl}/clock-in`, command).pipe(
+      tap((response) => {
+        if (response.isSuccess && response.data) {
+          console.log('✅ Clocked in:', response.data);
+          this.#todayStatus.set(response.data);
+        }
+      }),
+      catchError((err) => {
+        return throwError(() => err);
+      }),
+    );
+  }
+
+  clockOut(command: ClockActionCommand): Observable<ApiResponse<DailyAttendance>> {
+    return this.http.post<ApiResponse<DailyAttendance>>(`${this.apiUrl}/clock-out`, command).pipe(
+      tap((response) => {
+        if (response.isSuccess && response.data) {
+          console.log('✅ Clocked out:', response.data);
+          this.#todayStatus.set(response.data);
+        }
+      }),
+    );
+  }
+
+  breakStart(command: ClockActionCommand): Observable<ApiResponse<DailyAttendance>> {
+    return this.http.post<ApiResponse<DailyAttendance>>(`${this.apiUrl}/break-start`, command).pipe(
+      tap((response) => {
+        if (response.isSuccess && response.data) {
+          console.log('✅ Break started:', response.data);
+          this.#todayStatus.set(response.data);
+        }
+      }),
+    );
+  }
+
+  breakEnd(command: ClockActionCommand): Observable<ApiResponse<DailyAttendance>> {
+    return this.http.post<ApiResponse<DailyAttendance>>(`${this.apiUrl}/break-end`, command).pipe(
+      tap((response) => {
+        if (response.isSuccess && response.data) {
+          console.log('✅ Break ended:', response.data);
+          this.#todayStatus.set(response.data);
+        }
+      }),
+    );
+  }
+
+  // ---------------------------------------------------------------
+  // Daily / history / detail
+  // ---------------------------------------------------------------
+  getDailyAttendance(employeeId: string, date: string): Observable<ApiResponse<DailyAttendance>> {
+    this.loadingService.showLoading();
+    return this.http
+      .get<ApiResponse<DailyAttendance>>(`${this.apiUrl}/daily/${employeeId}/${date}`)
+      .pipe(
+        tap((response) => {
+          if (response.isSuccess && response.data) {
+            this.#todayStatus.set(response.data);
+            console.log("Today's Status:", this.todayStatus);
+          }
+        }),
+        finalize(() => {
+          this.loadingService.stopLoading();
+        }),
+      );
+  }
+
+  getHistory(params: AttendanceHistoryParams): Observable<ApiResponse<AttendanceRecord[]>> {
+    this.loadingService.showLoading();
+    const httpParams = new HttpParams()
+      .set('employeeId', params.employeeId)
+      .set('startDate', params.startDate)
+      .set('endDate', params.endDate);
+
+    return this.http
+      .get<ApiResponse<AttendanceRecord[]>>(`${this.apiUrl}/history`, { params: httpParams })
+      .pipe(
+        tap((response) => {
+          if (response.isSuccess) {
+            console.log('Attendance history:', response.data);
+          }
+        }),
+        finalize(() => {
+          this.loadingService.stopLoading();
+        }),
+      );
+  }
+
+  getInitialWeek(params: AttendanceHistoryParams): Observable<ApiResponse<AttendanceRecord[]>> {
+    this.loadingService.showLoading();
+    const httpParams = new HttpParams()
+      .set('employeeId', params.employeeId)
+      .set('startDate', params.startDate)
+      .set('endDate', params.endDate);
+
+    return this.http
+      .get<ApiResponse<AttendanceRecord[]>>(`${this.apiUrl}/history`, { params: httpParams })
+      .pipe(
+        tap((response) => {
+          if (response.isSuccess && response.data) {
+            console.log('Initial Week history:', response.data);
+            this.#initialWeek.set(response.data);
+          }
+        }),
+        finalize(() => {
+          this.loadingService.stopLoading();
+        }),
+      );
+  }
+
+  getById(id: string): Observable<ApiResponse<AttendanceRecord>> {
+    this.loadingService.showLoading();
+    return this.http.get<ApiResponse<AttendanceRecord>>(`${this.apiUrl}/${id}`).pipe(
+      finalize(() => {
+        this.loadingService.stopLoading();
+      }),
+    );
+  }
+
+  // ---------------------------------------------------------------
+  // Shifts
+  // ---------------------------------------------------------------
+  createShift(command: CreateShiftCommand): Observable<ApiResponse<Shift>> {
+    return this.http.post<ApiResponse<Shift>>(`${this.apiUrl}/shifts`, command).pipe(
+      tap((response) => {
+        if (response.isSuccess && response.data) {
+          console.log('✅ Shift created:', response.data);
+        }
+      }),
+    );
+  }
+
+  // ---------------------------------------------------------------
+  // Adjustments
+  // ---------------------------------------------------------------
+  createAdjustment(
+    command: CreateAdjustmentCommand,
+  ): Observable<ApiResponse<AttendanceAdjustment>> {
+    return this.http
+      .post<ApiResponse<AttendanceAdjustment>>(`${this.apiUrl}/adjustments`, command)
+      .pipe(
+        tap((response) => {
+          if (response.isSuccess && response.data) {
+            console.log('✅ Adjustment requested:', response.data);
+            this.#adjustments.set(null); // invalidate cache
+          }
+        }),
+      );
+  }
+
+  getAdjustments(
+    params: AdjustmentListParams,
+    useCache = true,
+  ): Observable<ApiResponse<AttendanceAdjustment[]>> {
+    if (useCache && this.hasCachedAdjustments()) {
+      console.log('Fetched cached adjustments.');
+      return of({
+        isSuccess: true,
+        data: this.#adjustments() ?? [],
+        message: 'Retrieved from cache',
+        errors: [],
+      });
+    }
+
+    this.loadingService.showLoading();
+    let httpParams = new HttpParams();
+    if (params.employeeId) httpParams = httpParams.set('employeeId', params.employeeId);
+    if (params.status !== undefined && params.status !== null) {
+      httpParams = httpParams.set('status', params.status.toString());
+    }
+
+    return this.http
+      .get<
+        ApiResponse<AttendanceAdjustment[]>
+      >(`${this.apiUrl}/adjustments`, { params: httpParams })
+      .pipe(
+        tap((response) => {
+          if (response.isSuccess && response.data) {
+            this.#adjustments.set(response.data);
+            console.log('All Adjustments: ', this.#adjustments());
+          }
+        }),
+        finalize(() => {
+          this.loadingService.stopLoading();
+        }),
+      );
+  }
+
+  approveAdjustment(
+    id: string,
+    command: AdjustmentActionCommand,
+  ): Observable<ApiResponse<AttendanceAdjustment>> {
+    return this.http
+      .put<ApiResponse<AttendanceAdjustment>>(`${this.apiUrl}/adjustments/${id}/approve`, command)
+      .pipe(
+        tap((response) => {
+          if (response.isSuccess) {
+            console.log('✅ Adjustment approved:', response.data);
+            this.#adjustments.set(null); // invalidate cache
+          }
+        }),
+      );
+  }
+
+  rejectAdjustment(
+    id: string,
+    command: AdjustmentActionCommand,
+  ): Observable<ApiResponse<AttendanceAdjustment>> {
+    return this.http
+      .put<ApiResponse<AttendanceAdjustment>>(`${this.apiUrl}/adjustments/${id}/reject`, command)
+      .pipe(
+        tap((response) => {
+          if (response.isSuccess) {
+            console.log('✅ Adjustment rejected:', response.data);
+            this.#adjustments.set(null); // invalidate cache
+          }
+        }),
+      );
+  }
+
+  // ---------------------------------------------------------------
+  // Team / summary / export
+  // ---------------------------------------------------------------
+  getTeamAttendance(params: TeamAttendanceParams): Observable<ApiResponse<TeamAttendanceRecord[]>> {
+    this.loadingService.showLoading();
+    const httpParams = new HttpParams().set('managerId', params.managerId).set('date', params.date);
+
+    return this.http
+      .get<ApiResponse<TeamAttendanceRecord[]>>(`${this.apiUrl}/team`, { params: httpParams })
+      .pipe(
+        finalize(() => {
+          this.loadingService.stopLoading();
+        }),
+      );
+  }
+
+  getSummary(params: AttendanceSummaryParams): Observable<ApiResponse<AttendanceSummary>> {
+    this.loadingService.showLoading();
+    const httpParams = new HttpParams()
+      .set('employeeId', params.employeeId)
+      .set('month', params.month.toString())
+      .set('year', params.year.toString());
+
+    return this.http
+      .get<ApiResponse<AttendanceSummary>>(`${this.apiUrl}/summary`, { params: httpParams })
+      .pipe(
+        finalize(() => {
+          this.loadingService.stopLoading();
+        }),
+      );
+  }
+
+  exportAttendance(params: AttendanceExportParams): Observable<Blob> {
+    this.loadingService.showLoading();
+    const httpParams = new HttpParams()
+      .set('employeeId', params.employeeId)
+      .set('startDate', params.startDate)
+      .set('endDate', params.endDate);
+
+    return this.http
+      .get(`${this.apiUrl}/export`, { params: httpParams, responseType: 'blob' })
+      .pipe(
+        finalize(() => {
+          this.loadingService.stopLoading();
+        }),
+      );
+  }
+}

@@ -9,11 +9,10 @@ import { EmployeeDocuments } from '../../components/employee-form/employee-docum
 import { EmployeeService } from '../../services/employee.service';
 import { AdditionalDetails } from '../../components/employee-form/additional-details/additional-details';
 import { MatIcon } from '@angular/material/icon';
-import { DynamicToast } from '../../../../../shared/components/toast/DynamicToast';
-import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { finalize } from 'rxjs';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { Router } from '@angular/router';
+import { ToastService } from '../../../../../core/services/toast.service';
 
 interface StepConfig {
   id: number;
@@ -41,7 +40,7 @@ interface StepConfig {
 export class AddEmployee {
   private readonly employeeService = inject(EmployeeService);
   protected readonly router = inject(Router);
-  private readonly toast = inject(TuiToastService);
+  private readonly toast = inject(ToastService);
   protected isSubmiting = signal<Boolean>(false);
   protected readonly steps: StepConfig[] = [
     { id: 0, title: 'Employee Details' },
@@ -159,18 +158,6 @@ export class AddEmployee {
     return control.valid ? 'var(--tui-status-positive, green) !important' : '';
   }
 
-  protected showDynamicToast(appearance: 'positive' | 'negative', message: string): void {
-    this.toast
-      .open(new PolymorpheusComponent(DynamicToast), {
-        data: {
-          message,
-          appearance,
-        },
-        autoClose: 3000,
-      })
-      .subscribe();
-  }
-
   protected submitFullPayload(): void {
     if (this.isSubmiting()) {
       return;
@@ -184,7 +171,6 @@ export class AddEmployee {
       );
 
       if (firstInvalidStep) {
-        this.showDynamicToast('negative', 'Please fill required fields');
         this.goToStep(Number(firstInvalidStep[0]));
       }
       return;
@@ -205,12 +191,8 @@ export class AddEmployee {
       .addEmployee(payload)
       .pipe(finalize(() => this.isSubmiting.set(false)))
       .subscribe({
-        next: () => {
-          this.showDynamicToast('positive', 'Employee Created');
-        },
-        error: () => {
-          this.showDynamicToast('negative', 'Failed to create employee');
-        },
+        next: () => {},
+        error: () => {},
       });
   }
 }

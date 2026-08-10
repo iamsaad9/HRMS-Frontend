@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
 import { KpiCard } from '../../dashboard.model';
 import { TuiPoint, TuiIcon, TuiAppearance } from '@taiga-ui/core';
 import { TuiRingChart, TuiArcChart } from '@taiga-ui/addon-charts';
@@ -9,6 +9,10 @@ import { TuiCard, TuiCardLarge, TuiHeader } from '@taiga-ui/layout';
 import { tuiSum } from '@taiga-ui/cdk';
 import { MatIcon } from '@angular/material/icon';
 import { TuiAmountPipe } from '@taiga-ui/addon-commerce';
+import { AttendanceService } from '../../../attendance/service/attendanceService';
+import { AuthService } from '../../../../(public)/auth/services/auth.service';
+import { AttendanceChannel, ClockActionCommand } from '../../../attendance/model/attendance-model';
+import { ToastService } from '../../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-kpi-summary',
@@ -25,14 +29,19 @@ import { TuiAmountPipe } from '@taiga-ui/addon-commerce';
     MatIcon,
     TuiCard,
     TuiAccordion,
-    TuiIcon,
     TuiAvatar,
     TuiAppearance,
+    DatePipe
   ],
   templateUrl: './quick-cards.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuickCards {
+  protected readonly attendanceService = inject(AttendanceService);
+  private readonly authService = inject(AuthService);
+  private readonly toast = inject(ToastService);
+
+  readonly currentUser = this.authService.currentUser();
   readonly attendanceValues = signal<number[]>([57, 8, 4, 3]);
   readonly labels = ['Present', 'Absent', 'Leave', 'WFH'];
   readonly headcountProgress = signal<number>(0.925);
@@ -63,6 +72,43 @@ export class QuickCards {
 
   protected get label(): string {
     return (Number.isNaN(this.index) ? 'Total' : this.labels[this.index]) ?? '';
+  }
+
+  protected onClockIn(): void {
+
+    const employeeId = this.currentUser?.employeeInfo?.employeeId;
+
+    if (!employeeId) {
+      this.toast.error('Employee ID not found', 'Attendance Updated');
+      return;
+    }
+
+    const command: ClockActionCommand = {
+      employeeId,
+      channel: AttendanceChannel.Web,
+      deviceId: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    this.attendanceService.clockIn(command).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success('Clocked in successfully!', 'Attendance Updated');
+        } else {
+          this.toast.error('Clock in failed!', 'Attendance Updated');
+        }
+      },
+      error: () => {
+        this.toast.error('Clock in failed!', 'Attendance Updated');
+      },
+      
+    });
+  }
+
+  protected onClockOut():void{
+    this.toast.error('Clocked in successfully!', 'Attendance Updated');
+
   }
 
   readonly user = {

@@ -75,10 +75,13 @@ export class Login {
     this.isLoading.set(true);
     if (this.isSignUp()) {
       const registerPayload = this.signInForm.getRawValue();
+      console.log('Registering: ', registerPayload);
       this.authService
         .register({
-          Email: registerPayload.email ?? '',
-          Password: registerPayload.password ?? '',
+          firstName: registerPayload.firstName ?? '',
+          lastName: registerPayload.lastName ?? '',
+          email: registerPayload.email ?? '',
+          password: registerPayload.password ?? '',
         })
         .pipe(finalize(() => this.isLoading.set(false)))
         .subscribe({
@@ -94,6 +97,8 @@ export class Login {
         });
     } else {
       const loginPayload = this.loginForm.getRawValue();
+      console.log('Registering: ', loginPayload);
+
       this.authService
         .login({
           email: loginPayload.email ?? '',

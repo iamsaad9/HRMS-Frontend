@@ -24,9 +24,10 @@ export interface LoginCommand {
 }
 
 export interface RegisterCommand {
-  //   fullName: string;
-  Email: string;
-  Password: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
 }
 
 export interface RegisterResponse {

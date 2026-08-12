@@ -1,4 +1,4 @@
-<div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! gap-2!">
+<div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! gap-2! ">
   <div class="flex items-center justify-start gap-2">
     <mat-icon class="text-(--theme2)!">person</mat-icon>
     <div>
@@ -11,13 +11,19 @@
 
   <div class="grid grid-cols-1! lg:grid-cols-3! gap-3">
     <!-- 7 Days Clock-in / Clock-out History Card -->
-    <div tuiCardLarge class="bg-(--background_light)! rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col">
-      <div class="flex items-center justify-between border-b border-(--secondary) pb-4">
+    <div tuiCardLarge
+      class="bg-(--background_light)! rounded-2xl  border border-slate-100 drop-shadow-sm flex flex-col gap-1!">
+
+      <div class="flex items-center justify-between border-b border-(--secondary) pb-3">
         <div>
           <h3 class="text-xl font-bold text-(--theme2)">Shift History</h3>
           <p class="text-sm text-(--primary)/80">Last 7 days attendance record</p>
         </div>
-        <!-- <tui-badge size="m" status="neutral" class="!text-(--primary)/80"> 7 Days </tui-badge> -->
+        <button type="button" tuiButton appearance="flat" size="s" (click)="router.navigate(['attendance/history'])"
+          class="cursor-pointer! hover:text-slate-900 bg-(--theme2)!  text-white!">
+          View All <tui-icon icon="@tui.chevron-right" class="separator ml-2" />
+
+        </button>
       </div>
 
       <!-- Table container -->
@@ -31,22 +37,37 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-(--secondary)">
-            @for (item of clockHistory; track $index) {
-            <tr class="hover:bg-(--secondary)/20 transition-colors cursor-pointer">
+            @for (day of fullWeekAttendance(); track day.dateStr) {
+            <tr (click)="router.navigate([`attendance/adjustment/${day.record?.id}`])"
+              class="hover:bg-(--secondary)/20 transition-colors cursor-pointer">
+              <!-- DATE COLUMN -->
               <td class="py-2 px-2 font-semibold text-(--primary)">
-                {{ item.date }}
+                {{ day.dateStr | date: 'EEE, MMM d' }}
               </td>
+
+              <!-- CLOCK IN COLUMN -->
               <td class="py-2 px-2 text-(--primary)">
                 <span class="inline-flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-(--success)"></span>
-                  {{ item.clockIn }}
+                  <span class="w-1.5 h-1.5 rounded-full" [class.bg-(--success)]="day.record?.firstIn"
+                    [class.bg-slate-300]="!day.record?.firstIn"></span>
+                  @if (day.record?.firstIn) {
+                  {{ day.record?.firstIn | date: 'hh:mm a' }}
+                  } @else {
+                  <span class="text-(--primary)/40 italic">N/A</span>
+                  }
                 </span>
               </td>
+
+              <!-- CLOCK OUT COLUMN -->
               <td class="py-2 px-2 text-(--primary)">
                 <span class="inline-flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full" [class.bg-amber-500]="item.clockOut !== '--:--'"
-                    [class.bg-slate-300]="item.clockOut === '--:--'"></span>
-                  {{ item.clockOut }}
+                  <span class="w-1.5 h-1.5 rounded-full" [class.bg-amber-500]="day.record?.lastOut"
+                    [class.bg-slate-300]="!day.record?.lastOut"></span>
+                  @if (day.record?.lastOut) {
+                  {{ day.record?.lastOut | date: 'hh:mm a' }}
+                  } @else {
+                  <span class="text-(--primary)/40 italic">N/A</span>
+                  }
                 </span>
               </td>
             </tr>
@@ -57,47 +78,24 @@
     </div>
 
     <div tuiCardLarge
-      class="bg-(--background_light)! flex flex-col justify-between rounded-xl col-span-2 p-6 shadow-sm text-(--primary)">
+      class="bg-(--background_light)! flex flex-col justify-between rounded-xl col-span-2 p-6 drop-shadow-sm text-(--primary) overflow-visible">
       <!-- Header -->
       <div class="flex items-center justify-between border-b border-(--secondary) pb-4">
         <div>
           <h3 class="text-lg font-bold text-(--theme2)">Work Hour Overview</h3>
-          <p class="text-xs text-(--primary)/80">Last 30 days work hour overview.</p>
+          <p class="text-xs text-(--primary)/80">Last {{ punches().length }} days work hour overview.</p>
         </div>
 
-        <div class="flex items-center gap-x-2">
-          <span
-            class="inline-flex items-center rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-            95% Score (Excellent)
-          </span>
-        </div>
+        <span class="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset">
+          {{ score() }}% Score ({{ scoreLabel() }})
+        </span>
       </div>
 
-      <!-- Taiga UI Line Chart with Axes -->
-      <div class="mt-6 h-56 w-full">
-        <tui-axes [axisXLabels]="axisXLabels" [verticalLines]="performanceTrend.length" [horizontalLines]="4"
-          class="h-full w-full">
-          <tui-line-chart [value]="performanceTrend" [width]="5" [height]="100" [filled]="true"
-            class="text-blue-500"></tui-line-chart>
-        </tui-axes>
-      </div>
+
+      <app-attendance-bar-chart />
 
       <!-- Footer Stats -->
-      <div
-        class="mt-4 grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 pt-4 dark:divide-slate-800 dark:border-slate-800">
-        <div class="text-center">
-          <p class="text-xs text-slate-500">Tasks Completed</p>
-          <p class="text-lg font-semibold text-(--primary)">42 / 45</p>
-        </div>
-        <div class="text-center">
-          <p class="text-xs text-slate-500">On-Time Delivery</p>
-          <p class="text-lg font-semibold text-emerald-600">97.8%</p>
-        </div>
-        <div class="text-center">
-          <p class="text-xs text-slate-500">Overtime Hours</p>
-          <p class="text-lg font-semibold text-(--primary)">12.5 hrs</p>
-        </div>
-      </div>
+
     </div>
   </div>
 </div>

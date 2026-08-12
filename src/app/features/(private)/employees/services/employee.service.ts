@@ -31,6 +31,25 @@ export class EmployeeService {
     );
   }
 
+  bulkUpload(command:File):Observable<ApiResponse<any>>{
+    const formData = new FormData();
+    formData.append('file', command, command.name);
+     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/bulk-upload`, formData).pipe(
+      tap((response)=>{
+        if(response.isSuccess){
+          console.log('✅ Employee added successfully');
+          this.getAllEmployees().subscribe()
+        } 
+      })
+     )
+  }
+
+  downloadTemplate(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/download-template`, {
+      responseType: 'blob' // Essential for receiving files/CSVs correctly
+    });
+  }
+
   getAllEmployees(): Observable<ApiResponse<Employee[]>> {
     if (this.hasCachedEmployees()) {
       console.log('Fetched cached employees.');

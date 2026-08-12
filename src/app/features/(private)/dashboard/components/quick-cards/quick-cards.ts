@@ -15,7 +15,7 @@ import { AttendanceChannel, ClockActionCommand } from '../../../attendance/model
 import { ToastService } from '../../../../../core/services/toast.service';
 
 @Component({
-  selector: 'app-kpi-summary',
+  selector: 'app-quick-cards',
   standalone: true,
   imports: [
     TuiAmountPipe,
@@ -106,9 +106,36 @@ export class QuickCards {
     });
   }
 
-  protected onClockOut():void{
-    this.toast.error('Clocked in successfully!', 'Attendance Updated');
+  protected onClockOut(): void {
 
+    const employeeId = this.currentUser?.employeeInfo?.employeeId;
+
+    if (!employeeId) {
+      this.toast.error('Employee ID not found', 'Attendance Updated');
+      return;
+    }
+
+    const command: ClockActionCommand = {
+      employeeId,
+      channel: AttendanceChannel.Web,
+      deviceId: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    this.attendanceService.clockOut(command).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success('Clocked out successfully!', 'Attendance Updated');
+        } else {
+          this.toast.error('Clock out failed!', 'Attendance Updated');
+        }
+      },
+      error: () => {
+        this.toast.error('Clock out failed!', 'Attendance Updated');
+      },
+      
+    });
   }
 
   readonly user = {

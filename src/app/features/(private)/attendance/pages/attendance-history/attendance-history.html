@@ -17,38 +17,10 @@
 
     <app-attendance-history-filter-bar (filterChange)="onFilterChange($event)" />
 
-    <!-- Week Navigation Bar -->
-    <div
-        class="flex items-center justify-between bg-(--secondary)/10 p-3 rounded-xl border border-gray-200 dark:border-gray-800">
-        <div class="flex items-center gap-3">
-            <span class="text-sm font-semibold text-(--primary)">
-                Week Range: <span class="font-normal">{{ dateRangeLabel() }}</span>
-            </span>
 
-            <!-- Loading Badge for loadMoreIfNeeded -->
-            @if (isLoadingMore) {
-            <span
-                class="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-md font-medium border border-amber-200 dark:border-amber-800 animate-pulse">
-                Fetching older history...
-            </span>
-            }
-        </div>
-
-        <div class="flex items-center gap-2">
-            <button type="button" tuiButton size="s" appearance="flat" [disabled]="isLoadingMore"
-                (click)="previousWeek()" class="cursor-pointer disabled:opacity-40">
-                ← Previous Week
-            </button>
-
-            <button type="button" tuiButton size="s" appearance="flat" [disabled]="weekOffset() === 0 || isLoadingMore"
-                (click)="nextWeek()" class="cursor-pointer disabled:opacity-40">
-                Next Week →
-            </button>
-        </div>
-    </div>
 
     <!-- Table Container -->
-    <div class="table-scroll">
+    <div tuiCardLarge class="table-scroll p-0!">
         <table tuiTable class="attendance-table w-full bg-(--secondary)/20" size="m">
             <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
                 <tr>
@@ -106,5 +78,35 @@
                 }
             </tbody>
         </table>
+    </div>
+
+    <!-- Week Navigation Bar -->
+    <div tuiCardLarge class="flex flex-row! items-center! justify-between  shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+        <div class="flex items-center gap-3">
+            <span class="text-sm font-semibold text-(--primary)">
+                Week Range: <span class="font-normal">{{ dateRangeLabel() }}</span>
+            </span>
+
+            <!-- Loading Badge for loadMoreIfNeeded -->
+            @if (isLoadingMore) {
+            <span
+                class="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-md font-medium border border-amber-200 dark:border-amber-800 animate-pulse">
+                Fetching older history...
+            </span>
+            }
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button type="button" tuiButton size="s" [disabled]="isLoadingMore" (click)="previousWeek()"
+                class="cursor-pointer disabled:opacity-40">
+                <tui-icon icon="@tui.chevron-left" class="separator ml-2" /> Previous
+            </button>
+
+            <button type="button" tuiButton size="s" [disabled]="weekOffset() === 0 || isLoadingMore"
+                (click)="nextWeek()" class="cursor-pointer disabled:opacity-40">
+                <tui-icon icon="@tui.chevron-right" class="separator ml-2" /> Next
+
+            </button>
+        </div>
     </div>
 </div>

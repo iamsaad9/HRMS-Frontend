@@ -17,8 +17,18 @@ export const DropdownItems: DropDownItem[] = [
     description: 'Manage your attendance',
      category: 'Attendance Management',
     childItems: [
-      {
+       {
         id:'1.5.1',
+        icon: 'add',
+        title: 'New Attendance Adjustment',
+        description: 'Add an attendance adjustment',
+        routeTo: '/attendance/adjustment/new',
+        tags: ['new','adjustment','attendance','create'],
+        category: 'Attendance Management',
+        permissions: 'attendance:view',
+      },
+      {
+        id:'1.5.2',
         icon: 'history',
         title: 'Attendance History',
         description: 'View your all attendance',
@@ -27,7 +37,6 @@ export const DropdownItems: DropDownItem[] = [
         category: 'Attendance Management',
         permissions: 'attendance:view',
       },
-     
     ],
   },
   {

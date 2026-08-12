@@ -1,0 +1,86 @@
+<div class="attendance-chart " (click)="closePopover()">
+    <div class="chart-header">
+        <h3 class="chart-title">Attendance — Late / Work / Overtime</h3>
+        <div class="legend">
+            <span class="legend-item"><i class="dot late"></i>Late</span>
+            <span class="legend-item"><i class="dot work"></i>Work</span>
+            <span class="legend-item"><i class="dot overtime"></i>Overtime</span>
+            <span class="legend-item"><i class="dot incomplete"></i>Incomplete</span>
+        </div>
+    </div>
+
+    <div class="chart-grid pb-2">
+        <div class="y-axis">
+            @for (tick of yAxisTicks; track tick) {
+            <span class="y-label">{{ tick * maxTotalHours() | number: '1.0-0' }}h</span>
+            }
+        </div>
+
+        <div class="bars">
+            @for (day of days(); track day.date; let i = $index) {
+            <div class="bar-col" [class.weekend]="day.isWeekend" [class.active]="selectedDay()?.date === day.date"
+                [class.today]="day.date === todayDateStr" (click)="toggleDayPopover(day, $event)">
+                <div class="bar-track" [attr.aria-label]="day.tooltip">
+                    @if (day.status === 'incomplete') {
+                    <div class="segment incomplete" style="height: 100%"></div>
+                    } @else if (day.status === 'complete') {
+                    <div class="segment overtime" [style.height.%]="segmentHeightPct(day.overtimeHours)"></div>
+                    <div class="segment work" [style.height.%]="segmentHeightPct(day.workHours)"></div>
+                    <div class="segment late" [style.height.%]="segmentHeightPct(day.lateHours)"></div>
+                    }
+                </div>
+
+                @if (i % 7 === 0) {
+                <span class="week-label">W{{ (i / 7) + 1 }}</span>
+                }
+
+                @if (selectedDay()?.date === day.date) {
+                <div class="popover-card" (click)="$event.stopPropagation()">
+                    <div class="popover-header">
+                        <span class="popover-date">{{ day.date | date: 'EEE, MMM d' }}</span>
+                        <button type="button" class="close-btn" (click)="closePopover()">✕</button>
+                    </div>
+
+                    <div class="popover-body">
+                        @if (day.status === 'empty') {
+                        <div class="detail-row text-slate-400 italic">No attendance data</div>
+                        } @else if (day.status === 'incomplete') {
+                        <div class="detail-row text-slate-500 font-medium">Incomplete Record</div>
+                        } @else {
+                        <div class="detail-row">
+                            <span class="label"><i class="dot work"></i> Work:</span>
+                            <span class="val">{{ day.workHours | number: '1.2-2' }}h</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label"><i class="dot overtime"></i> Overtime:</span>
+                            <span class="val">{{ day.overtimeHours | number: '1.2-2' }}h</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label"><i class="dot late"></i> Late:</span>
+                            <span class="val">{{ day.lateHours | number: '1.2-2' }}h</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
+            </div>
+            }
+        </div>
+    </div>
+
+    <!-- ===== SUMMARY TOTALS FOOTER ===== -->
+    <div class="mt-4 grid grid-cols-3 divide-x divide-(--secondary) border-t border-(--secondary) pt-4">
+        <div class="text-center">
+            <p class="text-xs text-(--theme1)">Regular Hours</p>
+            <p class="text-lg font-semibold text-(--primary)">{{ totals().regular | number: '1.0-1' }} hrs</p>
+        </div>
+        <div class="text-center">
+            <p class="text-xs text-(--theme1)">Late Hours</p>
+            <p class="text-lg font-semibold text-red-400">{{ totals().late | number: '1.0-1' }} hrs</p>
+        </div>
+        <div class="text-center">
+            <p class="text-xs text-(--theme1)">Overtime Hours</p>
+            <p class="text-lg font-semibold text-(--accent)">{{ totals().overtime | number: '1.0-1' }} hrs</p>
+        </div>
+    </div>
+</div>

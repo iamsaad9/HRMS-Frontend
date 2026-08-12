@@ -27,12 +27,10 @@
   --background_dark: white;
   --error: #82181a;
   --success: #00d492;
-
-}
-
-[tuiTheme="dark"] {
   --tui-background-base: #1d1d1d !important;
+
 }
+
 
 html,
 body {
@@ -67,4 +65,9 @@ tui-root {
 
 [tuiAppearance][data-appearance=textfield][data-focus=true] {
   outline: 1.5px solid var(--secondary) !important;
+}
+
+[tuiCardLarge] {
+  --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)) !important;
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow) !important;
 }

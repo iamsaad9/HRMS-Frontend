@@ -1,34 +1,162 @@
-<div class="flex flex-wrap items-end gap-3 bg-(--secondary)/20 p-4 rounded-lg">
-    <div class="flex flex-col gap-1">
-        <label class="text-xs text-(--theme1) font-medium">Employee ID</label>
-        <input type="text" placeholder="Enter employee ID"
-            class="border border-(--theme3)/40 rounded-md px-3 py-1.5 text-sm min-w-48 outline-none focus:border-(--theme1)"
-            [ngModel]="draft().employeeId" (ngModelChange)="onEmployeeIdChange($event)" />
+<div tuiCardLarge
+    class="flex flex-col gap-3! rounded-xl border border-slate-200 bg-(--secondary)/20! text-(--primary)! p-4 drop-shadow-sm shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+    <!-- TOP ROW: Action Buttons & Admin Search Bar -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <!-- Admin-only Employee ID Search Input -->
+        @if (isAdmin) {
+        <tui-textfield iconStart="@tui.search" tuiTextfieldSize="m"
+            class="w-full bg-(--background_light)! items-center! rounded-lg text-(--theme1)!">
+            <input placeholder="Search by Employee ID..." class="text-(--primary)! placeholder:text-(--primary)/60!"
+                tuiInput [ngModel]="draft().employeeId" (ngModelChange)="onEmployeeIdChange($event)"
+                (keyup.enter)="onSearch()" />
+        </tui-textfield>
+        } @else {
+        <!-- Placeholder spacer for alignment when non-admin -->
+        <div class="hidden sm:block"></div>
+        }
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2 self-end sm:self-auto">
+            <!-- Toggle More Filters Button -->
+
+
+            <button type="button" tuiButton iconStart="@tui.filter" size="s" [disabled]="!canSearch"
+                class="cursor-pointer bg-(--theme3)! hover:bg-(--theme3)/80! disabled:opacity-40! disabled:cursor-not-allowed!"
+                (click)="onSearch()">
+                Search
+            </button>
+
+            <button type="button" tuiButton appearance="flat" size="s"
+                class="cursor-pointer! hover:text-slate-900 bg-(--secondary)! text-white!" (click)="onReset()">
+                Reset
+            </button>
+
+            <button type="button" tuiButton tuiChevron appearance="secondary" size="s" [tuiChevron]="showMoreFilters"
+                (click)="showMoreFilters = !showMoreFilters">
+            </button>
+        </div>
     </div>
 
-    <div class="flex flex-col gap-1">
-        <label class="text-xs text-(--theme1) font-medium">Start Date</label>
-        <input type="date"
-            class="border border-(--theme3)/40 rounded-md px-3 py-1.5 text-sm outline-none focus:border-(--theme1)"
-            [ngModel]="draft().startDate" (ngModelChange)="onStartDateChange($event)" />
+    <!-- FIXED ROW: DATE RANGE -->
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <!-- Start Date -->
+        <div class="flex flex-col gap-1">
+            <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)! rounded-lg">
+                <label tuiLabel>Start Date</label>
+                <input tuiInputDate class="text-(--primary)!" [ngModel]="draft().startDate"
+                    (ngModelChange)="onStartDateChange($event)" />
+                <tui-calendar *tuiDropdown />
+            </tui-textfield>
+        </div>
+
+        <!-- End Date -->
+        <div class="flex flex-col gap-1">
+            <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)! rounded-lg">
+                <label tuiLabel>End Date</label>
+                <input type="date" tuiInputDate class="text-(--primary)!" [ngModel]="draft().endDate"
+                    (ngModelChange)="onEndDateChange($event)" />
+                <tui-calendar *tuiDropdown />
+            </tui-textfield>
+        </div>
     </div>
 
-    <div class="flex flex-col gap-1">
-        <label class="text-xs text-(--theme1) font-medium">End Date</label>
-        <input type="date"
-            class="border border-(--theme3)/40 rounded-md px-3 py-1.5 text-sm outline-none focus:border-(--theme1)"
-            [ngModel]="draft().endDate" (ngModelChange)="onEndDateChange($event)" />
-    </div>
+    <!-- COLLAPSIBLE SECTION: ADDITIONAL FILTERS -->
+    <tui-elastic-container>
+        <tui-expand [expanded]="showMoreFilters" class="flex flex-col gap-3 ">
+            <!-- ATTENDANCE / LEAVE / LOCATION ROW -->
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
 
-    <div class="flex gap-2">
-        <button type="button" tuiButton size="s" [disabled]="!canSearch" (click)="onSearch()"
-            class="cursor-pointer bg-(--theme3)! text-white hover:bg-(--theme3)/80! disabled:opacity-40! disabled:cursor-not-allowed!">
-            Search
-        </button>
+                <!-- Work Location -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-medium text-(--theme1)">Work Location</label>
+                    <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)! rounded-lg">
+                        <input placeholder="Any location" tuiSelect class="text-(--primary)!"
+                            [ngModel]="draft().workLocation" (ngModelChange)="onWorkLocationChange($event)" />
+                        <tui-data-list-wrapper *tuiDropdown [items]="workLocationOptions" />
+                    </tui-textfield>
+                </div>
 
-        <button type="button" tuiButton size="s" appearance="flat" (click)="onReset()"
-            class="cursor-pointer text-(--theme1)!">
-            Reset
-        </button>
-    </div>
+                <!-- Leave Type -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-medium text-(--theme1)">Leave Type</label>
+                    <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)! rounded-lg">
+                        <input placeholder="Any leave type" tuiSelect class="text-(--primary)!"
+                            [ngModel]="draft().leaveType" (ngModelChange)="onLeaveTypeChange($event)" />
+                        <tui-data-list-wrapper *tuiDropdown [items]="leaveTypeOptions" />
+                    </tui-textfield>
+                </div>
+            </div>
+
+            <!-- SHIFT / DEPARTMENT / EMPLOYMENT ROW -->
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <!-- Shift Type -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-medium text-(--theme1)">Shift Type</label>
+                    <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)! rounded-lg">
+                        <input placeholder="Any shift" tuiSelect class="text-(--primary)!" [ngModel]="draft().shiftType"
+                            (ngModelChange)="onShiftTypeChange($event)" />
+                        <tui-data-list-wrapper *tuiDropdown [items]="shiftTypeOptions" />
+                    </tui-textfield>
+                </div>
+
+                <!-- Department / Team -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-medium text-(--theme1)">Department / Team</label>
+                    <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)! rounded-lg">
+                        <input placeholder="Any department" tuiSelect class="text-(--primary)!"
+                            [ngModel]="draft().department" (ngModelChange)="onDepartmentChange($event)" />
+                        <tui-data-list-wrapper *tuiDropdown [items]="departmentOptions" />
+                    </tui-textfield>
+                </div>
+
+                <!-- Employment Type -->
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-medium text-(--theme1)">Employment Type</label>
+                    <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)! rounded-lg">
+                        <input placeholder="Any type" tuiSelect class="text-(--primary)!"
+                            [ngModel]="draft().employmentType" (ngModelChange)="onEmploymentTypeChange($event)" />
+                        <tui-data-list-wrapper *tuiDropdown [items]="employmentTypeOptions" />
+                    </tui-textfield>
+                </div>
+            </div>
+
+            <!-- OVERTIME / EXCEPTION FLAGS ROW -->
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-medium text-(--theme1)">Overtime / Exception Flags</label>
+                <div class="flex flex-wrap gap-x-4 gap-y-2">
+                    @for (flag of exceptionFlagOptions; track flag) {
+                    @let isFlagSelected = draft().exceptionFlags.includes(flag);
+                    <label class="flex items-center gap-2 text-sm text-(--primary)! cursor-pointer">
+                        <input tuiCheckbox type="checkbox" class="cursor-pointer" [checked]="isFlagSelected" (change)="onExceptionFlagsChange(
+                    isFlagSelected 
+                        ? draft().exceptionFlags.filter(f => f !== flag) 
+                        : [...draft().exceptionFlags, flag]
+                )" />
+                        {{ flag }}
+                    </label>
+                    }
+                </div>
+            </div>
+
+            <!-- STATUS FILTER CHIPS -->
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-medium text-(--theme1)">Attendance Status</label>
+                <div tuiItemGroup [horizontal]="true" class="flex flex-wrap gap-2">
+                    @for (status of statusOptions; track status) {
+                    @let isStatusSelected = draft().statuses.includes(status);
+                    <label tuiChip [appearance]="isStatusSelected ? 'primary' : 'flat'" class="cursor-pointer">
+                        {{ status }}
+                        <input type="checkbox" tuiChip appearance="" class="sr-only" [checked]="isStatusSelected"
+                            (change)="onStatusesChange(
+                    isStatusSelected 
+                        ? draft().statuses.filter(s => s !== status) 
+                        : [...draft().statuses, status]
+                )" />
+                    </label>
+                    }
+                </div>
+            </div>
+
+        </tui-expand>
+    </tui-elastic-container>
 </div>

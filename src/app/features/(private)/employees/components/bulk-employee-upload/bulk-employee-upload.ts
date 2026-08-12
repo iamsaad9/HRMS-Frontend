@@ -1,44 +1,19 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TuiAppearance, TuiButton, TuiIcon } from '@taiga-ui/core';
 import { TuiBadge, TuiChip, TuiFiles, TuiProgress, type TuiFileLike } from '@taiga-ui/kit';
-import * as Papa from 'papaparse';
-import {
-  catchError,
-  concatMap,
-  finalize,
-  from,
-  map,
-  Observable,
-  of,
-  Subject,
-  switchMap,
-  tap,
-} from 'rxjs';
-import { EmployeeService } from '../../services/employee.service';
 import { TuiCardLarge, TuiSurface } from '@taiga-ui/layout';
+import { catchError, finalize, of, Subject, tap } from 'rxjs';
+import { EmployeeService } from '../../services/employee.service';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { ToastService } from '../../../../../core/services/toast.service';
 
-interface CsvEmployeeRow {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  department?: string;
-  employmentType?: string;
-  jobTitle?: string;
-  password: string;
-}
-
-type RowStatus = 'pending' | 'uploading' | 'success' | 'error';
-
-interface UploadRow {
-  id: string;
-  data: CsvEmployeeRow;
-  status: RowStatus;
-  error?: string;
+interface BulkUploadResult {
+  totalRecords: number;
+  successCount: number;
+  failureCount: number;
+  errors: string[];
 }
 
 @Component({
@@ -69,160 +44,129 @@ export class BulkEmployeeUpload {
   protected readonly control = new FormControl<TuiFileLike | null>(null, Validators.required);
 
   protected readonly failedFiles$ = new Subject<TuiFileLike | null>();
-  protected readonly loadingFiles$ = new Subject<TuiFileLike | null>();
-  protected readonly loadedFiles$ = this.control.valueChanges.pipe(
-    switchMap((file) => this.processFile(file)),
-  );
 
-  protected readonly rows = signal<UploadRow[]>([]);
+  protected readonly selectedFile = signal<File | null>(null);
+
   protected readonly isUploading = signal(false);
-  protected readonly successCount = signal(0);
-  protected readonly errorCount = signal(0);
+  protected readonly isSuccess = signal(false);
+  protected readonly isError = signal(false);
+  
+  // NEW: holds the structured result so the template can render counts + errors
+  protected readonly result = signal<BulkUploadResult | null>(null);
+  protected readonly showErrors = signal(false);
 
-  // Progress driven by real upload counts, not a simulated timer.
-  protected readonly max = 100;
-  protected readonly progressValue = computed(() => {
-    const total = this.rows().length;
-    if (total === 0) {
-      return 0;
-    }
-    const done = this.successCount() + this.errorCount();
-    return Math.round((done / total) * this.max);
-  });
+  protected readonly isDownloadingTemplate = signal(false);
 
-  protected readonly progressColor = computed(() => {
-    const value = this.progressValue();
-    if (value < 33) {
-      return 'red';
-    }
-    return value < 66 ? 'yellow' : 'green';
-  });
+  constructor() {
+    this.control.valueChanges.subscribe((file) => this.processFile(file));
+  }
 
   protected removeFile(): void {
     this.control.setValue(null);
-    this.rows.set([]);
-    this.successCount.set(0);
-    this.errorCount.set(0);
+    this.selectedFile.set(null);
+    this.isUploading.set(false);
+    this.isSuccess.set(false);
+    this.isError.set(false);
+    this.result.set(null);
+    this.showErrors.set(false);
+    this.failedFiles$.next(null);
   }
 
-  protected processFile(file: TuiFileLike | null): Observable<TuiFileLike | null> {
+  protected processFile(file: TuiFileLike | null): void {
     this.failedFiles$.next(null);
+    this.isSuccess.set(false);
+    this.isError.set(false);
+    this.result.set(null);
+    this.showErrors.set(false);
 
-    if (this.control.invalid || !file) {
-      return of(null);
+    if (!file) {
+      this.selectedFile.set(null);
+      return;
     }
 
     if (!this.isCsv(file)) {
       this.failedFiles$.next(file);
-      return of(null);
+      this.selectedFile.set(null);
+      return;
     }
 
-    this.loadingFiles$.next(file);
-
-    return this.parseCsv(file as File).pipe(
-      map((parsedRows) => {
-        this.rows.set(parsedRows);
-        this.successCount.set(0);
-        this.errorCount.set(0);
-        return file;
-      }),
-      catchError((error) => {
-        this.failedFiles$.next(file);
-        return of(null);
-      }),
-      finalize(() => this.loadingFiles$.next(null)),
-    );
+    this.selectedFile.set(file as File);
   }
 
   private isCsv(file: TuiFileLike): boolean {
-    const name = file.name?.toLowerCase() ?? '';
-    return name.endsWith('.csv') || file.type === 'text/csv';
-  }
-
-  private parseCsv(file: File): Observable<UploadRow[]> {
-    return new Observable<UploadRow[]>((subscriber) => {
-      Papa.parse<CsvEmployeeRow>(file, {
-        header: true,
-        skipEmptyLines: true,
-        transformHeader: (header) => header.trim(),
-        complete: (result) => {
-          const parsedRows: UploadRow[] = result.data
-            .filter((row) => row.email)
-            .map((row, index) => ({
-              id: `csv-row-${index}-${row.email?.trim() ?? 'unknown'}`,
-              data: row,
-              status: 'pending',
-            }));
-
-          subscriber.next(parsedRows);
-          subscriber.complete();
-        },
-        error: (error) => subscriber.error(error),
-      });
-    });
+    const name = file.name?.toLowerCase().trim() ?? '';
+    return name.endsWith('.csv');
   }
 
   protected startUpload(): void {
-    // Filter out rows that are already successfully created
-    const pendingRows = this.rows().filter((row) => row.status !== 'success');
+    const fileToUpload = this.selectedFile();
 
-    if (!pendingRows.length || this.isUploading()) {
+    if (!fileToUpload || this.isUploading()) {
       return;
     }
 
     this.isUploading.set(true);
+    this.isSuccess.set(false);
+    this.isError.set(false);
+    this.result.set(null);
+    this.showErrors.set(false);
 
-    // Note: Reset counts or keep incremental totals based on your UI needs
-    this.successCount.set(0);
-    this.errorCount.set(0);
-
-    from(pendingRows)
+    this.employeeService
+      .bulkUpload(fileToUpload)
       .pipe(
-        concatMap((row) => {
-          this.updateRowStatus(row, 'uploading');
-          const payload = this.mapToCommand(row.data);
+        tap((response) => {
+          const data = response?.data as BulkUploadResult | undefined;
+          this.result.set(data ?? null);
 
-          return this.employeeService.addEmployee(payload).pipe(
-            tap((response) => {
-              if (response.isSuccess) {
-                this.updateRowStatus(row, 'success');
-                this.successCount.update((c) => c + 1);
-              } else {
-                const message = response.message ?? 'This employee could not be added.';
-                this.updateRowStatus(row, 'error', message);
-                this.errorCount.update((c) => c + 1);
-              }
-            }),
-            catchError((error) => {
-              const message = this.extractErrorMessage(error);
-              this.updateRowStatus(row, 'error', message);
-              this.errorCount.update((c) => c + 1);
-              return of(null);
-            }),
-            finalize(() => {
-              const current = this.rows().find((r) => r.id === row.id);
-              if (current?.status === 'uploading') {
-                this.updateRowStatusById(
-                  row.id,
-                  'error',
-                  'Something went wrong. Please retry this row.',
-                );
-                this.errorCount.update((c) => c + 1);
-              }
-            }),
-          );
+          // Treat as "success" only if at least one row succeeded
+          // and there were no failures — tweak this rule to match
+          // how you want partial successes (some rows ok, some not) treated.
+          const allSucceeded = !!data && data.failureCount === 0 && data.successCount > 0;
+          const partialOrFullFailure = !!data && data.failureCount > 0;
+
+          this.isSuccess.set(allSucceeded);
+          this.isError.set(partialOrFullFailure || !response?.isSuccess);
+        }),
+        catchError((error) => {
+          this.isError.set(true);
+          const message = this.extractErrorMessage(error);
+          this.toast.error?.(message);
+          return of(null);
+        }),
+        finalize(() => {
+          this.isUploading.set(false);
         }),
       )
-      .subscribe({
-        complete: () => {
-          this.isUploading.set(false);
-          this.showSummaryToast();
-        },
-      });
+      .subscribe();
   }
 
-  // Tries the common shapes backends use for error payloads so messages like
-  // "Employee already exists" surface instead of a generic fallback.
+  protected downloadTemplate(): void {
+    this.isDownloadingTemplate.set(true);
+
+    this.employeeService.downloadTemplate().subscribe({
+      next: (blob: Blob) => {
+        // Create a blob URL and trigger browser download
+        const url = window.URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'employee_upload_template.csv';
+        anchor.click();
+
+        // Clean up memory
+        window.URL.revokeObjectURL(url);
+        this.isDownloadingTemplate.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to download template:', err);
+        this.isDownloadingTemplate.set(false);
+      }
+    });
+  }
+
+  protected toggleErrors(): void {
+    this.showErrors.update((v) => !v);
+  }
+
   private extractErrorMessage(error: any): string {
     return (
       error?.error?.message ??
@@ -232,69 +176,5 @@ export class BulkEmployeeUpload {
       error?.message ??
       'Request failed'
     );
-  }
-
-  protected fullName(row: UploadRow): string {
-    return `${row.data.firstName ?? ''} ${row.data.lastName ?? ''}`.trim();
-  }
-
-  // Maps a row's status to a tuiBadge appearance so the template stays simple.
-  protected badgeAppearance(status: RowStatus): string {
-    switch (status) {
-      case 'success':
-        return 'positive';
-      case 'error':
-        return 'negative';
-      case 'uploading':
-        return 'info';
-      default:
-        return 'neutral';
-    }
-  }
-
-  protected badgeLabel(status: RowStatus): string {
-    switch (status) {
-      case 'success':
-        return 'Success';
-      case 'error':
-        return 'Failed';
-      case 'uploading':
-        return 'Uploading…';
-      default:
-        return 'Pending';
-    }
-  }
-
-  private mapToCommand(row: CsvEmployeeRow): Record<string, unknown> {
-    return {
-      firstName: row.firstName?.trim(),
-      lastName: row.lastName?.trim(),
-      email: row.email?.trim(),
-      phone: row.phone?.trim() ?? '',
-      department: row.department?.trim() ?? '',
-      employmentType: row.employmentType?.trim() ?? '',
-      jobTitle: row.jobTitle?.trim() ?? '',
-      password: row.password ?? '',
-    };
-  }
-
-  private updateRowStatus(target: UploadRow, status: RowStatus, error?: string): void {
-    this.updateRowStatusById(target.id, status, error);
-  }
-
-  private updateRowStatusById(id: string, status: RowStatus, error?: string): void {
-    this.rows.update((current) =>
-      current.map((row) => (row.id === id ? { ...row, status, error } : row)),
-    );
-  }
-
-  private showSummaryToast(): void {
-    const success = this.successCount();
-    const failed = this.errorCount();
-
-    if (failed === 0) {
-    } else if (success === 0) {
-    } else {
-    }
   }
 }

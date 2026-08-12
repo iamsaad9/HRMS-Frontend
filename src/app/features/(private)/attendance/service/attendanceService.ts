@@ -8,6 +8,7 @@ import {
   AdjustmentActionCommand,
   AdjustmentListParams,
   AttendanceAdjustment,
+  AttendanceAdjustmentForm,
   AttendanceExportParams,
   AttendanceHistoryParams,
   AttendanceRecord,
@@ -28,24 +29,31 @@ export class AttendanceService {
   private apiUrl = '/api/Attendance';
   private http = inject(HttpClient);
   private loadingService = inject(LoadingService);
+  today = new Date().toISOString().split('T')[0];
 
-  // ---- Cached state ----
-  #todayStatus = signal<DailyAttendance | null>(null);
-  todayStatus = this.#todayStatus.asReadonly();
+todayStatus = computed(() => {
+  return this.initialWeek()?.find((day) => day.date === this.today);
+});
 
-  #adjustments = signal<AttendanceAdjustment[] | null>(null);
-  allAdjustments = this.#adjustments.asReadonly();
+#adjustments = signal<AttendanceAdjustment[] | null>(null);
+allAdjustments = this.#adjustments.asReadonly();
 
-  #initialWeek = signal<AttendanceRecord[] | null>(null);
-  initialWeek = this.#initialWeek.asReadonly()
+#initialWeek = signal<DailyAttendance[] | null>(null);
+initialWeek = this.#initialWeek.asReadonly();
 
-  hasCachedAdjustments = computed(() => {
-    const list = this.allAdjustments();
-    return list !== null && list.length > 0;
-  });
+hasCachedAdjustments = computed(() => {
+  const list = this.allAdjustments();
+  return list !== null && list.length > 0;
+});
 
-  isClockedIn = computed(() => this.#todayStatus()?.firstIn ?? false);
-  isOnBreak = computed(() => this.#todayStatus()?.isEarlyExist ?? false);
+
+// Call this.todayStatus() as a function, and convert to boolean if needed
+isClockedIn = computed(() => !!this.todayStatus()?.firstIn);
+isClockedOut = computed(() => !!this.todayStatus()?.lastOut);
+
+
+// Also fixed typo: isEarlyExist -> isEarlyExit
+isOnBreak = computed(() => this.todayStatus()?.lastOut ?? false);
 
   // ---------------------------------------------------------------
   // Punch actions
@@ -55,7 +63,6 @@ export class AttendanceService {
       tap((response) => {
         if (response.isSuccess && response.data) {
           console.log('✅ Clocked in:', response.data);
-          this.#todayStatus.set(response.data);
         }
       }),
       catchError((err) => {
@@ -69,7 +76,6 @@ export class AttendanceService {
       tap((response) => {
         if (response.isSuccess && response.data) {
           console.log('✅ Clocked out:', response.data);
-          this.#todayStatus.set(response.data);
         }
       }),
     );
@@ -80,7 +86,6 @@ export class AttendanceService {
       tap((response) => {
         if (response.isSuccess && response.data) {
           console.log('✅ Break started:', response.data);
-          this.#todayStatus.set(response.data);
         }
       }),
     );
@@ -91,7 +96,6 @@ export class AttendanceService {
       tap((response) => {
         if (response.isSuccess && response.data) {
           console.log('✅ Break ended:', response.data);
-          this.#todayStatus.set(response.data);
         }
       }),
     );
@@ -107,7 +111,6 @@ export class AttendanceService {
       .pipe(
         tap((response) => {
           if (response.isSuccess && response.data) {
-            this.#todayStatus.set(response.data);
             console.log("Today's Status:", this.todayStatus);
           }
         }),
@@ -138,7 +141,7 @@ export class AttendanceService {
       );
   }
 
-  getInitialWeek(params: AttendanceHistoryParams): Observable<ApiResponse<AttendanceRecord[]>> {
+  getInitialWeek(params: AttendanceHistoryParams): Observable<ApiResponse<DailyAttendance[]>> {
     this.loadingService.showLoading();
     const httpParams = new HttpParams()
       .set('employeeId', params.employeeId)
@@ -146,7 +149,7 @@ export class AttendanceService {
       .set('endDate', params.endDate);
 
     return this.http
-      .get<ApiResponse<AttendanceRecord[]>>(`${this.apiUrl}/history`, { params: httpParams })
+      .get<ApiResponse<DailyAttendance[]>>(`${this.apiUrl}/history`, { params: httpParams })
       .pipe(
         tap((response) => {
           if (response.isSuccess && response.data) {
@@ -160,9 +163,9 @@ export class AttendanceService {
       );
   }
 
-  getById(id: string): Observable<ApiResponse<AttendanceRecord>> {
+  getById(id: string): Observable<ApiResponse<DailyAttendance>> {
     this.loadingService.showLoading();
-    return this.http.get<ApiResponse<AttendanceRecord>>(`${this.apiUrl}/${id}`).pipe(
+    return this.http.get<ApiResponse<DailyAttendance>>(`${this.apiUrl}/${id}`).pipe(
       finalize(() => {
         this.loadingService.stopLoading();
       }),
@@ -186,7 +189,7 @@ export class AttendanceService {
   // Adjustments
   // ---------------------------------------------------------------
   createAdjustment(
-    command: CreateAdjustmentCommand,
+    command: AttendanceAdjustmentForm ,
   ): Observable<ApiResponse<AttendanceAdjustment>> {
     return this.http
       .post<ApiResponse<AttendanceAdjustment>>(`${this.apiUrl}/adjustments`, command)

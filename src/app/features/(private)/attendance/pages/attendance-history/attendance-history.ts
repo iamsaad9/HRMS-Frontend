@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { TuiButton, TuiCell, TuiTitle } from '@taiga-ui/core';
+import { TuiButton, TuiCell, TuiTitle, TuiIcon } from '@taiga-ui/core';
 import { TuiBadge, TuiStatus } from '@taiga-ui/kit';
 import { TuiTable } from '@taiga-ui/addon-table';
 
@@ -15,6 +15,7 @@ import { MainHeading } from '../../../../../shared/components/main-heading/main-
 import { AttendanceService } from '../../service/attendanceService';
 import { AttendanceHistoryFilterBar } from '../../components/attendance-hisotry-filter-bar/attendance-history-filter-bar';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
+import { TuiCardLarge } from "@taiga-ui/layout";
 
 export interface DisplayAttendanceRecord extends Partial<AttendanceRecord> {
   attendanceDate: string;
@@ -35,7 +36,9 @@ export interface DisplayAttendanceRecord extends Partial<AttendanceRecord> {
     TuiStatus,
     MainHeading,
     AttendanceHistoryFilterBar,
-  ],
+    TuiCardLarge,
+    TuiIcon
+],
   templateUrl: './attendance-history.html',
   styleUrl: './attendance-history.less',
   changeDetection: ChangeDetectionStrategy.OnPush,

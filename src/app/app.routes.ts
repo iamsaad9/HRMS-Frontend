@@ -10,6 +10,7 @@ import { guestGuard } from './core/guards/guest.guard';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 import { AttendanceHistory } from './features/(private)/attendance/pages/attendance-history/attendance-history';
+import { AttendanceAdjustment } from './features/(private)/attendance/pages/attendance-adjustment/attendance-adjustment';
 
 export const routes: Routes = [
   { path: 'login', canActivate: [guestGuard], component: Login },
@@ -42,6 +43,12 @@ export const routes: Routes = [
       {
         path: 'attendance/history',
         component: AttendanceHistory,
+        canActivate: [roleGuard],
+        data: { roles: ['Admin', 'User'] }, // Supports multiple allowed roles
+      },
+      {
+        path: 'attendance/adjustment/:id',
+        component: AttendanceAdjustment,
         canActivate: [roleGuard],
         data: { roles: ['Admin', 'User'] }, // Supports multiple allowed roles
       },

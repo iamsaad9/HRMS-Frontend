@@ -1,0 +1,312 @@
+:host {
+    display: block;
+    --late-color: #ef4444;
+    --work-color: #f59e0b;
+    --overtime-color: #22c55e;
+    --incomplete-color: #cbd5e1;
+    --track-bg: var(--secondary);
+    --chart-height: 180px;
+    --bar-gap: 6px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+
+.chart-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.chart-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--primary);
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+
+    &.late {
+        background: var(--late-color);
+    }
+
+    &.work {
+        background: var(--work-color);
+    }
+
+    &.overtime {
+        background: var(--overtime-color);
+    }
+
+    &.incomplete {
+        background: var(--incomplete-color);
+    }
+}
+
+.chart-grid {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.y-axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: var(--chart-height);
+    padding-right: 8px;
+    border-right: 1px solid var(--secondary);
+    flex-shrink: 0;
+}
+
+.y-label {
+    font-size: 10px;
+    color: var(--primary);
+    transform: translateY(-4px);
+    white-space: nowrap;
+}
+
+
+
+.bars {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--bar-gap);
+    flex: 1;
+    min-width: 0;
+
+}
+
+.bar-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1 1 0;
+    min-width: 0;
+    position: relative;
+
+    &.active .bar-track {
+        outline: 2px solid #0284c7;
+        outline-offset: 1px;
+    }
+
+    &.weekend .bar-track {
+        background: repeating-linear-gradient(45deg, var(--track-bg), var(--track-bg) 4px, var(--background_light) 4px, var(--background_light) 8px);
+    }
+}
+
+.bar-col.today {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-radius: 4px 4px 0px 0px;
+
+}
+
+.week-label {
+    display: block;
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--primary);
+
+    white-space: nowrap;
+}
+
+
+.bar-track {
+    position: relative;
+    height: var(--chart-height);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background: var(--track-bg);
+    border-radius: 3px 3px 0 0;
+    overflow: hidden;
+    cursor: default;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+        opacity: 0.85;
+    }
+}
+
+.segment {
+    width: 100%;
+    flex-shrink: 0;
+
+    &.late {
+        background: var(--late-color);
+    }
+
+    &.work {
+        background: var(--work-color);
+    }
+
+    &.overtime {
+        background: var(--overtime-color);
+    }
+
+    &.incomplete {
+        background: repeating-linear-gradient(45deg,
+                var(--incomplete-color),
+                var(--incomplete-color) 3px,
+                #fff 3px,
+                #fff 6px);
+    }
+}
+
+
+.popover-card {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 160px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    cursor: default;
+    animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* Arrow pointing down to the bar */
+    &::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 5px;
+        border-style: solid;
+        border-color: #ffffff transparent transparent transparent;
+    }
+}
+
+.popover-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+}
+
+.popover-date {
+    font-size: 11px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    font-size: 10px;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0 2px;
+    line-height: 1;
+
+    &:hover {
+        color: #475569;
+    }
+}
+
+.popover-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+
+    .label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #64748b;
+    }
+
+    .val {
+        font-weight: 600;
+        color: #1e293b;
+    }
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+// Responsive: shrink bars/height on small screens, keep horizontal scroll for 30 days
+@media (max-width: 640px) {
+    :host {
+        --bar-gap: 3px;
+        --chart-height: 160px;
+    }
+
+    .chart-title {
+        font-size: 14px;
+    }
+
+    .attendance-chart {
+        padding: 14px;
+    }
+
+    /* Hide daily numbers on mobile */
+    .day-label {
+        display: none;
+    }
+
+    /* Position and show week labels on mobile */
+    .bar-col {
+        position: relative;
+    }
+
+
+    /* Reserve space under the chart for the absolute week labels */
+    .bars {
+        margin-bottom: 20px;
+    }
+
+    .popover-card {
+        width: 140px;
+        padding: 8px 10px;
+    }
+}

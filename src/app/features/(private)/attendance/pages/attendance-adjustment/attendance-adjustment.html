@@ -1,0 +1,183 @@
+<div class="flex flex-col gap-5 w-full p-4 md:p-5 text-(--theme2) max-w-7xl mx-auto">
+
+  <!-- Main Header -->
+  <app-main-heading title="Attendance Adjustment" description="Review this day and request a correction">
+  </app-main-heading>
+
+  <!-- User Profile Info Card -->
+  @if (currentUser(); as user) {
+  <div tuiCardLarge
+    class="shadow-[0_0_10px_rgba(0,0,0,0.15)]! rounded-xl p-5 bg-(--background_light)/60 text-(--primary) flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div class="flex items-center gap-3.5">
+      <div
+        class="size-12 rounded-full bg-(--theme1) text-white flex items-center justify-center font-bold text-lg shrink-0">
+        {{ (user.employeeInfo.firstName[0] || '') + (user.employeeInfo.lastName[0] || '') }}
+      </div>
+      <div class="flex flex-col">
+        <div class="flex items-center gap-2">
+          <h2 class="text-lg font-bold m-0 leading-tight">{{ user.employeeInfo.firstName }} {{
+            user.employeeInfo.lastName }}</h2>
+          @for (role of user.roles; track role) {
+          <span tuiBadge appearance="accent" size="m">{{ role }}</span>
+          }
+        </div>
+        <p class="text-sm text-(--primary)/60 m-0 mt-0.5">{{ user.email }}</p>
+      </div>
+    </div>
+  </div>
+  }
+
+  @if (isLoading()) {
+  <div class="flex items-center gap-2 py-10 justify-center text-sm text-(--theme2)/50">
+    <mat-icon class="animate-spin text-lg">progress_activity</mat-icon>
+    Loading attendance record…
+  </div>
+  } @else if (loadError()) {
+  <div tuiCardLarge
+    class="bg-(--secondary)/15 border border-dashed border-(--background_dark)/15 rounded-xl p-10 text-center">
+    <mat-icon class="text-4xl text-red-400 mb-2">error_outline</mat-icon>
+    <p class="text-sm font-medium text-(--theme2)/70 m-0">{{ loadError() }}</p>
+  </div>
+  } @else if (record(); as rec) {
+  <div class="grid grid-cols-1 gap-4">
+    <div tuiCardLarge
+      class="relative overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.2)]! rounded-xl flex flex-col gap-4 p-5">
+
+      <!-- Status Accent Rail -->
+      <span class="absolute left-0 top-0 bottom-0 w-1" [class.bg-amber-400]="rec.isLate"
+        [class.bg-emerald-500]="rec.status === 'Present' && !rec.isLate" [class.bg-red-400]="rec.status === 'Absent'">
+      </span>
+
+      <div class="pl-1 flex flex-col gap-4 text-(--primary)">
+        <!-- Top Row: Date & Actions -->
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-xl font-semibold tracking-tight m-0 flex items-center gap-2">
+              <tui-icon icon="@tui.calendar" />
+              {{ rec.date }}
+            </p>
+            @if (rec.isLate || rec.isEarlyExist) {
+            <p class="text-sm text-(--primary) mt-0.5 m-0">
+              {{ rec.isLate ? 'Late arrival' : '' }}{{ rec.isLate && rec.isEarlyExist ? ' · ' : '' }}{{
+              rec.isEarlyExist ? 'Early exit' : '' }}
+            </p>
+            }
+          </div>
+
+          <div class="flex items-center gap-1.5 shrink-0">
+            @if (rec.status) {
+            <span tuiBadge [appearance]="statusAppearance(rec.status)">
+              {{ rec.status }}
+            </span>
+            }
+
+            @if (!isEditing()) {
+            <button tuiButton type="button" size="s" iconStart="@tui.pencil" (click)="startEdit(rec)"
+              class="bg-(--theme1)!"></button>
+            }
+          </div>
+        </div>
+
+        <!-- Summary Stats Grid -->
+        <div class="grid grid-cols-3 gap-5">
+          <div class="flex gap-5 items-center justify-start rounded-2xl p-5 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+            <tui-icon icon="@tui.hourglass" class="text-(--theme1)" />
+            <div class="flex flex-col">
+              <h1 class="text-sm font-semibold uppercase text-(--primary)/70">Hours Worked</h1>
+              <span class="text-xl font-semibold">{{rec.workingHours}} Hrs</span>
+            </div>
+          </div>
+
+          <div class="flex gap-5 items-center justify-start rounded-2xl p-5 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+            <tui-icon icon="@tui.zap" class="text-(--theme1)" />
+            <div class="flex flex-col">
+              <h1 class="text-sm font-semibold uppercase text-(--primary)/70">Overtime Worked</h1>
+              <span class="text-xl font-semibold">{{rec.overtimeHours}} Hrs</span>
+            </div>
+          </div>
+
+          <div class="flex gap-5 items-center justify-start rounded-2xl p-5 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+            <tui-icon icon="@tui.info" class="text-(--theme1)" />
+            <div class="flex flex-col">
+              <h1 class="text-sm font-semibold uppercase text-(--primary)/70">Status</h1>
+              <span class="text-xl font-semibold">{{rec.status}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recorded Times / Edit Punches Card -->
+        <div tuiCardLarge class="rounded-lg bg-(--background_light)/40 border! border-(--secondary)! p-3">
+          @if (isEditing()) {
+          <!-- EDIT MODE -->
+          <form [formGroup]="form" (ngSubmit)="saveEdit(rec)" class="flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <span class="text-base flex gap-3 font-medium text-(--theme1) uppercase tracking-wide">
+                <tui-icon icon="@tui.fingerprint-pattern" class="text-(--theme1)" />
+                Adjust Punch Times
+              </span>
+            </div>
+
+            <div class="flex flex-col gap-2 mt-1" formArrayName="punches">
+              @for (punch of punches.controls; track punch; let i = $index) {
+              <div [formGroupName]="i" tuiCardLarge
+                class="flex flex-row! items-center! justify-between gap-4 p-3 rounded-lg bg-(--background_light)/80 border border-(--secondary) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+
+                <!-- Fixed Punch Name Display -->
+                <span class="font-semibold text-base uppercase tracking-wide text-(--primary)">
+                  {{ punch.get('requestedPunchType')?.value || 'Punch ' + (i + 1) }}
+                </span>
+
+                <!-- Native Time Input (Accepts plain strings like "08:30") -->
+                <tui-textfield class="min-w-48">
+
+                  <input tuiInputTime mode="HH:MM AA" formControlName="requestedPunchTime" />
+                </tui-textfield>
+              </div>
+              }
+            </div>
+
+            <!-- Form Save/Cancel Footer -->
+            <footer class="flex justify-end gap-2 pt-3 border-t border-(--background_dark)/10 mt-1">
+              <button tuiButton type="button" class="bg-(--secondary)! text-(--primary)!" size="m"
+                (click)="cancelEdit()">
+                Cancel
+              </button>
+              <button tuiButton type="submit" size="m" class="bg-(--theme1)!" [disabled]="isSaving()"
+                iconStart="@tui.check">
+                Save
+              </button>
+            </footer>
+          </form>
+          } @else {
+          <!-- VIEW MODE -->
+          <div class="flex items-center justify-between">
+            <span class="text-base flex gap-3 font-medium text-(--theme1) uppercase tracking-wide">
+              <tui-icon icon="@tui.fingerprint-pattern" class="text-(--theme1)" />
+              Recorded Times
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-sm mt-2">
+            <div class="flex flex-col gap-2">
+              <span class="text-(--primary)/50 uppercase text-sm font-semibold tracking-wide">First In</span>
+              <p class="m-0 font-medium tabular-nums flex items-center gap-1 text-xl">
+                <tui-icon icon="@tui.clock" class="scale-80" />
+                {{ rec.firstIn ? (rec.firstIn | date: 'hh:mm a') : '—' }}
+              </p>
+            </div>
+            <div class="flex flex-col gap-2">
+              <span class="text-(--primary)/50 uppercase text-sm font-semibold tracking-wide">Last Out</span>
+              <p class="m-0 font-medium tabular-nums flex items-center gap-1 text-xl">
+                <tui-icon icon="@tui.clock" class="scale-80" />
+                {{ rec.lastOut ? (rec.lastOut | date: 'hh:mm a') : '—' }}
+              </p>
+            </div>
+          </div>
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+  }
+</div>

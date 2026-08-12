@@ -47,14 +47,23 @@ export default class MainLayout implements OnInit {
           endDate,
         };
 
-        // Fire both HTTP requests simultaneously
-        forkJoin({
-          history: this.attendanceService.getInitialWeek(getHistoryParams),
-          today: this.attendanceService.getDailyAttendance(currentUserId, endDate),
-        }).subscribe({
-          next: ({ history, today }) => {
+        // // Fire both HTTP requests simultaneously
+        // forkJoin({
+        //   history: this.attendanceService.getInitialWeek(getHistoryParams),
+        //   today: this.attendanceService.getDailyAttendance(currentUserId, endDate),
+        // }).subscribe({
+        //   next: ({ history, today }) => {
+        //     console.log('Week History Loaded:', history);
+        //     console.log("Today's Data Loaded:", today);
+        //   },
+        //   error: (err) => {
+        //     console.error('Error loading initial attendance data:', err);
+        //   },
+        // });
+
+        this.attendanceService.getInitialWeek(getHistoryParams).subscribe({
+          next: (history ) => {
             console.log('Week History Loaded:', history);
-            console.log("Today's Data Loaded:", today);
           },
           error: (err) => {
             console.error('Error loading initial attendance data:', err);

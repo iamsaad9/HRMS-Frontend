@@ -1,4 +1,5 @@
 <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! gap-2!">
+
   <div class="flex items-center justify-start gap-2">
     <mat-icon class="text-(--theme2)!">track_changes</mat-icon>
     <div>
@@ -11,7 +12,8 @@
 
   <div class="grid grid-cols-1 gap-4">
     <!-- CARD 1: Headcount Target with TuiProgressCircle -->
-    <div tuiCardLarge class="bg-(--background_light)! rounded-2xl p-6 border shadow-sm flex flex-col justify-between">
+    <div tuiCardLarge
+      class="bg-(--background_light)! rounded-2xl p-6 border drop-shadow-sm flex flex-col justify-between">
       <div>
         <!-- Profile Header -->
         <div class="flex items-center gap-4 pb-6 border-b border-(--primary)!">
@@ -39,39 +41,55 @@
             </span>
             <span [class]="
                 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ' +
-                (user.todayStatus.isClockedIn
-                  ? 'bg-emerald-50 text-emerald-600'
-                  : 'bg-amber-50 text-amber-600')
+                (attendanceService.isClockedIn()
+                  ? 'bg-amber-100 text-amber-600'
+                  : 'bg-emerald-50 text-emerald-600')
               ">
               <span [class]="
                   'w-2 h-2 rounded-full ' +
-                  (user.todayStatus.isClockedIn ? 'bg-(--success) animate-pulse' : 'bg-amber-500')
+                  (attendanceService.isClockedIn() ? 'bg-(--error) animate-pulse' :  'bg-amber-500')
                 "></span>
-              {{ user.todayStatus.isClockedIn ? 'Clocked In' : 'Clocked Out' }}
+              {{ attendanceService.isClockedOut() ? 'Clocked Out' : 'Clocked In' }}
             </span>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
-            @if (attendanceService.isClockedIn()) {
-            <!-- Start Time Card (Takes 1 column) -->
+
+
+            @if (!attendanceService.isClockedIn()) {
+            <!-- STATE 1: No clock-in for today -> Show Clock In Button (Full Width) -->
+            <button (click)="onClockIn()"
+              class="col-span-2 flex items-center justify-center p-3 rounded-xl bg-emerald-400 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
+              <span class="uppercase font-bold text-md text-(--background_light)">Clock In</span>
+            </button>
+            } @else if (!attendanceService.isClockedOut()) {
+            <!-- STATE 2: Clocked in but not clocked out -> Show Start Time + Clock Out Button -->
             <div class="p-3.5 rounded-xl bg-(--secondary)/50">
               <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
               <span class="text-lg font-bold text-(--primary) mt-0.5 block">
-                {{ attendanceService.todayStatus()?.firstIn | date:'hh:mm a' }}
+                {{ attendanceService.todayStatus()?.date | date:'hh:mm a' }}
               </span>
             </div>
 
-            <!-- Clock Out Button (Takes 1 column) -->
             <button (click)="onClockOut()"
               class="flex items-center justify-center p-3 rounded-xl bg-(--error) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
-              <span class="uppercase font-bold text-md">Clock Out</span>
+              <span class="uppercase font-bold text-md text-white">Clock Out</span>
             </button>
             } @else {
-            <!-- Clock In Button (Spans full width when not clocked in) -->
-            <button (click)="onClockIn()"
-              class="col-span-full flex items-center justify-center p-3 rounded-xl bg-emerald-400 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
-              <span class="uppercase font-bold text-md text-(--background_light)">Clock In</span>
-            </button>
+            <!-- STATE 3: Both clock-in and clock-out done -> Show both times side-by-side -->
+            <div class="p-3.5 rounded-xl bg-(--secondary)/50">
+              <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
+              <span class="text-lg font-bold text-(--primary) mt-0.5 block">
+                {{ attendanceService.todayStatus()?.firstIn| date:'hh:mm a' }}
+              </span>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-(--secondary)/50">
+              <span class="text-xs text-(--primary)/80 block font-medium">End Time</span>
+              <span class="text-lg font-bold text-(--primary) mt-0.5 block">
+                {{ attendanceService.todayStatus()?.lastOut| date:'hh:mm a' }}
+              </span>
+            </div>
             }
           </div>
         </div>
@@ -84,7 +102,7 @@
     </div>
 
     <div tuiCardLarge
-      class="bg-(--background_light)! flex flex-col justify-between rounded-xl p-5 text-(--primary) shadow-md hover:shadow-lg">
+      class="bg-(--background_light)! flex flex-col justify-between rounded-xl p-5 text-(--primary) drop-shadow-sm ">
       <div tuiHeader class="flex items-center justify-between">
         <span class="text-sm font-medium text-(--theme2)">Total Headcount</span>
         <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">92.5% Target</span>
@@ -107,7 +125,7 @@
 
     <!-- CARD 2: Today's Attendance with TuiRingChart -->
     <div tuiCardLarge
-      class="bg-(--background_light)! flex flex-col justify-between rounded-xl p-5 text-(--primary) shadow-md hover:shadow-lg">
+      class="bg-(--background_light)! flex flex-col justify-between rounded-xl p-5 text-(--primary) drop-shadow-sm">
       <div tuiHeader class="flex items-center justify-between">
         <span class="text-sm font-medium text-(--theme2)">Today's Attendance</span>
         <span class="text-xs font-semibold text-emerald-600">92.5% Present</span>
@@ -131,7 +149,7 @@
 
     <!-- CARD 3: Monthly Payroll Sparkline with TuiLineChart -->
     <div tuiCardLarge
-      class="bg-(--background_light)! flex flex-col justify-between rounded-xl p-5 text-(--primary) shadow-md hover:shadow-lg">
+      class="bg-(--background_light)! flex flex-col justify-between rounded-xl p-5 text-(--primary) drop-shadow-sm">
       <div tuiHeader class="flex items-center justify-between">
         <span class="text-sm font-medium text-(--theme2)">Monthly Payroll</span>
         <span class="text-xs font-semibold text-amber-600">+2.4% MoM</span>
@@ -147,7 +165,7 @@
 
     <!-- CARD 4: Pending Approvals Action Card -->
     <div tuiCardLarge
-      class="bg-(--background_light)! flex flex-col justify-between rounded-xl p-5 text-(--primary) shadow-md hover:shadow-lg">
+      class="bg-(--background_light)! flex flex-col justify-between rounded-xl p-5 text-(--primary) drop-shadow-sm">
       <div tuiHeader class="flex items-center justify-between">
         <span class="text-sm font-medium text-(--theme2)">Pending Approvals</span>
         <span class="rounded-full bg-red-200 px-2.5 py-0.5 text-xs font-semibold text-red-500">Action Needed</span>

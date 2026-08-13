@@ -41,7 +41,7 @@ import {
 import { TuiChevron } from '@taiga-ui/kit';
 import { TuiInputDateRange } from '@taiga-ui/kit';
 import { TuiCardLarge, TuiElasticContainer } from '@taiga-ui/layout';
-import { ExperienceForm } from '../../../model/employee-model';
+import { ExperienceForm } from '../../../model/employee.model';
 @Component({
   selector: 'app-employee-experience',
   standalone: true,

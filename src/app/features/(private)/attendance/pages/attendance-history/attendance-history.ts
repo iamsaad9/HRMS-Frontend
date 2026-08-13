@@ -10,9 +10,9 @@ import {
   AttendanceHistoryFilter,
   AttendanceRecord,
   EMPTY_ATTENDANCE_HISTORY_FILTER,
-} from '../../model/attendance-model';
+} from '../../model/attendance.model';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
-import { AttendanceService } from '../../service/attendanceService';
+import { AttendanceService } from '../../service/attendance.service';
 import { AttendanceHistoryFilterBar } from '../../components/attendance-hisotry-filter-bar/attendance-history-filter-bar';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { TuiCardLarge } from "@taiga-ui/layout";

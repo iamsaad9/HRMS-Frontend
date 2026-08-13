@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { AddEmployeeCommand, CreateEmployeeResponse, Employee } from '../model/employee-model';
+import { AddEmployeeCommand, CreateEmployeeResponse, Employee } from '../model/employee.model';
 import { ApiResponse } from '../../../../core/models/api-response.model';
 import { catchError, finalize, Observable, of, tap } from 'rxjs';
 import { LoadingService } from '../../../../core/services/loading.service';

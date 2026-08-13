@@ -35,7 +35,7 @@ import {
   TuiSelect,
 } from '@taiga-ui/kit';
 import { MatIcon } from '@angular/material/icon';
-import { EmployeeDetailsForm } from '../../../model/employee-model';
+import { EmployeeDetailsForm } from '../../../model/employee.model';
 import { TuiCardLarge } from '@taiga-ui/layout';
 
 @Component({

@@ -27,6 +27,7 @@ export const DropdownItems: DropDownItem[] = [
         category: 'Attendance Management',
         permissions: 'attendance:view',
       },
+      
       {
         id:'1.5.2',
         icon: 'history',
@@ -41,7 +42,7 @@ export const DropdownItems: DropDownItem[] = [
   },
   {
     id: '2',
-    icon: 'people_outline',
+    icon: 'person_outline',
     title: 'Employee',
     category: 'Employee Management',
     description: 'Manage employee and roles',
@@ -68,7 +69,7 @@ export const DropdownItems: DropDownItem[] = [
       },
       {
         id: '2.3',
-        icon: 'person_outline',
+        icon: 'people_outline',
         title: 'All Employees',
         description: 'View all employees',
         routeTo: '/employee/all',
@@ -95,31 +96,37 @@ export const DropdownItems: DropDownItem[] = [
       },
     ],
   },
-  //   {
-  //     icon: 'chrome_reader_mode',
-  //     title: 'Reports',
-  //     description: 'View analytics and reports',
-  //     childItems: [
-  //       {
-  //         icon: 'attach_money',
-  //         title: 'Sales Report',
-  //         description: 'Monthly sales analytics',
-  //         routeTo: '/reports/sales',
-  //       },
-  //       {
-  //         icon: 'attach_money',
-  //         title: 'Performance',
-  //         description: 'Track team performance',
-  //         routeTo: '/reports/performance',
-  //       },
-  //       {
-  //         icon: 'note_add',
-  //         title: 'Custom Reports',
-  //         description: 'Generate custom reports',
-  //         routeTo: '/reports/custom',
-  //       },
-  //     ],
-  //   },
+    {
+      id:'2',
+      icon: 'beach_access',
+      title: 'Leaves',
+      description: 'Manage or create leaves request',
+       routeTo: '/dashboard',
+    tags: ['/', 'dashboard', 'home'],
+    category: 'Dashboard',
+      childItems: [
+         {
+        id:'2.1',
+        icon: 'add',
+        title: 'New Leave Request',
+        description: 'Create a leave request',
+        routeTo: '/leave-requests/new',
+        tags: ['new','leave','request','create','attendance'],
+        category: 'Leave Management',
+        permissions: 'attendance:view',
+      },
+       {
+        id:'2.2',
+        icon: 'list',
+        title: 'Your Leave Requests',
+        description: 'View all your leave request',
+        routeTo: '/leave-requests/all',
+        tags: ['all','leave','request','view','attendance'],
+        category: 'Leave Management',
+        permissions: 'attendance:view',
+      },
+      ],
+    },
   //   {
   //     icon: 'settings',
   //     title: 'Settings',

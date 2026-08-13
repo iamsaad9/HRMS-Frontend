@@ -35,7 +35,7 @@ import {
 import { TuiItemGroup, TuiCardLarge } from '@taiga-ui/layout';
 import { TuiTable, TuiTableControl } from '@taiga-ui/addon-table';
 
-import { EmployeeFilter, EMPTY_EMPLOYEE_FILTER, type Employee } from '../../model/employee-model';
+import { EmployeeFilter, EMPTY_EMPLOYEE_FILTER, type Employee } from '../../model/employee.model';
 import { EmployeeFilterBarComponent } from '../../components/employee-filter-bar/employee-filter-bar';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { LoadingService } from '../../../../../core/services/loading.service';

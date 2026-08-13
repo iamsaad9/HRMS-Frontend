@@ -14,7 +14,7 @@ import { TuiCardLarge } from '@taiga-ui/layout';
 import { TuiBadge, TuiChevron, TuiDataListWrapper, TuiInputTime, TuiSelect, TuiTextarea } from '@taiga-ui/kit';
 import { MatIcon } from '@angular/material/icon';
 import { DatePipe } from '@angular/common';
-import { AttendanceService } from '../../service/attendanceService';
+import { AttendanceService } from '../../service/attendance.service';
 import {
   DailyAttendance,
   AttendanceAdjustmentForm,
@@ -22,7 +22,7 @@ import {
   PunchType,
   punchTypeToLabel,
   labelToPunchType,
-} from '../../model/attendance-model';
+} from '../../model/attendance.model';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { TuiTime } from '@taiga-ui/cdk';

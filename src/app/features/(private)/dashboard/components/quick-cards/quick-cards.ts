@@ -9,9 +9,9 @@ import { TuiCard, TuiCardLarge, TuiHeader } from '@taiga-ui/layout';
 import { tuiSum } from '@taiga-ui/cdk';
 import { MatIcon } from '@angular/material/icon';
 import { TuiAmountPipe } from '@taiga-ui/addon-commerce';
-import { AttendanceService } from '../../../attendance/service/attendanceService';
+import { AttendanceService } from '../../../attendance/service/attendance.service';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
-import { AttendanceChannel, ClockActionCommand } from '../../../attendance/model/attendance-model';
+import { AttendanceChannel, ClockActionCommand } from '../../../attendance/model/attendance.model';
 import { ToastService } from '../../../../../core/services/toast.service';
 
 @Component({
@@ -95,6 +95,7 @@ export class QuickCards {
       next: (response) => {
         if (response.isSuccess) {
           this.toast.success('Clocked in successfully!', 'Attendance Updated');
+          this.attendanceService.getInitialWeek().subscribe()
         } else {
           this.toast.error('Clock in failed!', 'Attendance Updated');
         }
@@ -102,6 +103,7 @@ export class QuickCards {
       error: () => {
         this.toast.error('Clock in failed!', 'Attendance Updated');
       },
+
       
     });
   }
@@ -127,6 +129,7 @@ export class QuickCards {
       next: (response) => {
         if (response.isSuccess) {
           this.toast.success('Clocked out successfully!', 'Attendance Updated');
+          this.attendanceService.getInitialWeek().subscribe()
         } else {
           this.toast.error('Clock out failed!', 'Attendance Updated');
         }

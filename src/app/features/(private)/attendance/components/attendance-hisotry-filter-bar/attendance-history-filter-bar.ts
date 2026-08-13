@@ -8,7 +8,6 @@ import {
   EMPTY_ATTENDANCE_HISTORY_FILTER,
   ATTENDANCE_STATUS_OPTIONS,
   WORK_LOCATION_OPTIONS,
-  LEAVE_TYPE_OPTIONS,
   SHIFT_TYPE_OPTIONS,
   EXCEPTION_FLAG_OPTIONS,
   DEPARTMENT_OPTIONS,
@@ -20,9 +19,10 @@ import {
   ExceptionFlag,
   Department,
   EmploymentType,
-} from '../../model/attendance-model';
+} from '../../model/attendance.model';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { TuiCardLarge, TuiElasticContainer, TuiItemGroup } from '@taiga-ui/layout';
+import { LEAVE_TYPE_OPTIONS } from '../../../leave-management/model/leave-request.model';
 
 @Component({
   selector: 'app-attendance-history-filter-bar',

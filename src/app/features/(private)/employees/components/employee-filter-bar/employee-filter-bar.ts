@@ -16,7 +16,7 @@ import {
   EMPTY_EMPLOYEE_FILTER,
   type Employee,
   type EmployeeFilter,
-} from '../../model/employee-model';
+} from '../../model/employee.model';
 
 @Component({
   selector: 'app-employee-filter-bar',

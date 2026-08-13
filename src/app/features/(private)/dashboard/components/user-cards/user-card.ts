@@ -4,7 +4,7 @@ import { TuiAvatar } from '@taiga-ui/kit';
 import { TuiCardLarge, TuiHeader } from '@taiga-ui/layout';
 import { MatIcon } from '@angular/material/icon';
 import { TuiAxes, TuiLineChart, TuiBarChart } from '@taiga-ui/addon-charts';
-import { AttendanceService } from '../../../attendance/service/attendanceService';
+import { AttendanceService } from '../../../attendance/service/attendance.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { tuiCeil } from '@taiga-ui/cdk';

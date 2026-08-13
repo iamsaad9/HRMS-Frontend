@@ -10,7 +10,7 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { routes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
 import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
-import { AttendanceService } from './features/(private)/attendance/service/attendanceService';
+import { AttendanceService } from './features/(private)/attendance/service/attendance.service';
 import { AuthService } from './features/(public)/auth/services/auth.service';
 import { firstValueFrom } from 'rxjs';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';

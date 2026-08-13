@@ -21,15 +21,26 @@ import {
   Shift,
   TeamAttendanceParams,
   TeamAttendanceRecord,
-} from '../model/attendance-model';
+} from '../model/attendance.model';
 import { ToastService } from '../../../../core/services/toast.service';
+import { AuthService } from '../../../(public)/auth/services/auth.service';
+
+    const toLocalDateStr = (d: Date): string => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 @Injectable({ providedIn: 'root' })
 export class AttendanceService {
   private apiUrl = '/api/Attendance';
   private http = inject(HttpClient);
   private loadingService = inject(LoadingService);
-  today = new Date().toISOString().split('T')[0];
+  private authService = inject(AuthService);
+  utctoday = new Date()
+  today = toLocalDateStr(this.utctoday);
+  currentUserId = this.authService.currentUser()?.employeeInfo.employeeId
 
 todayStatus = computed(() => {
   return this.initialWeek()?.find((day) => day.date === this.today);
@@ -54,6 +65,8 @@ isClockedOut = computed(() => !!this.todayStatus()?.lastOut);
 
 // Also fixed typo: isEarlyExist -> isEarlyExit
 isOnBreak = computed(() => this.todayStatus()?.lastOut ?? false);
+
+
 
   // ---------------------------------------------------------------
   // Punch actions
@@ -141,12 +154,22 @@ isOnBreak = computed(() => this.todayStatus()?.lastOut ?? false);
       );
   }
 
-  getInitialWeek(params: AttendanceHistoryParams): Observable<ApiResponse<DailyAttendance[]>> {
+  getInitialWeek(): Observable<ApiResponse<DailyAttendance[]>> {
+
+    const today = new Date();
+    const endDate = toLocalDateStr(today); 
+
+    const start = new Date(today);
+    start.setDate(today.getDate() - 6);
+    const startDate = toLocalDateStr(start);
     this.loadingService.showLoading();
+    
     const httpParams = new HttpParams()
-      .set('employeeId', params.employeeId)
-      .set('startDate', params.startDate)
-      .set('endDate', params.endDate);
+      .set('employeeId', this.currentUserId || '' )
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+
+
 
     return this.http
       .get<ApiResponse<DailyAttendance[]>>(`${this.apiUrl}/history`, { params: httpParams })

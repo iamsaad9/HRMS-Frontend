@@ -240,13 +240,6 @@ export type WorkLocation =
   | 'On Site / Client Location'
   | 'Hybrid';
 
-export type LeaveType =
-  | 'Casual Leave'
-  | 'Sick Leave'
-  | 'Paid Time Off (PTO)'
-  | 'Maternity/Paternity'
-  | 'Unpaid Leave';
-
 export type ShiftType =
   | 'Morning'
   | 'Evening'
@@ -326,14 +319,6 @@ export const WORK_LOCATION_OPTIONS: WorkLocation[] = [
   'Hybrid',
 ];
 
-export const LEAVE_TYPE_OPTIONS: LeaveType[] = [
-  'Casual Leave',
-  'Sick Leave',
-  'Paid Time Off (PTO)',
-  'Maternity/Paternity',
-  'Unpaid Leave',
-];
-
 export const SHIFT_TYPE_OPTIONS: ShiftType[] = [
   'Morning',
   'Evening',
@@ -365,3 +350,9 @@ export const EMPLOYMENT_TYPE_OPTIONS: EmploymentType[] = [
   'Contractor',
   'Intern',
 ];
+
+export type LeaveType =
+  | 'annual' | 'sick' | 'wfh' | 'unpaid' | 'maternity'
+  | 'paternity' | 'casual' | 'others';
+
+

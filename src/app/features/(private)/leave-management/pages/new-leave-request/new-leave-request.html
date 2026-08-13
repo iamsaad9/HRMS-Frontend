@@ -1,0 +1,209 @@
+<div class="flex flex-col gap-5 w-full p-4 md:p-5 text-(--theme2) max-w-7xl mx-auto">
+
+    <app-main-heading title="New Leave Request" description="Submit a leave or WFH request for approval">
+        @if (currentUser()?.employeeInfo; as info) {
+        <div class="flex items-center gap-2.5 shrink-0">
+            <div class="text-right leading-tight hidden sm:block">
+                <p class="text-base font-medium m-0 text-(--theme1)">{{ info.firstName }} {{ info.lastName }}</p>
+                <p class="text-sm text-(--primary)/50 m-0">{{ currentUser()?.email }}</p>
+            </div>
+            <div
+                class="size-12 rounded-full bg-(--primary)/15 border border-(--primary)/25 flex items-center justify-center text-xs font-semibold text-(--primary) shrink-0">
+                {{ (info.firstName[0]) + (info.lastName[0]) }}
+            </div>
+        </div>
+        }
+    </app-main-heading>
+
+    <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20!">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 w-full p-4 text-(--theme2)">
+
+            <header>
+                <h3 tuiTitle="m">
+                    Leave Details
+                    <span tuiSubtitle class="text-(--primary)">Fill in the details for your leave request</span>
+                </h3>
+            </header>
+
+            <!-- Leave Type -->
+            <div tuiCardLarge>
+                <div class="flex gap-2 items-center">
+                    <tui-icon icon="@tui.tag" class="scale-80" />
+                    <h1 class="uppercase font-base text-(--primary) font-semibold">Leave details</h1>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label tuiLabel>
+                        Leave Type
+                        @if (isRequired(form.get('leaveType'))) {
+                        <span class="text-red-500">*</span>
+                        }
+                    </label>
+                    <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!" tuiChevron
+                        [tuiTextfieldCleaner]="false">
+
+                        <input formControlName="leaveType" placeholder="Select Leave Type" tuiSelect />
+                        <tui-data-list-wrapper *tuiDropdown [items]="leaveTypeOptions" />
+                    </tui-textfield>
+                    <tui-error formControlName="leaveType" />
+                </div>
+
+            </div>
+
+            <div tuiCardLarge>
+                <div class="flex gap-2 items-center">
+                    <tui-icon icon="@tui.calendar-clock" class="scale-80" />
+                    <h1 class="uppercase font-base text-(--primary) font-semibold">Leave period</h1>
+                </div>
+                <!-- Dates -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
+                            <label tuiLabel>
+                                Start Date
+                                @if (isRequired(form.get('startDate'))) {
+                                <span class="text-red-500">*</span>
+                                }
+                            </label>
+                            <input formControlName="startDate" placeholder="DD.MM.YYYY" tuiInputDate />
+                            <tui-calendar *tuiDropdown />
+                        </tui-textfield>
+                        <tui-error formControlName="startDate" />
+                    </div>
+
+                    <div>
+                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!"
+                            [class.opacity-50]="selectedDuration() !== 'full_day'">
+                            <label tuiLabel>
+                                End Date
+                                @if (isRequired(form.get('endDate'))) {
+                                <span class="text-red-500">*</span>
+                                }
+                            </label>
+                            <input formControlName="endDate" placeholder="DD.MM.YYYY" tuiInputDate
+                                [readOnly]="selectedDuration() !== 'full_day'" />
+                            <tui-calendar *tuiDropdown />
+                        </tui-textfield>
+                        <tui-error formControlName="endDate" />
+                        @if (form.hasError('dateRange') && form.get('endDate')?.touched) {
+                        <p class="text-red-500 text-xs mt-1">End date cannot be before start date</p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Duration Type -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-semibold text-(--primary)">
+                        Duration
+                        @if (isRequired(form.get('durationType'))) {
+                        <span class="text-red-500">*</span>
+                        }
+                    </label>
+                    <div tuiGroup [collapsed]="true" class="w-full">
+                        <label tuiBlock>
+                            Full Day
+                            <input type="radio" formControlName="durationType" value="full_day" tuiRadio
+                                [style.margin-inline-start]="'auto'" />
+                        </label>
+                        <label tuiBlock>
+                            Half Day
+                            <input type="radio" formControlName="durationType" value="half_day" tuiRadio
+                                [style.margin-inline-start]="'auto'" />
+                        </label>
+                        <label tuiBlock>
+                            Custom Hours
+                            <input type="radio" formControlName="durationType" value="custom_hours" tuiRadio
+                                [style.margin-inline-start]="'auto'" />
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Half Day Period -->
+                @if (selectedDuration() === 'half_day') {
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-semibold text-(--primary)">
+                        Which Half?
+                        @if (isRequired(form.get('halfDayPeriod'))) {
+                        <span class="text-red-500">*</span>
+                        }
+                    </label>
+                    <div tuiGroup [collapsed]="true" class="w-full">
+                        <label tuiBlock>
+                            Morning (First Half)
+                            <input type="radio" formControlName="halfDayPeriod" value="first_half" tuiRadio
+                                [style.margin-inline-start]="'auto'" />
+                        </label>
+                        <label tuiBlock>
+                            Afternoon (Second Half)
+                            <input type="radio" formControlName="halfDayPeriod" value="second_half" tuiRadio
+                                [style.margin-inline-start]="'auto'" />
+                        </label>
+                    </div>
+                    <tui-error formControlName="halfDayPeriod" />
+                </div>
+                }
+
+                <!-- Custom Hours -->
+                @if (selectedDuration() === 'custom_hours') {
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" formGroupName="customHours">
+                    <div>
+                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
+                            <label tuiLabel>
+                                Start Time
+                                @if (isRequired(form.get('customHours.startTime'))) {
+                                <span class="text-red-500">*</span>
+                                }
+                            </label>
+                            <input formControlName="startTime" tuiInputTime mode="HH:MM" />
+                        </tui-textfield>
+                        <tui-error formControlName="startTime" />
+                    </div>
+
+                    <div>
+                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
+                            <label tuiLabel>
+                                End Time
+                                @if (isRequired(form.get('customHours.endTime'))) {
+                                <span class="text-red-500">*</span>
+                                }
+                            </label>
+                            <input formControlName="endTime" tuiInputTime mode="HH:MM" />
+                        </tui-textfield>
+                        <tui-error formControlName="endTime" />
+                    </div>
+                </div>
+                }
+            </div>
+
+            <div tuiCardLarge>
+                <div class="flex gap-2 items-center">
+                    <tui-icon icon="@tui.message-circle-more" class="scale-80" />
+                    <h1 class="uppercase font-base text-(--primary) font-semibold">Additional Comment</h1>
+                </div>
+                <!-- Reason -->
+                <div>
+                    <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
+                        <label tuiLabel>
+                            Reason
+                            @if (isRequired(form.get('reason'))) {
+                            <span class="text-red-500">*</span>
+                            }
+                        </label>
+                        <textarea formControlName="reason" tuiTextarea [limit]="100" [max]="6" [min]="3"
+                            placeholder="Briefly explain the reason for your leave"></textarea>
+                    </tui-textfield>
+                    <tui-error formControlName="reason" />
+                </div>
+            </div>
+
+            <footer class="flex justify-end gap-3 pt-4 border-t border-(--background_dark)/10">
+                <button tuiButton type="reset" class="bg-(--secondary)!" size="m">
+                    Reset
+                </button>
+                <button tuiButton type="submit" size="m" [disabled]="isSaving()">
+                    Submit Request
+                </button>
+            </footer>
+        </form>
+    </div>
+</div>

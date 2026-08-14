@@ -72,7 +72,6 @@ export class EmployeeList implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   protected employees = this.employeeService.allEmployees;
   protected filter = signal<EmployeeFilter>({ ...EMPTY_EMPLOYEE_FILTER });
-  private loadingService = inject(LoadingService);
 
   @Output()
   readonly edit = new EventEmitter<Employee>();
@@ -150,4 +149,71 @@ export class EmployeeList implements OnInit {
     const start = this.page() * this.pageSize;
     return this.filteredEmployees().slice(start, start + this.pageSize);
   });
+
+  exportToCsv(): void {
+    const data = this.employees();
+    if (!data || data.length === 0) {
+      alert('No employee data available to export.');
+      return;
+    }
+
+    // 1. Define CSV headers and corresponding object keys
+    const columns: { label: string; key: keyof Employee }[] = [
+      { label: 'Staff No', key: 'staffNo' },
+      { label: 'Full Name', key: 'fullName' },
+      { label: 'First Name', key: 'firstName' },
+      { label: 'Last Name', key: 'lastName' },
+      { label: 'Email', key: 'email' },
+      { label: 'Department', key: 'departmentName' },
+      { label: 'Branch', key: 'branchName' },
+      { label: 'Job Title', key: 'jobTitleName' },
+      { label: 'Manager', key: 'managerName' },
+      { label: 'Role', key: 'role' },
+      { label: 'Status', key: 'status' },
+      { label: 'Is Active', key: 'isActive' },
+      { label: 'Created At', key: 'createdAtUtc' },
+    ];
+
+    // 2. Build CSV header row
+    const headers = columns.map((col) => this.escapeCsvField(col.label)).join(',');
+
+    // 3. Map employee records to CSV rows
+    const rows = data.map((emp) =>
+      columns
+        .map((col) => {
+          const val = emp[col.key];
+          
+          // Format specific data types safely
+          if (val === null || val === undefined) return '""';
+          if (val instanceof Date) return this.escapeCsvField(val.toISOString());
+          
+          return this.escapeCsvField(String(val));
+        })
+        .join(',')
+    );
+
+    // 4. Combine headers and rows with UTF-8 BOM so Excel opens special characters correctly
+    const csvContent = '\uFEFF' + [headers, ...rows].join('\n');
+
+    // 5. Create downloadable Blob link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    const timestamp = new Date().toISOString().split('T')[0];
+    link.setAttribute('href', url);
+    link.setAttribute('download', `employees_${timestamp}.csv`);
+    
+    document.body.appendChild(link);
+    link.click();
+    
+    // Clean up
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  private escapeCsvField(field: string): string {
+    const escaped = field.replace(/"/g, '""');
+    return `"${escaped}"`;
+  }
 }

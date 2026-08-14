@@ -1,56 +1,29 @@
 <div class="flex flex-col gap-5 max-w-7xl mx-auto">
-  <app-main-heading
-    title="Employee List"
-    description="List of all the employees in the organization"
-  >
+  <app-main-heading title="Employee List" description="List of all the employees in the organization">
     <div class="flex gap-2">
-      <button
-        type="button"
-        iconStart="@tui.refresh-cw"
-        tuiButton
-        size="s"
-        class="cursor-pointer bg-(--theme3)! text-white hover:bg-(--theme3)/80!"
-      >
+      <button type="button" iconStart="@tui.refresh-cw" tuiButton size="s"
+        class="cursor-pointer bg-(--theme3)! text-white hover:bg-(--theme3)/80!">
         Refresh
       </button>
 
-      <button
-        type="button"
-        iconStart="@tui.download"
-        tuiButton
-        size="s"
-        class="cursor-pointer bg-(--secondary)! text-(--primary)! hover:bg-(--secondary)/80!"
-      >
+      <button type="button" iconStart="@tui.download" tuiButton size="s" (click)="exportToCsv()"
+        class="cursor-pointer bg-(--secondary)! text-(--primary)! hover:bg-(--secondary)/80!">
         Export
       </button>
     </div>
   </app-main-heading>
 
-  <app-employee-filter-bar
-    [employees]="employees() ?? []"
-    (filterChange)="onFilterChange($event)"
-    s
-  />
+  <app-employee-filter-bar [employees]="employees() ?? []" (filterChange)="onFilterChange($event)" s />
 
   <div class="table-scroll">
-    <table
-      tuiTable
-      class="employee-table w-full bg-(--secondary)/20"
-      [size]="size"
-      [(ngModel)]="selected"
-    >
+    <table tuiTable class="employee-table w-full bg-(--secondary)/20" [size]="size" [(ngModel)]="selected">
       <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
         <tr>
           <th tuiTh>Actions</th>
           <th tuiTh>StaffNo</th>
           <th tuiTh class="col-checkbox">
             <div [tuiCell]="size">
-              <input
-                tuiCheckbox
-                tuiCheckboxTable
-                type="checkbox"
-                [size]="size === 'l' ? 'm' : 's'"
-              />
+              <input tuiCheckbox tuiCheckboxTable type="checkbox" [size]="size === 'l' ? 'm' : 's'" />
               <span tuiTitle>Employee</span>
             </div>
           </th>
@@ -66,100 +39,75 @@
       </thead>
       <tbody tuiTbody>
         @for (employee of paginatedEmployees(); track employee.id) {
-          <tr>
-            <td tuiTd class="col-actions w-10">
-              <span tuiStatus>
-                <button
-                  appearance="action"
-                  iconStart="@tui.ellipsis"
-                  size="xs"
-                  tuiIconButton
-                  type="button"
-                  (click)="onMore(employee)"
-                  class="text-(--theme1)!"
-                >
-                  More
-                </button>
-                <button
-                  appearance="action"
-                  iconStart="@tui.eye"
-                  size="xs"
-                  tuiIconButton
-                  type="button"
-                  (click)="onEdit(employee)"
-                  class="text-(--theme1)!"
-                >
-                  View
-                </button>
-              </span>
-            </td>
-            <td tuiTd>
-              {{ employee.staffNo || 'N/A' }}
-            </td>
-            <td tuiTd class="col-checkbox">
-              <div [tuiCell]="size">
-                <div
-                  [style.background]="employee.fullName | tuiAutoColor"
-                  [tuiAvatar]="employee.fullName | tuiInitials"
-                ></div>
-                <input
-                  tuiCheckbox
-                  type="checkbox"
-                  [size]="size === 'l' ? 'm' : 's'"
-                  [tuiCheckboxRow]="employee"
-                />
-                <span tuiTitle>
-                  {{ employee.fullName || 'N/A' }}
-                  <span tuiSubtitle>{{ employee.email || 'N/A' }}</span>
-                </span>
+        <tr>
+          <td tuiTd class="col-actions w-10">
+            <span tuiStatus>
+              <button appearance="action" iconStart="@tui.ellipsis" size="xs" tuiIconButton type="button"
+                (click)="onMore(employee)" class="text-(--theme1)!">
+                More
+              </button>
+              <button appearance="action" iconStart="@tui.eye" size="xs" tuiIconButton type="button"
+                (click)="onEdit(employee)" class="text-(--theme1)!">
+                View
+              </button>
+            </span>
+          </td>
+          <td tuiTd>
+            {{ employee.staffNo || 'N/A' }}
+          </td>
+          <td tuiTd class="col-checkbox">
+            <div [tuiCell]="size">
+              <div [style.background]="employee.fullName | tuiAutoColor" [tuiAvatar]="employee.fullName | tuiInitials">
               </div>
-            </td>
-            <td tuiTd>
-              {{ employee.email }}
-            </td>
-            <td tuiTd class="col-department">
-              {{ employee.departmentName || 'N/A' }}
-            </td>
-            <td tuiTd>
-              {{ employee.branchName || 'N/A' }}
-            </td>
-            <td tuiTd>
-              {{ employee.jobTitleName || 'N/A' }}
-            </td>
-            <td tuiTd>
-              {{ employee.managerName || 'N/A' }}
-            </td>
-            <td tuiTd>
-              {{ employee.isActive || 'N/A' }}
-            </td>
-            <td tuiTd>
-              {{ employee.createdAtUtc }}
-            </td>
-            <td tuiTd>
-              {{ employee.role || 'N/A' }}
-            </td>
-          </tr>
+              <input tuiCheckbox type="checkbox" [size]="size === 'l' ? 'm' : 's'" [tuiCheckboxRow]="employee" />
+              <span tuiTitle>
+                {{ employee.fullName || 'N/A' }}
+                <span tuiSubtitle>{{ employee.email || 'N/A' }}</span>
+              </span>
+            </div>
+          </td>
+          <td tuiTd>
+            {{ employee.email }}
+          </td>
+          <td tuiTd class="col-department">
+            {{ employee.departmentName || 'N/A' }}
+          </td>
+          <td tuiTd>
+            {{ employee.branchName || 'N/A' }}
+          </td>
+          <td tuiTd>
+            {{ employee.jobTitleName || 'N/A' }}
+          </td>
+          <td tuiTd>
+            {{ employee.managerName || 'N/A' }}
+          </td>
+          <td tuiTd>
+            {{ employee.isActive || 'N/A' }}
+          </td>
+          <td tuiTd>
+            {{ employee.createdAtUtc }}
+          </td>
+          <td tuiTd>
+            {{ employee.role || 'N/A' }}
+          </td>
+        </tr>
         } @empty {
-          <tr>
-            <td tuiTd [attr.colspan]="7" class="empty-state">No employees to show.</td>
-          </tr>
+        <tr>
+          <td tuiTd [attr.colspan]="7" class="empty-state">No employees to show.</td>
+        </tr>
         }
       </tbody>
     </table>
   </div>
 
   @if (filteredEmployees().length > 0) {
-    <div class="flex items-center justify-between mt-3 text-(--theme1)!">
-      <span class="text-sm">
-        Showing {{ page() * pageSize + 1 }}–{{ page() * pageSize + paginatedEmployees().length }} of
-        {{ filteredEmployees().length }}
-      </span>
+  <div class="flex items-center justify-between mt-3 text-(--theme1)!">
+    <span class="text-sm">
+      Showing {{ page() * pageSize + 1 }}–{{ page() * pageSize + paginatedEmployees().length }} of
+      {{ filteredEmployees().length }}
+    </span>
 
-      <tui-pagination
-        [length]="totalPages()"
-        [index]="page()"
-        (indexChange)="onPageChange($event)"
-      />
-    </div>
+    <tui-pagination [length]="totalPages()" [index]="page()" (indexChange)="onPageChange($event)" />
+  </div>
   }
 </div>

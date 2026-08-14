@@ -65,14 +65,22 @@ function segmentsFor(punch: AttendancePunch): MinutesSegment {
   selector: 'app-user-cards',
   templateUrl: './user-card.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TuiIcon, TuiButton, DecimalPipe, TuiCardLarge, DatePipe, TuiHeader, TuiAvatar, MatIcon, TuiAxes, TuiLineChart, TuiBarChart, AttendanceBarChartComponent],
+  imports: [TuiIcon, TuiButton,  TuiCardLarge, DatePipe,  MatIcon, AttendanceBarChartComponent],
 })
 export class UserCardsComponent {
    protected readonly attendanceService = inject(AttendanceService);
    protected router = inject(Router);
 
+  isToday(dateStr: string): boolean {
+  const today = new Date();
+  const d = new Date(dateStr);
+  return d.getFullYear() === today.getFullYear()
+    && d.getMonth() === today.getMonth()
+    && d.getDate() === today.getDate();
+}
+
   fullWeekAttendance = computed(() => {
-    const rawData = this.attendanceService.initialWeek() ?? [];
+    const rawData = this.attendanceService.currentMonth() ?? [];
     
     const attendanceMap = new Map(rawData.map((item) => [item.date, item]));
 

@@ -23,8 +23,6 @@ import { PasswordValidator } from '../../../../../(public)/auth/components/passw
     TuiInput,
     TuiCardLarge,
     TuiTitle,
-    TuiButton,
-    MatIcon,
     PasswordValidator,
   ],
   templateUrl: './additional-details.html',

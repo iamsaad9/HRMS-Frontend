@@ -1,7 +1,7 @@
 // attendance-model.ts
 
 // ---------- Enums ----------
-export enum AttendanceChannel {
+export enum AttendanceChannelType {
   Web = 1,
   Mobile = 2,
   Kiosk = 3,
@@ -11,47 +11,12 @@ export enum AttendanceChannel {
 
 // Adjustmnets
 
-/**
- * PunchType must stay in lockstep with the backend `PunchType` enum.
- * Adjust the numeric values/labels below if the backend enum differs.
- */
 export enum PunchType {
-  ClockIn = 1,
-  ClockOut = 2,
-  BreakStart = 3,
-  BreakEnd = 4,
-}
-
-/** Plain label list — kept simple so it plugs into `tui-data-list-wrapper` the same
- *  way the `departments` list does on the employee-details form. */
-export const PUNCH_TYPE_LABELS: readonly string[] = [
-  'Clock In',
-  'Clock Out',
-  'Break Start',
-  'Break End',
-];
-
-const PUNCH_TYPE_BY_LABEL: Record<string, PunchType> = {
-  'Clock In': PunchType.ClockIn,
-  'Clock Out': PunchType.ClockOut,
-  'Break Start': PunchType.BreakStart,
-  'Break End': PunchType.BreakEnd,
+    ClockIn= 0,
+  ClockOut= 1,
+  BreakStart=3,
+  BreakEnd=4
 };
-
-const LABEL_BY_PUNCH_TYPE: Record<PunchType, string> = {
-  [PunchType.ClockIn]: 'Clock In',
-  [PunchType.ClockOut]: 'Clock Out',
-  [PunchType.BreakStart]: 'Break Start',
-  [PunchType.BreakEnd]: 'Break End',
-};
-
-export function punchTypeToLabel(type: PunchType): string {
-  return LABEL_BY_PUNCH_TYPE[type] ?? '';
-}
-
-export function labelToPunchType(label: string): PunchType | null {
-  return PUNCH_TYPE_BY_LABEL[label] ?? null;
-}
 
 export type AdjustmentStatus = 'Pending' | 'Approved' | 'Rejected';
 
@@ -75,12 +40,14 @@ export interface AttendanceAdjustmentForm {
 /*  Shapes returned by the API                                        */
 /* ------------------------------------------------------------------ */
 
-export interface RequestedPunchResponseDto {
+export interface PunchResponseDto {
   id: string;
-  requestedPunchType: PunchType;
-  /** TimeOnly serialized as "HH:mm:ss" */
-  requestedPunchTime: string;
+  punchType:string;
+  punchTime:string;
+  channel:string;
 }
+
+
 
 export interface AttendanceAdjustmentResponseDto {
   id: string;
@@ -91,13 +58,14 @@ export interface AttendanceAdjustmentResponseDto {
   status: AdjustmentStatus;
   adminRemarks?: string | null;
   createdAtUtc: string;
-  punches: RequestedPunchResponseDto[];
+  punches: PunchResponseDto[];
 }
 
 // ---------- Commands (requests) ----------
-export interface ClockActionCommand {
+export interface PunchCommand {
   employeeId: string;
-  channel: AttendanceChannel;
+  punchType:PunchType;
+  channel: AttendanceChannelType;
   deviceId: string | null;
   latitude: string | null;
   longitude: string | null;
@@ -164,22 +132,26 @@ export interface AttendanceRecord {
   clockOut: string | null;
   breakStart: string | null;
   breakEnd: string | null;
-  channel: AttendanceChannel;
-  status?: string; // e.g. Present / Late / Absent
+  channel: AttendanceChannelType;
+  status?: string; 
   totalHours?: number;
 }
+
+
 
 export interface DailyAttendance {
   id:string;
   employeeId: string;
   date: string;
+  status?: string;
   firstIn: string | null;
   lastOut: string | null;
-  workingHours: number;
+  totalHoursWorked: number;
+  lateMinutes: number;
+  earlyExitMinutes: number;
   overtimeHours: number;
-  status?: string;
-  isLate: boolean;
-  isEarlyExist: boolean;
+  remarks:string;
+  punches:PunchResponseDto[]
 }
 
 export interface Shift {

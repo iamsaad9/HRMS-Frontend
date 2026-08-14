@@ -17,7 +17,7 @@
       <div>
         <!-- Profile Header -->
         <div class="flex items-center gap-4 pb-6 border-b border-(--primary)!">
-          <div tuiAvatar="@tui.user" class="!w-16 !h-16 rounded-full ring-2 ring-(--secondary)"></div>
+          <div tuiAvatar="@tui.user" class="w-16! h-16! rounded-full ring-2 ring-(--secondary)"></div>
 
           <div class="flex-1 min-w-0">
             <h3 class="text-xl font-bold text-(--theme2) truncate">
@@ -42,12 +42,12 @@
             <span [class]="
                 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ' +
                 (attendanceService.isClockedIn()
-                  ? 'bg-amber-100 text-amber-600'
-                  : 'bg-emerald-50 text-emerald-600')
+                  ? 'bg-emerald-100 text-emerald-600'
+                  : 'bg-amber-50 text-amber-600')
               ">
               <span [class]="
                   'w-2 h-2 rounded-full ' +
-                  (attendanceService.isClockedIn() ? 'bg-(--error) animate-pulse' :  'bg-amber-500')
+                  (attendanceService.isClockedIn() ? 'bg-green-600 animate-pulse' :  'bg-amber-500')
                 "></span>
               {{ attendanceService.isClockedOut() ? 'Clocked Out' : 'Clocked In' }}
             </span>
@@ -56,43 +56,63 @@
           <div class="grid grid-cols-2 gap-3">
 
             @if (!attendanceService.isClockedIn()) {
-            <!-- STATE 1: No clock-in for today -> Show Clock In Button (Full Width) -->
+            <!-- STATE 1: Not clocked in -->
             <button (click)="onClockIn()"
               class="col-span-2 flex items-center justify-center p-3 rounded-xl bg-emerald-400 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
               <span class="uppercase font-bold text-md text-(--background_light)">Clock In</span>
             </button>
 
             } @else if (!attendanceService.isClockedOut()) {
-            <!-- STATE 2: Clocked in but not clocked out -->
+            <!-- STATE 2: Clocked in, active session -->
+
             <div class="p-3.5 rounded-xl bg-(--secondary)/50">
               <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
               <span class="text-lg font-bold text-(--primary) mt-0.5 block">
-                {{ attendanceService.todayStatus()?.date | date:'hh:mm a' }}
+                {{ attendanceService.todayStatus()?.firstIn | date:'hh:mm a' }}
               </span>
             </div>
 
-            <button (click)="onClockOut()"
-              class="flex items-center justify-center p-3 rounded-xl bg-(--error) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
+            <!-- Clock Out disabled while ANY break is still open -->
+            <button (click)="onClockOut()" [disabled]="!canClockOut()" [class.opacity-50]="!canClockOut()"
+              [class.cursor-not-allowed]="!canClockOut()" [class.cursor-pointer]="canClockOut()"
+              class="flex items-center justify-center p-3 rounded-xl bg-(--error) active:scale-95 transition-all duration-300 drop-shadow-md">
               <span class="uppercase font-bold text-md text-white">Clock Out</span>
             </button>
 
-            <!-- BREAK TOGGLE BUTTON (Spans both columns underneath) -->
-            @if (!attendanceService.isOnBreak()) {
-            <!-- Option A: Not on break -> Show Start Break Button -->
-            <button
-              class="col-span-2 flex items-center justify-center p-2 rounded-xl bg-(--primary) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
+            <!-- List every break session so far -->
+            @for (session of breakSessions(); track session.start) {
+            <div class="p-2 rounded-xl bg-(--secondary)/50">
+              <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
+              <span class="text-sm font-bold text-(--primary) mt-0.5 block">
+                {{ session.start | date:'hh:mm a' }}
+              </span>
+            </div>
+
+            @if (session.end) {
+            <div class="p-2 rounded-xl bg-(--secondary)/50">
+              <span class="text-xs text-(--primary)/80 block font-medium">Break End</span>
+              <span class="text-sm font-bold text-(--primary) mt-0.5 block">
+                {{ session.end | date:'hh:mm a' }}
+              </span>
+            </div>
+            }
+            }
+
+            <!-- Toggle: Start Break vs End Break, based on whether a break is currently open -->
+            @if (!isOnBreak()) {
+            <button (click)="onBreakStart()"
+              class="col-span-2 flex items-center justify-center p-1 rounded-lg bg-(--primary) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
               <span class="uppercase font-bold text-md text-black">Start Break</span>
             </button>
             } @else {
-            <!-- Option B: Currently on break -> Show End Break Button -->
-            <button
-              class="col-span-2 flex items-center justify-center p-3 rounded-xl bg-blue-500 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
-              <span class="uppercase font-bold text-md text-black">End Break</span>
+            <button (click)="onBreakEnd()"
+              class="col-span-1 flex items-center justify-center p-3 rounded-xl bg-blue-500 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
+              <span class="uppercase font-bold text-md text-white">End Break</span>
             </button>
             }
 
             } @else {
-            <!-- STATE 3: Both clock-in and clock-out done -> Show both times side-by-side -->
+            <!-- STATE 3: Session ended -->
             <div class="p-3.5 rounded-xl bg-(--secondary)/50">
               <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
               <span class="text-lg font-bold text-(--primary) mt-0.5 block">
@@ -106,6 +126,24 @@
                 {{ attendanceService.todayStatus()?.lastOut | date:'hh:mm a' }}
               </span>
             </div>
+
+            @for (session of breakSessions(); track session.start) {
+            <div class="p-2 rounded-xl bg-(--theme2)/40">
+              <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
+              <span class="text-sm font-semibold text-(--primary) mt-0.5 block">
+                {{ session.start | date:'hh:mm a' }}
+              </span>
+            </div>
+
+            @if (session.end) {
+            <div class="p-2 rounded-xl bg-(--theme1)/50">
+              <span class="text-xs text-(--primary)/80 block font-medium">Break End</span>
+              <span class="text-sm font-bold text-(--primary) mt-0.5 block">
+                {{ session.end | date:'hh:mm a' }}
+              </span>
+            </div>
+            }
+            }
             }
 
           </div>

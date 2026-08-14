@@ -18,10 +18,7 @@ import { AttendanceService } from '../../service/attendance.service';
 import {
   DailyAttendance,
   AttendanceAdjustmentForm,
-  PUNCH_TYPE_LABELS,
   PunchType,
-  punchTypeToLabel,
-  labelToPunchType,
 } from '../../model/attendance.model';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
@@ -37,15 +34,12 @@ import { TuiTime } from '@taiga-ui/cdk';
     TuiCardLarge,
     TuiBadge,
     TuiButton,
-    TuiChevron,
     TuiDataListWrapper,
     TuiError,
     TuiInputTime,
-    TuiLabel,
     TuiSelect,
     TuiTextarea,
     TuiTextfield,
-    TuiTitle,
     MatIcon,
     DatePipe,
     MainHeading,
@@ -65,8 +59,8 @@ export class AttendanceAdjustment implements OnInit {
 
   currentUser = this.authService.currentUser;
 
-  protected readonly punchTypeOptions = PUNCH_TYPE_LABELS;
-  protected readonly punchTypeToLabel = punchTypeToLabel;
+  // protected readonly punchTypeOptions = PUNCH_TYPE_LABELS;
+  // protected readonly punchTypeToLabel = punchTypeToLabel;
 
   protected record = signal<DailyAttendance | null>(null);
   protected isLoading = signal(false);
@@ -156,7 +150,7 @@ export class AttendanceAdjustment implements OnInit {
 
   return this.fb.group({
     requestedPunchType: this.fb.control(
-      type ? punchTypeToLabel(type) : '',
+      // type ? punchTypeToLabel(type) : '',
       Validators.required,
     ),
     requestedPunchTime: this.fb.control<TuiTime | null>(
@@ -204,7 +198,7 @@ export class AttendanceAdjustment implements OnInit {
       requestedPunchType: string;
       requestedPunchTime: TuiTime | null;
     }) => ({
-      requestedPunchType: labelToPunchType(punch.requestedPunchType),
+      // requestedPunchType: labelToPunchType(punch.requestedPunchType),
       requestedPunchTime: this.toIsoDateTime(
         record.date,
         punch.requestedPunchTime!,

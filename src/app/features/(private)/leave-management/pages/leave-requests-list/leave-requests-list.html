@@ -95,7 +95,8 @@
                             <div class="pl-2 flex flex-col gap-2.5 text-(--primary)">
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="min-w-0">
-                                        <p class="text-base font-semibold m-0">{{ leaveTypeToLabel(req.leaveType) }}</p>
+                                        <p class="text-base font-semibold m-0">
+                                        </p>
                                         <p class="text-sm text-(--primary)/60 mt-0.5 m-0 flex items-center gap-1">
                                             <mat-icon class="!text-sm !w-4 !h-4">date_range</mat-icon>
                                             {{ dateRangeLabel(req) }}
@@ -108,7 +109,7 @@
 
                                 <span tuiBadge appearance="neutral" size="s" class="w-fit flex items-center gap-1">
                                     <mat-icon class="!text-sm !w-4 !h-4">schedule</mat-icon>
-                                    {{ durationLabel(req) }}
+                                    <!-- {{ durationLabel(req) }} -->
                                 </span>
 
                                 <p class="text-sm leading-relaxed m-0 text-(--primary)/80">

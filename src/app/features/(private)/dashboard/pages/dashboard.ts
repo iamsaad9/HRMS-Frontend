@@ -12,8 +12,6 @@ import { AuthService } from '../../../(public)/auth/services/auth.service';
   selector: 'app-dashboard',
   imports: [
     QuickCards,
-    DatePipe,
-    MatIcon,
     TuiButton,
     PerformanceSection,
     UserCardsComponent,

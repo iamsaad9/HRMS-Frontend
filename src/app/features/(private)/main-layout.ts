@@ -33,7 +33,7 @@ export default class MainLayout implements OnInit {
       if (currentUserId) {
         console.log('Current User ID in main layout:', currentUserId);
 
-        this.attendanceService.getInitialWeek().subscribe({
+        this.attendanceService.getCurrentMonth().subscribe({
           next: (history ) => {
             console.log('Week History Loaded:', history);
           },

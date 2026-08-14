@@ -44,8 +44,9 @@
       class="relative overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.2)]! rounded-xl flex flex-col gap-4 p-5 bg-(--secondary)/20!">
 
       <!-- Status Accent Rail -->
-      <span class="absolute left-0 top-0 bottom-0 w-1" [class.bg-amber-400]="rec.isLate"
-        [class.bg-emerald-500]="rec.status === 'Present' && !rec.isLate" [class.bg-red-400]="rec.status === 'Absent'">
+      <span class="absolute left-0 top-0 bottom-0 w-1" [class.bg-amber-400]="rec.lateMinutes > 300"
+        [class.bg-emerald-500]="rec.status === 'Present' && rec.lateMinutes > 300"
+        [class.bg-red-400]="rec.status === 'Absent'">
       </span>
 
       <div class="pl-1 flex flex-col gap-4 text-(--primary)">
@@ -56,10 +57,10 @@
               <tui-icon icon="@tui.calendar" />
               {{ rec.date }}
             </p>
-            @if (rec.isLate || rec.isEarlyExist) {
+            @if (rec.lateMinutes > 0 || rec.earlyExitMinutes>0) {
             <p class="text-sm text-(--primary) mt-0.5 m-0">
-              {{ rec.isLate ? 'Late arrival' : '' }}{{ rec.isLate && rec.isEarlyExist ? ' · ' : '' }}{{
-              rec.isEarlyExist ? 'Early exit' : '' }}
+              {{ rec.lateMinutes ? 'Late arrival' : '' }}{{ rec.lateMinutes && rec.earlyExitMinutes ? ' · ' : '' }}{{
+              rec.earlyExitMinutes ? 'Early exit' : '' }}
             </p>
             }
           </div>
@@ -85,7 +86,7 @@
             <tui-icon icon="@tui.hourglass" class="text-(--theme1)" />
             <div class="flex flex-col">
               <h1 class="text-sm font-semibold uppercase text-(--primary)/70">Hours Worked</h1>
-              <span class="text-xl font-semibold">{{rec.workingHours}} Hrs</span>
+              <span class="text-xl font-semibold">{{rec.totalHoursWorked}} Hrs</span>
             </div>
           </div>
 

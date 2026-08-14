@@ -22,7 +22,8 @@ import {
 } from '../../model/attendance.model';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { TuiCardLarge, TuiElasticContainer, TuiItemGroup } from '@taiga-ui/layout';
-import { LEAVE_TYPE_OPTIONS } from '../../../leave-management/model/leave-request.model';
+import { LeaveRequestsService } from '../../../leave-management/service/leave-requests.service';
+// import { LEAVE_TYPE_OPTIONS } from '../../../leave-management/model/leave-request.model';
 
 @Component({
   selector: 'app-attendance-history-filter-bar',
@@ -52,13 +53,15 @@ export class AttendanceHistoryFilterBar {
   @Output()
   readonly filterChange = new EventEmitter<AttendanceHistoryFilter>();
   protected readonly authService = inject(AuthService);
+  protected readonly leaveService = inject(LeaveRequestsService);
+
 
   isAdmin = this.authService.currentUser()?.roles.includes("Admin") || false;
   showMoreFilters = false;
   // Option lists exposed to the template
   protected readonly statusOptions = ATTENDANCE_STATUS_OPTIONS;
   protected readonly workLocationOptions = WORK_LOCATION_OPTIONS;
-  protected readonly leaveTypeOptions = LEAVE_TYPE_OPTIONS;
+  protected readonly leaveTypeOptions = this.leaveService.leaveTypes();
   protected readonly shiftTypeOptions = SHIFT_TYPE_OPTIONS;
   protected readonly exceptionFlagOptions = EXCEPTION_FLAG_OPTIONS;
   protected readonly departmentOptions = DEPARTMENT_OPTIONS;

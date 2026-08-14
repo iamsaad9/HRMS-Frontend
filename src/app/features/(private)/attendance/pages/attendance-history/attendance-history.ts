@@ -29,8 +29,6 @@ export interface DisplayAttendanceRecord extends Partial<AttendanceRecord> {
     FormsModule,
     DatePipe,
     TuiButton,
-    TuiCell,
-    TuiTitle,
     TuiBadge,
     TuiTable,
     TuiStatus,

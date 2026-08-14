@@ -1,18 +1,13 @@
 import {
   Component,
-  computed,
   EventEmitter,
   inject,
-  Input,
   input,
-  model,
   Output,
   signal,
 } from '@angular/core';
-import { ChangeDetectionStrategy, output } from '@angular/core';
 import { TuiActiveZone, TuiObscured } from '@taiga-ui/cdk';
-import { TuiButton, TuiDataList, TuiDropdown, TuiTitle } from '@taiga-ui/core';
-import { TuiChevron } from '@taiga-ui/kit';
+import { TuiDataList, TuiDropdown  } from '@taiga-ui/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 
@@ -31,7 +26,7 @@ export interface DropDownItem {
 @Component({
   selector: 'app-dropdown-selector',
   standalone: true,
-  imports: [TuiDropdown, TuiDataList, TuiActiveZone, TuiObscured, RouterLink, MatIcon],
+  imports: [TuiDropdown, TuiDataList, TuiActiveZone, TuiObscured, MatIcon],
   templateUrl: './dropdown-selector.html',
 })
 export class DropdownSelectorComponent {

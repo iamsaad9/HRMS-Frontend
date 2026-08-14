@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { KpiCard } from '../../dashboard.model';
 import { TuiPoint, TuiIcon, TuiAppearance } from '@taiga-ui/core';
@@ -11,7 +11,7 @@ import { MatIcon } from '@angular/material/icon';
 import { TuiAmountPipe } from '@taiga-ui/addon-commerce';
 import { AttendanceService } from '../../../attendance/service/attendance.service';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
-import { AttendanceChannel, ClockActionCommand } from '../../../attendance/model/attendance.model';
+import { AttendanceChannelType, PunchCommand, PunchType } from '../../../attendance/model/attendance.model';
 import { ToastService } from '../../../../../core/services/toast.service';
 
 @Component({
@@ -42,6 +42,7 @@ export class QuickCards {
   private readonly toast = inject(ToastService);
 
   readonly currentUser = this.authService.currentUser();
+  readonly employeeId = this.currentUser?.employeeInfo?.employeeId;
   readonly attendanceValues = signal<number[]>([57, 8, 4, 3]);
   readonly labels = ['Present', 'Absent', 'Leave', 'WFH'];
   readonly headcountProgress = signal<number>(0.925);
@@ -74,28 +75,55 @@ export class QuickCards {
     return (Number.isNaN(this.index) ? 'Total' : this.labels[this.index]) ?? '';
   }
 
+
+
+breakSessions = computed(() => {
+  const punches = this.attendanceService.todayStatus()?.punches ?? [];
+  const breakPunches = punches
+    .filter(p => p.punchType === '3' || p.punchType === '4')
+    .sort((a, b) => new Date(a.punchTime).getTime() - new Date(b.punchTime).getTime());
+
+  const sessions: { start: string; end: string | null }[] = [];
+  for (const p of breakPunches) {
+    if (p.punchType === 'BreakStart') {
+      sessions.push({ start: p.punchTime, end: null });
+    } else if (p.punchType === 'BreakEnd') {
+      const open = sessions.find(s => s.end === null);
+      if (open) open.end = p.punchTime;
+    }
+  }
+  return sessions;
+});
+
+// True if there's a BreakStart with no matching BreakEnd yet
+isOnBreak = computed(() => this.breakSessions().some(s => s.end === null));
+
+// Can't clock out while any break is still open
+canClockOut = computed(() => this.attendanceService.isClockedIn() 
+  && !this.attendanceService.isClockedOut() 
+  && !this.isOnBreak());
+
   protected onClockIn(): void {
 
-    const employeeId = this.currentUser?.employeeInfo?.employeeId;
 
-    if (!employeeId) {
+    if (!this.employeeId) {
       this.toast.error('Employee ID not found', 'Attendance Updated');
       return;
     }
 
-    const command: ClockActionCommand = {
-      employeeId,
-      channel: AttendanceChannel.Web,
+    const command: PunchCommand = {
+      employeeId:this.employeeId,
+      punchType:PunchType.ClockIn,
+      channel: AttendanceChannelType.Web,
       deviceId: null,
       latitude: null,
       longitude: null,
     };
 
-    this.attendanceService.clockIn(command).subscribe({
+    this.attendanceService.punch(command).subscribe({
       next: (response) => {
         if (response.isSuccess) {
           this.toast.success('Clocked in successfully!', 'Attendance Updated');
-          this.attendanceService.getInitialWeek().subscribe()
         } else {
           this.toast.error('Clock in failed!', 'Attendance Updated');
         }
@@ -104,6 +132,66 @@ export class QuickCards {
         this.toast.error('Clock in failed!', 'Attendance Updated');
       },
 
+      
+    });
+  }
+
+    protected onBreakStart(): void {
+    if (!this.employeeId) {
+      this.toast.error('Employee ID not found', 'Failed');
+      return;
+    }
+
+    const command: PunchCommand = {
+      employeeId: this.employeeId,
+      punchType:PunchType.BreakStart,
+      channel: AttendanceChannelType.Web,
+      deviceId: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    this.attendanceService.punch(command).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success('Break Started!', 'Attendance Updated');
+        } else {
+          this.toast.error('Break start failed!', 'Attendance Updated');
+        }
+      },
+      error: () => {
+        this.toast.error('Break start failed!', 'Attendance Updated');
+      },
+      
+    });
+  }
+
+   protected onBreakEnd(): void {
+    if (!this.employeeId) {
+      this.toast.error('Employee ID not found', 'Failed');
+      return;
+    }
+
+    const command: PunchCommand = {
+      employeeId: this.employeeId,
+      punchType:PunchType.BreakEnd,
+      channel: AttendanceChannelType.Web,
+      deviceId: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    this.attendanceService.punch(command).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success('Break Ended!', 'Attendance Updated');
+        } else {
+          this.toast.error('Break end failed!', 'Attendance Updated');
+        }
+      },
+      error: () => {
+        this.toast.error('Break end failed!', 'Attendance Updated');
+      },
       
     });
   }
@@ -117,19 +205,19 @@ export class QuickCards {
       return;
     }
 
-    const command: ClockActionCommand = {
+    const command: PunchCommand = {
       employeeId,
-      channel: AttendanceChannel.Web,
+      punchType:PunchType.ClockOut,
+      channel: AttendanceChannelType.Web,
       deviceId: null,
       latitude: null,
       longitude: null,
     };
 
-    this.attendanceService.clockOut(command).subscribe({
+    this.attendanceService.punch(command).subscribe({
       next: (response) => {
         if (response.isSuccess) {
           this.toast.success('Clocked out successfully!', 'Attendance Updated');
-          this.attendanceService.getInitialWeek().subscribe()
         } else {
           this.toast.error('Clock out failed!', 'Attendance Updated');
         }

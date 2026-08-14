@@ -43,7 +43,7 @@
                         [tuiTextfieldCleaner]="false">
 
                         <input formControlName="leaveType" placeholder="Select Leave Type" tuiSelect />
-                        <tui-data-list-wrapper *tuiDropdown [items]="leaveTypeOptions" />
+                        <tui-data-list-wrapper *tuiDropdown [items]="leaveTypesOptions()" />
                     </tui-textfield>
                     <tui-error formControlName="leaveType" />
                 </div>
@@ -57,6 +57,7 @@
                 </div>
                 <!-- Dates -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Start Date -->
                     <div>
                         <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
                             <label tuiLabel>
@@ -65,12 +66,13 @@
                                 <span class="text-red-500">*</span>
                                 }
                             </label>
-                            <input formControlName="startDate" placeholder="DD.MM.YYYY" tuiInputDate />
-                            <tui-calendar *tuiDropdown />
+                            <input formControlName="startDate" placeholder="DD.MM.YYYY" tuiInputDate [min]="minDate" />
+                            <tui-calendar *tuiDropdown [min]="minDate" />
                         </tui-textfield>
                         <tui-error formControlName="startDate" />
                     </div>
 
+                    <!-- End Date -->
                     <div>
                         <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!"
                             [class.opacity-50]="selectedDuration() !== 'full_day'">
@@ -80,9 +82,9 @@
                                 <span class="text-red-500">*</span>
                                 }
                             </label>
-                            <input formControlName="endDate" placeholder="DD.MM.YYYY" tuiInputDate
+                            <input formControlName="endDate" placeholder="DD.MM.YYYY" tuiInputDate [min]="minDate"
                                 [readOnly]="selectedDuration() !== 'full_day'" />
-                            <tui-calendar *tuiDropdown />
+                            <tui-calendar *tuiDropdown [min]="minEndDate" />
                         </tui-textfield>
                         <tui-error formControlName="endDate" />
                         @if (form.hasError('dateRange') && form.get('endDate')?.touched) {
@@ -119,7 +121,7 @@
                 </div>
 
                 <!-- Half Day Period -->
-                @if (selectedDuration() === 'half_day') {
+                <!-- @if (selectedDuration() === 'half_day') {
                 <div class="flex flex-col gap-2">
                     <label class="text-sm font-semibold text-(--primary)">
                         Which Half?
@@ -141,10 +143,10 @@
                     </div>
                     <tui-error formControlName="halfDayPeriod" />
                 </div>
-                }
+                } -->
 
                 <!-- Custom Hours -->
-                @if (selectedDuration() === 'custom_hours') {
+                <!-- @if (selectedDuration() === 'custom_hours') {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4" formGroupName="customHours">
                     <div>
                         <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
@@ -172,7 +174,7 @@
                         <tui-error formControlName="endTime" />
                     </div>
                 </div>
-                }
+                } -->
             </div>
 
             <div tuiCardLarge>
@@ -200,8 +202,17 @@
                 <button tuiButton type="reset" class="bg-(--secondary)!" size="m">
                     Reset
                 </button>
-                <button tuiButton type="submit" size="m" [disabled]="isSaving()">
-                    Submit Request
+                <button tuiButton type="submit" size="m" [disabled]="isSubmitting()">
+                    @if(isSubmitting()){
+                    <div class="flex items-center justify-center gap-2">
+                        <span
+                            class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"></span>
+                        <span>Creating...</span>
+                    </div>
+                    }@else {
+                    Create Leave Request
+                    }
+
                 </button>
             </footer>
         </form>

@@ -14,10 +14,10 @@ import {
   AttendanceRecord,
   AttendanceSummary,
   AttendanceSummaryParams,
-  ClockActionCommand,
-  CreateAdjustmentCommand,
   CreateShiftCommand,
   DailyAttendance,
+  PunchCommand,
+  PunchResponseDto,
   Shift,
   TeamAttendanceParams,
   TeamAttendanceRecord,
@@ -43,14 +43,14 @@ export class AttendanceService {
   currentUserId = this.authService.currentUser()?.employeeInfo.employeeId
 
 todayStatus = computed(() => {
-  return this.initialWeek()?.find((day) => day.date === this.today);
+  return this.currentMonth()?.find((day) => day.date === this.today);
 });
 
 #adjustments = signal<AttendanceAdjustment[] | null>(null);
 allAdjustments = this.#adjustments.asReadonly();
 
-#initialWeek = signal<DailyAttendance[] | null>(null);
-initialWeek = this.#initialWeek.asReadonly();
+#currentMonth = signal<DailyAttendance[] | null>(null);
+currentMonth = this.#currentMonth.asReadonly();
 
 hasCachedAdjustments = computed(() => {
   const list = this.allAdjustments();
@@ -71,48 +71,17 @@ isOnBreak = computed(() => this.todayStatus()?.lastOut ?? false);
   // ---------------------------------------------------------------
   // Punch actions
   // ---------------------------------------------------------------
-  clockIn(command: ClockActionCommand): Observable<ApiResponse<DailyAttendance>> {
-    return this.http.post<ApiResponse<DailyAttendance>>(`${this.apiUrl}/clock-in`, command).pipe(
+punch(command: PunchCommand): Observable<ApiResponse<PunchResponseDto>> {
+  return this.http
+    .post<ApiResponse<PunchResponseDto>>(`${this.apiUrl}/punch`, command)
+    .pipe(
       tap((response) => {
         if (response.isSuccess && response.data) {
-          console.log('✅ Clocked in:', response.data);
+          console.log(`✅ Punch:`, response.data);
         }
-      }),
-      catchError((err) => {
-        return throwError(() => err);
-      }),
+      })
     );
-  }
-
-  clockOut(command: ClockActionCommand): Observable<ApiResponse<DailyAttendance>> {
-    return this.http.post<ApiResponse<DailyAttendance>>(`${this.apiUrl}/clock-out`, command).pipe(
-      tap((response) => {
-        if (response.isSuccess && response.data) {
-          console.log('✅ Clocked out:', response.data);
-        }
-      }),
-    );
-  }
-
-  breakStart(command: ClockActionCommand): Observable<ApiResponse<DailyAttendance>> {
-    return this.http.post<ApiResponse<DailyAttendance>>(`${this.apiUrl}/break-start`, command).pipe(
-      tap((response) => {
-        if (response.isSuccess && response.data) {
-          console.log('✅ Break started:', response.data);
-        }
-      }),
-    );
-  }
-
-  breakEnd(command: ClockActionCommand): Observable<ApiResponse<DailyAttendance>> {
-    return this.http.post<ApiResponse<DailyAttendance>>(`${this.apiUrl}/break-end`, command).pipe(
-      tap((response) => {
-        if (response.isSuccess && response.data) {
-          console.log('✅ Break ended:', response.data);
-        }
-      }),
-    );
-  }
+}
 
   // ---------------------------------------------------------------
   // Daily / history / detail
@@ -154,37 +123,35 @@ isOnBreak = computed(() => this.todayStatus()?.lastOut ?? false);
       );
   }
 
-  getInitialWeek(): Observable<ApiResponse<DailyAttendance[]>> {
+getCurrentMonth(): Observable<ApiResponse<DailyAttendance[]>> {
+  const today = new Date();
+  const endDate = toLocalDateStr(today); 
 
-    const today = new Date();
-    const endDate = toLocalDateStr(today); 
+  // Set start date to the 1st of the current month
+  const start = new Date(today.getFullYear(), today.getMonth(), 1);
+  const startDate = toLocalDateStr(start);
 
-    const start = new Date(today);
-    start.setDate(today.getDate() - 6);
-    const startDate = toLocalDateStr(start);
-    this.loadingService.showLoading();
-    
-    const httpParams = new HttpParams()
-      .set('employeeId', this.currentUserId || '' )
-      .set('startDate', startDate)
-      .set('endDate', endDate);
+  this.loadingService.showLoading();
+  
+  const httpParams = new HttpParams()
+    .set('employeeId', this.currentUserId || '')
+    .set('startDate', startDate)
+    .set('endDate', endDate);
 
-
-
-    return this.http
-      .get<ApiResponse<DailyAttendance[]>>(`${this.apiUrl}/history`, { params: httpParams })
-      .pipe(
-        tap((response) => {
-          if (response.isSuccess && response.data) {
-            console.log('Initial Week history:', response.data);
-            this.#initialWeek.set(response.data);
-          }
-        }),
-        finalize(() => {
-          this.loadingService.stopLoading();
-        }),
-      );
-  }
+  return this.http
+    .get<ApiResponse<DailyAttendance[]>>(`${this.apiUrl}/history`, { params: httpParams })
+    .pipe(
+      tap((response) => {
+        if (response.isSuccess && response.data) {
+          console.log('Current Month history:', response.data);
+          this.#currentMonth.set(response.data); // Update signal/subject reference if needed
+        }
+      }),
+      finalize(() => {
+        this.loadingService.stopLoading();
+      }),
+    );
+}
 
   getById(id: string): Observable<ApiResponse<DailyAttendance>> {
     this.loadingService.showLoading();

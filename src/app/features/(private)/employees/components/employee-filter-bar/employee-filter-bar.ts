@@ -28,7 +28,6 @@ import {
     TuiInput,
     TuiChevron,
     TuiDataListWrapper,
-    TuiIcon,
     TuiSelect,
     TuiButton,
   ],

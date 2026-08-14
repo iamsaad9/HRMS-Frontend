@@ -38,7 +38,9 @@
           </thead>
           <tbody class="divide-y divide-(--secondary)">
             @for (day of fullWeekAttendance(); track day.dateStr) {
+
             <tr (click)="router.navigate([`attendance/adjustment/${day.record?.id}`])"
+              [class.bg-(--success)/10]="isToday(day.dateStr)"
               class="hover:bg-(--secondary)/20 transition-colors cursor-pointer">
               <!-- DATE COLUMN -->
               <td class="py-2 px-2 font-semibold text-(--primary)">

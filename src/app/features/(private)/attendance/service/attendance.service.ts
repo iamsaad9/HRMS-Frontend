@@ -1,14 +1,14 @@
 // attendance.service.ts
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { catchError, finalize, Observable, of, tap, throwError } from 'rxjs';
+import { catchError, finalize, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { ApiResponse } from '../../../../core/models/api-response.model';
 import { LoadingService } from '../../../../core/services/loading.service';
 import {
   AdjustmentActionCommand,
   AdjustmentListParams,
-  AttendanceAdjustment,
   AttendanceAdjustmentForm,
+  AttendanceAdjustmentResponseDto,
   AttendanceExportParams,
   AttendanceHistoryParams,
   AttendanceRecord,
@@ -46,7 +46,7 @@ todayStatus = computed(() => {
   return this.currentMonth()?.find((day) => day.date === this.today);
 });
 
-#adjustments = signal<AttendanceAdjustment[] | null>(null);
+#adjustments = signal<AttendanceAdjustmentResponseDto[] | null>(null);
 allAdjustments = this.#adjustments.asReadonly();
 
 #currentMonth = signal<DailyAttendance[] | null>(null);
@@ -66,22 +66,54 @@ isClockedOut = computed(() => !!this.todayStatus()?.lastOut);
 // Also fixed typo: isEarlyExist -> isEarlyExit
 isOnBreak = computed(() => this.todayStatus()?.lastOut ?? false);
 
+private upsertDailyAttendance(todayRecord: DailyAttendance): void {
+  this.#currentMonth.update((records) => {
+    const list = records ?? [];
+    const index = list.findIndex((day) => day.date === todayRecord.date);
 
+    if (index !== -1) {
+      // Replace existing day
+      return list.map((day, i) => (i === index ? todayRecord : day));
+    }
+
+    // Append today's new entry
+    return [...list, todayRecord];
+  });
+}
 
   // ---------------------------------------------------------------
   // Punch actions
   // ---------------------------------------------------------------
-punch(command: PunchCommand): Observable<ApiResponse<PunchResponseDto>> {
-  return this.http
-    .post<ApiResponse<PunchResponseDto>>(`${this.apiUrl}/punch`, command)
-    .pipe(
-      tap((response) => {
-        if (response.isSuccess && response.data) {
-          console.log(`✅ Punch:`, response.data);
-        }
-      })
-    );
-}
+  punch(command: PunchCommand): Observable<ApiResponse<PunchResponseDto>> {
+    return this.http
+      .post<ApiResponse<PunchResponseDto>>(`${this.apiUrl}/punch`, command)
+      .pipe(
+        switchMap((response) => {
+          if (!response.isSuccess) {
+            return of(response);
+          }
+
+          const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+          // Fetch attendance filtering by today's date
+          return this.getDailyAttendance(command.employeeId, today).pipe(
+            tap((todayResponse) => {
+              if (todayResponse.isSuccess && todayResponse.data) {
+                // Handle single item or array based on API response structure
+                const todayAttendance = Array.isArray(todayResponse.data) 
+                  ? todayResponse.data[0] 
+                  : todayResponse.data;
+
+                if (todayAttendance) {
+                  this.upsertDailyAttendance(todayAttendance);
+                }
+              }
+            }),
+            map(() => response) // Return original punch response to subscriber
+          );
+        })
+      );
+  }
 
   // ---------------------------------------------------------------
   // Daily / history / detail
@@ -123,37 +155,37 @@ punch(command: PunchCommand): Observable<ApiResponse<PunchResponseDto>> {
       );
   }
 
-getCurrentMonth(): Observable<ApiResponse<DailyAttendance[]>> {
-  const today = new Date();
-  const endDate = toLocalDateStr(today); 
+  getCurrentMonth(): Observable<ApiResponse<DailyAttendance[]>> {
+    const today = new Date();
+    const endDate = toLocalDateStr(today); 
 
-  // Set start date to the 1st of the current month
-  const start = new Date(today.getFullYear(), today.getMonth(), 1);
-  const startDate = toLocalDateStr(start);
+    // Set start date to the 1st of the current month
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    const startDate = toLocalDateStr(start);
 
-  this.loadingService.showLoading();
-  
-  const httpParams = new HttpParams()
-    .set('employeeId', this.currentUserId || '')
-    .set('startDate', startDate)
-    .set('endDate', endDate);
+    this.loadingService.showLoading();
+    
+    const httpParams = new HttpParams()
+      .set('employeeId', this.currentUserId || '')
+      .set('startDate', startDate)
+      .set('endDate', endDate);
 
-  return this.http
-    .get<ApiResponse<DailyAttendance[]>>(`${this.apiUrl}/history`, { params: httpParams })
-    .pipe(
-      tap((response) => {
-        if (response.isSuccess && response.data) {
-          console.log('Current Month history:', response.data);
-          this.#currentMonth.set(response.data); // Update signal/subject reference if needed
-        }
-      }),
-      finalize(() => {
-        this.loadingService.stopLoading();
-      }),
-    );
-}
+    return this.http
+      .get<ApiResponse<DailyAttendance[]>>(`${this.apiUrl}/history`, { params: httpParams })
+      .pipe(
+        tap((response) => {
+          if (response.isSuccess && response.data) {
+            console.log('Current Month history:', response.data);
+            this.#currentMonth.set(response.data); // Update signal/subject reference if needed
+          }
+        }),
+        finalize(() => {
+          this.loadingService.stopLoading();
+        }),
+      );
+  }
 
-  getById(id: string): Observable<ApiResponse<DailyAttendance>> {
+  getAttendanceById(id: string): Observable<ApiResponse<DailyAttendance>> {
     this.loadingService.showLoading();
     return this.http.get<ApiResponse<DailyAttendance>>(`${this.apiUrl}/${id}`).pipe(
       finalize(() => {
@@ -180,9 +212,9 @@ getCurrentMonth(): Observable<ApiResponse<DailyAttendance[]>> {
   // ---------------------------------------------------------------
   createAdjustment(
     command: AttendanceAdjustmentForm ,
-  ): Observable<ApiResponse<AttendanceAdjustment>> {
+  ): Observable<ApiResponse<AttendanceAdjustmentResponseDto>> {
     return this.http
-      .post<ApiResponse<AttendanceAdjustment>>(`${this.apiUrl}/adjustments`, command)
+      .post<ApiResponse<AttendanceAdjustmentResponseDto>>(`${this.apiUrl}/adjustments`, command)
       .pipe(
         tap((response) => {
           if (response.isSuccess && response.data) {
@@ -196,7 +228,7 @@ getCurrentMonth(): Observable<ApiResponse<DailyAttendance[]>> {
   getAdjustments(
     params: AdjustmentListParams,
     useCache = true,
-  ): Observable<ApiResponse<AttendanceAdjustment[]>> {
+  ): Observable<ApiResponse<AttendanceAdjustmentResponseDto[]>> {
     if (useCache && this.hasCachedAdjustments()) {
       console.log('Fetched cached adjustments.');
       return of({
@@ -216,7 +248,7 @@ getCurrentMonth(): Observable<ApiResponse<DailyAttendance[]>> {
 
     return this.http
       .get<
-        ApiResponse<AttendanceAdjustment[]>
+        ApiResponse<AttendanceAdjustmentResponseDto[]>
       >(`${this.apiUrl}/adjustments`, { params: httpParams })
       .pipe(
         tap((response) => {
@@ -234,9 +266,9 @@ getCurrentMonth(): Observable<ApiResponse<DailyAttendance[]>> {
   approveAdjustment(
     id: string,
     command: AdjustmentActionCommand,
-  ): Observable<ApiResponse<AttendanceAdjustment>> {
+  ): Observable<ApiResponse<AttendanceAdjustmentResponseDto>> {
     return this.http
-      .put<ApiResponse<AttendanceAdjustment>>(`${this.apiUrl}/adjustments/${id}/approve`, command)
+      .put<ApiResponse<AttendanceAdjustmentResponseDto>>(`${this.apiUrl}/adjustments/${id}/approve`, command)
       .pipe(
         tap((response) => {
           if (response.isSuccess) {
@@ -250,9 +282,9 @@ getCurrentMonth(): Observable<ApiResponse<DailyAttendance[]>> {
   rejectAdjustment(
     id: string,
     command: AdjustmentActionCommand,
-  ): Observable<ApiResponse<AttendanceAdjustment>> {
+  ): Observable<ApiResponse<AttendanceAdjustmentResponseDto>> {
     return this.http
-      .put<ApiResponse<AttendanceAdjustment>>(`${this.apiUrl}/adjustments/${id}/reject`, command)
+      .put<ApiResponse<AttendanceAdjustmentResponseDto>>(`${this.apiUrl}/adjustments/${id}/reject`, command)
       .pipe(
         tap((response) => {
           if (response.isSuccess) {

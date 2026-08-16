@@ -1,6 +1,9 @@
 // attendance-model.ts
 
-// ---------- Enums ----------
+/* ==========================================================================
+   1. ENUMS & CORE DOMAIN TYPES
+   ========================================================================== */
+
 export enum AttendanceChannelType {
   Web = 1,
   Mobile = 2,
@@ -8,196 +11,15 @@ export enum AttendanceChannelType {
   Biometric = 4,
 }
 
-
-// Adjustmnets
-
 export enum PunchType {
-    ClockIn= 0,
-  ClockOut= 1,
-  BreakStart=3,
-  BreakEnd=4
-};
+  ClockIn = 1,
+  ClockOut = 2,
+  BreakStart = 3,
+  BreakEnd = 4,
+}
 
 export type AdjustmentStatus = 'Pending' | 'Approved' | 'Rejected';
 
-/* ------------------------------------------------------------------ */
-/*  Shapes used by the reactive form (request payload sent to the API) */
-/* ------------------------------------------------------------------ */
-
-export interface RequestedPunchForm {
-  requestedPunchType: PunchType | null;
-  requestedPunchTime: string;
-}
-
-export interface AttendanceAdjustmentForm {
-  employeeId: string;
-  attendanceDate: string;
-  reason: string;
-  punches: RequestedPunchForm[];
-}
-
-/* ------------------------------------------------------------------ */
-/*  Shapes returned by the API                                        */
-/* ------------------------------------------------------------------ */
-
-export interface PunchResponseDto {
-  id: string;
-  punchType:string;
-  punchTime:string;
-  channel:string;
-}
-
-
-
-export interface AttendanceAdjustmentResponseDto {
-  id: string;
-  employeeId: string;
-  /** DateOnly serialized as "yyyy-MM-dd" */
-  attendanceDate: string;
-  reason: string;
-  status: AdjustmentStatus;
-  adminRemarks?: string | null;
-  createdAtUtc: string;
-  punches: PunchResponseDto[];
-}
-
-// ---------- Commands (requests) ----------
-export interface PunchCommand {
-  employeeId: string;
-  punchType:PunchType;
-  channel: AttendanceChannelType;
-  deviceId: string | null;
-  latitude: string | null;
-  longitude: string | null;
-}
-
-export interface CreateShiftCommand {
-  code: string;
-  name: string;
-  startTime: string;
-  endTime: string;
-  gracePeriodLateMinutes: number;
-  gracePeriodEarlyExitMinutes: number;
-}
-
-export interface CreateAdjustmentCommand {
-  employeeId: string;
-  attendanceDate: string;
-  requestedPunchType: PunchType;
-  requestedPunchTime: string;
-  reason: string;
-}
-
-export interface AdjustmentActionCommand {
-  actionByUserId: string;
-  remarks: string | null;
-}
-
-// ---------- Query params ----------
-export interface AttendanceHistoryParams {
-  employeeId: string;
-  startDate: string;
-  endDate: string;
-}
-
-export interface AdjustmentListParams {
-  employeeId?: string;
-  status?: AdjustmentStatus | string;
-}
-
-export interface TeamAttendanceParams {
-  managerId: string;
-  date: string;
-}
-
-export interface AttendanceSummaryParams {
-  employeeId: string;
-  month: number;
-  year: number;
-}
-
-export interface AttendanceExportParams {
-  employeeId: string;
-  startDate: string;
-  endDate: string;
-}
-
-// ---------- Response models ----------
-export interface AttendanceRecord {
-  id: string;
-  employeeId: string;
-  employeeName?: string;
-  attendanceDate: string;
-  clockIn: string | null;
-  clockOut: string | null;
-  breakStart: string | null;
-  breakEnd: string | null;
-  channel: AttendanceChannelType;
-  status?: string; 
-  totalHours?: number;
-}
-
-
-
-export interface DailyAttendance {
-  id:string;
-  employeeId: string;
-  date: string;
-  status?: string;
-  firstIn: string | null;
-  lastOut: string | null;
-  totalHoursWorked: number;
-  lateMinutes: number;
-  earlyExitMinutes: number;
-  overtimeHours: number;
-  remarks:string;
-  punches:PunchResponseDto[]
-}
-
-export interface Shift {
-  id: string;
-  code: string;
-  name: string;
-  startTime: string;
-  endTime: string;
-  gracePeriodLateMinutes: number;
-  gracePeriodEarlyExitMinutes: number;
-}
-
-export interface AttendanceAdjustment {
-  id: string;
-  employeeId: string;
-  employeeName?: string;
-  attendanceDate: string;
-  requestedPunchType: PunchType;
-  requestedPunchTime: string;
-  reason: string;
-  status: AdjustmentStatus;
-  actionByUserId?: string;
-  remarks?: string | null;
-  createdAt?: string;
-}
-
-export interface TeamAttendanceRecord {
-  employeeId: string;
-  employeeName: string;
-  status: string;
-  clockIn: string | null;
-  clockOut: string | null;
-}
-
-export interface AttendanceSummary {
-  employeeId: string;
-  month: number;
-  year: number;
-  totalDaysPresent: number;
-  totalDaysAbsent: number;
-  totalLateDays: number;
-  totalOvertimeMinutes?: number;
-  totalHoursWorked?: number;
-}
-
-// Filters
 export type AttendanceStatus =
   | 'Present'
   | 'Absent'
@@ -240,10 +62,192 @@ export type EmploymentType =
   | 'Contractor'
   | 'Intern';
 
+export type LeaveType =
+  | 'annual'
+  | 'sick'
+  | 'wfh'
+  | 'unpaid'
+  | 'maternity'
+  | 'paternity'
+  | 'casual'
+  | 'others';
+
+
+/* ==========================================================================
+   2. DOMAIN MODELS & DTOs (Read / Response Shapes)
+   ========================================================================== */
+
+// --- Attendance Records ---
+export interface PunchResponseDto {
+  id: string;
+  punchTime: string;
+  punchType: string | PunchType;
+  channel: string | AttendanceChannelType;
+}
+
+export interface DailyAttendance {
+  id: string;
+  employeeId: string;
+  date: string;
+  status?: string;
+  firstIn: string | null;
+  lastOut: string | null;
+  workingHours: number;
+  lateMinutes: number;
+  earlyExitMinutes: number;
+  overtimeHours: number;
+  remarks: string;
+  isLate: boolean;
+  isEarlyExit: boolean;
+  punches: PunchResponseDto[];
+  adjustmentStatus: string | null;
+  adjustmentId: string | null;
+}
+
+export interface AttendanceRecord {
+  id: string;
+  employeeId: string;
+  date: string;
+  status?: string;
+  firstIn: string;
+  lastOut: string;
+  totalHoursWorked: number;
+  lateMinutes: number;
+  earlyExitMinutes: number;
+  overtimeHours: number;
+  remarks: string;
+  punches: PunchResponseDto[];
+  adjustmentStatus: string | null;
+  adjustmentId: string | null;
+}
+
+export interface TeamAttendanceRecord {
+  employeeId: string;
+  employeeName: string;
+  status: string;
+  clockIn: string | null;
+  clockOut: string | null;
+}
+
+export interface AttendanceSummary {
+  employeeId: string;
+  month: number;
+  year: number;
+  totalDaysPresent: number;
+  totalDaysAbsent: number;
+  totalLateDays: number;
+  totalOvertimeMinutes?: number;
+  totalHoursWorked?: number;
+}
+
+// --- Shift Models ---
+export interface Shift {
+  id: string;
+  code: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  gracePeriodLateMinutes: number;
+  gracePeriodEarlyExitMinutes: number;
+}
+
+// --- Regularization / Adjustment Models ---
+export interface RequestedPunch {
+  id: string;
+  requestedPunchTime: string;
+  requestedPunchType: PunchType;
+}
+
+export interface AdjustmentPunchResponse {
+  id: string;
+  requestedPunchType: PunchType;
+  requestedPunchTime: string;
+}
+
+
+export interface AttendanceAdjustmentResponseDto {
+  id: string;
+  employeeId: string;
+  attendanceDate: string;
+  reason: string;
+  status: AdjustmentStatus;
+  adminRemarks?: string | null;
+  createdAtUtc: string;
+  punches: RequestedPunch[];
+}
+
+
+/* ==========================================================================
+   3. COMMANDS (POST / PUT Payloads) & FORMS
+   ========================================================================== */
+
+export interface PunchCommand {
+  employeeId: string;
+  punchType: PunchType;
+  channel: AttendanceChannelType;
+  deviceId: string | null;
+  latitude: string | null;
+  longitude: string | null;
+}
+
+export interface CreateShiftCommand {
+  code: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  gracePeriodLateMinutes: number;
+  gracePeriodEarlyExitMinutes: number;
+}
+
+export interface AdjustmentActionCommand {
+  actionByUserId: string;
+  remarks: string | null;
+}
+
+export interface AttendanceAdjustmentForm {
+  employeeId: string;
+  attendanceDate: string;
+  reason: string;
+  punches: RequestedPunch[];
+}
+
+
+/* ==========================================================================
+   4. QUERY PARAMS & FILTERS
+   ========================================================================== */
+
+export interface AttendanceHistoryParams {
+  employeeId: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface AdjustmentListParams {
+  employeeId?: string;
+  status?: AdjustmentStatus | string;
+}
+
+export interface TeamAttendanceParams {
+  managerId: string;
+  date: string;
+}
+
+export interface AttendanceSummaryParams {
+  employeeId: string;
+  month: number;
+  year: number;
+}
+
+export interface AttendanceExportParams {
+  employeeId: string;
+  startDate: string;
+  endDate: string;
+}
+
 export interface AttendanceHistoryFilter {
   employeeId: string;
   startDate: string; // yyyy-MM-dd
-  endDate: string; // yyyy-MM-dd
+  endDate: string;   // yyyy-MM-dd
   statuses: AttendanceStatus[];
   workLocation: WorkLocation | null;
   leaveType: LeaveType | null;
@@ -252,6 +256,11 @@ export interface AttendanceHistoryFilter {
   department: Department | null;
   employmentType: EmploymentType | null;
 }
+
+
+/* ==========================================================================
+   5. CONSTANTS & DICTIONARIES
+   ========================================================================== */
 
 export const EMPTY_ATTENDANCE_HISTORY_FILTER: AttendanceHistoryFilter = {
   employeeId: '',
@@ -266,7 +275,6 @@ export const EMPTY_ATTENDANCE_HISTORY_FILTER: AttendanceHistoryFilter = {
   employmentType: null,
 };
 
-// Handy for displaying the channel enum in the table
 export const ATTENDANCE_CHANNEL_LABELS: Record<number, string> = {
   1: 'Web',
   2: 'Mobile',
@@ -274,7 +282,6 @@ export const ATTENDANCE_CHANNEL_LABELS: Record<number, string> = {
   4: 'Biometric',
 };
 
-// Option lists for the filter bar dropdowns
 export const ATTENDANCE_STATUS_OPTIONS: AttendanceStatus[] = [
   'Present',
   'Absent',
@@ -322,9 +329,3 @@ export const EMPLOYMENT_TYPE_OPTIONS: EmploymentType[] = [
   'Contractor',
   'Intern',
 ];
-
-export type LeaveType =
-  | 'annual' | 'sick' | 'wfh' | 'unpaid' | 'maternity'
-  | 'paternity' | 'casual' | 'others';
-
-

@@ -11,8 +11,10 @@ import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 import { AttendanceHistory } from './features/(private)/attendance/pages/attendance-history/attendance-history';
 import { AttendanceAdjustment } from './features/(private)/attendance/pages/attendance-adjustment/attendance-adjustment';
+import { AttendanceAdjustmentApprovals } from './features/(private)/attendance/pages/attendance-adjustment-approvals/attendance-adjustment-approvals';
 import { LeaveRequest } from './features/(private)/leave-management/pages/new-leave-request/new-leave-request';
 import { LeaveRequestList } from './features/(private)/leave-management/pages/leave-requests-list/leave-requests-list';
+import { LeaveRequestApprovals } from './features/(private)/leave-management/pages/leave-request-approvals/leave-request-approvals';
 
 export const routes: Routes = [
   { path: 'login', canActivate: [guestGuard], component: Login },
@@ -51,6 +53,12 @@ export const routes: Routes = [
         path: 'attendance/adjustment/:id',
         component: AttendanceAdjustment,
         canActivate: [roleGuard],
+        data: { roles: ['Admin','User'] }, // Supports multiple allowed roles
+      },
+      {
+        path: 'attendance/adjustments-approval/all',
+        component: AttendanceAdjustmentApprovals,
+        canActivate: [roleGuard],
         data: { roles: ['Admin', 'User'] }, // Supports multiple allowed roles
       },
       {
@@ -60,10 +68,16 @@ export const routes: Routes = [
         data: { roles: ['Admin', 'User'] }, // Supports multiple allowed roles
       },
        {
-        path: 'leave-requests/all',
+        path: 'leave-requests/my',
         component: LeaveRequestList,
         canActivate: [roleGuard],
         data: { roles: ['Admin', 'User'] }, // Supports multiple allowed roles
+      },
+       {
+        path: 'leave-requests/all',
+        component: LeaveRequestApprovals,
+        canActivate: [roleGuard],
+        data: { roles: ['Admin'] }, // Supports multiple allowed roles
       },
     ],
   },

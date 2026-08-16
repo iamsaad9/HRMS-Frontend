@@ -74,4 +74,30 @@ export class EmployeeService {
       }),
     );
   }
+
+getEmployeeById(id: string): Observable<ApiResponse<Employee>> {
+  const cachedEmployee = this.#allEmployees()?.find((emp) => emp.id === id);
+
+  if (cachedEmployee) {
+    console.log(`Fetched cached employee with ID: ${id}`);
+    return of({
+      isSuccess: true,
+      data: cachedEmployee,
+      message: 'Retrieved from cache',
+      errors: [],
+    });
+  }
+
+  this.loadingService.showLoading();
+  return this.http.get<ApiResponse<Employee>>(`${this.apiUrl}/${id}`).pipe(
+    tap((response) => {
+      if (response.isSuccess && response.data) {
+        console.log(`Fetched employee ${id}:`, response.data);
+      }
+    }),
+    finalize(() => {
+      this.loadingService.stopLoading();
+    })
+  );
+}
 }

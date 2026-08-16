@@ -165,7 +165,7 @@ protected isRequired(control: AbstractControl | null): boolean {
   .find((i) => i.name === raw.leaveType);
 
     const payload: LeaveRequestPayload = {
-      userId: this.currentUser()?.employeeInfo.employeeId ?? '', 
+      employeeId: this.currentUser()?.employeeInfo.employeeId ?? '', 
       leaveTypeId: selectedType?.id ?? '',
       startDate: raw.startDate,
       endDate: raw.endDate,

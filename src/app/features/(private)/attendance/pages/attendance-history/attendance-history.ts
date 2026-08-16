@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { TuiButton, TuiCell, TuiTitle, TuiIcon } from '@taiga-ui/core';
 import { TuiBadge, TuiStatus } from '@taiga-ui/kit';
 import { TuiTable } from '@taiga-ui/addon-table';
@@ -16,6 +16,7 @@ import { AttendanceService } from '../../service/attendance.service';
 import { AttendanceHistoryFilterBar } from '../../components/attendance-hisotry-filter-bar/attendance-history-filter-bar';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { TuiCardLarge } from "@taiga-ui/layout";
+import { Router } from '@angular/router';
 
 export interface DisplayAttendanceRecord extends Partial<AttendanceRecord> {
   attendanceDate: string;
@@ -35,7 +36,8 @@ export interface DisplayAttendanceRecord extends Partial<AttendanceRecord> {
     MainHeading,
     AttendanceHistoryFilterBar,
     TuiCardLarge,
-    TuiIcon
+    TuiIcon,
+    DecimalPipe
 ],
   templateUrl: './attendance-history.html',
   styleUrl: './attendance-history.less',
@@ -44,6 +46,7 @@ export interface DisplayAttendanceRecord extends Partial<AttendanceRecord> {
 export class AttendanceHistory implements OnInit {
   private readonly attendanceService = inject(AttendanceService);
   private readonly authService = inject(AuthService);
+  protected readonly router = inject(Router);
 
   protected currentUserId = this.authService.currentUser()?.employeeInfo.employeeId;
 
@@ -92,15 +95,19 @@ export class AttendanceHistory implements OnInit {
     const fetchedMap = new Map<string, AttendanceRecord>();
 
     fetched.forEach((rec: AttendanceRecord) => {
-      const key = rec.attendanceDate ? rec.attendanceDate.split('T')[0] : '';
+      const key = rec.date ? rec.date.split('T')[0] : '';
       if (key) fetchedMap.set(key, rec);
     });
 
-    return this.weekDays().map((dayStr) => {
-      const match = fetchedMap.get(dayStr);
-      if (match) {
-        return { ...match, hasData: true };
-      }
+  return this.weekDays().map((dayStr) => {
+    const match = fetchedMap.get(dayStr);
+    if (match) {
+      return {
+        ...match,
+        attendanceDate: match.date, // 👈 Map date to attendanceDate
+        hasData: true,
+      };
+    }
       return {
         attendanceDate: dayStr,
         employeeId: this.filter().employeeId || 'N/A',
@@ -143,8 +150,6 @@ export class AttendanceHistory implements OnInit {
     this.fetchAndMergeRange(startDate, endDate, startDate);
   }
 
-  // Call this whenever the visible week window changes. If the week's
-  // start date falls before what's cached, pull another month.
   private loadMoreIfNeeded(neededStartDate: string): void {
     const earliest = this.earliestLoadedDate();
     if (!earliest || this.isLoadingMore) return;
@@ -181,18 +186,7 @@ private fetchAndMergeRange(startDate: string, endDate: string, newEarliest: stri
         this.hasSearched.set(true);
         if (response.isSuccess && response.data) {
           // Map backend fields to AttendanceRecord interface
-          const mappedRecords: AttendanceRecord[] = response.data.map((item: any) => ({
-            id: item.id,
-            employeeId: item.employeeId,
-            attendanceDate: item.date || item.attendanceDate, // maps "date" to "attendanceDate"
-            clockIn: item.firstIn || item.clockIn || null,   // maps "firstIn" to "clockIn"
-            clockOut: item.lastOut || item.clockOut || null, // maps "lastOut" to "clockOut"
-            breakStart: item.breakStart || null,
-            breakEnd: item.breakEnd || null,
-            channel: item.channel ?? 0,
-            totalHours: item.workingHours ?? item.totalHours ?? 0,
-            status: item.status,
-          }));
+          const mappedRecords: AttendanceRecord[] = response.data
 
           // Prepend mapped batch
           this.allRecords.update((existing) => [...mappedRecords, ...existing]);

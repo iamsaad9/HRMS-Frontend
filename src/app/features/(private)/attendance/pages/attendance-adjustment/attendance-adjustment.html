@@ -33,10 +33,12 @@
     Loading attendance record…
   </div>
   } @else if (loadError()) {
-  <div tuiCardLarge
-    class="bg-(--secondary)/15 border border-dashed border-(--background_dark)/15 rounded-xl p-10 text-center">
-    <mat-icon class="text-4xl text-red-400 mb-2">error_outline</mat-icon>
-    <p class="text-sm font-medium text-(--theme2)/70 m-0">{{ loadError() }}</p>
+
+  <div tuiCardLarge class="bg-(--secondary)/15 flex! justify-center! items-center! gap-2! p-10! text-(--primary)">
+    <tui-icon icon="@tui.circle-alert" style="font-size: 4rem;" />
+    <p class="text-sm font-medium m-0">
+      {{ loadError() }}
+    </p>
   </div>
   } @else if (record(); as rec) {
   <div class="grid grid-cols-1 gap-4">
@@ -66,16 +68,19 @@
           </div>
 
           <div class="flex items-center gap-1.5 shrink-0">
-            @if (rec.status) {
-            <span tuiBadge [appearance]="statusAppearance(rec.status)">
-              {{ rec.status }}
-            </span>
-            }
 
+
+            @if(rec.adjustmentStatus){
+            <span tuiBadge [appearance]="adjustmentStatusAppearance(rec.adjustmentStatus)">
+              Adjustment {{rec.adjustmentStatus}}
+            </span>
+            }@else{
             @if (!isEditing()) {
             <button tuiButton type="button" size="s" iconStart="@tui.pencil" (click)="startEdit(rec)"
               class="bg-(--theme1)!"></button>
             }
+            }
+
           </div>
         </div>
 
@@ -86,7 +91,7 @@
             <tui-icon icon="@tui.hourglass" class="text-(--theme1)" />
             <div class="flex flex-col">
               <h1 class="text-sm font-semibold uppercase text-(--primary)/70">Hours Worked</h1>
-              <span class="text-xl font-semibold">{{rec.totalHoursWorked}} Hrs</span>
+              <span class="text-xl font-semibold">{{rec.workingHours}} Hrs</span>
             </div>
           </div>
 

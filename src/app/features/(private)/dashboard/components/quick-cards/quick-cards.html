@@ -43,13 +43,14 @@
                 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ' +
                 (attendanceService.isClockedIn()
                   ? 'bg-emerald-100 text-emerald-600'
-                  : 'bg-amber-50 text-amber-600')
+                  : 'bg-red-100 text-red-600')
               ">
               <span [class]="
                   'w-2 h-2 rounded-full ' +
-                  (attendanceService.isClockedIn() ? 'bg-green-600 animate-pulse' :  'bg-amber-500')
+                  (attendanceService.isClockedIn() ? 'bg-green-600 animate-pulse' :  'bg-red-500')
                 "></span>
-              {{ attendanceService.isClockedOut() ? 'Clocked Out' : 'Clocked In' }}
+
+              {{ attendanceService.isClockedIn() ? 'Clocked In' : 'Clocked Out' }}
             </span>
           </div>
 

@@ -120,12 +120,11 @@
           </div>
           <ng-template #userDropdownContent>
             <tui-data-list class="bg-(--background_light)!">
-              <button tuiOption type="button"
-                class="hover:bg-(--primary)/10! border!  border-(--accent)! border-dashed">
+              <button tuiOption type="button" class="hover:bg-(--primary)/10! border! border-(--accent)! border-dashed">
                 <div class="flex items-center gap-2 w-full text-(--background_dark)!">
                   <tui-icon class="scale-80 shrink-0 text-(--accent)" icon="@tui.user-round" />
 
-                  <div class="flex items-center justify-between w-full">
+                  <div class="flex items-center justify-between gap-3 w-full">
                     <!-- Left -->
                     <span tuiTitle class="text-sm! gap-0! text-(--accent) font-medium!">
                       {{ currentUser?.employeeInfo?.firstName }}
@@ -134,10 +133,15 @@
                       </span>
                     </span>
 
-                    <!-- Right -->
-                    <span class="rounded-full bg-(--primary)/10 px-2 py-1 text-xs font-medium text-(--primary)">
-                      {{ currentUser?.roles }}
-                    </span>
+                    <!-- Right (Chips Array) -->
+                    <div class="flex flex-wrap items-center justify-end gap-1.5 shrink-0">
+                      @for (role of currentUser?.roles; track role) {
+                      <span
+                        class="rounded-full bg-(--primary)/10 px-2 py-0.5 text-[11px] font-medium text-(--primary) border border-(--primary)/20 whitespace-nowrap">
+                        {{ role }}
+                      </span>
+                      }
+                    </div>
                   </div>
                 </div>
               </button>

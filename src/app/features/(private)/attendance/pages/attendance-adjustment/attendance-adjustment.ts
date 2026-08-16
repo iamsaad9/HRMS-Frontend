@@ -24,7 +24,13 @@ import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { TuiTime } from '@taiga-ui/cdk';
 
-
+ export function punchTypeToLabel(type: string | number): string {
+  if (type === 'In' || type === 1 || type === '1') return 'Clock In';
+  if (type === 'Out' || type === 2  || type === '2') return 'Clock Out';
+  if (type === 'Break In' || type === 3 || type === '3') return 'Break In';
+  if (type === 'Break Out' || type === 4 || type === '4') return 'Break Out';
+  return String(type);
+}
 
 @Component({
   selector: 'app-attendance-adjustment',
@@ -86,7 +92,7 @@ export class AttendanceAdjustment implements OnInit {
     this.loadError.set(null);
 
     this.attendanceService
-      .getById(id)
+      .getAttendanceById(id)
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (response) => {
@@ -113,6 +119,21 @@ export class AttendanceAdjustment implements OnInit {
     }
   }
 
+  protected adjustmentStatusAppearance(status?: string): string {
+    switch (status) {
+      case 'Approved':
+        return 'positive';
+      case 'Rejected':
+        return 'negative';
+      case 'Pending':
+        return 'warning';
+      default:
+        return 'neutral';
+    }
+  }
+
+ 
+
   protected isRequired(control: AbstractControl | null): boolean {
     if (!control?.validator) return false;
     const validator = control.validator({} as AbstractControl);
@@ -123,7 +144,6 @@ export class AttendanceAdjustment implements OnInit {
     return this.form?.get('punches') as FormArray;
   }
 
-  /** Enter edit mode and build the form seeded from the current record. */
   protected startEdit(record: DailyAttendance): void {
     this.form = this.fb.group({
       reason: this.fb.control('', [Validators.required, Validators.minLength(10)]),
@@ -149,13 +169,13 @@ export class AttendanceAdjustment implements OnInit {
   }
 
   return this.fb.group({
-    requestedPunchType: this.fb.control(
-      // type ? punchTypeToLabel(type) : '',
-      Validators.required,
+  requestedPunchType: this.fb.control(
+      type ? punchTypeToLabel(type) : '',
+      [Validators.required] 
     ),
     requestedPunchTime: this.fb.control<TuiTime | null>(
       requestedPunchTime,
-      Validators.required,
+      [Validators.required] // 👈 Must be wrapped in array
     ),
   });
 }

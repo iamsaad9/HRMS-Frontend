@@ -16,7 +16,7 @@ export type DurationType = 'full_day' | 'half_day' | 'custom_hours';
 export type HalfDayPeriod = 'first_half' | 'second_half';
 
 export interface LeaveRequestPayload {
-  userId: string;
+  employeeId: string;
   leaveTypeId: string;
   startDate: string;
   endDate: string;
@@ -28,9 +28,20 @@ export interface LeaveRequestPayload {
 
 
 
-export interface LeaveRequestResponseDto extends LeaveRequestPayload {
+export interface LeaveRequestResponse {
   id: string;
+   employeeId: string;
+  leaveTypeId: string;
+  leaveTypeName: string;
+   startDate: string;
+  endDate: string;
+  totalDays:number;
+  reason:string;
   status: 'Pending' | 'Approved' | 'Rejected';
   createdAtUtc: string;
-  adminRemarks?: string;
+}
+
+export interface ApproveRejectLeaveRequest {
+  approvedByEmployeeId: string;
+  remarks: string | null;
 }

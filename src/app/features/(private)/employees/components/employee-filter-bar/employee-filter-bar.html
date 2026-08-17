@@ -1,11 +1,10 @@
 <div tuiCardLarge
-  class="flex flex-col gap-2! rounded-xl border border-slate-200 bg-(--secondary)/20! text-(--primary)! p-4 drop-shadow-sm">
+  class="flex flex-col gap-3! rounded-xl border border-slate-200 bg-(--secondary)/20! glass-card text-(--primary)! p-4  shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
   <!-- TOP ROW: Search Bar & Actions (Apply / Reset) -->
   <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <!-- Search Bar -->
-
     <tui-textfield iconStart="@tui.search" tuiTextfieldSize="m"
-      class="w-full bg-(--background_light)! items-center! rounded-lg text-(--theme1)!">
+      class="w-full bg-(--background_light)/40! items-center! rounded-lg text-(--theme1)!">
       <input placeholder="Search by name, email..." class="text-(--primary)! placeholder:text-(--primary)/60!" tuiInput
         [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" (keyup.enter)="applyFilter()" />
     </tui-textfield>
@@ -31,53 +30,53 @@
     <!-- Department Filter -->
     <div class="flex flex-col gap-1">
       <label class="text-xs font-medium">Department</label>
-      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)! rounded-lg"
+      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
         [tuiTextfieldCleaner]="true">
         <input placeholder="All Departments" tuiSelect [ngModel]="selectedDepartment()"
           (ngModelChange)="selectedDepartment.set($event)" />
-        <tui-data-list-wrapper *tuiDropdown [items]="departments" class="bg-(--background_light)!" />
+        <tui-data-list-wrapper *tuiDropdown [items]="departments" class="bg-(--background_light)/40!" />
       </tui-textfield>
     </div>
 
     <div class="flex flex-col gap-1">
       <label class="text-xs font-medium">Branch</label>
-      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)! rounded-lg"
+      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
         [tuiTextfieldCleaner]="true">
         <input placeholder="All Departments" tuiSelect [ngModel]="selectedDepartment()"
           (ngModelChange)="selectedDepartment.set($event)" />
-        <tui-data-list-wrapper *tuiDropdown [items]="departments" class="bg-(--background_light)!" />
+        <tui-data-list-wrapper *tuiDropdown [items]="departments" class="bg-(--background_light)/40!" />
       </tui-textfield>
     </div>
 
     <div class="flex flex-col gap-1">
       <label class="text-xs font-medium">Manager</label>
-      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)! rounded-lg"
+      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
         [tuiTextfieldCleaner]="true">
         <input placeholder="All Departments" tuiSelect [ngModel]="selectedDepartment()"
           (ngModelChange)="selectedDepartment.set($event)" />
-        <tui-data-list-wrapper *tuiDropdown [items]="departments" class="bg-(--background_light)!" />
+        <tui-data-list-wrapper *tuiDropdown [items]="departments" class="bg-(--background_light)/40!" />
       </tui-textfield>
     </div>
 
     <!-- Role Filter -->
     <div class="flex flex-col gap-1">
       <label class="text-xs font-medium">Role</label>
-      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)! rounded-lg"
+      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
         [tuiTextfieldCleaner]="true">
         <input placeholder="All Roles" tuiSelect [ngModel]="selectedRole()"
           (ngModelChange)="selectedRole.set($event)" />
-        <tui-data-list-wrapper *tuiDropdown [items]="roles" class="bg-(--background_light)!" />
+        <tui-data-list-wrapper *tuiDropdown [items]="roles" class="bg-(--background_light)/40!" />
       </tui-textfield>
     </div>
 
     <!-- Status Filter -->
     <div class="flex flex-col gap-1 sm:col-span-2 lg:col-span-1">
       <label class="text-xs font-medium">Status</label>
-      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)! rounded-lg"
+      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
         [tuiTextfieldCleaner]="true">
         <input placeholder="All Statuses" tuiSelect [ngModel]="selectedStatus()"
           (ngModelChange)="selectedStatus.set($event)" />
-        <tui-data-list-wrapper *tuiDropdown [items]="statuses" class="bg-(--background_light)!" />
+        <tui-data-list-wrapper *tuiDropdown [items]="statuses" class="bg-(--background_light)/40!" />
       </tui-textfield>
     </div>
   </div>

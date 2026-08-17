@@ -40,8 +40,7 @@
         <input placeholder="Search" class="text-white! placeholder:text-white/50!" tuiInput [(ngModel)]="searchQuery" />
 
         @if (searchResults().length > 0) {
-        <tui-data-list *tuiDropdown
-          class="z-10 w-full max-h-80 overflow-y-auto bg-white! dark:bg-(--background_light)!">
+        <tui-data-list *tuiDropdown class="z-10 w-full  bg-white! dark:bg-(--background_light)!">
           @for (item of searchResults(); track item.id) {
           <button tuiOption type="button" (click)="handleItemClick(item)"
             class="flex flex-col items-start gap-0! p-2 hover:bg-(--primary)/10! rounded-md transition-colors text-(--background_light)!">

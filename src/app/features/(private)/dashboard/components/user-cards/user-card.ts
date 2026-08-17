@@ -8,7 +8,7 @@ import { AttendanceService } from '../../../attendance/service/attendance.servic
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { tuiCeil } from '@taiga-ui/cdk';
-import { AttendanceBarChartComponent } from "../../../../../shared/components/attendance-bar-chart/attendance-bar-chart";
+import { AttendanceBarChartComponent, AttendancePunch } from "../../../../../shared/components/attendance-bar-chart/attendance-bar-chart";
 
 export interface ClockHistoryItem {
   date: string;
@@ -16,11 +16,7 @@ export interface ClockHistoryItem {
   clockOut: string | null;
   totalHours: string;
 }
-export interface AttendancePunch {
-    readonly date: string;       // 'YYYY-MM-DD'
-    readonly checkIn: string | null;   // 'HH:mm'
-    readonly checkOut: string | null;  // 'HH:mm'
-}
+
 
 function toIsoDate(d: Date): string {
   const year = d.getFullYear();

@@ -48,7 +48,7 @@ export const DropdownItems: DropDownItem[] = [
         icon: 'account_tree',
         title: 'Org Chart',
         description: 'Visual company hierarchy tree',
-        routeTo: '/hrms/org-chart',
+        routeTo: '/employee/org-chart',
         category: 'HRMS Tab',
       },
     ],

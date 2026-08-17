@@ -44,7 +44,6 @@ export class LeaveRequestApprovals implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly authService = inject(AuthService);
   private readonly toast = inject(ToastService);
-
   currentUser = this.authService.currentUser;
 
   protected requests = signal<LeaveRequestResponse[]>([]);

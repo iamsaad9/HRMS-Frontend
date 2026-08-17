@@ -15,26 +15,26 @@
 
   <app-employee-filter-bar [employees]="employees() ?? []" (filterChange)="onFilterChange($event)" s />
 
-  <div class="table-scroll">
-    <table tuiTable class="employee-table w-full bg-(--secondary)/20" [size]="size" [(ngModel)]="selected">
+  <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20!">
+    <table tuiTable class="attendance-table w-full " size="m" [(ngModel)]="selected">
       <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
         <tr>
-          <th tuiTh>Actions</th>
-          <th tuiTh>StaffNo</th>
+          <th tuiTh class="text-white!">Actions</th>
+          <th tuiTh class="text-white!">StaffNo</th>
           <th tuiTh class="col-checkbox">
-            <div [tuiCell]="size">
+            <div [tuiCell]="size" class="text-white!">
               <input tuiCheckbox tuiCheckboxTable type="checkbox" [size]="size === 'l' ? 'm' : 's'" />
               <span tuiTitle>Employee</span>
             </div>
           </th>
-          <th tuiTh class="">Email</th>
-          <th tuiTh class="col-department">Department</th>
-          <th tuiTh>Branch</th>
-          <th tuiTh>Job Title</th>
-          <th tuiTh>Manager</th>
-          <th tuiTh>Is Active</th>
-          <th tuiTh>Created At</th>
-          <th tuiTh>Role</th>
+          <th tuiTh class="text-white!">Email</th>
+          <th tuiTh class="text-white!">Department</th>
+          <th tuiTh class="text-white!">Branch</th>
+          <th tuiTh class="text-white!"> Job Title</th>
+          <th tuiTh class="text-white!">Manager</th>
+          <th tuiTh class="text-white!">Is Active</th>
+          <th tuiTh class="text-white!">Created At</th>
+          <th tuiTh class="text-white!">Role</th>
         </tr>
       </thead>
       <tbody tuiTbody>
@@ -62,7 +62,6 @@
               <input tuiCheckbox type="checkbox" [size]="size === 'l' ? 'm' : 's'" [tuiCheckboxRow]="employee" />
               <span tuiTitle>
                 {{ employee.fullName || 'N/A' }}
-                <span tuiSubtitle>{{ employee.email || 'N/A' }}</span>
               </span>
             </div>
           </td>
@@ -101,7 +100,9 @@
   </div>
 
   @if (filteredEmployees().length > 0) {
-  <div class="flex items-center justify-between mt-3 text-(--theme1)!">
+  <div tuiCardLarge
+    class="flex flex-row! items-center! justify-between  shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
+
     <span class="text-sm">
       Showing {{ page() * pageSize + 1 }}–{{ page() * pageSize + paginatedEmployees().length }} of
       {{ filteredEmployees().length }}

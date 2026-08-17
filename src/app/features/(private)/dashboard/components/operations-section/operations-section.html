@@ -1,0 +1,232 @@
+<div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+    <div class="flex items-center justify-start gap-2">
+        <mat-icon class="text-(--theme2)!">track_changes</mat-icon>
+        <div>
+            <h1 class="text-xl! text-(--primary)! font-bold! flex justify-start items-center">
+                Workspace Operations
+            </h1>
+            <span class="text-sm text-(--primary)/80">Manage your workspace/team operations.</span>
+        </div>
+    </div>
+
+    <div class="flex gap-5 ">
+        <div tuiCardLarge
+            class="flex flex-1 flex-col rounded-xl bg-(--background_light)/40! p-6 drop-shadow-sm lg:col-span-1 gap-2!">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-(--secondary) pb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-(--theme2)">Pending Approvals</h3>
+                    <p class="text-xs text-(--primary)/80">Attendance adjustment requests</p>
+                </div>
+                <span class="rounded-full bg-(--secondary) px-2.5 py-0.5 text-xs font-semibold text-(--primary)">
+                    {{ totalPending() }} Pending
+                </span>
+            </div>
+
+            <!-- Request List -->
+            @if (isLoading()) {
+            <div class="flex flex-col divide-y divide-(--secondary)">
+                @for (i of [1,2,3]; track i) {
+                <div class="flex items-center justify-between py-3">
+                    <div class="flex items-center gap-x-3">
+                        <div class="size-9 rounded-full bg-(--secondary)/40 animate-pulse shrink-0"></div>
+                        <div class="flex flex-col gap-1">
+                            <div class="h-3 w-24 rounded bg-(--secondary)/40 animate-pulse"></div>
+                            <div class="h-2.5 w-16 rounded bg-(--secondary)/30 animate-pulse"></div>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            } @else if (pendingRequests().length === 0) {
+            <div class="flex flex-col items-center justify-center gap-1 py-6 text-(--primary)/70">
+                <tui-icon icon="@tui.circle-check" class="text-(--success) scale-125" />
+                <p class="text-sm font-medium m-0">All caught up</p>
+                <p class="text-xs m-0">No pending requests</p>
+            </div>
+            } @else {
+            <div class="flex flex-col divide-y divide-(--secondary)">
+                @for (record of pendingRequests(); track record.id) {
+                <div class="flex items-center justify-between py-3 gap-3">
+
+                    <div class="flex items-center gap-x-3 min-w-0">
+                        <div tuiAvatar="@tui.user" class="shrink-0"></div>
+                        <div class="min-w-0">
+                            @if (employeeMap()[record.employeeId]; as employee) {
+                            <p class="text-sm font-semibold text-(--primary) leading-none truncate">
+                                {{ employee.fullName }}
+                            </p>
+                            } @else {
+                            <p class="text-sm font-semibold text-(--primary) leading-none truncate">
+                                {{ record.employeeId }}
+                            </p>
+                            }
+                            <p class="mt-1 text-xs text-(--primary)/80">
+                                {{ record.attendanceDate | date: 'MMM d' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <button tuiButton type="button" size="xs" appearance="flat"
+                        class="bg-emerald-500! text-white! shrink-0" [disabled]="approvingId() === record.id"
+                        (click)="quickApprove(record)">
+                        @if (approvingId() === record.id) {
+                        <span
+                            class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent"></span>
+                        } @else {
+                        <tui-icon icon="@tui.check" class="scale-90" />
+                        }
+                    </button>
+                </div>
+                }
+            </div>
+            }
+
+            <!-- Action Button -->
+            <button tuiButton (click)="viewAll()"
+                class="mt-auto w-full rounded-lg border py-2! text-center text-sm font-semibold text-(--background_light) transition bg-(--theme2)! cursor-pointer hover:scale-102 block-0!">
+                View All Requests
+            </button>
+        </div>
+
+        <div tuiCardLarge
+            class="flex flex-1 flex-col rounded-xl bg-(--background_light)/40! p-6 drop-shadow-sm lg:col-span-1 gap-2!">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-(--secondary) pb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-(--theme2)">Pending Leaves</h3>
+                    <p class="text-xs text-(--primary)/80">Leave requests awaiting approval</p>
+                </div>
+                <span class="rounded-full bg-(--secondary) px-2.5 py-0.5 text-xs font-semibold text-(--primary)">
+                    {{ totalLeavePending() }} Pending
+                </span>
+            </div>
+
+            <!-- Request List -->
+            @if (leaveIsLoading()) {
+            <div class="flex flex-col divide-y divide-(--secondary)">
+                @for (i of [1,2,3]; track i) {
+                <div class="flex items-center justify-between py-3">
+                    <div class="flex items-center gap-x-3">
+                        <div class="size-9 rounded-full bg-(--secondary)/40 animate-pulse shrink-0"></div>
+                        <div class="flex flex-col gap-1">
+                            <div class="h-3 w-24 rounded bg-(--secondary)/40 animate-pulse"></div>
+                            <div class="h-2.5 w-16 rounded bg-(--secondary)/30 animate-pulse"></div>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            } @else if (pendingLeaveRequests().length === 0) {
+            <div class="flex flex-col items-center justify-center gap-1 py-6 text-(--primary)/70">
+                <tui-icon icon="@tui.circle-check" class="text-(--success) scale-125" />
+                <p class="text-sm font-medium m-0">All caught up</p>
+                <p class="text-xs m-0">No pending leave requests</p>
+            </div>
+            } @else {
+            <div class="flex flex-col divide-y divide-(--secondary)">
+                @for (record of pendingLeaveRequests(); track record.id) {
+                <div class="flex items-center justify-between py-3 gap-3">
+
+                    <div class="flex items-center gap-x-3 min-w-0">
+                        <div tuiAvatar="@tui.user" class="shrink-0"></div>
+                        <div class="min-w-0">
+                            @if (employeeMap()[record.employeeId]; as employee) {
+                            <p class="text-sm font-semibold text-(--primary) leading-none truncate">
+                                {{ employee.fullName }}
+                            </p>
+                            } @else {
+                            <p class="text-sm font-semibold text-(--primary) leading-none truncate">
+                                {{ record.employeeId }}
+                            </p>
+                            }
+                            <p class="mt-1 text-xs text-(--primary)/80 truncate">
+                                {{ record.leaveTypeName }} · {{ daysLabel(record.totalDays) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <button tuiButton type="button" size="xs" appearance="flat"
+                        class="bg-emerald-500! text-white! shrink-0" [disabled]="leaveApprovingId() === record.id"
+                        (click)="quickApproveLeave(record)">
+                        @if (leaveApprovingId() === record.id) {
+                        <span
+                            class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent"></span>
+                        } @else {
+                        <tui-icon icon="@tui.check" class="scale-90" />
+                        }
+                    </button>
+                </div>
+                }
+            </div>
+            }
+
+            <!-- Action Button -->
+            <button tuiButton (click)="viewAllLeaves()"
+                class="mt-auto w-full rounded-lg border py-2! text-center text-sm font-semibold text-(--background_light) transition bg-(--theme2)! cursor-pointer hover:scale-102 block-0!">
+                View All Requests
+            </button>
+        </div>
+
+        <div tuiCardLarge
+            class="min-w-sm flex flex-col rounded-xl bg-(--background_light)/40! p-6 drop-shadow-sm lg:col-span-1 gap-2!">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-(--secondary) pb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-(--theme2)">Team Members</h3>
+                    <p class="text-xs text-(--primary)/80">Direct reports & presence status</p>
+                </div>
+                <span class="rounded-full bg-(--secondary) px-2.5 py-0.5 text-xs font-semibold text-(--primary)">
+                    15 Members
+                </span>
+            </div>
+
+            <!-- Member List -->
+            <div class=" flex flex-col divide-y divide-(--secondary)">
+                @for (member of teamMembers(); track member.id) {
+                <div class="flex items-center justify-between py-3">
+                    <div class="flex items-center gap-x-3">
+                        <!-- Taiga Avatar / Fallback -->
+                        <div class="relative">
+                            <div tuiAvatar="@tui.user"></div>
+                            <!-- Presence indicator -->
+                            <span
+                                class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full ring-2 ring-(--background_light) dark:ring-slate-900"
+                                [ngClass]="{
+                    'bg-(--success)': member.status === 'online',
+                    'bg-amber-500': member.status === 'busy',
+                    'bg-slate-300': member.status === 'leave',
+                  }"></span>
+                        </div>
+
+                        <div>
+                            <p class="text-sm font-semibold text-(--primary) leading-none">
+                                {{ member.name }}
+                            </p>
+                            <p class="mt-1 text-xs text-(--primary)/80">
+                                {{ member.role }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Badge -->
+                    <div class="text-right">
+                        <span class="text-xs font-medium text-(--primary)">
+                            {{ member.attendanceRate }}
+                        </span>
+                        <p class="text-[10px] text-(--primary)">Attendance</p>
+                    </div>
+                </div>
+                }
+            </div>
+
+            <!-- Action Button -->
+            <button tuiButton
+                class="mt-auto w-full rounded-lg border py-2! text-center text-sm font-semibold text-(--background_light) transition bg-(--theme2) cursor-pointer hover:scale-102 block-0!">
+                View All Team Analytics
+            </button>
+        </div>
+    </div>
+</div>

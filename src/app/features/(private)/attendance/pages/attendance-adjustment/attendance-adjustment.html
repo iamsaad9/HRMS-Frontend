@@ -7,7 +7,7 @@
   <!-- User Profile Info Card -->
   @if (currentUser(); as user) {
   <div tuiCardLarge
-    class="shadow-[0_0_10px_rgba(0,0,0,0.15)]! rounded-xl p-5 bg-(--secondary)/20! text-(--primary) flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    class="shadow-[0_0_10px_rgba(0,0,0,0.15)]!  glass-card rounded-xl p-5 bg-(--secondary)/20! text-(--primary) flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
     <div class="flex items-center gap-3.5">
       <div
         class="size-12 rounded-full bg-(--theme1) text-white flex items-center justify-center font-bold text-lg shrink-0">
@@ -34,7 +34,8 @@
   </div>
   } @else if (loadError()) {
 
-  <div tuiCardLarge class="bg-(--secondary)/15 flex! justify-center! items-center! gap-2! p-10! text-(--primary)">
+  <div tuiCardLarge
+    class=" flex! justify-center! items-center! gap-2! p-10! text-(--primary) glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
     <tui-icon icon="@tui.circle-alert" style="font-size: 4rem;" />
     <p class="text-sm font-medium m-0">
       {{ loadError() }}
@@ -43,7 +44,7 @@
   } @else if (record(); as rec) {
   <div class="grid grid-cols-1 gap-4">
     <div tuiCardLarge
-      class="relative overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.2)]! rounded-xl flex flex-col gap-4 p-5 bg-(--secondary)/20!">
+      class="relative overflow-hidden glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! rounded-xl flex flex-col gap-4 p-5 bg-(--secondary)/20!">
 
       <!-- Status Accent Rail -->
       <span class="absolute left-0 top-0 bottom-0 w-1" [class.bg-amber-400]="rec.lateMinutes > 300"

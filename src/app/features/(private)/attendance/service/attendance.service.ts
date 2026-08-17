@@ -157,11 +157,13 @@ private upsertDailyAttendance(todayRecord: DailyAttendance): void {
 
   getCurrentMonth(): Observable<ApiResponse<DailyAttendance[]>> {
     const today = new Date();
-    const endDate = toLocalDateStr(today); 
+    // const endDate = toLocalDateStr(today); 
 
     // Set start date to the 1st of the current month
     const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    const end = new Date(today.getFullYear(), today.getMonth(), 30);
     const startDate = toLocalDateStr(start);
+    const endDate = toLocalDateStr(end);
 
     this.loadingService.showLoading();
     
@@ -170,6 +172,7 @@ private upsertDailyAttendance(todayRecord: DailyAttendance): void {
       .set('startDate', startDate)
       .set('endDate', endDate);
 
+      console.log("Params: ",httpParams)
     return this.http
       .get<ApiResponse<DailyAttendance[]>>(`${this.apiUrl}/history`, { params: httpParams })
       .pipe(

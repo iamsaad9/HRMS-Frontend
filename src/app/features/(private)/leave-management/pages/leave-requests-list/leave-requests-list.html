@@ -65,13 +65,13 @@
     </div>
     } @else {
 
-    <div tuiCardLarge class="flex flex-col gap-4 bg-(--secondary)/20! shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+    <div tuiCardLarge class="glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! flex flex-col gap-4 bg-(--secondary)/20! ">
         @for (group of monthGroups(); track group.key) {
-        <div class="rounded-2xl overflow-hidden p-0! bg-(--background_light)! shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+        <div class="rounded-2xl overflow-hidden p-0! bg-(--background_light)/50! shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
 
             <!-- Month header (toggle) -->
             <button tuiButton tuiChevron size="m" [tuiChevron]="isExpanded(group.key)" (click)="toggleMonth(group.key)"
-                class="w-full justify-between! rounded-none! bg-(--background_light)! hover:bg-(--secondary)/10! text-(--theme1)! h-full p-5! ">
+                class="w-full justify-between! rounded-none! bg-(--background_light)/20! hover:bg-(--secondary)/10! text-(--theme1)! h-full p-5! ">
                 <span class="flex items-center gap-2.5">
                     <mat-icon class="text-(--theme1)!">calendar_month</mat-icon>
                     <span class="text-base font-semibold">{{ group.label }}</span>

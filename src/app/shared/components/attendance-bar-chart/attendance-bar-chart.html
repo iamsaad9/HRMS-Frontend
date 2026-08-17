@@ -71,15 +71,15 @@
     <!-- ===== SUMMARY TOTALS FOOTER ===== -->
     <div class="mt-4 grid grid-cols-3 divide-x divide-(--secondary) border-t border-(--secondary) pt-4">
         <div class="text-center">
-            <p class="text-xs text-(--theme1)">Regular Hours</p>
+            <p class="text-sm text-(--theme1) text-shadow-2xs">Regular Hours</p>
             <p class="text-lg font-semibold text-(--primary)">{{ totals().regular | number: '1.0-1' }} hrs</p>
         </div>
         <div class="text-center">
-            <p class="text-xs text-(--theme1)">Late Hours</p>
+            <p class="text-sm text-(--theme1) text-shadow-2xs">Late Hours</p>
             <p class="text-lg font-semibold text-red-400">{{ totals().late | number: '1.0-1' }} hrs</p>
         </div>
         <div class="text-center">
-            <p class="text-xs text-(--theme1)">Overtime Hours</p>
+            <p class="text-sm text-(--theme1) text-shadow-2xs">Overtime Hours</p>
             <p class="text-lg font-semibold text-(--accent)">{{ totals().overtime | number: '1.0-1' }} hrs</p>
         </div>
     </div>

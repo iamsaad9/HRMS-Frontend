@@ -63,7 +63,7 @@
     <div class="flex flex-col gap-4 ">
         @for (record of filteredRequests(); track record.id) {
         <div tuiCardLarge
-            class="relative overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.15)]! rounded-xl flex flex-col gap-3 p-5">
+            class="relative overflow-hidden glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! rounded-xl flex flex-col gap-3 p-5">
 
             <!-- status accent rail -->
             <span class="absolute left-0 top-0 bottom-0 w-1" [class.bg-amber-400]="record.status === 'Pending'"

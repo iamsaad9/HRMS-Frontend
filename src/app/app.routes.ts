@@ -5,6 +5,7 @@ import MainLayout from './features/(private)/main-layout';
 import { Dashboard } from './features/(private)/dashboard/pages/dashboard';
 import { AddEmployee } from './features/(private)/employees/pages/add-employee/add-employee';
 import { BulkUploadEmployee } from './features/(private)/employees/pages/bulk-upload/bulk-upload';
+import { OrgChart } from './features/(private)/employees/pages/org-chart/org-chart';
 import { EmployeeList } from './features/(private)/employees/pages/employee-list/employee-list';
 import { guestGuard } from './core/guards/guest.guard';
 import { authGuard } from './core/guards/auth.guard';
@@ -42,6 +43,12 @@ export const routes: Routes = [
       {
         path: 'employee/new/bulk-upload',
         component: BulkUploadEmployee,
+        canActivate: [roleGuard],
+        data: { roles: ['Admin'] },
+      },
+      {
+        path: 'employee/org-chart',
+        component: OrgChart,
         canActivate: [roleGuard],
         data: { roles: ['Admin'] },
       },

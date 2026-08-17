@@ -12,23 +12,24 @@
     overflow-x: auto;
 }
 
-table{
+table {
     overflow: hidden;
-      border-radius: 20px !important;
+    border-radius: 20px !important;
 }
 
-thead th{
+.employee_thead {
     color: white !important;
     font-weight: 500 !important;
 }
 
-thead th,td {
-  background-color: transparent !important;
-  border: none !important; 
-  
+thead th,
+td {
+    background-color: transparent !important;
+    border: none !important;
+
 }
 
-[tuiCheckbox]{
+[tuiCheckbox] {
     --t-bs: var(--secondary) !important;
     background-color: white;
 }
@@ -48,8 +49,8 @@ thead th,td {
     .employee-table {
         min-width: 44rem;
     }
-    
-  
+
+
 }
 
 @media (max-width: 720px) {
@@ -58,9 +59,11 @@ thead th,td {
     }
 
 }
-[tuiAppearance][data-appearance=primary]{
-  background-color: var(--theme1);
+
+[tuiAppearance][data-appearance=primary] {
+    background-color: var(--theme1);
 }
-[tuiAppearance][data-appearance=flat]{
+
+[tuiAppearance][data-appearance=flat] {
     color: var(--theme1);
 }

@@ -1,9 +1,5 @@
-<div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20!">
-  <form
-    [formGroup]="form"
-    (ngSubmit)="onSubmit()"
-    class="flex flex-col gap-3 w-full p-4 text-(--theme2)"
-  >
+<div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20!  glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-3 w-full p-4 text-(--theme2)">
     <header>
       <h3 tuiTitle="m">
         Related Documents
@@ -21,18 +17,12 @@
       </div>
 
       <label tuiInputFiles>
-        <input
-          #educationValidator="tuiInputFilesValidator"
-          accept="image/*,.pdf"
-          tuiInputFiles
-          formControlName="educationFiles"
-          [multiple]="true"
-          (reject)="onReject('education', $event)"
-        />
+        <input #educationValidator="tuiInputFilesValidator" accept="image/*,.pdf" tuiInputFiles
+          formControlName="educationFiles" [multiple]="true" (reject)="onReject('education', $event)" />
       </label>
       <tui-files class="tui-space_top-1">
         @for (file of educationAccepted$ | async; track file) {
-          <tui-file [file]="file" (remove)="onRemove('education', file)" />
+        <tui-file [file]="file" (remove)="onRemove('education', file)" />
         }
       </tui-files>
       <tui-error formControlName="educationFiles" [order]="['maxLength']" />
@@ -48,18 +38,12 @@
       </div>
 
       <label tuiInputFiles>
-        <input
-          #experienceValidator="tuiInputFilesValidator"
-          accept="image/*,.pdf"
-          tuiInputFiles
-          formControlName="experienceFiles"
-          [multiple]="true"
-          (reject)="onReject('experience', $event)"
-        />
+        <input #experienceValidator="tuiInputFilesValidator" accept="image/*,.pdf" tuiInputFiles
+          formControlName="experienceFiles" [multiple]="true" (reject)="onReject('experience', $event)" />
       </label>
       <tui-files class="tui-space_top-1">
         @for (file of experienceAccepted$ | async; track file) {
-          <tui-file [file]="file" (remove)="onRemove('experience', file)" />
+        <tui-file [file]="file" (remove)="onRemove('experience', file)" />
         }
       </tui-files>
       <tui-error formControlName="experienceFiles" [order]="['maxLength']" />
@@ -75,18 +59,12 @@
       </div>
 
       <label tuiInputFiles>
-        <input
-          #identityValidator="tuiInputFilesValidator"
-          accept="image/*,.pdf"
-          tuiInputFiles
-          formControlName="identityFiles"
-          [multiple]="true"
-          (reject)="onReject('identity', $event)"
-        />
+        <input #identityValidator="tuiInputFilesValidator" accept="image/*,.pdf" tuiInputFiles
+          formControlName="identityFiles" [multiple]="true" (reject)="onReject('identity', $event)" />
       </label>
       <tui-files class="tui-space_top-1">
         @for (file of identityAccepted$ | async; track file) {
-          <tui-file [file]="file" (remove)="onRemove('identity', file)" />
+        <tui-file [file]="file" (remove)="onRemove('identity', file)" />
         }
       </tui-files>
       <tui-error formControlName="identityFiles" [order]="['maxLength']" />
@@ -102,18 +80,12 @@
       </div>
 
       <label tuiInputFiles>
-        <input
-          #otherValidator="tuiInputFilesValidator"
-          accept="image/*,.pdf"
-          tuiInputFiles
-          formControlName="otherFiles"
-          [multiple]="true"
-          (reject)="onReject('other', $event)"
-        />
+        <input #otherValidator="tuiInputFilesValidator" accept="image/*,.pdf" tuiInputFiles formControlName="otherFiles"
+          [multiple]="true" (reject)="onReject('other', $event)" />
       </label>
       <tui-files class="tui-space_top-1">
         @for (file of otherAccepted$ | async; track file) {
-          <tui-file [file]="file" (remove)="onRemove('other', file)" />
+        <tui-file [file]="file" (remove)="onRemove('other', file)" />
         }
       </tui-files>
       <tui-error formControlName="otherFiles" [order]="['maxLength']" />
@@ -121,13 +93,8 @@
 
     <!-- Navigation -->
     <footer class="flex justify-between gap-3 pt-4 border-t border-(--background_dark)/10">
-      <button
-        tuiButton
-        type="button"
-        class="bg-(--background_dark)/10! text-(--theme2)! gap-0!"
-        size="m"
-        (click)="onBack()"
-      >
+      <button tuiButton type="button" class="bg-(--background_dark)/10! text-(--theme2)! gap-0!" size="m"
+        (click)="onBack()">
         <mat-icon>keyboard_arrow_left</mat-icon>
         Back
       </button>

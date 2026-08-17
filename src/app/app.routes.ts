@@ -23,8 +23,16 @@ export const routes: Routes = [
     canActivate: [authGuard],
     component: MainLayout,
     children: [
-      { path: 'dashboard', component: Dashboard },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: Dashboard },
+
+      // HRMS Tab (Admin Only)
+      {
+        path: 'employee/all',
+        component: EmployeeList,
+        canActivate: [roleGuard],
+        data: { roles: ['Admin'] },
+      },
       {
         path: 'employee/new',
         component: AddEmployee,
@@ -37,50 +45,54 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['Admin'] },
       },
-      {
-        path: 'employee/all',
-        component: EmployeeList,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin', 'HR'] }, // Supports multiple allowed roles
-      },
+
+      // Attendance Tab (Admin Only)
       {
         path: 'attendance/history',
         component: AttendanceHistory,
         canActivate: [roleGuard],
-        data: { roles: ['Admin', 'User'] }, // Supports multiple allowed roles
+        data: { roles: ['Admin'] },
+      },
+
+      // Requests Tab (Both Admin & User)
+      {
+        path: 'leave-requests',
+        canActivate: [roleGuard],
+        data: { roles: ['Admin', 'User'] },
+        children: [
+          { path: '', component: LeaveRequest },
+          { path: 'new', component: LeaveRequest },
+          { path: ':id/edit', component: LeaveRequest },
+        ],
+      },
+      {
+        path: 'leave-requests/my',
+        component: LeaveRequestList,
+        canActivate: [roleGuard],
+        data: { roles: ['Admin', 'User'] },
+      },
+      {
+        path: 'leave-requests/all',
+        component: LeaveRequestApprovals,
+        canActivate: [roleGuard],
+        data: { roles: ['Admin', 'User'] },
       },
       {
         path: 'attendance/adjustment/:id',
         component: AttendanceAdjustment,
         canActivate: [roleGuard],
-        data: { roles: ['Admin','User'] }, // Supports multiple allowed roles
+        data: { roles: ['Admin', 'User'] },
       },
       {
         path: 'attendance/adjustments-approval/all',
         component: AttendanceAdjustmentApprovals,
         canActivate: [roleGuard],
-        data: { roles: ['Admin', 'User'] }, // Supports multiple allowed roles
+        data: { roles: ['Admin', 'User'] },
       },
-      {
-        path: 'leave-requests/new',
-        component: LeaveRequest,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin', 'User'] }, // Supports multiple allowed roles
-      },
-       {
-        path: 'leave-requests/my',
-        component: LeaveRequestList,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin', 'User'] }, // Supports multiple allowed roles
-      },
-       {
-        path: 'leave-requests/all',
-        component: LeaveRequestApprovals,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin'] }, // Supports multiple allowed roles
-      },
+
+      // Account Settings (Both Admin & User)
+      // Web Clock-In Tab (Both Admin & User)
     ],
   },
-
   { path: '**', redirectTo: 'login' },
 ];

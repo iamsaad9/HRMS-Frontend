@@ -19,16 +19,13 @@ import {
   TuiTextarea,
 } from '@taiga-ui/kit';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { MatIcon } from '@angular/material/icon';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
-import { AttendanceService } from '../../../attendance/service/attendance.service';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { DurationType, HalfDayPeriod, LeaveRequestPayload, LeaveTypeResponse } from '../../../leave-management/model/leave-request.model';
 import { LeaveRequestsService } from '../../service/leave-requests.service';
 import { TuiDay, TuiStringHandler } from '@taiga-ui/cdk';
 import { ToastService } from '../../../../../core/services/toast.service';
-import { Router } from '@angular/router';
-
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-leave-request',
@@ -53,7 +50,7 @@ import { Router } from '@angular/router';
     TuiTitle,
     MainHeading,
     TuiIcon,
-],
+  ],
   templateUrl: './new-leave-request.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -61,24 +58,79 @@ export class LeaveRequest implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly leaveService = inject(LeaveRequestsService);
   private readonly authService = inject(AuthService);
-  private toast = inject(ToastService);
-  private router = inject(Router);
+  private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
   protected readonly minDate = TuiDay.currentLocal();
-protected get minEndDate(): TuiDay {
+  protected get minEndDate(): TuiDay {
     const startDateValue = this.form.get('startDate')?.value;
     return startDateValue instanceof TuiDay ? startDateValue : this.minDate;
   }
+
   currentUser = this.authService.currentUser;
   isSubmitting = signal(false);
-protected leaveTypesOptions = computed(() =>
-    this.leaveService.leaveTypes().map((item) => item.name)
-  );  protected selectedDuration = signal<DurationType>('full_day');
+  isLoading = signal(false);
+
+  // --- New: mode handling ---
+  protected leaveId = signal<string | null>(null);
+  protected isEditMode = computed(() => !!this.leaveId());
+  protected pageTitle = computed(() => (this.isEditMode() ? 'Edit Leave Request' : 'New Leave Request'));
+  protected pageDescription = computed(() =>
+    this.isEditMode() ? 'Update the details of your leave request' : 'Submit a leave or WFH request for approval',
+  );
+  protected submitLabel = computed(() => (this.isEditMode() ? 'Update Leave Request' : 'Create Leave Request'));
+
+  protected leaveTypesOptions = computed(() => this.leaveService.leaveTypes().map((item) => item.name));
+  protected selectedDuration = signal<DurationType>('full_day');
   protected readonly stringify: TuiStringHandler<LeaveTypeResponse> = (item) => item.name;
   protected form!: FormGroup;
 
   ngOnInit(): void {
     this.buildForm();
-    this.leaveService.getAllLeaveTypes().subscribe()
+
+    this.leaveService.getAllLeaveTypes().subscribe(() => {
+      this.checkRouteMode();
+    });
+  }
+
+  private checkRouteMode(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.leaveId.set(id);
+      console.log("Id Present");
+      this.loadLeaveRequest(id);
+    }
+  }
+
+  private loadLeaveRequest(id: string): void {
+    this.isLoading.set(true);
+    this.leaveService
+      .getLeaveById(id)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: (response) => {
+          if (response.isSuccess && response.data) {
+            this.patchForm(response.data);
+          }
+        },
+        error: (error) => {
+          const msg = error.error?.message || 'Failed to load leave request.';
+          this.toast.error(msg, 'Load Failed');
+          this.router.navigate(['/leave-requests/all']);
+        },
+      });
+  }
+
+  private patchForm(data: any): void {
+    const leaveType = this.leaveService.leaveTypes().find((t) => t.id === data.leaveTypeId);
+
+    this.form.patchValue({
+      leaveType: leaveType?.name ?? '',
+      startDate: data.startDate ? TuiDay.fromLocalNativeDate(new Date(data.startDate)) : null,
+      endDate: data.endDate ? TuiDay.fromLocalNativeDate(new Date(data.endDate)) : null,
+      reason: data.reason ?? '',
+    });
   }
 
   private buildForm(): void {
@@ -148,56 +200,50 @@ protected leaveTypesOptions = computed(() =>
     return new Date(end) < new Date(start) ? { dateRange: true } : null;
   };
 
-protected isRequired(control: AbstractControl | null): boolean {
-  return control?.hasValidator(Validators.required) ?? false;
-}
+  protected isRequired(control: AbstractControl | null): boolean {
+    return control?.hasValidator(Validators.required) ?? false;
+  }
 
   protected onSubmit(): void {
     if (!this.form) return;
     this.form.markAllAsTouched();
-    
-    if(this.form.invalid) return;
-    
+
+    if (this.form.invalid) return;
+
     this.isSubmitting.set(true);
     const raw = this.form.getRawValue();
-    const selectedType = this.leaveService
-  .leaveTypes()
-  .find((i) => i.name === raw.leaveType);
+    const selectedType = this.leaveService.leaveTypes().find((i) => i.name === raw.leaveType);
 
     const payload: LeaveRequestPayload = {
-      employeeId: this.currentUser()?.employeeInfo.employeeId ?? '', 
+      employeeId: this.currentUser()?.employeeInfo.employeeId ?? '',
       leaveTypeId: selectedType?.id ?? '',
       startDate: raw.startDate,
       endDate: raw.endDate,
       reason: raw.reason,
-      // durationType: raw.durationType,
-      // ...(raw.durationType === 'half_day' && { halfDayPeriod: raw.halfDayPeriod }),
-      // ...(raw.durationType === 'custom_hours' && {
-        // customHours: {
-        //   startTime: raw.customHours.startTime,
-        //   endTime: raw.customHours.endTime,
-        // },
-      // }),
     };
 
-    // this.isSubmitting.set(true);
-    console.log("Payload: ",payload);
-    this.leaveService
-    .addLeave(payload)
-      .pipe(finalize(() => this.isSubmitting.set(false)))
-      .subscribe({
-        next: (response) => {
-          if (response.isSuccess) {
-            this.toast.success('Leave request sent for approval.', 'Created Successfully!');
+    const request$ = this.isEditMode()
+      ? this.leaveService.updateLeave(this.leaveId()!, payload)
+      : this.leaveService.addLeave(payload);
+
+    request$.pipe(finalize(() => this.isSubmitting.set(false))).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success(
+            this.isEditMode() ? 'Leave request updated.' : 'Leave request sent for approval.',
+            this.isEditMode() ? 'Updated Successfully!' : 'Created Successfully!',
+          );
+          if (!this.isEditMode()) {
             this.form.reset({ durationType: 'full_day' });
             this.selectedDuration.set('full_day');
-            this.router.navigate(['/leave-requests/all'])
           }
-        },
-        error:(error) => {
-           const msg = error.error?.message || 'Leave Creation failed. Please try again.';
-            this.toast.error(msg, 'Creation Unsuccessful!');
+          this.router.navigate(['/leave-requests/my']);
         }
-      });
+      },
+      error: (error) => {
+        const msg = error.error?.message || (this.isEditMode() ? 'Leave update failed. Please try again.' : 'Leave Creation failed. Please try again.');
+        this.toast.error(msg, this.isEditMode() ? 'Update Unsuccessful!' : 'Creation Unsuccessful!');
+      },
+    });
   }
 }

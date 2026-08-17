@@ -26,7 +26,15 @@ export interface LeaveRequestPayload {
   // customHours?: { startTime: string; endTime: string };
 }
 
-
+export interface UpdateLeaveRequestPayload {
+  leaveTypeId: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  // durationType: DurationType;
+  // halfDayPeriod?: HalfDayPeriod;
+  // customHours?: { startTime: string; endTime: string };
+}
 
 export interface LeaveRequestResponse {
   id: string;

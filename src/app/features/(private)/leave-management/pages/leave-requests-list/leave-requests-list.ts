@@ -9,6 +9,7 @@ import { TuiBadge, TuiChevron } from '@taiga-ui/kit';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { LeaveRequestsService } from '../../service/leave-requests.service';
+import { Router, RouterLink } from '@angular/router';
 
 interface MonthGroup {
   key: string;
@@ -29,7 +30,8 @@ interface MonthGroup {
     MatIcon,
     DatePipe,
     MainHeading,
-    TuiIcon
+    TuiIcon,
+    RouterLink
 ],
   templateUrl: './leave-requests-list.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,6 +39,7 @@ interface MonthGroup {
 export class LeaveRequestList implements OnInit {
   private readonly leaveService = inject(LeaveRequestsService);
   private readonly authService = inject(AuthService);
+  protected readonly router = inject(Router);
 
   currentUser = this.authService.currentUser;
 
@@ -132,18 +135,16 @@ export class LeaveRequestList implements OnInit {
     }
   }
 
-  // protected durationLabel(req: LeaveRequestResponse): string {
-  //   switch (req.durationType) {
-  //     case 'full_day':
-  //       return 'Full Day';
-  //     case 'half_day':
-  //       return req.halfDayPeriod === 'first_half' ? 'Half Day (Morning)' : 'Half Day (Afternoon)';
-  //     case 'custom_hours':
-  //       return req.customHours ? `${req.customHours.startTime} - ${req.customHours.endTime}` : 'Custom Hours';
-  //     default:
-  //       return '';
-  //   }
-  // }
+  protected durationLabel(req: LeaveRequestResponse): string {
+    switch (req.leaveTypeName) {
+      case 'full_day':
+        return 'Full Day';
+      case 'half_day':
+        return 'first_half' 
+      default:
+        return '';
+    }
+  }
 
   protected dateRangeLabel(req: LeaveRequestResponse): string {
     return req.startDate === req.endDate ? req.startDate : `${req.startDate} - ${req.endDate}`;

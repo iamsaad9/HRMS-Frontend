@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-5 w-full p-4 md:p-5 text-(--theme2) max-w-7xl mx-auto">
 
-    <app-main-heading title="New Leave Request" description="Submit a leave or WFH request for approval">
+    <app-main-heading [title]="pageTitle()" [description]="pageDescription()">
         @if (currentUser()?.employeeInfo; as info) {
         <div class="flex items-center gap-2.5 shrink-0">
             <div class="text-right leading-tight hidden sm:block">
@@ -203,17 +203,16 @@
                 <button tuiButton type="reset" class="bg-(--secondary)!" size="m">
                     Reset
                 </button>
-                <button tuiButton type="submit" size="m" [disabled]="isSubmitting()">
+                <button tuiButton type="submit" size="m" [disabled]="isSubmitting() || isLoading()">
                     @if(isSubmitting()){
                     <div class="flex items-center justify-center gap-2">
                         <span
                             class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"></span>
-                        <span>Creating...</span>
+                        <span>{{ isEditMode() ? 'Updating...' : 'Creating...' }}</span>
                     </div>
                     }@else {
-                    Create Leave Request
+                    {{ submitLabel() }}
                     }
-
                 </button>
             </footer>
         </form>

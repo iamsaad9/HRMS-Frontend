@@ -62,6 +62,7 @@ import { EmployeeService } from '../../services/employee.service';
     EmployeeFilterBarComponent,
     MainHeading,
     TuiAppearance,
+    TuiCardLarge,
   ],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.less',

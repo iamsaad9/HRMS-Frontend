@@ -15,7 +15,7 @@
         }
     </app-main-heading>
 
-    <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20!">
+    <div tuiCardLarge class="glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! bg-(--secondary)/20!">
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 w-full p-4 text-(--theme2)">
 
             <header>
@@ -26,7 +26,7 @@
             </header>
 
             <!-- Leave Type -->
-            <div tuiCardLarge>
+            <div tuiCardLarge class="bg-(--background_light)/50! shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
                 <div class="flex gap-2 items-center">
                     <tui-icon icon="@tui.tag" class="scale-80" />
                     <h1 class="uppercase font-base text-(--primary) font-semibold">Leave details</h1>
@@ -39,18 +39,19 @@
                         <span class="text-red-500">*</span>
                         }
                     </label>
-                    <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!" tuiChevron
+                    <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
                         [tuiTextfieldCleaner]="false">
 
                         <input formControlName="leaveType" placeholder="Select Leave Type" tuiSelect />
-                        <tui-data-list-wrapper *tuiDropdown [items]="leaveTypesOptions()" />
+                        <tui-data-list-wrapper *tuiDropdown [items]="leaveTypesOptions()"
+                            class="bg-(--background_light)/40!" />
                     </tui-textfield>
                     <tui-error formControlName="leaveType" />
                 </div>
 
             </div>
 
-            <div tuiCardLarge>
+            <div tuiCardLarge class="bg-(--background_light)/50! shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
                 <div class="flex gap-2 items-center">
                     <tui-icon icon="@tui.calendar-clock" class="scale-80" />
                     <h1 class="uppercase font-base text-(--primary) font-semibold">Leave period</h1>
@@ -59,7 +60,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Start Date -->
                     <div>
-                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
+                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
                             <label tuiLabel>
                                 Start Date
                                 @if (isRequired(form.get('startDate'))) {
@@ -74,7 +75,7 @@
 
                     <!-- End Date -->
                     <div>
-                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!"
+                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!"
                             [class.opacity-50]="selectedDuration() !== 'full_day'">
                             <label tuiLabel>
                                 End Date
@@ -177,14 +178,14 @@
                 } -->
             </div>
 
-            <div tuiCardLarge>
+            <div tuiCardLarge class="bg-(--background_light)/50! shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
                 <div class="flex gap-2 items-center">
                     <tui-icon icon="@tui.message-circle-more" class="scale-80" />
                     <h1 class="uppercase font-base text-(--primary) font-semibold">Additional Comment</h1>
                 </div>
                 <!-- Reason -->
                 <div>
-                    <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
+                    <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
                         <label tuiLabel>
                             Reason
                             @if (isRequired(form.get('reason'))) {

@@ -9,13 +9,14 @@ export const DropdownItems: DropDownItem[] = [
     routeTo: '/dashboard',
     tags: ['/', 'dashboard', 'home'],
     category: 'Dashboard',
+    // permissions:'dashboard:view'
   },
   {
     id:'1.5',
     icon: 'calendar_today',
     title: 'Attendance',
     description: 'Manage your attendance',
-     category: 'Attendance Management',
+    category: 'Attendance Management',
     childItems: [
        {
         id:'1.5.1',
@@ -25,7 +26,7 @@ export const DropdownItems: DropDownItem[] = [
         routeTo: '/attendance/adjustment/new',
         tags: ['new','adjustment','attendance','create'],
         category: 'Attendance Management',
-        permissions: 'attendance:view',
+        // permissions: 'attendance-adjustment:create',
       },
       
       {
@@ -36,7 +37,7 @@ export const DropdownItems: DropDownItem[] = [
         routeTo: '/attendance/history',
         tags: ['all','history','attendance','view','date'],
         category: 'Attendance Management',
-        permissions: 'attendance:view',
+        // permissions: 'attendance-history:view',
       },
       {
         id:'1.5.3',
@@ -46,7 +47,7 @@ export const DropdownItems: DropDownItem[] = [
         routeTo: '/attendance/adjustments-approval/all',
         tags: ['all','history','attendance','view','date'],
         category: 'Attendance Management',
-        permissions: 'attendance:view',
+        // permissions: 'admin-attendance-adjustment:view',
       },
     ],
   },
@@ -65,7 +66,7 @@ export const DropdownItems: DropDownItem[] = [
         routeTo: '/employee/new',
         tags: ['hire', 'new', 'staff', 'add', 'create', 'onboard'],
         category: 'Employee Management',
-        permissions: 'users:create',
+        // permissions: 'employee:create',
       },
       {
         id: '2.2',
@@ -75,7 +76,7 @@ export const DropdownItems: DropDownItem[] = [
         routeTo: '/employee/new/bulk-upload',
         tags: ['bulk', 'upload', 'new', 'employee'],
         category: 'Employee Management',
-        permissions: 'users:create',
+        // permissions: 'employee:create',
       },
       {
         id: '2.3',
@@ -85,7 +86,7 @@ export const DropdownItems: DropDownItem[] = [
         routeTo: '/employee/all',
         tags: ['staff', 'list', 'profiles', 'members', 'find'],
         category: 'Employee Management',
-        permissions: 'users:read',
+        // permissions: 'employee:view',
       },
       {
         id: '2.4',
@@ -111,8 +112,6 @@ export const DropdownItems: DropDownItem[] = [
       icon: 'beach_access',
       title: 'Leaves',
       description: 'Manage or create leaves request',
-       routeTo: '/dashboard',
-    tags: ['/', 'dashboard', 'home'],
     category: 'Dashboard',
       childItems: [
          {
@@ -123,7 +122,7 @@ export const DropdownItems: DropDownItem[] = [
         routeTo: '/leave-requests/new',
         tags: ['new','leave','request','create','attendance'],
         category: 'Leave Management',
-        permissions: 'attendance:view',
+        // permissions: 'leaves:create',
       },
        {
         id:'2.2',
@@ -133,7 +132,7 @@ export const DropdownItems: DropDownItem[] = [
         routeTo: '/leave-requests/my',
         tags: ['all','leave','request','view','attendance'],
         category: 'Leave Management',
-        permissions: 'attendance:view',
+        // permissions: 'leaves-requests:view',
       },
       {
         id:'2.2',
@@ -143,7 +142,7 @@ export const DropdownItems: DropDownItem[] = [
         routeTo: '/leave-requests/all',
         tags: ['all','leave','request','view','attendance'],
         category: 'Leave Management',
-        permissions: 'attendance:view',
+        // permissions: 'admin-leave-requests:view',
       },
       ],
     },

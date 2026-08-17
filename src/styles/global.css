@@ -7,6 +7,10 @@
   --theme2: #A3192D;
   --theme3: #19528e;
   --accent: #689fed;
+
+  /* Glassmorphism Defaults */
+  --glass-blur: 12px;
+  --glass-border-width: 1px;
 }
 
 [tuiTheme="light"] {
@@ -17,6 +21,19 @@
   --background_dark: #1d1d1d;
   --error: #ffc9c9;
   --success: #00d492;
+
+  /* Glass & Gradient Extensions */
+  --card-bg-glass: rgba(255, 255, 255, 0.65);
+  --card-border-glass: rgba(255, 255, 255, 0.8);
+  --card-shadow-glass: 0 8px 32px 0 rgba(129, 19, 35, 0.06);
+
+  /* Subtle background radial glows */
+  --bg-gradient-glow: radial-gradient(circle at 10% 20%,
+      rgba(104, 159, 237, 0.08) 0%,
+      transparent 40%),
+    radial-gradient(circle at 90% 80%,
+      rgba(247, 168, 51, 0.08) 0%,
+      transparent 40%);
 }
 
 [tuiTheme="dark"] {
@@ -29,6 +46,18 @@
   --success: #00d492;
   --tui-background-base: #1d1d1d !important;
 
+  /* Glass & Gradient Extensions */
+  --card-bg-glass: rgba(45, 45, 48, 0.6);
+  --card-border-glass: rgba(255, 255, 255, 0.08);
+  --card-shadow-glass: 0 8px 15px 0 rgba(0, 0, 0, 0.37);
+
+  /* Subtle background radial glows */
+  --bg-gradient-glow: radial-gradient(circle at 15% 15%,
+      rgba(129, 33, 46, 0.12) 0%,
+      transparent 45%),
+    radial-gradient(circle at 85% 85%,
+      rgba(25, 82, 142, 0.15) 0%,
+      transparent 45%);
 }
 
 
@@ -70,4 +99,28 @@ tui-root {
 [tuiCardLarge] {
   --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)) !important;
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow) !important;
+}
+
+
+.glass-card {
+  background: var(--card-bg-glass) !important;
+  border: var(--glass-border-width) solid var(--card-border-glass) !important;
+  box-shadow: var(--card-shadow-glass) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+
+/* UI */
+.dashboard-container {
+  background-color: var(--background_light);
+  background-image: var(--bg-gradient-glow);
+  min-height: 100vh;
+}
+
+.btn-primary-gradient {
+  background: linear-gradient(135deg, var(--theme3) 20%, var(--theme2) 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  box-shadow: 0 2px 5px rgba(129, 19, 35, 0.25) !important;
 }

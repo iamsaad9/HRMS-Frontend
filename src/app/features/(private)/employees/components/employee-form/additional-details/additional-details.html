@@ -1,40 +1,27 @@
-<div tuiCardLarge class="drop-shadow-sm overflow-visible! bg-(--secondary)/20!">
-  <form
-    [formGroup]="form"
-    (ngSubmit)="onSubmit()"
-    class="flex flex-col gap-3 w-full p-4 text-(--theme2)"
-  >
+<div tuiCardLarge
+  class="drop-shadow-sm overflow-visible! bg-(--secondary)/20!  glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-3 w-full p-4 text-(--theme2)">
     <header>
       <h3 tuiTitle="m">
         Additional Details
-        <span tuiSubtitle class="text-(--primary)"
-          >Step 4 of 4 — Additional Employment Details</span
-        >
+        <span tuiSubtitle class="text-(--primary)">Step 4 of 4 — Additional Employment Details</span>
       </h3>
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="relative">
-        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
-          <label required tuiLabel
-            >Password
+        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+          <label required tuiLabel>Password
             @if (isRequired('password')) {
-              <span class="text-red-500">*</span>
+            <span class="text-red-500">*</span>
             }
           </label>
-          <input
-            #pwd
-            formControlName="password"
-            type="password"
-            placeholder="Abc@123"
-            tuiInput
-            (focus)="showValidator.set(true)"
-            (blur)="showValidator.set(false)"
-          />
+          <input #pwd formControlName="password" type="password" placeholder="Abc@123" tuiInput
+            (focus)="showValidator.set(true)" (blur)="showValidator.set(false)" />
         </tui-textfield>
         <tui-error formControlName="password" />
         @if (showValidator()) {
-          <app-password-validator [password]="pwd.value" />
+        <app-password-validator [password]="pwd.value" />
         }
       </div>
     </div>

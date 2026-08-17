@@ -1,26 +1,20 @@
-<div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20!">
-  <form
-    [formGroup]="form"
-    (ngSubmit)="onSubmit()"
-    class="flex flex-col gap-3 w-full p-4 text-(--theme2)"
-  >
+<div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-3 w-full p-4 text-(--theme2)">
     <header>
       <h3 tuiTitle="m">
         Employee Details
-        <span tuiSubtitle class="text-(--primary)"
-          >Step 1 of 4 — Personal & Basic Employment Information</span
-        >
+        <span tuiSubtitle class="text-(--primary)">Step 1 of 4 — Personal & Basic Employment Information</span>
       </h3>
     </header>
 
     <!-- Full Name & Email -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
+        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
           <label tuiLabel>
             First Name
             @if (isRequired('firstName')) {
-              <span class="text-red-500">*</span>
+            <span class="text-red-500">*</span>
             }
           </label>
           <input formControlName="firstName" placeholder="e.g. John" tuiInput />
@@ -29,11 +23,10 @@
       </div>
 
       <div>
-        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
-          <label tuiLabel
-            >Last Name
+        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+          <label tuiLabel>Last Name
             @if (isRequired('lastName')) {
-              <span class="text-red-500">*</span>
+            <span class="text-red-500">*</span>
             }
           </label>
           <input required formControlName="lastName" placeholder="e.g. Doe" tuiInput />
@@ -42,11 +35,10 @@
       </div>
 
       <div>
-        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
-          <label required tuiLabel
-            >Work Email
+        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+          <label required tuiLabel>Work Email
             @if (isRequired('email')) {
-              <span class="text-red-500">*</span>
+            <span class="text-red-500">*</span>
             }
           </label>
           <input formControlName="email" type="email" placeholder="john.doe@company.com" tuiInput />
@@ -58,11 +50,10 @@
     <!-- Phone & Date of Birth -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
-          <label tuiLabel
-            >Phone Number
+        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+          <label tuiLabel>Phone Number
             @if (isRequired('phone')) {
-              <span class="text-red-500">*</span>
+            <span class="text-red-500">*</span>
             }
           </label>
           <input formControlName="phone" tuiInputPhone mask="+7 ### ###-##-##" autocomplete="tel" />
@@ -71,11 +62,10 @@
       </div>
 
       <div>
-        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
-          <label tuiLabel
-            >Date of Birth
+        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+          <label tuiLabel>Date of Birth
             @if (isRequired('dob')) {
-              <span class="text-red-500">*</span>
+            <span class="text-red-500">*</span>
             }
           </label>
           <input formControlName="dob" placeholder="DD.MM.YYYY" tuiInputDate />
@@ -87,16 +77,10 @@
 
     <!-- Department Selection -->
     <div>
-      <tui-textfield
-        tuiTextfieldSize="m"
-        class="bg-(--background_light)!"
-        tuiChevron
-        [tuiTextfieldCleaner]="false"
-      >
-        <label tuiLabel
-          >Department
+      <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron [tuiTextfieldCleaner]="false">
+        <label tuiLabel>Department
           @if (isRequired('department')) {
-            <span class="text-red-500">*</span>
+          <span class="text-red-500">*</span>
           }
         </label>
         <input formControlName="department" tuiSelect />
@@ -107,32 +91,21 @@
 
     <!-- Employment Type (Radio Group) -->
     <div class="flex flex-col gap-2">
-      <label class="text-sm font-semibold text-(--primary)"
-        >Employment Type
+      <label class="text-sm font-semibold text-(--primary)">Employment Type
         @if (isRequired('employmentType')) {
-          <span class="text-red-500">*</span>
+        <span class="text-red-500">*</span>
         }
       </label>
       <div tuiGroup [collapsed]="true" class="w-full">
         <label tuiBlock>
           Full-Time
-          <input
-            type="radio"
-            formControlName="employmentType"
-            value="full-time"
-            tuiRadio
-            [style.margin-inline-start]="'auto'"
-          />
+          <input type="radio" formControlName="employmentType" value="full-time" tuiRadio
+            [style.margin-inline-start]="'auto'" />
         </label>
         <label tuiBlock>
           Part-Time / Contract
-          <input
-            type="radio"
-            formControlName="employmentType"
-            value="part-time"
-            tuiRadio
-            [style.margin-inline-start]="'auto'"
-          />
+          <input type="radio" formControlName="employmentType" value="part-time" tuiRadio
+            [style.margin-inline-start]="'auto'" />
         </label>
       </div>
     </div>

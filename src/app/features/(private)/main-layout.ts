@@ -8,12 +8,6 @@ import { AuthService } from '../(public)/auth/services/auth.service';
 import { AttendanceService } from './attendance/service/attendance.service';
 import { firstValueFrom, forkJoin } from 'rxjs';
 
-const toLocalDateStr = (d: Date): string => {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
 
 @Component({
   imports: [RouterOutlet, NavbarComponent, Loader],

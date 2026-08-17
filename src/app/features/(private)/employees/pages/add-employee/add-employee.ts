@@ -1,39 +1,72 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
-import { TuiButton, TuiIcon } from '@taiga-ui/core';
-import { TuiTabs, TuiToast, TuiToastService } from '@taiga-ui/kit';
-import { TuiDay, TuiDayRange } from '@taiga-ui/cdk';
-import { EmployeeDetails } from '../../components/employee-form/employee-details/employee-details';
-import { EmployeeExperience } from '../../components/employee-form/employee-experience/employee-experience';
-import { EmployeeDocuments } from '../../components/employee-form/employee-documents/employee-documents';
+import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { TuiButton, TuiIcon, TuiTextfieldComponent, TuiErrorComponent, TuiCalendar } from '@taiga-ui/core';
+import { TuiTabs, TuiToast, TuiToastService, TuiDataListWrapperComponent } from '@taiga-ui/kit';
+import { TuiDay} from '@taiga-ui/cdk';
 import { EmployeeService } from '../../services/employee.service';
-import { AdditionalDetails } from '../../components/employee-form/additional-details/additional-details';
-import { MatIcon } from '@angular/material/icon';
-import { finalize } from 'rxjs';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { Router } from '@angular/router';
 import { ToastService } from '../../../../../core/services/toast.service';
-
-interface StepConfig {
-  id: number;
-  title: string;
-}
+import {
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import {
+  TuiCheckbox,
+  TuiError,
+  TuiGroup,
+  TuiInput,
+  TuiLabel,
+  TuiRadio,
+} from '@taiga-ui/core';
+import {
+  TuiBlock,
+  TuiChevron,
+  TuiDataListWrapper,
+  TuiInputDate,
+  TuiInputNumber,
+  TuiInputPhone,
+  TuiInputSlider,
+  TuiSelect,
+} from '@taiga-ui/kit';
+import { TuiCardLarge } from '@taiga-ui/layout';
+import { PasswordValidator } from "../../../../(public)/auth/components/password-validator/password-validator";
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-add-employee',
   imports: [
     TuiIcon,
     TuiTabs,
-    EmployeeDetails,
-    EmployeeExperience,
-    EmployeeDocuments,
-    AdditionalDetails,
-    MatIcon,
     TuiToast,
     TuiButton,
     MainHeading,
     TuiButton,
-  ],
+    TuiTextfieldComponent,
+    TuiErrorComponent,
+    TuiCalendar,
+    TuiDataListWrapperComponent,
+    FormsModule,
+    TuiBlock,
+    TuiButton,
+    TuiCheckbox,
+    TuiChevron,
+    TuiDataListWrapper,
+    TuiError,
+    TuiGroup,
+    TuiInput,
+    TuiInputDate,
+    TuiInputNumber,
+    TuiInputPhone,
+    TuiInputSlider,
+    TuiLabel,
+    TuiRadio,
+    TuiSelect,
+    ReactiveFormsModule,
+    TuiCardLarge,
+    PasswordValidator,
+],
+
   templateUrl: './add-employee.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -41,165 +74,95 @@ export class AddEmployee {
   private readonly employeeService = inject(EmployeeService);
   protected readonly router = inject(Router);
   private readonly toast = inject(ToastService);
-  protected isSubmiting = signal<Boolean>(false);
-  protected readonly steps: StepConfig[] = [
-    { id: 0, title: 'Employee Details' },
-    { id: 1, title: 'Work Experience' },
-    { id: 2, title: 'Related Documents' },
-    { id: 3, title: 'Additional Details' },
-  ];
+  
+  protected isSubmiting = signal<boolean>(false);
+  protected showValidator = signal<boolean>(false);
 
   protected form = new FormGroup({
-    employeeDetails: new FormGroup({
-      firstName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-      lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-      email: new FormControl('', {
-        nonNullable: true,
-        validators: [Validators.required, Validators.email],
-      }),
-      phone: new FormControl(''),
-      dob: new FormControl<TuiDay | null>(null),
-      department: new FormControl(''),
-      employmentType: new FormControl(''),
-      isRemote: new FormControl(false),
-      requireVisa: new FormControl(false),
+    firstName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    dob: new FormControl<TuiDay | null>(null),
+    email: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
     }),
-
-    experiences: new FormArray<FormGroup>([
-      new FormGroup({
-        companyName: new FormControl(''),
-        jobTitle: new FormControl(''),
-        isCurrent: new FormControl(false),
-        employmentPeriod: new FormControl<TuiDayRange | null>(null),
-        startDate: new FormControl<TuiDay | null>(null),
-        responsibilities: new FormControl(''),
-      }),
-    ]),
-
-    educations: new FormArray<FormGroup>([
-      new FormGroup({
-        institution: new FormControl(''),
-        degree: new FormControl(''),
-        period: new FormControl<TuiDayRange | null>(null),
-      }),
-    ]),
-
-    documents: new FormGroup({
-      educationFiles: new FormControl<File[]>([], {
-        nonNullable: true,
-        validators: [maxFilesLength(5)],
-      }),
-      experienceFiles: new FormControl<File[]>([], {
-        nonNullable: true,
-        validators: [maxFilesLength(5)],
-      }),
-      identityFiles: new FormControl<File[]>([], {
-        nonNullable: true,
-        validators: [maxFilesLength(5)],
-      }),
-      otherFiles: new FormControl<File[]>([], {
-        nonNullable: true,
-        validators: [maxFilesLength(5)],
-      }),
-    }),
-
-    additionalDetails: new FormGroup({
-      password: new FormControl('', {
-        nonNullable: true,
-        validators: [
-          Validators.required,
-          Validators.minLength(8),
-          Validators.pattern(/(?=.*[a-z])/), // At least one lowercase letter
-          Validators.pattern(/(?=.*[A-Z])/), // At least one uppercase letter
-          Validators.pattern(/(?=.*\d)/), // At least one digit
-          Validators.pattern(/(?=.*[@$!%*?&])/), // At least one special character
-        ],
-      }),
+    gender: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    phone: new FormControl(''),
+    niNumber: new FormControl(''),
+    department: new FormControl(''),
+    designation: new FormControl(''),
+    branch: new FormControl(''),
+    manager: new FormControl(''),
+    startDate: new FormControl<TuiDay | null>(null),
+    employmentType: new FormControl(''),
+    status: new FormControl(''),
+    password: new FormControl('', {
+      nonNullable: true,
+      validators: [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/(?=.*[a-z])/),
+        Validators.pattern(/(?=.*[A-Z])/),
+        Validators.pattern(/(?=.*\d)/),
+        Validators.pattern(/(?=.*[@$!%*?&])/),
+      ],
     }),
   });
 
-  protected activeStepIndex = signal<number>(0);
-  protected unlockedSteps = signal<Set<number>>(new Set([0, 1, 2, 3]));
 
-  private readonly stepSectionKeys: Record<number, string> = {
-    0: 'employeeDetails',
-    1: 'experiences',
-    2: 'documents',
-    3: 'additionalDetails',
-  };
+protected readonly titles = ['Mr', 'Mrs', 'Ms', 'Dr', 'Miss'];
+protected readonly genders = ['Male', 'Female', 'Other', 'Prefer not to say'];
+protected readonly branches = ['Head Office', 'Karachi', 'Lahore', 'Islamabad']; // replace with real data
+protected readonly managers = ['Manager A', 'Manager B']; // replace with real data (likely a service call)
+protected readonly statuses = ['Active', 'On Leave', 'Suspended', 'Terminated'];
 
-  protected isStepDisabled(stepId: number): boolean {
-    return !this.unlockedSteps().has(stepId);
-  }
+  protected readonly departments = [
+    'Engineering',
+    'Human Resources',
+    'Product & Design',
+    'Sales & Marketing',
+    'Finance',
+  ];
 
-  protected selectStep(stepId: number): void {
-    if (this.unlockedSteps().has(stepId)) {
-      this.activeStepIndex.set(stepId);
-    }
-  }
-
-  protected goToStep(stepId: number): void {
-    this.unlockedSteps.update((current) => new Set(current).add(stepId));
-    this.activeStepIndex.set(stepId);
-  }
-
-  protected previousStep(): void {
-    this.activeStepIndex.update((curr) => Math.max(0, curr - 1));
-  }
-
-  protected getStepColor(stepId: number): string {
-    const controlKey = this.stepSectionKeys[stepId];
-    const control = controlKey ? this.form.get(controlKey) : null;
-
-    if (!control || (!control.touched && !control.dirty)) {
-      return 'inherit';
-    }
-
-    return control.valid ? 'var(--tui-status-positive, green) !important' : '';
-  }
+protected isRequired(controlPath: string): boolean {
+  const control = this.form.get(controlPath);
+  if (!control) return false;
+  return control.hasValidator(Validators.required);
+}
 
   protected submitFullPayload(): void {
-    if (this.isSubmiting()) {
-      return;
-    }
+    if (this.isSubmiting()) return;
+
     if (this.form.invalid) {
+      // Mark all controls as touched so <tui-error> triggers visually
       this.form.markAllAsTouched();
       this.form.updateValueAndValidity();
-
-      const firstInvalidStep = Object.entries(this.stepSectionKeys).find(
-        ([, key]) => this.form.get(key)?.invalid,
-      );
-
-      if (firstInvalidStep) {
-        this.goToStep(Number(firstInvalidStep[0]));
-      }
       return;
     }
 
     this.isSubmiting.set(true);
-    const value = this.form.getRawValue();
+
+    const rawValue = this.form.getRawValue();
+
     const payload = {
-      ...value.employeeDetails,
-      dob: value.employeeDetails.dob?.toLocalNativeDate() ?? null,
-      experiences: value.experiences,
-      educations: value.educations,
-      documents: value.documents,
-      ...value.additionalDetails,
+      ...rawValue,
+      dob: rawValue.dob ? rawValue.dob.toLocalNativeDate().toISOString() : null,
     };
 
     this.employeeService
       .addEmployee(payload)
       .pipe(finalize(() => this.isSubmiting.set(false)))
       .subscribe({
-        next: () => {},
-        error: () => {},
+        next: () => {
+          // Toast or Navigate
+        },
+        error: (err) => {
+          // Handle error
+        },
       });
   }
+
+  
 }
 
-function maxFilesLength(maxLength: number) {
-  return ({ value }: { value: File[] }) =>
-    value && value.length > maxLength
-      ? { maxLength: `Error: maximum limit - ${maxLength} files for upload` }
-      : null;
-}

@@ -1,91 +1,271 @@
-<div class="w-full mx-auto max-w-7xl">
+<div class="flex flex-col w-full mx-auto max-w-7xl gap-5">
   <app-main-heading title="Create Employee" description="Create an employee using the form below.">
-    <button
-      type="button"
-      tuiButton
-      iconStart="@tui.folder-up"
-      size="s"
+    <button type="button" tuiButton iconStart="@tui.folder-up" size="s"
       class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
-      (click)="router.navigate(['/employee/new/bulk-upload'])"
-    >
+      (click)="router.navigate(['/employee/new/bulk-upload'])">
       Bulk Upload
     </button>
   </app-main-heading>
 
-  <tui-tabs
-    [activeItemIndex]="activeStepIndex()"
-    (activeItemIndexChange)="selectStep($event)"
-    class="w-full"
-    underline="#A3192D"
-  >
-    @for (step of steps; track step.id; let last = $last) {
-      <button
-        tuiTab
-        type="button"
-        class="step flex items-center justify-center text-(--primary)!"
-        [disabled]="isStepDisabled(step.id)"
-        [style.color]="getStepColor(step.id)"
-      >
-        {{ step.title }}
-        @if (!last) {
-          <tui-icon icon="@tui.chevron-right" class="separator ml-2" />
-        }
-      </button>
-    }
-  </tui-tabs>
+  <form [formGroup]="form" (submit)="submitFullPayload()" class="flex flex-col gap-3 w-full  text-(--theme2)">
+    <div class="flex flex-col! gap-5">
 
-  <div class="mt-6" [hidden]="activeStepIndex() !== 0">
-    <app-employee-details [form]="form.controls.employeeDetails" (next)="goToStep(1)" />
-  </div>
-
-  <div class="mt-6" [hidden]="activeStepIndex() !== 1">
-    <app-employee-experience [form]="form" (stepBack)="previousStep()" (next)="goToStep(2)" />
-  </div>
-
-  <div class="mt-6" [hidden]="activeStepIndex() !== 2">
-    <app-employee-documents
-      [form]="form.controls.documents"
-      (stepBack)="previousStep()"
-      (next)="goToStep(3)"
-    />
-  </div>
-
-  <div class="mt-6 flex flex-col gap-5" [hidden]="activeStepIndex() !== 3">
-    <!-- 1. Add relative and z-10 here so its contents stack above the footer -->
-    <app-additional-details class="relative z-10" [form]="form.controls.additionalDetails" />
-
-    <!-- 2. Add relative and z-0 to keep the footer below -->
-    <footer
-      class="relative z-0 flex justify-center gap-3 pt-4 border-t border-(--background_dark)/10"
-    >
-      <button
-        tuiButton
-        type="button"
-        class="bg-(--background_dark)/10! text-(--theme2)! gap-0!"
-        size="m"
-        (click)="previousStep()"
-      >
-        <mat-icon>keyboard_arrow_left</mat-icon>
-        Back
-      </button>
-      <button
-        tuiButton
-        (click)="submitFullPayload()"
-        class="gap-0!"
-        size="m"
-        [disabled]="isSubmiting()"
-      >
-        @if (isSubmiting()) {
-          <div class="flex items-center justify-center gap-2">
-            <span
-              class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"
-            ></span>
-            <span>Creating Employee..</span>
+      <!-- Personal Details -->
+      <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+        <header class="flex flex-row gap-2 items-center">
+          <tui-icon icon="@tui.book-user" class="text-3xl!" />
+          <div class="flex flex-col">
+            <span class="uppercase text-xl font-semibold">Employee Details</span>
+            <span tuiSubtitle class="text-(--primary)/50 text-sm">Personal & Basic Employment Information</span>
           </div>
+        </header>
+
+        <!-- Title / First Name / Last Name -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
+              [tuiTextfieldCleaner]="false">
+              <label tuiLabel>Title
+                @if (isRequired('title')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="title" tuiSelect />
+              <tui-data-list-wrapper *tuiDropdown [items]="titles" />
+            </tui-textfield>
+            <tui-error formControlName="title" />
+          </div>
+
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+              <label tuiLabel>First Name
+                @if (isRequired('firstName')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="firstName" placeholder="e.g. John" tuiInput />
+            </tui-textfield>
+            <tui-error formControlName="firstName" />
+          </div>
+
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+              <label tuiLabel>Last Name
+                @if (isRequired('lastName')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="lastName" placeholder="e.g. Doe" tuiInput />
+            </tui-textfield>
+            <tui-error formControlName="lastName" />
+          </div>
+        </div>
+
+        <!-- Email / Phone / NI Number -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+              <label tuiLabel>Work Email
+                @if (isRequired('email')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="email" type="email" placeholder="john.doe@company.com" tuiInput />
+            </tui-textfield>
+            <tui-error formControlName="email" />
+          </div>
+
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+              <label tuiLabel>Phone Number
+                @if (isRequired('phone')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="phone" tuiInputPhone mask="+7 ### ###-##-##" autocomplete="tel" />
+            </tui-textfield>
+            <tui-error formControlName="phone" />
+          </div>
+
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+              <label tuiLabel>NI Number
+                @if (isRequired('niNumber')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="niNumber" placeholder="e.g. QQ 12 34 56 C" tuiInput />
+            </tui-textfield>
+            <tui-error formControlName="niNumber" />
+          </div>
+        </div>
+
+        <!-- DOB / Gender -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+              <label tuiLabel>Date of Birth
+                @if (isRequired('dob')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="dob" placeholder="DD.MM.YYYY" tuiInputDate />
+              <tui-calendar *tuiDropdown />
+            </tui-textfield>
+            <tui-error formControlName="dob" />
+          </div>
+
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
+              [tuiTextfieldCleaner]="false">
+              <label tuiLabel>Gender
+                @if (isRequired('gender')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="gender" tuiSelect />
+              <tui-data-list-wrapper *tuiDropdown [items]="genders" />
+            </tui-textfield>
+            <tui-error formControlName="gender" />
+          </div>
+        </div>
+
+        <!-- Employment Type (Radio Group) -->
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-(--primary)">Employment Type
+            @if (isRequired('employmentType')) { <span class="text-red-500">*</span> }
+          </label>
+          <div tuiGroup [collapsed]="true" class="w-full">
+            <label tuiBlock>
+              Full-Time
+              <input type="radio" formControlName="employmentType" value="full-time" tuiRadio
+                [style.margin-inline-start]="'auto'" />
+            </label>
+            <label tuiBlock>
+              Part-Time / Contract
+              <input type="radio" formControlName="employmentType" value="part-time" tuiRadio
+                [style.margin-inline-start]="'auto'" />
+            </label>
+          </div>
+          <tui-error formControlName="employmentType" />
+        </div>
+      </div>
+
+      <!-- Employment Details -->
+      <div tuiCardLarge
+        class="drop-shadow-sm overflow-visible! bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+        <header class="flex flex-row gap-2 items-center">
+          <tui-icon icon="@tui.briefcase" class="text-3xl!" />
+          <div class="flex flex-col">
+            <span class="uppercase text-xl font-semibold">Employment Details</span>
+            <span tuiSubtitle class="text-(--primary)/50 text-sm">Role, Structure & Reporting</span>
+          </div>
+        </header>
+
+        <!-- Department / Designation -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
+              [tuiTextfieldCleaner]="false">
+              <label tuiLabel>Department
+                @if (isRequired('department')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="department" tuiSelect />
+              <tui-data-list-wrapper *tuiDropdown [items]="departments" />
+            </tui-textfield>
+            <tui-error formControlName="department" />
+          </div>
+
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+              <label tuiLabel>Designation
+                @if (isRequired('designation')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="designation" placeholder="e.g. Software Engineer" tuiInput />
+            </tui-textfield>
+            <tui-error formControlName="designation" />
+          </div>
+        </div>
+
+        <!-- Branch / Manager -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
+              [tuiTextfieldCleaner]="false">
+              <label tuiLabel>Branch
+                @if (isRequired('branch')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="branch" tuiSelect />
+              <tui-data-list-wrapper *tuiDropdown [items]="branches" />
+            </tui-textfield>
+            <tui-error formControlName="branch" />
+          </div>
+
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
+              [tuiTextfieldCleaner]="false">
+              <label tuiLabel>Reporting Manager
+                @if (isRequired('manager')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="manager" tuiSelect />
+              <tui-data-list-wrapper *tuiDropdown [items]="managers" />
+            </tui-textfield>
+            <tui-error formControlName="manager" />
+          </div>
+        </div>
+
+        <!-- Start Date / Status -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+              <label tuiLabel>Start Date
+                @if (isRequired('startDate')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="startDate" placeholder="DD.MM.YYYY" tuiInputDate />
+              <tui-calendar *tuiDropdown />
+            </tui-textfield>
+            <tui-error formControlName="startDate" />
+          </div>
+
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
+              [tuiTextfieldCleaner]="false">
+              <label tuiLabel>Status
+                @if (isRequired('status')) { <span class="text-red-500">*</span> }
+              </label>
+              <input formControlName="status" tuiSelect />
+              <tui-data-list-wrapper *tuiDropdown [items]="statuses" />
+            </tui-textfield>
+            <tui-error formControlName="status" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Security -->
+      <div tuiCardLarge
+        class="drop-shadow-sm overflow-visible! bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+        <header class="flex flex-row gap-2 items-center">
+          <tui-icon icon="@tui.clipboard-plus" class="text-3xl!" />
+          <div class="flex flex-col">
+            <span class="uppercase text-xl font-semibold">Additional Details</span>
+            <span tuiSubtitle class="text-(--primary)/50 text-sm">Additional Employment Details</span>
+          </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="relative">
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+              <label tuiLabel>Password
+                @if (isRequired('password')) { <span class="text-red-500">*</span> }
+              </label>
+              <input #pwd formControlName="password" type="password" placeholder="Abc@123" tuiInput
+                (focus)="showValidator.set(true)" (blur)="showValidator.set(false)" />
+            </tui-textfield>
+            <tui-error formControlName="password" />
+            @if (showValidator()) {
+            <app-password-validator [password]="pwd.value" />
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="relative z-0 flex justify-end gap-3 pt-4 border-t border-(--background_dark)/10">
+      <button tuiButton type="submit" class="gap-0!" size="m" [disabled]="isSubmiting()">
+        @if (isSubmiting()) {
+        <div class="flex items-center justify-center gap-2">
+          <span
+            class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"></span>
+          <span>Creating Employee..</span>
+        </div>
         } @else {
-          <span>Create Employee</span>
+        <span>Create Employee</span>
         }
       </button>
     </footer>
-  </div>
+  </form>
 </div>

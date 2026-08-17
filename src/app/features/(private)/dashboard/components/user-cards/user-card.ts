@@ -9,6 +9,9 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { tuiCeil } from '@taiga-ui/cdk';
 import { AttendanceBarChartComponent, AttendancePunch } from "../../../../../shared/components/attendance-bar-chart/attendance-bar-chart";
+import { AuthService } from '../../../../(public)/auth/services/auth.service';
+import { ToastService } from '../../../../../core/services/toast.service';
+import { AttendanceChannelType, PunchCommand, PunchType } from '../../../attendance/model/attendance.model';
 
 export interface ClockHistoryItem {
   date: string;
@@ -64,8 +67,12 @@ function segmentsFor(punch: AttendancePunch): MinutesSegment {
   imports: [TuiIcon, TuiButton,  TuiCardLarge, DatePipe,  MatIcon, AttendanceBarChartComponent],
 })
 export class UserCardsComponent {
-   protected readonly attendanceService = inject(AttendanceService);
-   protected router = inject(Router);
+  protected readonly attendanceService = inject(AttendanceService);
+  private readonly authService = inject(AuthService);
+  private readonly toast = inject(ToastService);
+  protected router = inject(Router);
+  readonly currentUser = this.authService.currentUser();
+  readonly employeeId = this.currentUser?.employeeInfo?.employeeId;
 
   isToday(dateStr: string): boolean {
   const today = new Date();
@@ -141,7 +148,6 @@ export class UserCardsComponent {
 
 
 
-  //  readonly punches = input.required<readonly AttendancePunch[]>();
   readonly punches = input<readonly AttendancePunch[]>([
     { date: '2026-03-01', checkIn: '09:58', checkOut: '17:05' }, // Sunday
   { date: '2026-03-02', checkIn: '08:55', checkOut: '17:05' },
@@ -179,7 +185,6 @@ export class UserCardsComponent {
     this.punches().map(segmentsFor)
   );
 
-  // Taiga UI stacked bar chart values per column: [lateHours, regularHours, overtimeHours]
   protected readonly value = computed(() =>
     this.rawSegments().map(({ lateMins, regularMins, overtimeMins }) => [
       +(lateMins / 60).toFixed(2),
@@ -188,7 +193,6 @@ export class UserCardsComponent {
     ])
   );
 
-  // Timezone-safe day extraction for Taiga UI X-axis labels
   protected readonly labelsX = computed(() =>
     this.punches().map((p, i) => {
       if (i % 5 !== 0) return '';
@@ -241,4 +245,168 @@ export class UserCardsComponent {
     if (s >= 60) return 'Fair';
     return 'Needs attention';
   });
+
+
+  // <-------------- PUNCHES LOGIC --------------> 
+
+  breakSessions = computed(() => {
+  const punches = this.attendanceService.todayStatus()?.punches ?? [];
+  const breakPunches = punches
+    .filter(p => p.punchType === '3' || p.punchType === '4')
+    .sort((a, b) => new Date(a.punchTime).getTime() - new Date(b.punchTime).getTime());
+
+  const sessions: { start: string; end: string | null }[] = [];
+  for (const p of breakPunches) {
+    if (p.punchType === 'BreakStart') {
+      sessions.push({ start: p.punchTime, end: null });
+    } else if (p.punchType === 'BreakEnd') {
+      const open = sessions.find(s => s.end === null);
+      if (open) open.end = p.punchTime;
+    }
+  }
+  return sessions;
+});
+
+isOnBreak = computed(() => this.breakSessions().some(s => s.end === null));
+
+canClockOut = computed(() => this.attendanceService.isClockedIn() 
+  && !this.attendanceService.isClockedOut() 
+  && !this.isOnBreak());
+
+  protected onClockIn(): void {
+
+
+    if (!this.employeeId) {
+      this.toast.error('Employee ID not found', 'Attendance Updated');
+      return;
+    }
+
+    const command: PunchCommand = {
+      employeeId:this.employeeId,
+      punchType:PunchType.ClockIn,
+      channel: AttendanceChannelType.Web,
+      deviceId: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    this.attendanceService.punch(command).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success('Clocked in successfully!', 'Attendance Updated');
+        } else {
+          this.toast.error('Clock in failed!', 'Attendance Updated');
+        }
+      },
+      error: () => {
+        this.toast.error('Clock in failed!', 'Attendance Updated');
+      },
+
+      
+    });
+  }
+
+    protected onBreakStart(): void {
+    if (!this.employeeId) {
+      this.toast.error('Employee ID not found', 'Failed');
+      return;
+    }
+
+    const command: PunchCommand = {
+      employeeId: this.employeeId,
+      punchType:PunchType.BreakStart,
+      channel: AttendanceChannelType.Web,
+      deviceId: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    this.attendanceService.punch(command).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success('Break Started!', 'Attendance Updated');
+        } else {
+          this.toast.error('Break start failed!', 'Attendance Updated');
+        }
+      },
+      error: () => {
+        this.toast.error('Break start failed!', 'Attendance Updated');
+      },
+      
+    });
+  }
+
+   protected onBreakEnd(): void {
+    if (!this.employeeId) {
+      this.toast.error('Employee ID not found', 'Failed');
+      return;
+    }
+
+    const command: PunchCommand = {
+      employeeId: this.employeeId,
+      punchType:PunchType.BreakEnd,
+      channel: AttendanceChannelType.Web,
+      deviceId: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    this.attendanceService.punch(command).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success('Break Ended!', 'Attendance Updated');
+        } else {
+          this.toast.error('Break end failed!', 'Attendance Updated');
+        }
+      },
+      error: () => {
+        this.toast.error('Break end failed!', 'Attendance Updated');
+      },
+      
+    });
+  }
+
+  protected onClockOut(): void {
+
+    const employeeId = this.currentUser?.employeeInfo?.employeeId;
+
+    if (!employeeId) {
+      this.toast.error('Employee ID not found', 'Attendance Updated');
+      return;
+    }
+
+    const command: PunchCommand = {
+      employeeId,
+      punchType:PunchType.ClockOut,
+      channel: AttendanceChannelType.Web,
+      deviceId: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    this.attendanceService.punch(command).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success('Clocked out successfully!', 'Attendance Updated');
+        } else {
+          this.toast.error('Clock out failed!', 'Attendance Updated');
+        }
+      },
+      error: () => {
+        this.toast.error('Clock out failed!', 'Attendance Updated');
+      },
+      
+    });
+  }
+
+
+
+
+
+
+
+
+
+
+
 }

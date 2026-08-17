@@ -7,6 +7,7 @@ import { UserCardsComponent } from '../components/user-cards/user-card';
 import { DashboardClock } from '../../../../shared/components/dashboard-clock/dashboard-clock';
 import { TuiButton } from '@taiga-ui/core';
 import { AuthService } from '../../../(public)/auth/services/auth.service';
+import { OperationsSection } from "../components/operations-section/operations-section";
 
 @Component({
   selector: 'app-dashboard',
@@ -16,7 +17,8 @@ import { AuthService } from '../../../(public)/auth/services/auth.service';
     PerformanceSection,
     UserCardsComponent,
     DashboardClock,
-  ],
+    OperationsSection
+],
   templateUrl: './dashboard.html',
 })
 export class Dashboard {

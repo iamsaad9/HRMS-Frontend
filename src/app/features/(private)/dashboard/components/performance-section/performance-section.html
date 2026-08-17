@@ -9,67 +9,100 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-    <!-- CARD 1: My Performance Analytics (Spans 2 columns on large screens) -->
-
-    <!-- CARD 2: Team Members Card (Spans 1 column) -->
+  <div class="flex gap-5">
+    <!-- 7 Days Clock-in / Clock-out History Card -->
     <div tuiCardLarge
-      class="flex flex-col rounded-xl bg-(--background_light)/40! p-6 drop-shadow-sm lg:col-span-1 gap-2!">
-      <!-- Header -->
+      class="bg-(--background_light)/40! min-w-2xl rounded-2xl  border! border-(--secondary)/20! drop-shadow-sm flex flex-col gap-1!">
+
+      <div class="flex items-center justify-between border-b border-(--secondary) pb-3">
+        <div>
+          <h3 class="text-xl font-bold text-(--theme2)">Shift History</h3>
+          <p class="text-sm text-(--primary)/80">Last 7 days attendance record</p>
+        </div>
+        <button type="button" tuiButton appearance="flat" size="s" (click)="router.navigate(['attendance/history'])"
+          class="cursor-pointer! hover:text-slate-900 bg-(--theme2)!  text-white!">
+          View All <tui-icon icon="@tui.chevron-right" class="separator ml-2" />
+
+        </button>
+      </div>
+
+      <div class="overflow-x-auto flex-1">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr class="border-b border-(--secondary) text-(--primary)/80! uppercase text-xs tracking-wider">
+              <th class="py-3 px-2 font-semibold">Date</th>
+              <th class="py-3 px-2 font-semibold">Clock In</th>
+              <th class="py-3 px-2 font-semibold">Clock Out</th>
+              <th class="py-3 px-2 font-semibold">Work Hours</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-(--secondary)">
+            @for (day of fullWeekAttendance(); track day.dateStr) {
+
+            <tr (click)="router.navigate([`attendance/adjustment/${day.record?.id}`])"
+              [class.bg-(--success)/10]="isToday(day.dateStr)"
+              class="hover:bg-(--secondary)/20 transition-colors cursor-pointer">
+              <td class="py-2 px-2 font-semibold text-(--primary)">
+                {{ day.dateStr | date: 'EEE, MMM d' }}
+              </td>
+
+              <td class="py-2 px-2 text-(--primary)">
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full" [class.bg-(--success)]="day.record?.firstIn"
+                    [class.bg-slate-300]="!day.record?.firstIn"></span>
+                  @if (day.record?.firstIn) {
+                  {{ day.record?.firstIn | date: 'hh:mm a' }}
+                  } @else {
+                  <span class="text-(--primary)/40 italic">N/A</span>
+                  }
+                </span>
+              </td>
+
+              <td class="py-2 px-2 text-(--primary)">
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full" [class.bg-amber-500]="day.record?.lastOut"
+                    [class.bg-slate-300]="!day.record?.lastOut"></span>
+                  @if (day.record?.lastOut) {
+                  {{ day.record?.lastOut | date: 'hh:mm a' }}
+                  } @else {
+                  <span class="text-(--primary)/40 italic">N/A</span>
+                  }
+                </span>
+              </td>
+
+              <td class="py-2 px-2 text-(--primary)">
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full"></span>
+                  @if (day.record?.workingHours) {
+                  {{ day.record?.workingHours}} Hr
+                  } @else {
+                  <span class="text-(--primary)/40 italic">N/A</span>
+                  }
+                </span>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div tuiCardLarge
+      class="bg-(--background_light)/40! grid-cols-2! flex flex-1 flex-col justify-between rounded-xl p-6 drop-shadow-sm text-(--primary) overflow-visible border! border-(--secondary)/20!">
       <div class="flex items-center justify-between border-b border-(--secondary) pb-4">
         <div>
-          <h3 class="text-lg font-bold text-(--theme2)">Team Members</h3>
-          <p class="text-xs text-(--primary)/80">Direct reports & presence status</p>
+          <h3 class="text-lg font-bold text-(--theme2)">Work Hour Overview</h3>
+          <p class="text-xs text-(--primary)/80">Last {{ punches().length }} days work hour overview.</p>
         </div>
-        <span class="rounded-full bg-(--secondary) px-2.5 py-0.5 text-xs font-semibold text-(--primary)">
-          {{ teamMembers().length }} Members
-        </span>
+
+
       </div>
 
-      <!-- Member List -->
-      <div class=" flex flex-col divide-y divide-(--secondary)">
-        @for (member of teamMembers(); track member.id) {
-        <div class="flex items-center justify-between py-3">
-          <div class="flex items-center gap-x-3">
-            <!-- Taiga Avatar / Fallback -->
-            <div class="relative">
-              <div tuiAvatar="@tui.user"></div>
-              <!-- Presence indicator -->
-              <span
-                class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full ring-2 ring-(--background_light) dark:ring-slate-900"
-                [ngClass]="{
-                    'bg-(--success)': member.status === 'online',
-                    'bg-amber-500': member.status === 'busy',
-                    'bg-slate-300': member.status === 'leave',
-                  }"></span>
-            </div>
 
-            <div>
-              <p class="text-sm font-semibold text-(--primary) leading-none">
-                {{ member.name }}
-              </p>
-              <p class="mt-1 text-xs text-(--primary)/80">
-                {{ member.role }}
-              </p>
-            </div>
-          </div>
+      <app-attendance-bar-chart />
 
-          <!-- Attendance Badge -->
-          <div class="text-right">
-            <span class="text-xs font-medium text-(--primary)">
-              {{ member.attendanceRate }}
-            </span>
-            <p class="text-[10px] text-(--primary)">Attendance</p>
-          </div>
-        </div>
-        }
-      </div>
 
-      <!-- Action Button -->
-      <button tuiButton
-        class="mt-auto w-full rounded-lg border py-2! text-center text-sm font-semibold text-(--background_light) transition bg-(--theme2) cursor-pointer hover:scale-102 block-0!">
-        View All Team Analytics
-      </button>
     </div>
+
   </div>
 </div>

@@ -35,33 +35,45 @@
 
     <!-- Right Side -->
     <div class="flex flex-1 gap-2 xl:gap-5 justify-end items-center">
-      <tui-textfield iconStart="@tui.search" tuiTextfieldSize="s"
-        class="flex flex-1 max-w-120 bg-(--secondary)/20! text-white/50!">
-        <input placeholder="Search" class="text-white! placeholder:text-white/50!" tuiInput [(ngModel)]="searchQuery" />
+      <!-- <tui-textfield iconStart="@tui.search" tuiTextfieldSize="s"
+          class="flex flex-1 max-w-120 bg-(--secondary)/20! text-white/50!">
+          <input placeholder="Search" class="text-white! placeholder:text-white/50!" tuiInput [(ngModel)]="searchQuery" />
 
-        @if (searchResults().length > 0) {
-        <tui-data-list *tuiDropdown class="z-10 w-full  bg-white! dark:bg-(--background_light)!">
-          @for (item of searchResults(); track item.id) {
-          <button tuiOption type="button" (click)="handleItemClick(item)"
-            class="flex flex-col items-start gap-0! p-2 hover:bg-(--primary)/10! rounded-md transition-colors text-(--background_light)!">
-            <!-- Title & Category Badge -->
-            <div class="flex items-center justify-between w-full">
-              <span class="font-semibold text-sm text-(--primary)!">{{ item.title }}</span>
-              <span
-                class="text-[10px] px-2 py-0.5 bg-(--secondary) text-(--theme2) dark:text-(--theme1) rounded-full font-medium">
-                {{ item.category }}
-              </span>
-            </div>
+          @if (searchResults().length > 0) {
+          <tui-data-list *tuiDropdown class="z-10 w-full  bg-white! dark:bg-(--background_light)!">
+            @for (item of searchResults(); track item.id) {
+            <button tuiOption type="button" (click)="handleItemClick(item)"
+              class="flex flex-col items-start gap-0! p-2 hover:bg-(--primary)/10! rounded-md transition-colors text-(--background_light)!">
+              <div class="flex items-center justify-between w-full">
+                <span class="font-semibold text-sm text-(--primary)!">{{ item.title }}</span>
+                <span
+                  class="text-[10px] px-2 py-0.5 bg-(--secondary) text-(--theme2) dark:text-(--theme1) rounded-full font-medium">
+                  {{ item.category }}
+                </span>
+              </div>
 
-            <!-- Description -->
-            <p class="text-xs text-left text-(--primary)/50 line-clamp-1 w-full">
-              {{ item.description }}
-            </p>
-          </button>
+              <p class="text-xs text-left text-(--primary)/50 line-clamp-1 w-full">
+                {{ item.description }}
+              </p>
+            </button>
+            }
+          </tui-data-list>
           }
-        </tui-data-list>
-        }
-      </tui-textfield>
+        </tui-textfield> -->
+
+      <span [class]="
+                'inline-flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-semibold border text-white ' +
+                (attendanceService.isClockedIn()
+                  ? 'bg-emerald-900/50 border-emerald-500 '
+                  : 'bg-red-900/50 border-red-700 ')
+              ">
+        <span [class]="
+                  'w-2 h-2 rounded-full ' +
+                  (attendanceService.isClockedIn() ? 'bg-green-600 animate-pulse' :  'bg-red-500 animate-pulse')
+                "></span>
+
+        {{ attendanceService.isClockedIn() ? 'Clocked In' : 'Clocked Out' }}
+      </span>
 
       <!-- Dark Mode -->
       <button tuiButton type="button" appearance="secondary" size="s" class="" (click)="themeService.toggleTheme()">
@@ -99,15 +111,6 @@
           </ng-template>
         </button>
 
-        <button type="button" class="relative grid h-9 w-9 place-items-center rounded-md cursor-pointer">
-          <mat-icon class="scale-80">notifications_none</mat-icon>
-          @if (notificationCount() > 0) {
-          <span
-            class="absolute right-0.5 top-0.5 grid h-4 w-4 place-items-center rounded-full bg-(--theme2) text-[10px] font-semibold text-(--background_light)">
-            {{ notificationCount() }}
-          </span>
-          }
-        </button>
 
         <button type="button"
           class="xl:flex items-center text-sm font-medium transition-opacity hover:opacity-90 cursor-pointer"

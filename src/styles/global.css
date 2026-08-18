@@ -101,6 +101,7 @@ tui-root {
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow) !important;
 }
 
+.button {}
 
 .glass-card {
   background: var(--card-bg-glass) !important;
@@ -121,6 +122,24 @@ tui-root {
   background: linear-gradient(135deg, var(--theme3) 20%, var(--theme2) 100%) !important;
   color: #ffffff !important;
   border: none !important;
-  border-radius: 10px !important;
+  border-radius: 5px !important;
   box-shadow: 0 2px 5px rgba(129, 19, 35, 0.25) !important;
+}
+
+.btn-primary-gradient:hover {
+  scale: 105%;
+  transition: all;
+  transition-duration: 200ms;
+}
+
+.btn-lift {
+  color: var(--background_dark);
+
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-lift:active {
+  transform: translateY(0) scale(0.98);
 }

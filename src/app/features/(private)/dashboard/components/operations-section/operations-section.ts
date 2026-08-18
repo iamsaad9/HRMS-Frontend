@@ -94,7 +94,7 @@ export class OperationsSection implements OnInit {
   }
 
   protected viewAll(): void {
-    this.router.navigate(['/attendance/approvals']); // adjust to your real route
+    this.router.navigate(['/attendance/adjustments-approval/all']); // adjust to your real route
   }
 
   // ===================== LEAVE =====================

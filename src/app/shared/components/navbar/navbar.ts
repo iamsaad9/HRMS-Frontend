@@ -25,6 +25,7 @@ import { ThemeService } from '../../../core/services/theme.service';
 import { TuiAvatar, TuiAvatarOutline } from '@taiga-ui/kit';
 import { AuthService } from '../../../features/(public)/auth/services/auth.service';
 import { DropdownItems } from '../../../core/config/navigation.config';
+import { AttendanceService } from '../../../features/(private)/attendance/service/attendance.service';
 
 interface ExampleAction {
   readonly icon: string;
@@ -62,7 +63,7 @@ interface ExampleAction {
   },
 })
 export class NavbarComponent {
-  notificationCount = signal(3);
+  protected readonly attendanceService = inject(AttendanceService);
   searchQuery = signal('');
   searchFocused = signal(false);
   searchResults = computed(() => {

@@ -16,12 +16,20 @@
             <!-- Header -->
             <div class="flex items-center justify-between border-b border-(--secondary) pb-4">
                 <div>
-                    <h3 class="text-lg font-bold text-(--theme2)">Pending Approvals</h3>
-                    <p class="text-xs text-(--primary)/80">Attendance adjustment requests</p>
+                    <h3 class="text-lg font-semibold text-(--theme2) uppercase">Pending Approvals</h3>
+                    <p class="text-sm text-(--primary)/80">Attendance adjustment requests</p>
                 </div>
-                <span class="rounded-full bg-(--secondary) px-2.5 py-0.5 text-xs font-semibold text-(--primary)">
-                    {{ totalPending() }} Pending
-                </span>
+                <div class="flex flex-col gap-2 items-end">
+                    <span class="rounded-full bg-(--secondary) px-2.5 py-0.5 text-xs font-semibold text-(--primary)">
+                        {{ totalPending() }} Pending
+                    </span>
+                    <button (click)="viewAll()" size="s"
+                        class="btn-lift text-sm px-2 py-1 hover:bg-(--theme2)! border border-(--theme2)"> View All
+                        Requests
+                        <tui-icon icon="@tui.chevron-right" />
+                    </button>
+                </div>
+
             </div>
 
             <!-- Request List -->
@@ -40,7 +48,7 @@
                 }
             </div>
             } @else if (pendingRequests().length === 0) {
-            <div class="flex flex-col items-center justify-center gap-1 py-6 text-(--primary)/70">
+            <div class="flex flex-col items-center justify-center h-full gap-1 py-6 text-(--primary)/70">
                 <tui-icon icon="@tui.circle-check" class="text-(--success) scale-125" />
                 <p class="text-sm font-medium m-0">All caught up</p>
                 <p class="text-xs m-0">No pending requests</p>
@@ -83,11 +91,7 @@
             </div>
             }
 
-            <!-- Action Button -->
-            <button tuiButton (click)="viewAll()"
-                class="mt-auto w-full rounded-lg border py-2! text-center text-sm font-semibold text-(--background_light) transition bg-(--theme2)! cursor-pointer hover:scale-102 block-0!">
-                View All Requests
-            </button>
+
         </div>
 
         <div tuiCardLarge
@@ -96,12 +100,19 @@
             <!-- Header -->
             <div class="flex items-center justify-between border-b border-(--secondary) pb-4">
                 <div>
-                    <h3 class="text-lg font-bold text-(--theme2)">Pending Leaves</h3>
-                    <p class="text-xs text-(--primary)/80">Leave requests awaiting approval</p>
+                    <h3 class="text-lg font-semibold text-(--theme2) uppercase">Pending Leaves</h3>
+                    <p class="text-sm text-(--primary)/80">Leave requests awaiting approval</p>
                 </div>
-                <span class="rounded-full bg-(--secondary) px-2.5 py-0.5 text-xs font-semibold text-(--primary)">
-                    {{ totalLeavePending() }} Pending
-                </span>
+                <div class="flex flex-col gap-2 items-end">
+                    <span class="rounded-full bg-(--secondary) px-2.5 py-0.5 text-xs font-semibold text-(--primary)">
+                        {{ totalLeavePending() }} Pending
+                    </span>
+                    <button (click)="viewAllLeaves()" size="s"
+                        class="btn-lift text-sm px-2 py-1 hover:bg-(--theme2)! border border-(--theme2)"> View All
+                        Leaves
+                        <tui-icon icon="@tui.chevron-right" />
+                    </button>
+                </div>
             </div>
 
             <!-- Request List -->
@@ -120,7 +131,7 @@
                 }
             </div>
             } @else if (pendingLeaveRequests().length === 0) {
-            <div class="flex flex-col items-center justify-center gap-1 py-6 text-(--primary)/70">
+            <div class="flex flex-col items-center justify-center gap-1 h-full py-6 text-(--primary)/70">
                 <tui-icon icon="@tui.circle-check" class="text-(--success) scale-125" />
                 <p class="text-sm font-medium m-0">All caught up</p>
                 <p class="text-xs m-0">No pending leave requests</p>
@@ -163,11 +174,7 @@
             </div>
             }
 
-            <!-- Action Button -->
-            <button tuiButton (click)="viewAllLeaves()"
-                class="mt-auto w-full rounded-lg border py-2! text-center text-sm font-semibold text-(--background_light) transition bg-(--theme2)! cursor-pointer hover:scale-102 block-0!">
-                View All Requests
-            </button>
+
         </div>
 
         <div tuiCardLarge
@@ -223,9 +230,9 @@
             </div>
 
             <!-- Action Button -->
-            <button tuiButton
-                class="mt-auto w-full rounded-lg border py-2! text-center text-sm font-semibold text-(--background_light) transition bg-(--theme2) cursor-pointer hover:scale-102 block-0!">
-                View All Team Analytics
+            <button class="btn-lift text-sm px-2 py-2 bg-(--theme)/50 hover:bg-(--theme2)! border-2 border-(--theme2)">
+                View All Team
+                Analytics
             </button>
         </div>
     </div>

@@ -1,0 +1,82 @@
+<form [formGroup]="form" (submit)="submit()" class="flex flex-col gap-4 p-2 w-full">
+
+    <!-- Code & Name -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <tui-textfield tuiTextfieldSize="m">
+                <label tuiLabel>Shift Code
+                    @if (isRequired('code')) { <span class="text-red-500">*</span> }
+                </label>
+                <input formControlName="code" placeholder="e.g. MOR-01" tuiInput />
+            </tui-textfield>
+            <tui-error formControlName="code" />
+        </div>
+
+        <div>
+            <tui-textfield tuiTextfieldSize="m">
+                <label tuiLabel>Shift Name
+                    @if (isRequired('name')) { <span class="text-red-500">*</span> }
+                </label>
+                <input formControlName="name" placeholder="e.g. Morning Shift" tuiInput />
+            </tui-textfield>
+            <tui-error formControlName="name" />
+        </div>
+    </div>
+
+    <!-- Start & End Time -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <tui-textfield tuiTextfieldSize="m">
+                <label tuiLabel>Start Time
+                    @if (isRequired('startTime')) { <span class="text-red-500">*</span> }
+                </label>
+                <input formControlName="startTime" tuiInputTime placeholder="HH:MM" />
+            </tui-textfield>
+            <tui-error formControlName="startTime" />
+        </div>
+
+        <div>
+            <tui-textfield tuiTextfieldSize="m">
+                <label tuiLabel>End Time
+                    @if (isRequired('endTime')) { <span class="text-red-500">*</span> }
+                </label>
+                <input formControlName="endTime" tuiInputTime placeholder="HH:MM" />
+            </tui-textfield>
+            <tui-error formControlName="endTime" />
+        </div>
+    </div>
+
+    <!-- Grace Periods -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <tui-textfield tuiTextfieldSize="m">
+                <label tuiLabel>Late Arrival Grace (mins)</label>
+                <input formControlName="gracePeriodLateMinutes" tuiInputNumber placeholder="e.g. 10" />
+            </tui-textfield>
+            <tui-error formControlName="gracePeriodLateMinutes" />
+        </div>
+
+        <div>
+            <tui-textfield tuiTextfieldSize="m">
+                <label tuiLabel>Early Exit Grace (mins)</label>
+                <input formControlName="gracePeriodEarlyExitMinutes" tuiInputNumber placeholder="e.g. 10" />
+            </tui-textfield>
+            <tui-error formControlName="gracePeriodEarlyExitMinutes" />
+        </div>
+    </div>
+
+    <!-- Is Default -->
+    <label tuiLabel class="cursor-pointer">
+        <input formControlName="isDefault" tuiCheckbox type="checkbox" />
+        Set as default shift
+    </label>
+
+    <footer class="flex justify-end gap-3 pt-4 border-t border-(--background_dark)/10">
+        <button tuiButton type="button" appearance="outline" size="m" (click)="cancel()">
+            Cancel
+        </button>
+        <button tuiButton type="submit" size="m">
+            Save Shift
+        </button>
+    </footer>
+</form>

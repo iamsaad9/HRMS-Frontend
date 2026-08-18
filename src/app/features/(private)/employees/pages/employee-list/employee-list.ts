@@ -40,6 +40,7 @@ import { EmployeeFilterBarComponent } from '../../components/employee-filter-bar
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { LoadingService } from '../../../../../core/services/loading.service';
 import { EmployeeService } from '../../services/employee.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-employee-table',
@@ -63,6 +64,7 @@ import { EmployeeService } from '../../services/employee.service';
     MainHeading,
     TuiAppearance,
     TuiCardLarge,
+    RouterLink
   ],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.less',

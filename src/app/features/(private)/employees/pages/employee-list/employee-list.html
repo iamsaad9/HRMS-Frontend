@@ -47,7 +47,7 @@
                 More
               </button>
               <button appearance="action" iconStart="@tui.eye" size="xs" tuiIconButton type="button"
-                (click)="onEdit(employee)" class="text-(--theme1)!">
+                (click)="onEdit(employee)" class="text-(--theme1)!" [routerLink]="['/employee', employee.id, 'edit']">
                 View
               </button>
             </span>

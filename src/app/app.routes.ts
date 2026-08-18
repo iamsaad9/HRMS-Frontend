@@ -13,6 +13,7 @@ import { roleGuard } from './core/guards/role.guard';
 import { AttendanceHistory } from './features/(private)/attendance/pages/attendance-history/attendance-history';
 import { AttendanceAdjustment } from './features/(private)/attendance/pages/attendance-adjustment/attendance-adjustment';
 import { AttendanceAdjustmentApprovals } from './features/(private)/attendance/pages/attendance-adjustment-approvals/attendance-adjustment-approvals';
+import { ScheduleShift } from './features/(private)/attendance/pages/schedule-shifts/schedule-shifts';
 import { LeaveRequest } from './features/(private)/leave-management/pages/new-leave-request/new-leave-request';
 import { LeaveRequestList } from './features/(private)/leave-management/pages/leave-requests-list/leave-requests-list';
 import { LeaveRequestApprovals } from './features/(private)/leave-management/pages/leave-request-approvals/leave-request-approvals';
@@ -35,10 +36,14 @@ export const routes: Routes = [
         data: { roles: ['Admin'] },
       },
       {
-        path: 'employee/new',
-        component: AddEmployee,
+        path: 'employee',
         canActivate: [roleGuard],
         data: { roles: ['Admin'] },
+         children: [
+          { path: '', component: AddEmployee },
+          { path: 'new', component: AddEmployee },
+          { path: ':id/edit', component: AddEmployee },
+        ],
       },
       {
         path: 'employee/new/bulk-upload',
@@ -93,6 +98,12 @@ export const routes: Routes = [
       {
         path: 'attendance/adjustments-approval/all',
         component: AttendanceAdjustmentApprovals,
+        canActivate: [roleGuard],
+        data: { roles: ['Admin', 'User'] },
+      },
+      {
+        path: 'schedule/roster-config',
+        component: ScheduleShift,
         canActivate: [roleGuard],
         data: { roles: ['Admin', 'User'] },
       },

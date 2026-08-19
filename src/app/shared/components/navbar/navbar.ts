@@ -54,6 +54,7 @@ interface ExampleAction {
     TuiIcon,
     TuiAvatar,
     TuiAvatarOutline,
+    RouterLink
   ],
   standalone: true,
   templateUrl: './navbar.html',
@@ -64,45 +65,6 @@ interface ExampleAction {
 })
 export class NavbarComponent {
   protected readonly attendanceService = inject(AttendanceService);
-  searchQuery = signal('');
-  searchFocused = signal(false);
-  searchResults = computed(() => {
-    const query = this.searchQuery().toLowerCase().trim();
-
-    if (query.length < 2) {
-      return [];
-    }
-
-    // 1. Helper function to recursively flatten all items with a routeTo target
-    const flattenNavItems = (items: DropDownItem[]): DropDownItem[] => {
-      return items.reduce<DropDownItem[]>((acc, item) => {
-        // Include current item if it has an actionable route
-        if (item.routeTo) {
-          acc.push(item);
-        }
-
-        // Recursively collect actionable routes from childItems
-        if (item.childItems && item.childItems.length > 0) {
-          acc.push(...flattenNavItems(item.childItems));
-        }
-
-        return acc;
-      }, []);
-    };
-
-    // 2. Extract all searchable leaf routes
-    const allRoutes = flattenNavItems(this.dropdownItems);
-
-    // 3. Filter the flat list based on the search query
-    return allRoutes.filter((route) => {
-      const matchTitle = route.title?.toLowerCase().includes(query) ?? false;
-      const matchDescription = route.description?.toLowerCase().includes(query) ?? false;
-      const matchCategory = route.category?.toLowerCase().includes(query) ?? false;
-      const matchTags = route.tags?.some((tag) => tag.toLowerCase().includes(query)) ?? false;
-
-      return matchTitle || matchDescription || matchCategory || matchTags;
-    });
-  });
   activeIndex = signal(-1);
   menuToggle = output<void>();
 
@@ -197,25 +159,6 @@ export class NavbarComponent {
   protected onSelect(action: ExampleAction): void {
     this.selected.set(action);
     this.quickActionsOpen.set(false);
-  }
-
-  protected navigateTo(routePath: string) {
-    this.router.navigate([routePath]);
-    this.searchQuery.set('');
-    this.searchFocused.set(false);
-    this.activeIndex.set(-1);
-  }
-
-  protected onSearchBlur() {
-    setTimeout(() => {
-      this.searchFocused.set(false);
-      this.activeIndex.set(-1); // Reset highlight when leaving input
-    }, 150);
-  }
-
-  protected handleItemClick(item: DropDownItem): void {
-    this.router.navigate([item.routeTo]);
-    this.searchQuery.set('');
   }
 
   protected onLogout(): void {

@@ -1,0 +1,66 @@
+<div class="flex flex-col w-full mx-auto max-w-7xl gap-5">
+  <app-main-heading title="Reports & Compliance Extraction"
+    description="Select a report, apply filters, and extract it as CSV.">
+    @if (selectedReport()) {
+    <button type="button" tuiButton iconStart="@tui.arrow-left" size="s"
+      class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
+      (click)="changeReport()">
+      Change Report
+    </button>
+    }
+  </app-main-heading>
+
+  @if (!selectedReport()) {
+  <!-- Report picker -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    @for (report of reports; track report.key) {
+    <button type="button" tuiCardLarge
+      class="text-left cursor-pointer drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! hover:bg-(--secondary)/30! transition-colors"
+      (click)="selectReport(report.key)">
+      <div class="flex flex-row gap-3 items-start">
+        <tui-icon [icon]="report.icon" class="text-3xl! text-(--theme1)" />
+        <div class="flex flex-col">
+          <span class="text-base font-semibold text-(--theme2)">{{ report.title }}</span>
+          <span class="text-sm text-(--primary)/60">{{ report.description }}</span>
+        </div>
+      </div>
+    </button>
+    }
+  </div>
+  } @else {
+  <!-- Filters + extract -->
+  <div class="flex flex-col gap-5">
+    <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+      <header class="flex flex-row gap-2 items-center">
+        <tui-icon [icon]="selectedReportDefinition()?.icon ?? '@tui.filter'" class="text-3xl!" />
+        <div class="flex flex-col">
+          <span class="uppercase text-lg font-semibold">{{ selectedReportDefinition()?.title }}</span>
+          <span class="text-(--primary)/50 text-sm">{{ selectedReportDefinition()?.description }}</span>
+        </div>
+      </header>
+
+      @switch (selectedReport()) {
+      @case ('attendance-history') {
+      <app-attendance-history-filter-bar (filterChange)="onAttendanceFilterChange($event)" />
+      }
+      @case ('employee-directory') {
+      <app-employee-filter-bar [employees]="allEmployees()" (filterChange)="onEmployeeFilterChange($event)" />
+      }
+      }
+    </div>
+
+    @if (errorMessage()) {
+    <p class="text-sm text-red-500 m-0">{{ errorMessage() }}</p>
+    }
+
+    <div class="flex justify-end">
+      <button type="button" tuiButton iconStart="@tui.download" size="m"
+        class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
+        [disabled]="!canExtract() || isExtracting()"
+        (click)="extract()">
+        {{ isExtracting() ? 'Extracting…' : 'Extract CSV' }}
+      </button>
+    </div>
+  </div>
+  }
+</div>

@@ -76,7 +76,7 @@ export const DropdownItems: DropDownItem[] = [
   // Attendance Tab (Admin Only)
   {
     id: '3',
-    icon: 'access_time',
+    icon: 'check_circle',
     title: 'Attendance',
     description: 'Department-wise live logs',
     category: 'Attendance Tab',
@@ -144,22 +144,22 @@ export const DropdownItems: DropDownItem[] = [
   },
 
   // Reports Tab (Admin Only)
-  // {
-  //   id: '5',
-  //   icon: 'assessment',
-  //   title: 'Reports',
-  //   description: 'Data generation and report formatting',
-  //   category: 'Reports Tab',
-  //   childItems: [
-  //     {
-  //       id: '5.1',
-  //       icon: 'download',
-  //       title: 'Compliance Extraction',
-  //       description: 'Data generation and report formatting',
-  //       routeTo: '/reports/compliance',
-  //       category: 'Reports Tab',
-  //     },
-  //   ],
-  // },
+  {
+    id: '5',
+    icon: 'assessment',
+    title: 'Reports',
+    description: 'Data generation and report formatting',
+    category: 'Reports Tab',
+    childItems: [
+      {
+        id: '5.1',
+        icon: 'download',
+        title: 'Compliance Extraction',
+        description: 'Data generation and report formatting',
+        routeTo: '/reports/compliance',
+        category: 'Reports Tab',
+      },
+    ],
+  },
 
 ];

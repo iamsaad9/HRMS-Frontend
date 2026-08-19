@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import {
+  changePasswordCommand,
   LoginCommand,
   LoginResponse,
   RegisterCommand,
@@ -130,7 +131,6 @@ export class AuthService {
   }
 
   logout(): Observable<void> {
-    console.log('Logging Out...');
     return this.http.post<void>(`${this.apiUrl}/logout`, {}, { withCredentials: true }).pipe(
       catchError(() => of(void 0)),
       finalize(() => {
@@ -151,6 +151,19 @@ export class AuthService {
     if (this.router.url !== '/login') {
       this.router.navigate(['/login']);
     }
+  }
+
+  changePassword(command:changePasswordCommand):Observable<ApiResponse<any>>{
+    return this.http.post<any>(`${this.apiUrl}/change-password`,command).pipe(
+      tap((response)=>{
+        if(response.isSuccess){
+          this.logout().subscribe();
+        }
+      }),
+      catchError((err)=>{
+        return throwError(()=>err);
+      })
+    )
   }
 
   hasRole(allowedRoles: string[]): boolean {

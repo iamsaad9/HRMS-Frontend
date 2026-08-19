@@ -33,6 +33,7 @@ import { TuiCardLarge } from '@taiga-ui/layout';
 import { PasswordValidator } from "../../../../(public)/auth/components/password-validator/password-validator";
 import { finalize } from 'rxjs';
 import { Employee } from '../../model/employee.model';
+import { AuthService } from '../../../../(public)/auth/services/auth.service';
 
 @Component({
   selector: 'app-add-employee',
@@ -73,6 +74,7 @@ import { Employee } from '../../model/employee.model';
 })
 export class AddEmployee implements OnInit{
   private readonly employeeService = inject(EmployeeService);
+  private readonly authService = inject(AuthService);
   protected readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
@@ -81,6 +83,7 @@ export class AddEmployee implements OnInit{
   protected showValidator = signal<boolean>(false);
   protected form!: FormGroup;
   protected employeeId = signal<string | null>(null);
+  protected currentUserId = this.authService.currentUser()?.employeeInfo?.employeeId;
   protected isEditMode = computed(() => !!this.employeeId());
   protected pageTitle = computed(() => (this.isEditMode() ? 'Edit Employee' : 'Create Employee'));
   protected pageDescription = computed(() =>

@@ -4,6 +4,7 @@ import { Login } from './features/(public)/auth/login/login';
 import MainLayout from './features/(private)/main-layout';
 import { Dashboard } from './features/(private)/dashboard/pages/dashboard';
 import { AddEmployee } from './features/(private)/employees/pages/add-employee/add-employee';
+import { EmployeeView} from './features/(private)/employees/pages/view-employee/view-employee';
 import { BulkUploadEmployee } from './features/(private)/employees/pages/bulk-upload/bulk-upload';
 import { OrgChart } from './features/(private)/employees/pages/org-chart/org-chart';
 import { EmployeeList } from './features/(private)/employees/pages/employee-list/employee-list';
@@ -14,6 +15,7 @@ import { AttendanceHistory } from './features/(private)/attendance/pages/attenda
 import { AttendanceAdjustment } from './features/(private)/attendance/pages/attendance-adjustment/attendance-adjustment';
 import { AttendanceAdjustmentApprovals } from './features/(private)/attendance/pages/attendance-adjustment-approvals/attendance-adjustment-approvals';
 import { ScheduleShift } from './features/(private)/attendance/pages/schedule-shifts/schedule-shifts';
+import { ReportsExtraction } from './features/(private)/reports/pages/report-extraction/report-extraction';
 import { LeaveRequest } from './features/(private)/leave-management/pages/new-leave-request/new-leave-request';
 import { LeaveRequestList } from './features/(private)/leave-management/pages/leave-requests-list/leave-requests-list';
 import { LeaveRequestApprovals } from './features/(private)/leave-management/pages/leave-request-approvals/leave-request-approvals';
@@ -43,6 +45,7 @@ export const routes: Routes = [
           { path: '', component: AddEmployee },
           { path: 'new', component: AddEmployee },
           { path: ':id/edit', component: AddEmployee },
+          { path: ':id/view', component: EmployeeView },
         ],
       },
       {
@@ -104,6 +107,12 @@ export const routes: Routes = [
       {
         path: 'schedule/roster-config',
         component: ScheduleShift,
+        canActivate: [roleGuard],
+        data: { roles: ['Admin', 'User'] },
+      },
+       {
+        path: 'reports/compliance',
+        component: ReportsExtraction,
         canActivate: [roleGuard],
         data: { roles: ['Admin', 'User'] },
       },

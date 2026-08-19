@@ -82,6 +82,11 @@ export class UserCardsComponent {
     && d.getDate() === today.getDate();
 }
 
+ protected initials = computed(() => {
+    if (!this.currentUser) return '';
+    return `${this.currentUser.employeeInfo.firstName[0]?.[0] ?? ''}${this.currentUser.employeeInfo.lastName[0]?.[0] ?? ''}`.toUpperCase();
+  });
+
   fullWeekAttendance = computed(() => {
     const rawData = this.attendanceService.currentMonth() ?? [];
     

@@ -84,6 +84,20 @@ export const EMPTY_EMPLOYEE_FILTER: EmployeeFilter = {
   role: '',
 };
 
+export interface BulkUploadResult {
+  totalRecords: number;
+  successCount: number;
+  failureCount: number;
+  errors: {
+    rowNumber: number;
+    workEmail: string;
+    errorReason: string;
+    rawCsvLine: string;
+  }[];
+  errorCsvBytes: string;
+  errorCsvFileName: string;
+}
+
 export function filterEmployees(
   employees: readonly Employee[],
   filter: EmployeeFilter,

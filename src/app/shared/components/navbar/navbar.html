@@ -122,7 +122,9 @@
           </div>
           <ng-template #userDropdownContent>
             <tui-data-list class="bg-(--background_light)!">
-              <button tuiOption type="button" class="hover:bg-(--primary)/10! border! border-(--accent)! border-dashed" (click)="userDropdownOpen.set(false)"  [routerLink]="['/employee', currentUser?.employeeInfo?.employeeId, 'view']">
+              <button tuiOption type="button" class="hover:bg-(--primary)/10! border! border-(--accent)! border-dashed"
+                (click)="userDropdownOpen.set(false)"
+                [routerLink]="['/employee', currentUser?.employeeInfo?.employeeId, 'view']">
                 <div class="flex items-center gap-2 w-full text-(--background_dark)!">
                   <tui-icon class="scale-80 shrink-0 text-(--accent)" icon="@tui.user-round" />
 
@@ -148,7 +150,7 @@
                 </div>
               </button>
 
-            
+
 
               <button tuiOption type="button" class="hover:bg-(--error)!" (click)="onLogout()">
                 <div class="flex items-center justify-center gap-2 text-(--background_dark)!">

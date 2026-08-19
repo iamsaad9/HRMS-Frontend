@@ -2,7 +2,7 @@
   <div class="flex items-center justify-start gap-2">
     <mat-icon class="text-(--theme2)!">person</mat-icon>
     <div>
-      <h1 class="text-xl! text-(--primary)! font-bold! flex justify-start items-center">
+      <h1 class="text-xl! text-(--primary)! font-bold! flex justify-start items-center uppercase">
         My Profile
       </h1>
       <span class="text-sm text-(--primary)/80">Edit and View your profile details</span>
@@ -180,7 +180,10 @@
       <div class="flex items-center justify-between gap-4 pb-5 border-b border-slate-100">
         <!-- Left Side: Avatar + Details -->
         <div class="flex items-center gap-4 min-w-0">
-          <div tuiAvatar="@tui.user" class="w-16! h-16! rounded-full ring-2 ring-(--secondary) shrink-0"></div>
+          <div
+            class="size-16 rounded-full bg-(--theme1)/15 border border-(--theme1)/25 flex items-center justify-center text-xl font-semibold text-(--theme1) shrink-0">
+            {{ initials() }}
+          </div>
 
           <div class="min-w-0">
             <h3 class="text-xl font-bold text-(--theme2) truncate">

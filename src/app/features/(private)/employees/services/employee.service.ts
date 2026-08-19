@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { AddEmployeeCommand, CreateEmployeeResponse, Employee } from '../model/employee.model';
+import { AddEmployeeCommand, BulkUploadResult, CreateEmployeeResponse, Employee } from '../model/employee.model';
 import { ApiResponse } from '../../../../core/models/api-response.model';
 import { catchError, finalize, Observable, of, tap } from 'rxjs';
 import { LoadingService } from '../../../../core/services/loading.service';
@@ -31,12 +31,13 @@ export class EmployeeService {
     );
   }
 
-  bulkUpload(command:File):Observable<ApiResponse<any>>{
-    const formData = new FormData();
-    formData.append('file', command, command.name);
-     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/bulk-upload`, formData).pipe(
+bulkUpload(file: File, upsert: boolean): Observable<BulkUploadResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upsert', String(upsert));
+     return this.http.post<BulkUploadResult>(`${this.apiUrl}/bulk-upload`, formData).pipe(
       tap((response)=>{
-        if(response.isSuccess){
+        if(response){
           console.log('✅ Employee added successfully');
           this.getAllEmployees().subscribe()
         } 

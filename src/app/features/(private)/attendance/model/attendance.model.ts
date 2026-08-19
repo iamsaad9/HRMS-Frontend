@@ -329,3 +329,52 @@ export const EMPLOYMENT_TYPE_OPTIONS: EmploymentType[] = [
   'Contractor',
   'Intern',
 ];
+
+
+
+
+
+
+
+
+// Admin Attendance View model
+
+export interface DepartmentAttendanceFilter {
+  departmentId: string;
+  startDate: string; // yyyy-MM-dd
+  endDate: string;   // yyyy-MM-dd
+}
+
+export const EMPTY_DEPARTMENT_ATTENDANCE_FILTER: DepartmentAttendanceFilter = {
+  departmentId: '',
+  startDate: '',
+  endDate: '',
+};
+
+
+// One row = one employee's attendance for a single day.
+export interface DepartmentAttendanceRecord {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  departmentId: string;
+  date: string; // yyyy-MM-dd
+  firstIn: string | null;
+  lastOut: string | null;
+  totalHoursWorked: number | null;
+  lateMinutes: number;
+  earlyExitMinutes: number;
+  overtimeHours: number;
+  status: AttendanceStatus;
+}
+
+// Quick-info stats for the department, scoped to the day currently being viewed.
+export interface DepartmentDaySummary {
+  date: string;
+  totalEmployees: number;
+  present: number;
+  absent: number;
+  late: number;
+  avgWorkingHours: number;
+  totalOvertimeHours: number;
+}

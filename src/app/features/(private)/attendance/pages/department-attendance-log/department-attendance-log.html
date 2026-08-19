@@ -1,0 +1,195 @@
+<div class="flex flex-col gap-5 max-w-7xl mx-auto">
+    <app-main-heading title="Department Attendance Log"
+        description="View punch history by department, one day at a time">
+        <div class="flex gap-2">
+            <button type="button" iconStart="@tui.refresh-cw" tuiButton size="s"
+                [disabled]="!hasSearched() || isLoading()" (click)="onRefresh()"
+                class="cursor-pointer bg-(--theme3)! text-white hover:bg-(--theme3)/80! disabled:opacity-40!">
+                Refresh
+            </button>
+        </div>
+    </app-main-heading>
+
+    <!-- Filter Bar -->
+    <div tuiCardLarge
+        class="flex flex-wrap items-end gap-3 shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
+        <label class="flex flex-col gap-1 text-sm text-(--primary) min-w-48">
+            Department
+            <select class="tui-select rounded-md border border-(--secondary)/40 bg-transparent px-2 py-1.5"
+                [ngModel]="filter().departmentId" (ngModelChange)="onDepartmentChange($event)">
+                <option value="" disabled>Select department</option>
+                @for (dept of departments; track $index) {
+                <option [value]="dept">{{ dept }}</option>
+                }
+            </select>
+        </label>
+
+        <label class="flex flex-col gap-1 text-sm text-(--primary)">
+            Start Date
+            <input type="date" class="rounded-md border border-(--secondary)/40 bg-transparent px-2 py-1.5"
+                [ngModel]="filter().startDate" (ngModelChange)="onStartDateChange($event)" />
+        </label>
+
+        <label class="flex flex-col gap-1 text-sm text-(--primary)">
+            End Date
+            <input type="date" class="rounded-md border border-(--secondary)/40 bg-transparent px-2 py-1.5"
+                [ngModel]="filter().endDate" (ngModelChange)="onEndDateChange($event)" />
+        </label>
+
+        <button type="button" tuiButton size="m" [disabled]="isLoading()" (click)="onSearch()"
+            class="cursor-pointer bg-(--theme1)! text-white hover:bg-(--theme1)/80! disabled:opacity-40!">
+            {{ isLoading() ? 'Loading...' : 'Search' }}
+        </button>
+    </div>
+
+    @if (hasSearched()) {
+
+    <!-- Quick Info Cards -->
+    @if (daySummary(); as summary) {
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div tuiCardLarge
+            class="flex flex-col gap-1 shadow-[0_0_5px_rgba(0,0,0,0.15)]! bg-(--secondary)/20! glass-card">
+            <span class="text-xs text-(--primary)/70">Employees</span>
+            <span class="text-xl font-semibold text-(--primary)">{{ summary.totalEmployees }}</span>
+        </div>
+        <div tuiCardLarge
+            class="flex flex-col gap-1 shadow-[0_0_5px_rgba(0,0,0,0.15)]! bg-(--secondary)/20! glass-card">
+            <span class="text-xs text-(--primary)/70">Present</span>
+            <span class="text-xl font-semibold text-green-600">{{ summary.present }}</span>
+        </div>
+        <div tuiCardLarge
+            class="flex flex-col gap-1 shadow-[0_0_5px_rgba(0,0,0,0.15)]! bg-(--secondary)/20! glass-card">
+            <span class="text-xs text-(--primary)/70">Late</span>
+            <span class="text-xl font-semibold text-amber-600">{{ summary.late }}</span>
+        </div>
+        <div tuiCardLarge
+            class="flex flex-col gap-1 shadow-[0_0_5px_rgba(0,0,0,0.15)]! bg-(--secondary)/20! glass-card">
+            <span class="text-xs text-(--primary)/70">Absent</span>
+            <span class="text-xl font-semibold text-red-600">{{ summary.absent }}</span>
+        </div>
+        <div tuiCardLarge
+            class="flex flex-col gap-1 shadow-[0_0_5px_rgba(0,0,0,0.15)]! bg-(--secondary)/20! glass-card">
+            <span class="text-xs text-(--primary)/70">Avg. Working Hrs</span>
+            <span class="text-xl font-semibold text-(--primary)">{{ summary.avgWorkingHours | number: '1.1-2' }}</span>
+        </div>
+        <div tuiCardLarge
+            class="flex flex-col gap-1 shadow-[0_0_5px_rgba(0,0,0,0.15)]! bg-(--secondary)/20! glass-card">
+            <span class="text-xs text-(--primary)/70">Overtime Hrs</span>
+            <span class="text-xl font-semibold text-(--primary)">{{ summary.totalOvertimeHours | number: '1.1-2'
+                }}</span>
+        </div>
+    </div>
+    }
+
+    <!-- Table Container -->
+    <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20!">
+        <div class="flex items-center justify-between px-4 py-2 text-sm font-semibold text-(--primary)">
+            <span>{{ currentDateLabel() }}</span>
+            <span class="text-(--primary)/60 font-normal">{{ currentDayRecords().length }} employee(s)</span>
+        </div>
+
+        <table tuiTable class="attendance-table w-full" size="m">
+            <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
+                <tr>
+                    <th tuiTh>Actions</th>
+                    <th tuiTh>Employee</th>
+                    <th tuiTh>Clock In</th>
+                    <th tuiTh>Clock Out</th>
+                    <th tuiTh>Total Hours</th>
+                    <th tuiTh>Late (min)</th>
+                    <th tuiTh>Early Exit (min)</th>
+                    <th tuiTh>Overtime</th>
+                    <th tuiTh>Status</th>
+                </tr>
+            </thead>
+            <tbody tuiTbody>
+                @for (record of currentDayRecords(); track record.id) {
+                <tr class="text-(--primary)">
+                    <td tuiTd class="col-actions w-5">
+                        <span tuiStatus>
+                            <button appearance="action" iconStart="@tui.pen" size="xs" tuiIconButton type="button"
+                                (click)="onEdit(record)" class="text-(--theme1)!">
+                                Edit
+                            </button>
+                        </span>
+                    </td>
+
+                    <td tuiTd class="font-medium">
+                        <div class="flex flex-col">
+                            <span>{{ record.employeeName }}</span>
+                            <span class="text-xs text-(--primary)/60">{{ record.employeeId }}</span>
+                        </div>
+                    </td>
+
+                    <td tuiTd>{{ record.firstIn ? (record.firstIn | date: 'shortTime') : 'N/A' }}</td>
+                    <td tuiTd>{{ record.lastOut ? (record.lastOut | date: 'shortTime') : 'N/A' }}</td>
+
+                    <td tuiTd>
+                        {{ record.totalHoursWorked != null ? (record.totalHoursWorked | number: '1.1-2') + ' hrs' :
+                        'N/A' }}
+                    </td>
+
+                    <td tuiTd>{{ record.lateMinutes ?? 0 }} min</td>
+                    <td tuiTd>{{ record.earlyExitMinutes ?? 0 }} min</td>
+
+                    <td tuiTd>
+                        {{ record.overtimeHours ? record.overtimeHours + ' hrs' : '0 hrs' }}
+                    </td>
+
+                    <td tuiTd>
+                        <span tuiBadge [appearance]="statusAppearance(record.status)">
+                            {{ record.status }}
+                        </span>
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td tuiTd colspan="9" class="text-center py-6 text-(--primary)/60">
+                        No records for this day.
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Day Pagination: one page per day in the selected range -->
+    @if (totalPages() > 1) {
+    <div tuiCardLarge
+        class="flex flex-row! items-center! justify-center gap-2 shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
+        <button type="button" tuiButton size="s" [disabled]="currentPage() === 1" (click)="previousPage()"
+            class="cursor-pointer disabled:opacity-40">
+            <tui-icon icon="@tui.chevron-left" />
+        </button>
+
+        @if (visiblePages()[0] > 1) {
+        <button type="button" tuiButton appearance="flat" size="s" (click)="goToPage(1)"
+            class="cursor-pointer">1</button>
+        <span class="text-(--primary)/50">…</span>
+        }
+
+        @for (page of visiblePages(); track page) {
+        <button type="button" tuiButton size="s" (click)="goToPage(page)"
+            [appearance]="page === currentPage() ? 'primary' : 'flat'" class="cursor-pointer min-w-9">
+            {{ page }}
+        </button>
+        }
+
+        @if (visiblePages()[visiblePages().length - 1] < totalPages()) { <span class="text-(--primary)/50">…</span>
+            <button type="button" tuiButton appearance="flat" size="s" (click)="goToPage(totalPages())"
+                class="cursor-pointer">{{ totalPages() }}</button>
+            }
+
+            <button type="button" tuiButton size="s" [disabled]="currentPage() === totalPages()" (click)="nextPage()"
+                class="cursor-pointer disabled:opacity-40">
+                <tui-icon icon="@tui.chevron-right" />
+            </button>
+    </div>
+    }
+
+    } @else {
+    <div tuiCardLarge class="text-center py-10 text-(--primary)/60 bg-(--secondary)/20! glass-card">
+        Select a department and date range, then click Search.
+    </div>
+    }
+</div>

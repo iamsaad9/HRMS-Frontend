@@ -2,7 +2,7 @@
   <div class="flex items-center justify-start gap-2">
     <mat-icon class="text-(--theme2)!">track_changes</mat-icon>
     <div>
-      <h1 class="text-xl! text-(--primary)! font-bold! flex justify-start items-center">
+      <h1 class="text-xl! text-(--primary)! font-bold! flex justify-start items-center uppercase">
         My Performance
       </h1>
       <span class="text-sm text-(--primary)/80">Track your overall performance.</span>
@@ -16,7 +16,7 @@
 
       <div class="flex items-center justify-between border-b border-(--secondary) pb-3">
         <div>
-          <h3 class="text-xl font-bold text-(--theme2)">Shift History</h3>
+          <h3 class="text-xl font-bold text-(--theme2) uppercase">Shift History</h3>
           <p class="text-sm text-(--primary)/80">Last 7 days attendance record</p>
         </div>
         <button type="button" tuiButton appearance="flat" size="s" (click)="router.navigate(['attendance/history'])"
@@ -91,8 +91,8 @@
       class="bg-(--background_light)/40! grid-cols-2! flex flex-1 flex-col justify-between rounded-xl p-6 drop-shadow-sm text-(--primary) overflow-visible border! border-(--secondary)/20!">
       <div class="flex items-center justify-between border-b border-(--secondary) pb-4">
         <div>
-          <h3 class="text-lg font-bold text-(--theme2)">Work Hour Overview</h3>
-          <p class="text-xs text-(--primary)/80">Last {{ punches().length }} days work hour overview.</p>
+          <h3 class="text-lg font-bold text-(--theme2) uppercase">Work Hour Overview</h3>
+          <p class="text-sm text-(--primary)/80">Last {{ punches().length }} days work hour overview.</p>
         </div>
 
 

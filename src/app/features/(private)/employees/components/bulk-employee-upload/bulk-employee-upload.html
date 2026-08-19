@@ -3,7 +3,6 @@
     <app-main-heading title="Employee Bulk Upload" description="Add multiple employees using a CSV file">
       <button tuiButton type="button" class="bg-(--theme1)!" size="s" [disabled]="isDownloadingTemplate()"
         (click)="downloadTemplate()">
-
         Download Template CSV
       </button>
     </app-main-heading>
@@ -34,25 +33,47 @@
       }
     </tui-files>
 
+    <!-- UPSERT OPTION -->
+    @if (selectedFile()) {
+    <div class="p-4 border border-(--theme1)/70 bg-(--theme1)/10 rounded-lg w-full">
+      <label class="flex items-center gap-2 text-sm cursor-pointer select-none w-fit bg-">
+        <input tuiCheckbox type="checkbox" [formControl]="upsertControl"
+          class="h-4 w-4 checked:bg-(--theme1)! cursor-pointer" />
+        <span>Update existing employees if duplicates are found (Upsert)?</span>
+      </label>
+    </div>
+    }
+
     <!-- ACTIONS AND STATUS -->
     @if (selectedFile()) {
     <div class="flex items-center justify-between mt-4">
-      <span class="text-sm p-1 px-2 rounded-full bg-(--secondary)">
+      <span class="text-sm p-1 px-2 rounded-full bg-(--success)/50">
         Ready to upload
       </span>
 
-      <button tuiButton type="button" size="m" class="bg-(--theme1)!" (click)="startUpload()"
-        [disabled]="isUploading()">
-        <div class="flex items-center justify-center gap-2">
-          @if (isUploading()) {
-          <span
-            class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"></span>
-          <span>Uploading…</span>
-          } @else {
-          <span>Start Upload</span>
-          }
-        </div>
-      </button>
+      <div class="flex gap-5 items-center">
+        @if (isError() && result()?.errorCsvBytes) {
+        <button type="button" tuiButton size="s" iconStart="@tui.download" (click)="downloadErrorCsv()"
+          class="cursor-pointer bg-(--theme2)! text-white hover:bg-(--theme2)/80!">
+          Download Error CSV
+        </button>
+        }
+
+        <button tuiButton type="button" size="m" class="bg-(--theme1)!" [iconStart]="isError() ? '@tui.rotate-ccw':''"
+          (click)="isError() ? resetAll() : startUpload()" [disabled]="isUploading()">
+          <div class="flex items-center justify-center gap-2">
+
+            @if (isUploading()) {
+            <span class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+            <span>Uploading…</span>
+            } @else if (isError()) {
+            <span>Retry</span>
+            } @else {
+            <span>Start Upload</span>
+            }
+          </div>
+        </button>
+      </div>
     </div>
     }
 
@@ -83,29 +104,12 @@
         Partially completed: {{ r.successCount }} succeeded, {{ r.failureCount }} failed. See details below.
       </div>
       } @else if (r.failureCount > 0) {
-      <div class="p-3 text-sm rounded-lg bg-(--error)/50 text-(--background_dark) border border-(--secondary)">
-        Upload failed for all {{ r.failureCount }} record{{ r.failureCount === 1 ? '' : 's' }}. See details below.
+      <div class="p-3 text-sm rounded-lg bg-(--error)/20 text-(--background_dark) border border-red-800">
+        Upload failed for all {{ r.failureCount }} record{{ r.failureCount === 1 ? '' : 's' }}.
       </div>
       }
 
-      <!-- Collapsible error list -->
-      @if (r.errors.length) {
-      <div class="flex flex-col gap-2">
-        <button type="button" tuiButton appearance="flat" size="s"
-          class="self-start cursor-pointer! bg-transparent! text-(--theme1)! underline!" (click)="toggleErrors()">
-          {{ showErrors() ? 'Hide' : 'Show' }} error details ({{ r.errors.length }})
-        </button>
 
-        @if (showErrors()) {
-        <ul
-          class="flex flex-col gap-1 max-h-64 overflow-y-auto rounded-lg border border-(--secondary) bg-(--error)/50 p-3">
-          @for (err of r.errors; track err) {
-          <li class="text-sm text-(--background_dark)">{{ err }}</li>
-          }
-        </ul>
-        }
-      </div>
-      }
     </div>
     }
   </div>

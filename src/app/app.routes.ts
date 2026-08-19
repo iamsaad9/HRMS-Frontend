@@ -12,6 +12,7 @@ import { guestGuard } from './core/guards/guest.guard';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 import { AttendanceHistory } from './features/(private)/attendance/pages/attendance-history/attendance-history';
+import { DepartmentAttendanceLog } from './features/(private)/attendance/pages/department-attendance-log/department-attendance-log';
 import { AttendanceAdjustment } from './features/(private)/attendance/pages/attendance-adjustment/attendance-adjustment';
 import { AttendanceAdjustmentApprovals } from './features/(private)/attendance/pages/attendance-adjustment-approvals/attendance-adjustment-approvals';
 import { ScheduleShift } from './features/(private)/attendance/pages/schedule-shifts/schedule-shifts';
@@ -65,6 +66,12 @@ export const routes: Routes = [
       {
         path: 'attendance/history',
         component: AttendanceHistory,
+        canActivate: [roleGuard],
+        data: { roles: ['Admin'] },
+      }, 
+      {
+        path: 'attendance/daily-logs',
+        component: DepartmentAttendanceLog,
         canActivate: [roleGuard],
         data: { roles: ['Admin'] },
       },

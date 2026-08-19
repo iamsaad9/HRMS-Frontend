@@ -1,20 +1,15 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TuiAppearance, TuiButton, TuiIcon } from '@taiga-ui/core';
+import { TuiAppearance, TuiButton, TuiCheckbox, TuiIcon } from '@taiga-ui/core';
 import { TuiBadge, TuiChip, TuiFiles, TuiProgress, type TuiFileLike } from '@taiga-ui/kit';
 import { TuiCardLarge, TuiSurface } from '@taiga-ui/layout';
 import { catchError, finalize, of, Subject, tap } from 'rxjs';
 import { EmployeeService } from '../../services/employee.service';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { ToastService } from '../../../../../core/services/toast.service';
+import { BulkUploadResult } from '../../model/employee.model';
 
-interface BulkUploadResult {
-  totalRecords: number;
-  successCount: number;
-  failureCount: number;
-  errors: string[];
-}
 
 @Component({
   selector: 'app-bulk-employee-upload',
@@ -30,6 +25,7 @@ interface BulkUploadResult {
     TuiAppearance,
     MainHeading,
     TuiCardLarge,
+    TuiCheckbox
   ],
   templateUrl: './bulk-employee-upload.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,6 +36,9 @@ export class BulkEmployeeUpload {
 
   protected readonly control = new FormControl<TuiFileLike | null>(null, Validators.required);
 
+  // NEW: controls whether duplicate rows should be updated (upsert) or skipped/failed
+  protected readonly upsertControl = new FormControl<boolean>(false, { nonNullable: true });
+
   protected readonly failedFiles$ = new Subject<TuiFileLike | null>();
 
   protected readonly selectedFile = signal<File | null>(null);
@@ -47,8 +46,7 @@ export class BulkEmployeeUpload {
   protected readonly isUploading = signal(false);
   protected readonly isSuccess = signal(false);
   protected readonly isError = signal(false);
-  
-  // NEW: holds the structured result so the template can render counts + errors
+
   protected readonly result = signal<BulkUploadResult | null>(null);
   protected readonly showErrors = signal(false);
 
@@ -66,8 +64,13 @@ export class BulkEmployeeUpload {
     this.isError.set(false);
     this.result.set(null);
     this.showErrors.set(false);
+    this.upsertControl.setValue(false); // reset on removal
     this.failedFiles$.next(null);
   }
+
+  protected resetAll(): void {
+  this.removeFile();
+}
 
   protected processFile(file: TuiFileLike | null): void {
     this.failedFiles$.next(null);
@@ -108,21 +111,20 @@ export class BulkEmployeeUpload {
     this.result.set(null);
     this.showErrors.set(false);
 
+    const upsert = this.upsertControl.value;
+
     this.employeeService
-      .bulkUpload(fileToUpload)
+      .bulkUpload(fileToUpload, upsert)
       .pipe(
         tap((response) => {
-          const data = response?.data as BulkUploadResult | undefined;
+          const data = response as BulkUploadResult | undefined;
           this.result.set(data ?? null);
 
-          // Treat as "success" only if at least one row succeeded
-          // and there were no failures — tweak this rule to match
-          // how you want partial successes (some rows ok, some not) treated.
           const allSucceeded = !!data && data.failureCount === 0 && data.successCount > 0;
           const partialOrFullFailure = !!data && data.failureCount > 0;
 
           this.isSuccess.set(allSucceeded);
-          this.isError.set(partialOrFullFailure || !response?.isSuccess);
+          this.isError.set(partialOrFullFailure || !response?.successCount == !response?.totalRecords);
         }),
         catchError((error) => {
           this.isError.set(true);
@@ -132,10 +134,32 @@ export class BulkEmployeeUpload {
         }),
         finalize(() => {
           this.isUploading.set(false);
+          console.log('Result: ',this.result());
         }),
       )
       .subscribe();
   }
+
+  protected downloadErrorCsv(): void {
+  const data = this.result();
+  if (!data?.errorCsvBytes) return;
+
+  const byteCharacters = atob(data.errorCsvBytes);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: 'text/csv' });
+
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = data.errorCsvFileName || 'upload-errors.csv';
+  link.click();
+  window.URL.revokeObjectURL(url);
+}
+
 
   protected downloadTemplate(): void {
     this.isDownloadingTemplate.set(true);
@@ -174,4 +198,8 @@ export class BulkEmployeeUpload {
       'Request failed'
     );
   }
+
+
+
+
 }

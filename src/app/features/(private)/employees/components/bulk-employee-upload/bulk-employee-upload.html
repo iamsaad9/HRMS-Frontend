@@ -1,8 +1,8 @@
 <div class="w-full flex flex-col gap-5 max-w-7xl mx-auto">
   <header>
     <app-main-heading title="Employee Bulk Upload" description="Add multiple employees using a CSV file">
-      <button tuiButton type="button" class="bg-(--theme1)!" size="s" [disabled]="isDownloadingTemplate()"
-        (click)="downloadTemplate()">
+      <button tuiButton type="button" class="bg-(--theme1)!" size="s" iconStart="@tui.download"
+        [disabled]="isDownloadingTemplate()" (click)="downloadTemplate()">
         Download Template CSV
       </button>
     </app-main-heading>
@@ -15,12 +15,22 @@
     <label tuiInputFiles class="h-50!">
       <input accept=".csv,text/csv" tuiInputFiles [formControl]="control" class="border! border-(--theme1)!" />
     </label>
+
+    <!-- UPSERT OPTION -->
+    <div class="p-4 border border-(--theme1)/70 bg-(--theme1)/10 rounded-lg w-full">
+      <label class="flex items-center gap-2 text-sm cursor-pointer select-none w-fit bg-">
+        <input tuiCheckbox type="checkbox" [formControl]="upsertControl"
+          class="h-4 w-4 checked:bg-(--theme1)! cursor-pointer" />
+        <span>Update existing employees if duplicates are found (Upsert)?</span>
+      </label>
+    </div>
     }
 
     <!-- TAIGA UI FILE LIST -->
     <tui-files class="tui-space_top-1">
       @if (control.value | tuiFileRejected: { accept: '.csv,text/csv' } | async; as file) {
       <tui-file state="error" [file]="file" (remove)="removeFile()" />
+
       }
 
       @if (selectedFile(); as file) {
@@ -48,7 +58,12 @@
     @if (selectedFile()) {
     <div class="flex items-center justify-between mt-4">
       <span class="text-sm p-1 px-2 rounded-full bg-(--success)/50">
+        @if(isError() ){
+        Error
+        }@else{
         Ready to upload
+        }
+
       </span>
 
       <div class="flex gap-5 items-center">

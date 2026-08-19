@@ -26,10 +26,12 @@
   <div class="flex flex-col w-full gap-5">
     @if(currentUser?.roles?.includes("Admin")){
     <app-quick-cards />
+    }
+    <app-performance-section></app-performance-section>
+    @if(currentUser?.roles?.includes("Admin")){
     <app-operations-section />
     }
     <app-user-cards></app-user-cards>
-    <app-performance-section></app-performance-section>
 
   </div>
 </div>

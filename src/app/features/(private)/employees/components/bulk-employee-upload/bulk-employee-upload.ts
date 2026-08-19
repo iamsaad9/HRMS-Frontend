@@ -112,7 +112,7 @@ export class BulkEmployeeUpload {
     this.showErrors.set(false);
 
     const upsert = this.upsertControl.value;
-
+    console.log("Upsert: ",upsert);
     this.employeeService
       .bulkUpload(fileToUpload, upsert)
       .pipe(

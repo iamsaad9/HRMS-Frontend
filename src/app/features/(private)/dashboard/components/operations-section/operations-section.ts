@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 import { catchError, finalize, forkJoin, map, of } from 'rxjs';
 import { LeaveRequestsService } from '../../../leave-management/service/leave-requests.service';
 import { ApproveRejectLeaveRequest, LeaveRequestResponse } from '../../../leave-management/model/leave-request.model';
-import { TeamMember } from '../performance-section/performance-section.model';
+import { TeamMember } from '../performance-section/performance-section';
 
 @Component({
   selector: 'app-operations-section',

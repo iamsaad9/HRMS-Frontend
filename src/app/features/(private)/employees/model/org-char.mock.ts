@@ -5,7 +5,7 @@ import { Employee } from "./employee.model";
  * reporting to her, and managers/ICs beneath them. Swap this out for your
  * real EmployeeService call once wired up.
  */
-export const MOCK_EMPLOYEES: Employee[] = [
+export const MOCK_EMPLOYEES: any[] = [
   {
     id: 'e-001',
     userId: 'u-001',

@@ -10,6 +10,37 @@ export interface EmployeeDetailsForm {
   requireVisa: boolean | null;
 }
 
+export interface CreateEmployeeCommand{
+   firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  dob: Date | null;
+  department: string | null;
+  employmentType: string | null;
+  isRemote: boolean | null;
+  requireVisa: boolean | null;
+}
+
+export interface UpdateEmployeeCommand{
+   staffNo: string;
+   title: string;
+   firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: string;
+  workEmail: string;
+  mobile: string | null;
+  niNumber: string | null;
+  startDate: string | null;
+  department: string | null;
+  employmentType: string | null;
+  departmentId: string | null;
+  branchId: string | null;
+  designationId: string | null;
+  managerId: string | null;
+}
+
 export interface AdditionalDetailsForm {
   password: string;
 }
@@ -46,22 +77,29 @@ export interface Employee {
   id: string;
   userId: string;
   staffNo: string;
+  title: string;
   firstName: string;
-  fullName: string;
   lastName: string;
-  email: string;
+  fullName: string;
+  dateOfBirth: string;
+  gender: string;
+  workEmail: string;
+  mobile: string;
+  niNumber: string;
+  startDate: string;
+  employmentType: string | null;
+  isActive: boolean;
+  createdAtUtc: Date | null;
   departmentId?: string;
   departmentName?: string;
   branchId?: string;
   branchName?: string;
-  jobTitleId?: string;
-  jobTitleName?: string;
+  designationId?: string;
+  designationTitle?: string;
   managerId?: string;
   managerName?: string;
-  isActive: boolean;
-  createdAtUtc: Date;
-  role: string | null;
-  status: string | null;
+  managerEmail?: string;
+  shiftCode?:string;
 }
 
 export interface EmployeeFilter {
@@ -110,12 +148,11 @@ export function filterEmployees(
       !search ||
       employee.firstName.toLowerCase().includes(search) ||
       employee.lastName.toLowerCase().includes(search) ||
-      employee.email.toLowerCase().includes(search);
+      employee.workEmail.toLowerCase().includes(search);
     const matchesDepartment = !filter.departmentId || employee.departmentId === filter.departmentId;
     const matchesBranch = !filter.branchId || employee.branchId === filter.branchId;
     const matchesManager = !filter.managerId || employee.managerId === filter.managerId;
-    const matchesStatus = !filter.status || employee.status === filter.status;
-    const matchesRole = !role || employee.role?.toLowerCase() === role;
+    const matchesRole = !role || employee.workEmail?.toLowerCase() === role;
     const isActive =
       filter.isActive === null ||
       filter.isActive === undefined ||
@@ -124,7 +161,6 @@ export function filterEmployees(
     return (
       matchesSearch &&
       matchesDepartment &&
-      matchesStatus &&
       matchesBranch &&
       matchesManager &&
       matchesRole &&

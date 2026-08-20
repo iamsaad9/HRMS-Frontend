@@ -15,9 +15,7 @@
                 [title]="node.employee.fullName">
                 {{ node.employee.fullName }}
             </p>
-            <p class="text-xs text-(--primary)/60 m-0 truncate" [title]="node.employee.jobTitleName">
-                {{ node.employee.jobTitleName || 'No title' }}
-            </p>
+
             @if (node.employee.departmentName) {
             <p class="text-[10px] text-(--primary)/40 m-0 truncate">{{ node.employee.departmentName }}</p>
             }

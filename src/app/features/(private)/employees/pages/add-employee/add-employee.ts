@@ -131,7 +131,7 @@ export class AddEmployee implements OnInit{
       firstName: data.firstName ?? '',
       lastName: data.lastName ?? '',
       // dob:  '',
-      email:data.email ?? '',
+      email:data.workEmail ?? '',
       // gender:''
       // niNumber:''
       department:data.departmentName ?? '',

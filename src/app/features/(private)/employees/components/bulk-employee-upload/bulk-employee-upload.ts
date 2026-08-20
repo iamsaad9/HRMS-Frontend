@@ -98,47 +98,53 @@ export class BulkEmployeeUpload {
     return name.endsWith('.csv');
   }
 
-  protected startUpload(): void {
-    const fileToUpload = this.selectedFile();
+ protected startUpload(): void {
+  const fileToUpload = this.selectedFile();
 
-    if (!fileToUpload || this.isUploading()) {
-      return;
-    }
-
-    this.isUploading.set(true);
-    this.isSuccess.set(false);
-    this.isError.set(false);
-    this.result.set(null);
-    this.showErrors.set(false);
-
-    const upsert = this.upsertControl.value;
-    console.log("Upsert: ",upsert);
-    this.employeeService
-      .bulkUpload(fileToUpload, upsert)
-      .pipe(
-        tap((response) => {
-          const data = response as BulkUploadResult | undefined;
-          this.result.set(data ?? null);
-
-          const allSucceeded = !!data && data.failureCount === 0 && data.successCount > 0;
-          const partialOrFullFailure = !!data && data.failureCount > 0;
-
-          this.isSuccess.set(allSucceeded);
-          this.isError.set(partialOrFullFailure || !response?.successCount == !response?.totalRecords);
-        }),
-        catchError((error) => {
-          this.isError.set(true);
-          const message = this.extractErrorMessage(error);
-          this.toast.error?.(message);
-          return of(null);
-        }),
-        finalize(() => {
-          this.isUploading.set(false);
-          console.log('Result: ',this.result());
-        }),
-      )
-      .subscribe();
+  if (!fileToUpload || this.isUploading()) {
+    return;
   }
+
+  this.isUploading.set(true);
+  this.isSuccess.set(false);
+  this.isError.set(false);
+  this.result.set(null);
+  this.showErrors.set(false);
+
+  const upsert = this.upsertControl.value;
+
+  this.employeeService
+    .bulkUpload(fileToUpload, upsert)
+    .pipe(
+      tap((response) => {
+        const data = response as BulkUploadResult | undefined;
+        this.result.set(data ?? null);
+
+        if (data) {
+          const hasFailures = data.failureCount > 0;
+          const hasSuccesses = data.successCount > 0;
+
+          // Success if all records succeeded without failures
+          this.isSuccess.set(hasSuccesses && !hasFailures);
+          
+          // Error if there were any failures or if no records succeeded at all
+          this.isError.set(hasFailures || data.successCount === 0);
+        } else {
+          this.isError.set(true);
+        }
+      }),
+      catchError((error) => {
+        this.isError.set(true);
+        const message = this.extractErrorMessage(error);
+        this.toast.error?.(message);
+        return of(null);
+      }),
+      finalize(() => {
+        this.isUploading.set(false);
+      }),
+    )
+    .subscribe();
+}
 
   protected downloadErrorCsv(): void {
   const data = this.result();

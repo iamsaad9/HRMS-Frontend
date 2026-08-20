@@ -56,7 +56,6 @@ export function computeSearchMatches(roots: OrgNode[], term: string): Set<string
     const emp = node.employee;
     const selfMatch =
       emp.fullName.toLowerCase().includes(term) ||
-      (emp.jobTitleName?.toLowerCase().includes(term) ?? false) ||
       (emp.departmentName?.toLowerCase().includes(term) ?? false);
     const childMatch = node.children.map(visit).some(Boolean);
     if (selfMatch || childMatch) matchIds.add(node.employee.id);

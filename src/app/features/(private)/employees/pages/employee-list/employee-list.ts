@@ -45,6 +45,7 @@ import { EmployeeService } from '../../services/employee.service';
 import { RouterLink } from '@angular/router';
 import { DropdownSelectorComponent } from '../../../../../shared/components/dropdown-selector/dropdown-selector';
 import { TuiActiveZone, TuiObscured } from '@taiga-ui/cdk';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-employee-table',
@@ -69,6 +70,7 @@ import { TuiActiveZone, TuiObscured } from '@taiga-ui/cdk';
     TuiCardLarge,
     RouterLink,
     TuiDataList,
+    DatePipe
   ],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.less',
@@ -141,7 +143,7 @@ export class EmployeeList implements OnInit {
       const matchesSearch =
         !currentFilter.search ||
         emp.fullName?.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
-        emp.email?.toLowerCase().includes(currentFilter.search.toLowerCase());
+        emp.workEmail?.toLowerCase().includes(currentFilter.search.toLowerCase());
 
       const matchesDept =
         !currentFilter.departmentId || emp.departmentId === currentFilter.departmentId;
@@ -151,10 +153,9 @@ export class EmployeeList implements OnInit {
         (emp as any).role === currentFilter.role ||
         (emp as any).designation === currentFilter.role;
 
-      const matchesStatus = !currentFilter.status || emp.status === currentFilter.status;
       const matchIsActive = !currentFilter.isActive || emp.isActive === currentFilter.isActive;
 
-      return matchesSearch && matchesDept && matchesRole && matchesStatus && matchIsActive;
+      return matchesSearch && matchesDept && matchesRole && matchIsActive;
     });
   });
 
@@ -176,19 +177,23 @@ export class EmployeeList implements OnInit {
 
     // 1. Define CSV headers and corresponding object keys
     const columns: { label: string; key: keyof Employee }[] = [
-      { label: 'Staff No', key: 'staffNo' },
-      { label: 'Full Name', key: 'fullName' },
-      { label: 'First Name', key: 'firstName' },
-      { label: 'Last Name', key: 'lastName' },
-      { label: 'Email', key: 'email' },
-      { label: 'Department', key: 'departmentName' },
-      { label: 'Branch', key: 'branchName' },
-      { label: 'Job Title', key: 'jobTitleName' },
-      { label: 'Manager', key: 'managerName' },
-      { label: 'Role', key: 'role' },
-      { label: 'Status', key: 'status' },
-      { label: 'Is Active', key: 'isActive' },
-      { label: 'Created At', key: 'createdAtUtc' },
+      { label: 'Title', key: 'title' },
+      { label: 'FirstName', key: 'firstName' },
+      { label: 'LastName', key: 'lastName' },
+      { label: 'WorkEmail', key: 'workEmail' },
+      { label: 'Gender', key: 'gender' },
+      { label: 'DateOfBirth', key: 'dateOfBirth' },
+      { label: 'Mobile', key: 'mobile' },
+      { label: 'NINumber', key: 'niNumber' },
+      { label: 'StartDate', key: 'startDate' },
+      { label: 'EmploymentType', key: 'employmentType' },
+      { label: 'ShiftCode', key: 'shiftCode' },
+      { label: 'DepartmentName', key: 'departmentName' },
+      { label: 'BranchName', key: 'branchName' },
+      { label: 'DesignationName', key: 'designationTitle' },
+      { label: 'ManagerEmail', key: 'managerEmail' },
+      { label: 'IsActive', key: 'isActive' },
+      { label: 'CreatedAtUTC', key: 'createdAtUtc' },
     ];
 
     // 2. Build CSV header row
@@ -200,7 +205,6 @@ export class EmployeeList implements OnInit {
         .map((col) => {
           const val = emp[col.key];
           
-          // Format specific data types safely
           if (val === null || val === undefined) return '""';
           if (val instanceof Date) return this.escapeCsvField(val.toISOString());
           

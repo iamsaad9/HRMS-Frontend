@@ -12,7 +12,7 @@
   <div class="flex gap-5">
     <!-- 7 Days Clock-in / Clock-out History Card -->
     <div tuiCardLarge
-      class="bg-(--background_light)/40! min-w-2xl rounded-2xl  border! border-(--secondary)/20! drop-shadow-sm flex flex-col gap-1!">
+      class="bg-(--background_light)/40! min-w-md rounded-2xl  border! border-(--secondary)/20! drop-shadow-sm flex flex-col gap-1!">
 
       <div class="flex items-center justify-between border-b border-(--secondary) pb-3">
         <div>
@@ -33,7 +33,6 @@
               <th class="py-3 px-2 font-semibold">Date</th>
               <th class="py-3 px-2 font-semibold">Clock In</th>
               <th class="py-3 px-2 font-semibold">Clock Out</th>
-              <th class="py-3 px-2 font-semibold">Work Hours</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-(--secondary)">
@@ -42,7 +41,8 @@
             <tr (click)="router.navigate([`attendance/adjustment/${day.record?.id}`])"
               [class.bg-(--success)/10]="isToday(day.dateStr)"
               class="hover:bg-(--secondary)/20 transition-colors cursor-pointer ">
-              <td  [class.border-l-2!]="isToday(day.dateStr)" [class.border-(--success)/70!]="isToday(day.dateStr)" class="py-2 px-2 font-semibold text-(--primary)">
+              <td [class.border-l-2!]="isToday(day.dateStr)" [class.border-(--success)/70!]="isToday(day.dateStr)"
+                class="py-2 px-2 font-semibold text-(--primary)">
                 {{ day.dateStr | date: 'EEE, MMM d' }}
               </td>
 
@@ -70,16 +70,6 @@
                 </span>
               </td>
 
-              <td class="py-2 px-2 text-(--primary)">
-                <span class="inline-flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full"></span>
-                  @if (day.record?.workingHours) {
-                  {{ day.record?.workingHours}} Hr
-                  } @else {
-                  <span class="text-(--primary)/40 italic">N/A</span>
-                  }
-                </span>
-              </td>
             </tr>
             }
           </tbody>
@@ -105,11 +95,11 @@
 
     </div>
 
-     <div tuiCardLarge
+    <div tuiCardLarge
       class="min-w-sm bg-(--background_light)! rounded-2xl p-6 drop-shadow-sm flex flex-col justify-between border-2! border-(--error)!"
       [class.border-(--success)!]="attendanceService.isClockedIn()">
       <div>
-        
+
         <div class="flex items-center justify-between pb-5 border-b border-(--primary)/20">
           <div>
             <span class="text-xs font-semibold text-(--primary)/60 uppercase tracking-wider block">
@@ -150,7 +140,15 @@
             <!-- STATE 1: Not clocked in -->
             <button (click)="onClockIn()"
               class="col-span-2 flex items-center justify-center p-3 rounded-xl bg-emerald-400 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
+              @if(isPunchingIn()){
+              <div class="flex items-center justify-center gap-2">
+                <span
+                  class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"></span>
+                <span class="uppercase font-bold text-md text-(--background_light)">Clocking In..</span>
+              </div>
+              }@else {
               <span class="uppercase font-bold text-md text-(--background_light)">Clock In</span>
+              }
             </button>
 
             } @else if (!attendanceService.isClockedOut()) {
@@ -164,10 +162,20 @@
             </div>
 
             <!-- Clock Out disabled while ANY break is still open -->
+
+
             <button (click)="onClockOut()" [disabled]="!canClockOut()" [class.opacity-50]="!canClockOut()"
               [class.cursor-not-allowed]="!canClockOut()" [class.cursor-pointer]="canClockOut()"
               class="flex items-center justify-center p-3 rounded-xl bg-(--error) active:scale-95 transition-all duration-300 drop-shadow-md">
-              <span class="uppercase font-bold text-md text-white">Clock Out</span>
+              @if(isPunchingIn()){
+              <div class="flex items-center justify-center gap-2">
+                <span
+                  class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"></span>
+                <span class="uppercase font-bold text-md text-(--background_light)">Clocking Out..</span>
+              </div>
+              }@else {
+              <span class="uppercase font-bold text-md text-(--background_light)">Clock Out</span>
+              }
             </button>
 
             <!-- List every break session so far -->

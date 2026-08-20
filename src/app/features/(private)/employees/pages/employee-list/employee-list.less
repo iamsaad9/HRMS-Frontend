@@ -9,12 +9,12 @@
 
 .table-scroll {
     width: 100%;
-    overflow-x: auto;
+    overflow-x: scroll !important;
 }
 
 table {
-    overflow: hidden;
     border-radius: 20px !important;
+    overflow-x: scroll !important;
 }
 
 .employee_thead {
@@ -29,6 +29,11 @@ td {
 
 }
 
+
+td {
+    min-width: 8rem !important;
+}
+
 [tuiCheckbox] {
     --t-bs: var(--secondary) !important;
     background-color: white;
@@ -36,7 +41,6 @@ td {
 
 .employee-table {
     width: 100%;
-    min-width: 52rem;
 }
 
 .empty-state {

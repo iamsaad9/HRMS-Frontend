@@ -34,7 +34,6 @@ protected isMatch = computed(() => {
   const term = this.searchTerm;
   return (
     emp.fullName.toLowerCase().includes(term) ||
-    (emp.jobTitleName?.toLowerCase().includes(term) ?? false) ||
     (emp.departmentName?.toLowerCase().includes(term) ?? false)
   );
 });

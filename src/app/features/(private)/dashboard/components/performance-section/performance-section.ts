@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { TuiLineChart, TuiAxes } from '@taiga-ui/addon-charts';
 import { TuiAvatar } from '@taiga-ui/kit';
 import { TuiButton, TuiPoint, TuiIcon } from '@taiga-ui/core';
-import { TeamMember } from './performance-section.model';
 import { MatIcon } from '@angular/material/icon';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { Router } from '@angular/router';
 import { AttendanceService } from '../../../attendance/service/attendance.service';
-import { AttendanceBarChartComponent } from "../../../../../shared/components/attendance-bar-chart/attendance-bar-chart";
+import { AttendanceBarChartComponent } from "../attendance-bar-chart/attendance-bar-chart";
 import { AttendanceChannelType, PunchCommand, PunchType } from '../../../attendance/model/attendance.model';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { ToastService } from '../../../../../core/services/toast.service';
@@ -26,12 +25,6 @@ function toIsoDate(d: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-const SHIFT_START = 9 * 60;  // 09:00 in minutes
-const SHIFT_END = 18 * 60;   // 18:00 in minutes
-function toMinutes(time: string): number {
-  const [h, m] = time.split(':').map(Number);
-  return h * 60 + m;
-}
 
 interface MinutesSegment {
   lateMins: number;
@@ -39,31 +32,26 @@ interface MinutesSegment {
   overtimeMins: number;
 }
 
-
-function segmentsFor(punch: AttendancePunch): MinutesSegment {
-  if (!punch.checkIn || !punch.checkOut) {
-    return { lateMins: 0, regularMins: 0, overtimeMins: 0 };
-  }
-
-  const inMin = toMinutes(punch.checkIn);
-  const outMin = Math.max(toMinutes(punch.checkOut), inMin);
-
-  // Late: minutes arrived after SHIFT_START (capped at shift end/checkout)
-  const lateMins = Math.max(0, Math.min(inMin, SHIFT_END) - SHIFT_START);
-
-  // Regular: minutes worked within SHIFT_START -> SHIFT_END
-  const regularMins = Math.max(0, Math.min(outMin, SHIFT_END) - Math.max(inMin, SHIFT_START));
-
-  // Overtime: minutes worked past SHIFT_END
-  const overtimeMins = Math.max(0, outMin - SHIFT_END);
-
-  return { lateMins, regularMins, overtimeMins };
+export interface PerformanceMetric {
+  title: string;
+  score: number; // e.g., 94%
+  points: readonly TuiPoint[];
 }
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  avatarUrl?: string;
+  status: 'online' | 'busy' | 'leave';
+  attendanceRate: string;
+}
+
 
 @Component({
   selector: 'app-performance-section',
   standalone: true,
-  imports: [CommonModule, TuiButton, TuiAvatar, TuiCardLarge, MatIcon, TuiIcon, AttendanceBarChartComponent],
+  imports: [CommonModule, TuiButton,  TuiCardLarge, MatIcon, TuiIcon, AttendanceBarChartComponent],
   templateUrl: './performance-section.html',
 })
 export class PerformanceSection {
@@ -71,10 +59,10 @@ export class PerformanceSection {
    protected router = inject(Router);
   private readonly authService = inject(AuthService);
   readonly currentUser = this.authService.currentUser();
-  private readonly toast = inject(ToastService);
-
+    private readonly toast = inject(ToastService);
      readonly employeeId = this.currentUser?.employeeInfo?.employeeId;
-
+    
+     isPunchingIn = signal(false);
 
   isToday(dateStr: string): boolean {
   const today = new Date();
@@ -211,7 +199,7 @@ canClockOut = computed(() => this.attendanceService.isClockedIn()
       this.toast.error('Employee ID not found', 'Attendance Updated');
       return;
     }
-
+    this.isPunchingIn.set(true);
     const command: PunchCommand = {
       employeeId:this.employeeId,
       punchType:PunchType.ClockIn,
@@ -232,9 +220,10 @@ canClockOut = computed(() => this.attendanceService.isClockedIn()
       error: () => {
         this.toast.error('Clock in failed!', 'Attendance Updated');
       },
-
+      
       
     });
+    this.isPunchingIn.set(false);
   }
 
     protected onBreakStart(): void {
@@ -314,7 +303,7 @@ canClockOut = computed(() => this.attendanceService.isClockedIn()
       latitude: null,
       longitude: null,
     };
-
+    this.isPunchingIn.set(true);
     this.attendanceService.punch(command).subscribe({
       next: (response) => {
         if (response.isSuccess) {
@@ -328,6 +317,7 @@ canClockOut = computed(() => this.attendanceService.isClockedIn()
       },
       
     });
+    this.isPunchingIn.set(false);
   }
 
 

@@ -11,11 +11,6 @@
 
   <div class="flex gap-5">
 
-
-
-   
-
-
     <div tuiCardLarge
       class="flex-1 bg-(--background_light)/40!  border!  drop-shadow-sm flex flex-col justify-between gap-6 border-(--secondary)/20!">
 
@@ -122,36 +117,63 @@
 
 
     <div class="w-sm  flex flex-col justify-between gap-6">
-      <div tuiCardLarge
+      <!-- <div tuiCardLarge
         class="flex-1 bg-(--background_light)/40! rounded-2xl    drop-shadow-sm flex flex-col justify-between gap-3! border! border-(--secondary)/20!">
-        <span class="text-sm text-(--primary)/60 block font-medium uppercase tracking-wider">Sick Leaves
+        <span class="text-base text-(--theme2) block font-medium uppercase tracking-wider">Sick Leaves
           Remaining</span>
-        <span class="text-lg font-semibold text-(--primary) truncate block mt-0.5">
+        <span class="text-xl font-semibold text-(--primary) truncate block mt-0.5">
           15
         </span>
       </div>
 
       <div tuiCardLarge
         class="flex-1 bg-(--background_light)/40! rounded-2xl  drop-shadow-sm flex flex-col justify-between gap-3! border! border-(--secondary)/20!">
-        <span class="text-sm text-(--primary)/60 block font-medium uppercase tracking-wider">Annual Leaves
+        <span class="text-base text-(--theme2) block font-medium uppercase tracking-wider">Annual Leaves
           Remaining</span>
-        <span class="text-lg font-semibold text-(--primary) truncate block mt-0.5">
+        <span class="text-xl font-semibold text-(--primary) truncate block mt-0.5">
           9
         </span>
       </div>
 
       <div tuiCardLarge
         class="flex-1 bg-(--background_light)/40! rounded-2xl  drop-shadow-sm flex flex-col justify-between gap-3! border! border-(--secondary)/20!">
-        <span class="text-sm text-(--primary)/60 block font-medium uppercase tracking-wider">Casual Leaves
+        <span class="text-base text-(--theme2) block font-medium uppercase tracking-wider">Casual Leaves
           Remaining</span>
-        <span class="text-lg font-semibold text-(--primary) truncate block mt-0.5">
+        <span class="text-xl font-semibold text-(--primary) truncate block mt-0.5">
           12
         </span>
+      </div> -->
+
+      <div tuiCardLarge
+        class="flex-1 bg-(--background_light)/40! rounded-2xl    drop-shadow-sm flex flex-col justify-between gap-3! border! border-(--secondary)/20!">
+        <div class="flex items-center justify-between border-b border-(--secondary) pb-3">
+          <div>
+            <h3 class="text-xl font-bold text-(--theme2) uppercase">remaining leaves </h3>
+            <p class="text-sm text-(--primary)/80">Your remaining leaves.</p>
+          </div>
+
+        </div>
+        <div class="w-full h-full flex flex-col gap-5 items-center justify-center">
+          <tui-ring-chart [value]="value" [(activeItemIndex)]="activeItemIndex" size="l">
+            <span>{{ sum }}</span>
+            <div>Total</div>
+          </tui-ring-chart>
+
+          <div class="legend">
+            @for (label of labels; track label) {
+            <tui-legend-item size="s" class="item" [active]="isItemActive($index)"
+              [color]="`var(--tui-chart-categorical-${$index.toString().padStart(2, '0')})`" [text]="label"
+              (tuiHoveredChange)="onHover($index, $event)">
+              <span>{{ value[$index] || 0 }}</span>
+            </tui-legend-item>
+            }
+          </div>
+        </div>
       </div>
     </div>
 
 
-
+    <app-leave-calendar-card />
 
 
 

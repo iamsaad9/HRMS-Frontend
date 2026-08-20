@@ -16,85 +16,117 @@
   <app-employee-filter-bar [employees]="employees() ?? []" (filterChange)="onFilterChange($event)" s />
 
   <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20!">
-    <table tuiTable class="attendance-table w-full " size="m" [(ngModel)]="selected">
+    <table tuiTable class="attendance-table w-full" size="m" [(ngModel)]="selected">
       <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
         <tr>
           <th tuiTh class="text-white!">Actions</th>
           <th tuiTh class="text-white!">StaffNo</th>
+          <th tuiTh class="text-white!">Title</th>
           <th tuiTh class="col-checkbox">
             <div [tuiCell]="size" class="text-white!">
               <input tuiCheckbox tuiCheckboxTable type="checkbox" [size]="size === 'l' ? 'm' : 's'" />
-              <span tuiTitle>Employee</span>
+              <span tuiTitle>FirstName</span>
             </div>
           </th>
-          <th tuiTh class="text-white!">Email</th>
-          <th tuiTh class="text-white!">Department</th>
-          <th tuiTh class="text-white!">Branch</th>
-          <th tuiTh class="text-white!"> Job Title</th>
-          <th tuiTh class="text-white!">Manager</th>
-          <th tuiTh class="text-white!">Is Active</th>
+          <th tuiTh class="text-white!">Last Name</th>
+          <th tuiTh class="text-white!">Work Email</th>
+          <th tuiTh class="text-white!">Gender</th>
+          <th tuiTh class="text-white!">DOB</th>
+          <th tuiTh class="text-white!">Mobile</th>
+          <th tuiTh class="text-white!">NI Number</th>
+          <th tuiTh class="text-white!">Start Date</th>
+          <th tuiTh class="text-white!">Employment Type</th>
+          <th tuiTh class="text-white!">Status</th>
+          <th tuiTh class="text-white!">Shift Code</th>
+          <th tuiTh class="text-white!">Department Name</th>
+          <th tuiTh class="text-white!">Branch Name</th>
+          <th tuiTh class="text-white!">Designation Name</th>
+          <th tuiTh class="text-white!">Manager Email</th>
           <th tuiTh class="text-white!">Created At</th>
-          <th tuiTh class="text-white!">Role</th>
+
         </tr>
       </thead>
       <tbody tuiTbody>
         @for (employee of paginatedEmployees(); track employee.id) {
         <tr>
+          <!-- Actions -->
           <td tuiTd class="col-actions w-10">
             <span tuiStatus>
-             
-                <button appearance="action" iconStart="@tui.pencil" size="xs" tuiIconButton type="button"
+              <button appearance="action" iconStart="@tui.pencil" size="xs" tuiIconButton type="button"
                 (click)="onEdit(employee)" class="text-(--theme1)!" [routerLink]="['/employee', employee.id, 'edit']">
                 Edit
-              </button>   
-
+              </button>
               <button appearance="action" iconStart="@tui.eye" size="xs" tuiIconButton type="button"
                 (click)="onEdit(employee)" class="text-(--theme1)!" [routerLink]="['/employee', employee.id, 'view']">
                 View
               </button>
             </span>
           </td>
-          <td tuiTd>
-            {{ employee.staffNo || 'N/A' }}
-          </td>
+
+          <!-- StaffNo -->
+          <td tuiTd>{{ employee.staffNo || 'N/A' }}</td>
+
+          <!-- Title -->
+          <td tuiTd>{{ employee.title || 'N/A' }}</td>
+
+          <!-- FirstName (with Avatar & Checkbox) -->
           <td tuiTd class="col-checkbox">
             <div [tuiCell]="size">
-              <div [style.background]="employee.fullName | tuiAutoColor" [tuiAvatar]="employee.fullName | tuiInitials">
-              </div>
+              <div [style.background]="employee.firstName | tuiAutoColor"
+                [tuiAvatar]="employee.firstName | tuiInitials"></div>
               <input tuiCheckbox type="checkbox" [size]="size === 'l' ? 'm' : 's'" [tuiCheckboxRow]="employee" />
-              <span tuiTitle>
-                {{ employee.fullName || 'N/A' }}
-              </span>
+              <span tuiTitle>{{ employee.firstName || 'N/A' }}</span>
             </div>
           </td>
-          <td tuiTd>
-            {{ employee.email }}
-          </td>
-          <td tuiTd class="col-department">
-            {{ employee.departmentName || 'N/A' }}
-          </td>
-          <td tuiTd>
-            {{ employee.branchName || 'N/A' }}
-          </td>
-          <td tuiTd>
-            {{ employee.jobTitleName || 'N/A' }}
-          </td>
-          <td tuiTd>
-            {{ employee.managerName || 'N/A' }}
-          </td>
-          <td tuiTd>
-            {{ employee.isActive || 'N/A' }}
-          </td>
-          <td tuiTd>
-            {{ employee.createdAtUtc }}
-          </td>
-          <td tuiTd>
-            {{ employee.role || 'N/A' }}
-          </td>
+
+          <!-- LastName -->
+          <td tuiTd>{{ employee.lastName || 'N/A' }}</td>
+
+          <!-- WorkEmail -->
+          <td tuiTd>{{ employee.workEmail || 'N/A' }}</td>
+
+          <!-- Gender -->
+          <td tuiTd>{{ employee.gender || 'N/A' }}</td>
+
+          <!-- DateOfBirth -->
+          <td tuiTd>{{ (employee.dateOfBirth | date: 'mediumDate') || 'N/A' }}</td>
+
+          <!-- Mobile -->
+          <td tuiTd>{{ employee.mobile || 'N/A' }}</td>
+
+          <!-- NINumber -->
+          <td tuiTd>{{ employee.niNumber || 'N/A' }}</td>
+
+          <!-- StartDate -->
+          <td tuiTd>{{ (employee.startDate | date: 'mediumDate') || 'N/A' }}</td>
+
+          <!-- EmploymentType -->
+          <td tuiTd>{{ employee.employmentType || 'N/A' }}</td>
+
+          <!-- Status -->
+          <td tuiTd>{{ employee.isActive ? 'Active' : 'InActive' }}</td>
+
+          <!-- ShiftCode -->
+          <td tuiTd>{{ employee.shiftCode || 'N/A' }}</td>
+
+          <!-- DepartmentName -->
+          <td tuiTd class="col-department">{{ employee.departmentName || 'N/A' }}</td>
+
+          <!-- BranchName -->
+          <td tuiTd>{{ employee.branchName || 'N/A' }}</td>
+
+          <!-- DesignationName -->
+          <td tuiTd>{{ employee.designationTitle || 'N/A' }}</td>
+
+          <!-- ManagerEmail (mapped to managerName key) -->
+          <td tuiTd>{{ employee.managerName || 'N/A' }}</td>
+
+          <!-- Created At -->
+          <td tuiTd>{{ (employee.createdAtUtc | date: 'mediumDate') || 'N/A' }}</td>
         </tr>
         } @empty {
         <tr>
-          <td tuiTd [attr.colspan]="7" class="empty-state">No employees to show.</td>
+          <td tuiTd [attr.colspan]="16" class="empty-state">No employees to show.</td>
         </tr>
         }
       </tbody>

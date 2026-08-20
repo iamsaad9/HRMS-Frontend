@@ -73,11 +73,7 @@ export class EmployeeFilterBarComponent implements OnChanges {
         ),
       ].sort();
 
-      this.statuses = [
-        ...new Set(
-          this.employees.map((e) => e.status).filter((status): status is string => Boolean(status)),
-        ),
-      ].sort();
+    
     }
   }
 

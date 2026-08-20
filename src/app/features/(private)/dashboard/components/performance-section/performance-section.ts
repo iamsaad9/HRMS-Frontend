@@ -9,6 +9,9 @@ import { TuiCardLarge } from '@taiga-ui/layout';
 import { Router } from '@angular/router';
 import { AttendanceService } from '../../../attendance/service/attendance.service';
 import { AttendanceBarChartComponent } from "../../../../../shared/components/attendance-bar-chart/attendance-bar-chart";
+import { AttendanceChannelType, PunchCommand, PunchType } from '../../../attendance/model/attendance.model';
+import { AuthService } from '../../../../(public)/auth/services/auth.service';
+import { ToastService } from '../../../../../core/services/toast.service';
 
 export interface AttendancePunch {
     readonly date: string;       // 'YYYY-MM-DD'
@@ -23,6 +26,40 @@ function toIsoDate(d: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+const SHIFT_START = 9 * 60;  // 09:00 in minutes
+const SHIFT_END = 18 * 60;   // 18:00 in minutes
+function toMinutes(time: string): number {
+  const [h, m] = time.split(':').map(Number);
+  return h * 60 + m;
+}
+
+interface MinutesSegment {
+  lateMins: number;
+  regularMins: number;
+  overtimeMins: number;
+}
+
+
+function segmentsFor(punch: AttendancePunch): MinutesSegment {
+  if (!punch.checkIn || !punch.checkOut) {
+    return { lateMins: 0, regularMins: 0, overtimeMins: 0 };
+  }
+
+  const inMin = toMinutes(punch.checkIn);
+  const outMin = Math.max(toMinutes(punch.checkOut), inMin);
+
+  // Late: minutes arrived after SHIFT_START (capped at shift end/checkout)
+  const lateMins = Math.max(0, Math.min(inMin, SHIFT_END) - SHIFT_START);
+
+  // Regular: minutes worked within SHIFT_START -> SHIFT_END
+  const regularMins = Math.max(0, Math.min(outMin, SHIFT_END) - Math.max(inMin, SHIFT_START));
+
+  // Overtime: minutes worked past SHIFT_END
+  const overtimeMins = Math.max(0, outMin - SHIFT_END);
+
+  return { lateMins, regularMins, overtimeMins };
+}
+
 @Component({
   selector: 'app-performance-section',
   standalone: true,
@@ -32,6 +69,12 @@ function toIsoDate(d: Date): string {
 export class PerformanceSection {
     protected readonly attendanceService = inject(AttendanceService);
    protected router = inject(Router);
+  private readonly authService = inject(AuthService);
+  readonly currentUser = this.authService.currentUser();
+  private readonly toast = inject(ToastService);
+
+     readonly employeeId = this.currentUser?.employeeInfo?.employeeId;
+
 
   isToday(dateStr: string): boolean {
   const today = new Date();
@@ -101,13 +144,6 @@ export class PerformanceSection {
     [29, 98],
   ];
 
-  readonly axisXLabels: readonly string[] = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-
-
-
-
-
-  //  readonly punches = input.required<readonly AttendancePunch[]>();
   readonly punches = input<readonly AttendancePunch[]>([
     { date: '2026-03-01', checkIn: '09:58', checkOut: '17:05' }, // Sunday
   { date: '2026-03-02', checkIn: '08:55', checkOut: '17:05' },
@@ -142,4 +178,158 @@ export class PerformanceSection {
    ]);
 
  
+   // <-------------- PUNCHES LOGIC --------------> 
+
+  breakSessions = computed(() => {
+  const punches = this.attendanceService.todayStatus()?.punches ?? [];
+  const breakPunches = punches
+    .filter(p => p.punchType === '3' || p.punchType === '4')
+    .sort((a, b) => new Date(a.punchTime).getTime() - new Date(b.punchTime).getTime());
+
+  const sessions: { start: string; end: string | null }[] = [];
+  for (const p of breakPunches) {
+    if (p.punchType === 'BreakStart') {
+      sessions.push({ start: p.punchTime, end: null });
+    } else if (p.punchType === 'BreakEnd') {
+      const open = sessions.find(s => s.end === null);
+      if (open) open.end = p.punchTime;
+    }
+  }
+  return sessions;
+});
+
+isOnBreak = computed(() => this.breakSessions().some(s => s.end === null));
+
+canClockOut = computed(() => this.attendanceService.isClockedIn() 
+  && !this.attendanceService.isClockedOut() 
+  && !this.isOnBreak());
+
+  protected onClockIn(): void {
+
+
+    if (!this.employeeId) {
+      this.toast.error('Employee ID not found', 'Attendance Updated');
+      return;
+    }
+
+    const command: PunchCommand = {
+      employeeId:this.employeeId,
+      punchType:PunchType.ClockIn,
+      channel: AttendanceChannelType.Web,
+      deviceId: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    this.attendanceService.punch(command).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success('Clocked in successfully!', 'Attendance Updated');
+        } else {
+          this.toast.error('Clock in failed!', 'Attendance Updated');
+        }
+      },
+      error: () => {
+        this.toast.error('Clock in failed!', 'Attendance Updated');
+      },
+
+      
+    });
+  }
+
+    protected onBreakStart(): void {
+    if (!this.employeeId) {
+      this.toast.error('Employee ID not found', 'Failed');
+      return;
+    }
+
+    const command: PunchCommand = {
+      employeeId: this.employeeId,
+      punchType:PunchType.BreakStart,
+      channel: AttendanceChannelType.Web,
+      deviceId: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    this.attendanceService.punch(command).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success('Break Started!', 'Attendance Updated');
+        } else {
+          this.toast.error('Break start failed!', 'Attendance Updated');
+        }
+      },
+      error: () => {
+        this.toast.error('Break start failed!', 'Attendance Updated');
+      },
+      
+    });
+  }
+
+   protected onBreakEnd(): void {
+    if (!this.employeeId) {
+      this.toast.error('Employee ID not found', 'Failed');
+      return;
+    }
+
+    const command: PunchCommand = {
+      employeeId: this.employeeId,
+      punchType:PunchType.BreakEnd,
+      channel: AttendanceChannelType.Web,
+      deviceId: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    this.attendanceService.punch(command).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success('Break Ended!', 'Attendance Updated');
+        } else {
+          this.toast.error('Break end failed!', 'Attendance Updated');
+        }
+      },
+      error: () => {
+        this.toast.error('Break end failed!', 'Attendance Updated');
+      },
+      
+    });
+  }
+
+  protected onClockOut(): void {
+
+    const employeeId = this.currentUser?.employeeInfo?.employeeId;
+
+    if (!employeeId) {
+      this.toast.error('Employee ID not found', 'Attendance Updated');
+      return;
+    }
+
+    const command: PunchCommand = {
+      employeeId,
+      punchType:PunchType.ClockOut,
+      channel: AttendanceChannelType.Web,
+      deviceId: null,
+      latitude: null,
+      longitude: null,
+    };
+
+    this.attendanceService.punch(command).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success('Clocked out successfully!', 'Attendance Updated');
+        } else {
+          this.toast.error('Clock out failed!', 'Attendance Updated');
+        }
+      },
+      error: () => {
+        this.toast.error('Clock out failed!', 'Attendance Updated');
+      },
+      
+    });
+  }
+
+
+
 }

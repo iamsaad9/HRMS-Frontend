@@ -124,8 +124,6 @@ export const routes: Routes = [
         data: { roles: ['Admin', 'User'] },
       },
 
-      // Account Settings (Both Admin & User)
-      // Web Clock-In Tab (Both Admin & User)
     ],
   },
   { path: '**', redirectTo: 'login' },

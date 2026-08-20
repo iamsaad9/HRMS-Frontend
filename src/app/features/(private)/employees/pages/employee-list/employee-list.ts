@@ -21,11 +21,13 @@ import {
   TuiLink,
   TuiTitle,
   TuiAppearance,
+  TuiDataList,
 } from '@taiga-ui/core';
 import {
   TuiAutoColorPipe,
   TuiAvatar,
   TuiBadge,
+  TuiChevron,
   TuiInitialsPipe,
   TuiItemsWithMore,
   TuiPagination,
@@ -41,6 +43,8 @@ import { MainHeading } from '../../../../../shared/components/main-heading/main-
 import { LoadingService } from '../../../../../core/services/loading.service';
 import { EmployeeService } from '../../services/employee.service';
 import { RouterLink } from '@angular/router';
+import { DropdownSelectorComponent } from '../../../../../shared/components/dropdown-selector/dropdown-selector';
+import { TuiActiveZone, TuiObscured } from '@taiga-ui/cdk';
 
 @Component({
   selector: 'app-employee-table',
@@ -52,7 +56,6 @@ import { RouterLink } from '@angular/router';
     TuiButton,
     TuiCell,
     TuiCheckbox,
-    TuiDropdown,
     TuiInitialsPipe,
     TuiItemsWithMore,
     TuiPagination,
@@ -64,7 +67,8 @@ import { RouterLink } from '@angular/router';
     MainHeading,
     TuiAppearance,
     TuiCardLarge,
-    RouterLink
+    RouterLink,
+    TuiDataList,
   ],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.less',
@@ -75,6 +79,7 @@ export class EmployeeList implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   protected employees = this.employeeService.allEmployees;
   protected filter = signal<EmployeeFilter>({ ...EMPTY_EMPLOYEE_FILTER });
+  protected openMoreOptions = signal(false);
 
   @Output()
   readonly edit = new EventEmitter<Employee>();
@@ -107,8 +112,17 @@ export class EmployeeList implements OnInit {
     this.edit.emit(employee);
   }
 
-  protected onMore(employee: Employee): void {
-    this.more.emit(employee);
+ 
+  protected onObscured(obscured: boolean): void {
+    if (obscured) {
+      this.openMoreOptions.set(false)
+    }
+  }
+
+  protected onActiveZone(active: boolean): void {
+    if (!active) {
+     this.openMoreOptions.set(false)
+    }
   }
 
   protected onFilterChange(updatedFilter: EmployeeFilter): void {

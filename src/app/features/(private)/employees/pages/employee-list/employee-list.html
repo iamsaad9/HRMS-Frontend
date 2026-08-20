@@ -42,12 +42,14 @@
         <tr>
           <td tuiTd class="col-actions w-10">
             <span tuiStatus>
-              <button appearance="action" iconStart="@tui.ellipsis" size="xs" tuiIconButton type="button"
-                (click)="onMore(employee)" class="text-(--theme1)!">
-                More
-              </button>
-              <button appearance="action" iconStart="@tui.eye" size="xs" tuiIconButton type="button"
+             
+                <button appearance="action" iconStart="@tui.pencil" size="xs" tuiIconButton type="button"
                 (click)="onEdit(employee)" class="text-(--theme1)!" [routerLink]="['/employee', employee.id, 'edit']">
+                Edit
+              </button>   
+
+              <button appearance="action" iconStart="@tui.eye" size="xs" tuiIconButton type="button"
+                (click)="onEdit(employee)" class="text-(--theme1)!" [routerLink]="['/employee', employee.id, 'view']">
                 View
               </button>
             </span>

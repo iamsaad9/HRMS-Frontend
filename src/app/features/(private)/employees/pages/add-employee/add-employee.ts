@@ -185,10 +185,13 @@ export class AddEmployee implements OnInit{
 
 
 
-protected readonly titles = ['Mr', 'Mrs', 'Ms', 'Dr', 'Miss'];
-protected readonly genders = ['Male', 'Female', 'Other', 'Prefer not to say'];
+protected readonly titles = ['Mr', 'Miss' ];
+protected readonly genders = ['Male', 'Female'];
 protected readonly branches = ['Head Office', 'Karachi', 'Lahore', 'Islamabad']; // replace with real data
-protected readonly managers = ['Manager A', 'Manager B']; // replace with real data (likely a service call)
+// protected readonly managers = ['Manager A', 'Manager B']; 
+protected readonly managers = computed(() => {
+  return this.employeeService.allEmployees()?.map((e) => e.fullName) ?? [];
+});
 protected readonly statuses = ['Active', 'On Leave', 'Suspended', 'Terminated'];
 
   protected readonly departments = [

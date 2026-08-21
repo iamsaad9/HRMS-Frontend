@@ -192,7 +192,7 @@
                 @if (isRequired('manager')) { <span class="text-red-500">*</span> }
               </label>
               <input formControlName="manager" tuiSelect />
-              <tui-data-list-wrapper *tuiDropdown [items]="managers" />
+              <tui-data-list-wrapper *tuiDropdown [items]="managers()" />
             </tui-textfield>
             <tui-error formControlName="manager" />
           </div>

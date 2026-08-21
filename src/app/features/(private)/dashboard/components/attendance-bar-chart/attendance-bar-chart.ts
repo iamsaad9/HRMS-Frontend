@@ -44,7 +44,6 @@ function formatHours(hours: number): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AttendanceBarChartComponent {
-  /** Daily punches input from parent component */
 readonly punches = input<readonly AttendancePunch[]>([
     { date: '2026-08-01', checkIn: '09:58', checkOut: '17:05' }, // Sunday
   { date: '2026-08-02', checkIn: '08:55', checkOut: '17:05' },
@@ -78,10 +77,9 @@ readonly punches = input<readonly AttendancePunch[]>([
   { date: '2026-08-30', checkIn: '08:53', checkOut: '17:12' },
    ]);
 
-  /** Default shift is 9 AM – 6 PM (9 hour shift). */
   readonly shiftStart = input<string>('09:00');
   readonly shiftEnd = input<string>('18:00');
-protected readonly todayDateStr = new Date().toLocaleDateString('en-CA');
+  protected readonly todayDateStr = new Date().toLocaleDateString('en-CA');
   protected readonly yAxisTicks = YAXIS_TICKS;
 
   selectedDay = signal<DaySegment | null>(null);
@@ -200,13 +198,11 @@ protected readonly todayDateStr = new Date().toLocaleDateString('en-CA');
     return fullMonthSegments;
   });
 
-  /** Y-axis scale: tallest day, rounded up, with an 8h floor */
   protected readonly maxTotalHours = computed(() => {
     const max = Math.max(...this.days().map((d) => d.totalHours), 0);
     return Math.max(8, Math.ceil(max));
   });
 
-  /** Summed totals across all days for summary footer */
   protected readonly totals = computed(() => {
     return this.days().reduce(
       (acc, day) => {

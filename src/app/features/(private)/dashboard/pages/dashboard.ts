@@ -5,7 +5,7 @@ import { MatIcon } from '@angular/material/icon';
 import { PerformanceSection } from '../components/performance-section/performance-section';
 import { UserCardsComponent } from '../components/user-cards/user-card';
 import { DashboardClock } from '../../../../shared/components/dashboard-clock/dashboard-clock';
-import { TuiButton } from '@taiga-ui/core';
+import { TuiButton, TuiIcon } from '@taiga-ui/core';
 import { AuthService } from '../../../(public)/auth/services/auth.service';
 import { OperationsSection } from "../components/operations-section/operations-section";
 
@@ -17,6 +17,7 @@ import { OperationsSection } from "../components/operations-section/operations-s
     PerformanceSection,
     UserCardsComponent,
     DashboardClock,
+    TuiIcon,
     OperationsSection
 ],
   templateUrl: './dashboard.html',

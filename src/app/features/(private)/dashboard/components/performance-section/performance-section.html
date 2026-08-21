@@ -19,8 +19,8 @@
           <h3 class="text-xl font-bold text-(--theme2) uppercase">Shift History</h3>
           <p class="text-sm text-(--primary)/80">Last 7 days attendance record</p>
         </div>
-        <button type="button" tuiButton appearance="flat" size="s" (click)="router.navigate(['attendance/history'])"
-          class="cursor-pointer! hover:text-slate-900 bg-(--theme2)!  text-white!">
+        <button type="button" tuiButton size="s" (click)="router.navigate(['attendance/history'])"
+          class="btn-lift text-sm text-white hover:text-(--background_dark)!  bg-(--theme2)! hover:bg-transparent! border! border-(--theme2)!">
           View All <tui-icon icon="@tui.chevron-right" class="separator ml-2" />
 
         </button>
@@ -174,7 +174,7 @@
                 <span class="uppercase font-bold text-md text-(--background_light)">Clocking Out..</span>
               </div>
               }@else {
-              <span class="uppercase font-bold text-md text-(--background_light)">Clock Out</span>
+              <span class="uppercase font-bold text-md text-White">Clock Out</span>
               }
             </button>
 
@@ -200,8 +200,8 @@
             <!-- Toggle: Start Break vs End Break, based on whether a break is currently open -->
             @if (!isOnBreak()) {
             <button (click)="onBreakStart()"
-              class="col-span-2 flex items-center justify-center p-1 rounded-lg bg-(--primary) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
-              <span class="uppercase font-bold text-md text-black">Start Break</span>
+              class="col-span-2 flex items-center justify-center p-1 rounded-lg bg-(--theme3) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
+              <span class="uppercase font-bold text-md text-white">Start Break</span>
             </button>
             } @else {
             <button (click)="onBreakEnd()"

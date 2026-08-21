@@ -133,11 +133,10 @@ tui-root {
 }
 
 .btn-lift {
-  color: var(--background_dark);
-
-  border-radius: 5px;
+  border-radius: 5px !important;
+  padding: 0.3rem 0.5rem !important;
+  transition: all 0.2s !important;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
 .btn-lift:active {

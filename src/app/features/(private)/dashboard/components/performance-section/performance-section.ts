@@ -171,7 +171,7 @@ export class PerformanceSection {
   breakSessions = computed(() => {
   const punches = this.attendanceService.todayStatus()?.punches ?? [];
   const breakPunches = punches
-    .filter(p => p.punchType === '3' || p.punchType === '4')
+    .filter(p => p.punchType === 'BreakStart' || p.punchType === 'BreakEnd')
     .sort((a, b) => new Date(a.punchTime).getTime() - new Date(b.punchTime).getTime());
 
   const sessions: { start: string; end: string | null }[] = [];

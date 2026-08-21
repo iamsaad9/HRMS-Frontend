@@ -23,10 +23,11 @@
                     <span class="rounded-full bg-(--secondary) px-2.5 py-0.5 text-xs font-semibold text-(--primary)">
                         {{ totalPending() }} Pending
                     </span>
-                    <button (click)="viewAll()" size="s"
-                        class="btn-lift text-sm px-2 py-1 hover:bg-(--theme2)! border border-(--theme2)"> View All
+                    <button (click)="viewAll()" size="s" type="button" tuiButton iconEnd="@tui.chevron-right"
+                        class="btn-lift text-sm text-white hover:text-(--background_dark)!  bg-(--theme2)! hover:bg-transparent! border! border-(--theme2)!">
+                        View
+                        All
                         Requests
-                        <tui-icon icon="@tui.chevron-right" />
                     </button>
                 </div>
 
@@ -107,10 +108,11 @@
                     <span class="rounded-full bg-(--secondary) px-2.5 py-0.5 text-xs font-semibold text-(--primary)">
                         {{ totalLeavePending() }} Pending
                     </span>
-                    <button (click)="viewAllLeaves()" size="s"
-                        class="btn-lift text-sm px-2 py-1 hover:bg-(--theme2)! border border-(--theme2)"> View All
+                    <button (click)="viewAllLeaves()" size="s" type="button" tuiButton iconEnd="@tui.chevron-right"
+                        class="btn-lift text-sm text-white hover:text-(--background_dark)!  bg-(--theme2)! hover:bg-transparent! border! border-(--theme2)!">
+                        View
+                        All
                         Leaves
-                        <tui-icon icon="@tui.chevron-right" />
                     </button>
                 </div>
             </div>
@@ -230,7 +232,8 @@
             </div>
 
             <!-- Action Button -->
-            <button class="btn-lift text-sm px-2 py-2 bg-(--theme)/50 hover:bg-(--theme2)! border-2 border-(--theme2)">
+            <button
+                class="btn-lift text-sm text-white hover:text-(--background_dark)!  bg-(--theme2)! hover:bg-transparent! border! border-(--theme2)! py-2!">
                 View All Team
                 Analytics
             </button>

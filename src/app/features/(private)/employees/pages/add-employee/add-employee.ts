@@ -1,24 +1,46 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { TuiButton, TuiIcon, TuiTextfieldComponent, TuiErrorComponent, TuiCalendar } from '@taiga-ui/core';
-import { TuiTabs, TuiToast, TuiToastService, TuiDataListWrapperComponent } from '@taiga-ui/kit';
-import { TuiDay} from '@taiga-ui/cdk';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
+import {
+  TuiButton,
+  TuiIcon,
+  TuiTextfieldComponent,
+  TuiErrorComponent,
+  TuiCalendar,
+  TuiSelectLike,
+  TuiDropdownDirective,
+  TuiDataListComponent,
+  TuiOption,
+  TuiDataList,
+} from '@taiga-ui/core';
+import {
+  TuiTabs,
+  TuiToast,
+  TuiToastService,
+  TuiDataListWrapperComponent,
+  TuiInputChip,
+  TuiMultiSelect,
+} from '@taiga-ui/kit';
+import { TuiDay } from '@taiga-ui/cdk';
 import { EmployeeService } from '../../services/employee.service';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastService } from '../../../../../core/services/toast.service';
-import {
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
-import {
-  TuiCheckbox,
-  TuiError,
-  TuiGroup,
-  TuiInput,
-  TuiLabel,
-  TuiRadio,
-} from '@taiga-ui/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TuiCheckbox, TuiError, TuiGroup, TuiInput, TuiLabel, TuiRadio } from '@taiga-ui/core';
 import {
   TuiBlock,
   TuiChevron,
@@ -30,8 +52,8 @@ import {
   TuiSelect,
 } from '@taiga-ui/kit';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { PasswordValidator } from "../../../../(public)/auth/components/password-validator/password-validator";
-import { finalize } from 'rxjs';
+import { PasswordValidator } from '../../../../(public)/auth/components/password-validator/password-validator';
+import { finalize, forkJoin } from 'rxjs';
 import { Employee } from '../../model/employee.model';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 
@@ -67,12 +89,17 @@ import { AuthService } from '../../../../(public)/auth/services/auth.service';
     ReactiveFormsModule,
     TuiCardLarge,
     PasswordValidator,
-],
+    TuiInputChip,
+    TuiSelectLike,
+    TuiDropdownDirective,
+    TuiMultiSelect,
+    TuiDataList,
+  ],
 
   templateUrl: './add-employee.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddEmployee implements OnInit{
+export class AddEmployee implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly authService = inject(AuthService);
   protected readonly router = inject(Router);
@@ -87,26 +114,61 @@ export class AddEmployee implements OnInit{
   protected isEditMode = computed(() => !!this.employeeId());
   protected pageTitle = computed(() => (this.isEditMode() ? 'Edit Employee' : 'Create Employee'));
   protected pageDescription = computed(() =>
-    this.isEditMode() ? 'Update an existing employee details' : 'Create an employee using the form below',
+    this.isEditMode()
+      ? 'Update an existing employee details'
+      : 'Create an employee using the form below',
   );
-  protected submitLabel = computed(() => (this.isEditMode() ? 'Update Employee' : 'Create Employee'));
+  protected submitLabel = computed(() =>
+    this.isEditMode() ? 'Update Employee' : 'Create Employee',
+  );
+  protected readonly titles = ['Mr', 'Miss'];
+  protected readonly genders = ['Male', 'Female'];
+  protected departmentsOptions = computed(
+    () => this.employeeService.allDepartments()?.map((item) => item.name) ?? [],
+  );
+  protected designationsOptions = computed(
+    () => this.employeeService.allDesignations()?.map((item) => item.title) ?? [],
+  );
+  protected managersOptions = computed(
+    () => this.employeeService.allManagers()?.map((item) => item.fullName) ?? [],
+  );
+  protected rolesOptions = computed(
+    () => this.employeeService.allRoles()?.map((item) => item.name) ?? [],
+  );
+  protected branchesOptions = computed(
+    () => this.employeeService.allBranches()?.map((item) => item.name) ?? [],
+  );
 
-   ngOnInit(): void {
+  ngOnInit(): void {
     this.buildForm();
-
-      this.checkRouteMode();
+    this.checkRouteMode();
+    this.loadDropdownData();
   }
 
-   private checkRouteMode(): void {
+  private loadDropdownData(): void {
+    forkJoin({
+      departments: this.employeeService.getDepartments(),
+      designations: this.employeeService.getDesignations(),
+      managers: this.employeeService.getManagers(),
+      roles: this.employeeService.getRoles(),
+      branches: this.employeeService.getBranches(),
+    }).subscribe({
+      error: (err) => {
+        console.error('Failed to load form dropdown options:', err);
+      },
+    });
+  }
+
+  private checkRouteMode(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.employeeId.set(id);
-      console.log("Id Present");
+      console.log('Id Present');
       this.loadLeaveRequest(id);
     }
   }
 
-    private loadLeaveRequest(id: string): void {
+  private loadLeaveRequest(id: string): void {
     this.employeeService
       .getEmployeeById(id)
       .pipe()
@@ -124,89 +186,79 @@ export class AddEmployee implements OnInit{
       });
   }
 
-    private patchForm(data: Employee): void {
-
+  private patchForm(data: Employee): void {
     this.form.patchValue({
-      title:  '',
+      title: '',
       firstName: data.firstName ?? '',
       lastName: data.lastName ?? '',
       // dob:  '',
-      email:data.workEmail ?? '',
+      email: data.workEmail ?? '',
       // gender:''
       // niNumber:''
-      department:data.departmentName ?? '',
+      department: data.departmentName ?? '',
       // designation:data.designation ?? '',
-      branch:data.branchName ?? '',
-      manager:data.managerName ?? '',
+      branch: data.branchName ?? '',
+      manager: data.managerName ?? '',
       // startDate:data.startDate
       // employmentType:data.
-      status:data.isActive ? 'Active' : 'InActive',
+      status: data.isActive ? 'Active' : 'InActive',
     });
   }
 
- private buildForm(): void {
-  const isEdit = this.isEditMode();
+  private buildForm(): void {
+    const isEdit = this.isEditMode();
 
-  this.form = this.fb.group({
-    firstName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    dob: new FormControl<TuiDay | null>(null),
-    email: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.email],
-    }),
-    gender: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    phone: new FormControl(''),
-    niNumber: new FormControl(''),
-    department: new FormControl(''),
-    designation: new FormControl(''),
-    branch: new FormControl(''),
-    manager: new FormControl(''),
-    startDate: new FormControl<TuiDay | null>(null),
-    employmentType: new FormControl(''),
-    status: new FormControl(''),
-    password: new FormControl('', {
-      nonNullable: true,
-      // Only require password if creating a new employee
-      validators: isEdit
-        ? []
-        : [
-            Validators.required,
-            Validators.minLength(8),
-            Validators.pattern(/(?=.*[a-z])/),
-            Validators.pattern(/(?=.*[A-Z])/),
-            Validators.pattern(/(?=.*\d)/),
-            Validators.pattern(/(?=.*[@$!%*?&])/),
-          ],
-    }),
-  });
-}
+    this.form = this.fb.group({
+      firstName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      dob: new FormControl<TuiDay | null>(null),
+      email: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.email],
+      }),
+      gender: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      phone: new FormControl(''),
+      niNumber: new FormControl(''),
+      department: new FormControl(''),
+      designation: new FormControl(''),
+      branch: new FormControl(''),
+      manager: new FormControl(''),
+      startDate: new FormControl<TuiDay | null>(null),
+      employmentType: new FormControl(''),
+      status: new FormControl(true),
+      useDefaultPassword: new FormControl(false),
+      roles: new FormControl([]),
+      password: new FormControl('', {
+        validators: isEdit
+          ? []
+          : [
+              Validators.minLength(8),
+              Validators.pattern(/(?=.*[a-z])/),
+              Validators.pattern(/(?=.*[A-Z])/),
+              Validators.pattern(/(?=.*\d)/),
+              Validators.pattern(/(?=.*[@$!%*?&])/),
+            ],
+      }),
+    });
 
+    this.form.get('useDefaultPassword')?.valueChanges.subscribe((useDefault) => {
+      const passwordControl = this.form.get('password');
 
+      if (useDefault) {
+        passwordControl?.disable(); // Disables the input and removes it from form.value
+        passwordControl?.reset(); // Optional: Clears the typed password if they check the box
+      } else {
+        passwordControl?.enable(); // Re-enables the input
+      }
+    });
+  }
 
-protected readonly titles = ['Mr', 'Miss' ];
-protected readonly genders = ['Male', 'Female'];
-protected readonly branches = ['Head Office', 'Karachi', 'Lahore', 'Islamabad']; // replace with real data
-// protected readonly managers = ['Manager A', 'Manager B']; 
-protected readonly managers = computed(() => {
-  return this.employeeService.allEmployees()?.map((e) => e.fullName) ?? [];
-});
-protected readonly statuses = ['Active', 'On Leave', 'Suspended', 'Terminated'];
-
-  protected readonly departments = [
-    'Engineering',
-    'Human Resources',
-    'Product & Design',
-    'Sales & Marketing',
-    'Finance',
-  ];
-
-protected isRequired(controlPath: string): boolean {
-  const control = this.form.get(controlPath);
-  if (!control) return false;
-  return control.hasValidator(Validators.required);
-}
+  protected isRequired(controlPath: string): boolean {
+    const control = this.form.get(controlPath);
+    if (!control) return false;
+    return control.hasValidator(Validators.required);
+  }
 
   protected submitFullPayload(): void {
     if (this.isSubmiting()) return;
@@ -220,31 +272,29 @@ protected isRequired(controlPath: string): boolean {
     this.isSubmiting.set(true);
     const rawValue = this.form.getRawValue();
 
-if (this.isEditMode() && !rawValue.password) {
-    delete (rawValue.password);
-  }
+    if (this.isEditMode() && !rawValue.password) {
+      delete rawValue.password;
+    }
     const payload = {
       ...rawValue,
       dob: rawValue.dob ? rawValue.dob.toLocalNativeDate().toISOString() : null,
     };
 
     if (this.isEditMode()) {
-      console.log("Edit Payload: ",payload);
-
-  } else {
-    console.log("New Payload: ",payload);
-    this.employeeService
-      .addEmployee(payload)
-      .pipe(finalize(() => this.isSubmiting.set(false)))
-      .subscribe({
-        next: () => {
-          // Toast or Navigate
-        },
-        error: (err) => {
-          // Handle error
-        },
-      });
-  }
+      console.log('Edit Payload: ', payload);
+    } else {
+      console.log('New Payload: ', payload);
+      this.employeeService
+        .addEmployee(payload)
+        .pipe(finalize(() => this.isSubmiting.set(false)))
+        .subscribe({
+          next: () => {
+            // Toast or Navigate
+          },
+          error: (err) => {
+            // Handle error
+          },
+        });
+    }
   }
 }
-

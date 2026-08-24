@@ -1,3 +1,42 @@
+// Dropdown Items
+
+export interface DesignationItem {
+  id: string;
+  title: string;
+  isActive: boolean;
+}
+
+export interface DepartmentItem {
+  id: string;
+  name: string;
+  code: string;
+  isActive: boolean;
+}
+
+export interface RoleItem {
+  id: string;
+  name: string;
+}
+
+export interface ManagerItem {
+  id: string;
+  fullName: string;
+  workEmail: string;
+}
+
+export interface BrancheItem {
+  id: string;
+  name: string;
+  code: string;
+  latitude: string | null;
+  longitude: string | null;
+  radiusInMeters: number;
+  address: string;
+  isActive: boolean;
+}
+
+// Employee Form
+
 export interface EmployeeDetailsForm {
   firstName: string;
   lastName: string;
@@ -10,8 +49,8 @@ export interface EmployeeDetailsForm {
   requireVisa: boolean | null;
 }
 
-export interface CreateEmployeeCommand{
-   firstName: string;
+export interface CreateEmployeeCommand {
+  firstName: string;
   lastName: string;
   email: string;
   phone: string | null;
@@ -22,10 +61,10 @@ export interface CreateEmployeeCommand{
   requireVisa: boolean | null;
 }
 
-export interface UpdateEmployeeCommand{
-   staffNo: string;
-   title: string;
-   firstName: string;
+export interface UpdateEmployeeCommand {
+  staffNo: string;
+  title: string;
+  firstName: string;
   lastName: string;
   dateOfBirth: string;
   gender: string;
@@ -99,7 +138,7 @@ export interface Employee {
   managerId?: string;
   managerName?: string;
   managerEmail?: string;
-  shiftCode?:string;
+  shiftCode?: string;
 }
 
 export interface EmployeeFilter {

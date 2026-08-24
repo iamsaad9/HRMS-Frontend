@@ -4,6 +4,7 @@ import {
   AddEmployeeCommand,
   BrancheItem,
   BulkUploadResult,
+  CreateEmployeeCommand,
   CreateEmployeeResponse,
   DepartmentItem,
   DesignationItem,
@@ -46,7 +47,7 @@ export class EmployeeService {
     return employees !== null && employees.length > 0;
   });
 
-  addEmployee(command: any): Observable<ApiResponse<CreateEmployeeResponse>> {
+  addEmployee(command: CreateEmployeeCommand): Observable<ApiResponse<CreateEmployeeResponse>> {
     return this.http.post<ApiResponse<CreateEmployeeResponse>>(`${this.apiUrl}`, command).pipe(
       tap((response) => {
         const newEmployee = response.data;

@@ -20,7 +20,7 @@ export interface DropDownItem {
   category: string;
   childItems?: DropDownItem[];
   tags?: string[];
-  permissions?: string;
+  permission?: string | string[];
 }
 
 @Component({

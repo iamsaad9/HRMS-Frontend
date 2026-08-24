@@ -8,9 +8,7 @@ export const DropdownItems: DropDownItem[] = [
     title: 'Home',
     description: 'Overview of your account and activity',
     routeTo: '/dashboard',
-    tags: ['/', 'dashboard', 'home'],
     category: 'Home',
-    // permissions:'dashboard:view'
   },
   {
     id: '1',
@@ -18,6 +16,7 @@ export const DropdownItems: DropDownItem[] = [
     title: 'HRMS',
     description: 'Manage employee directory, user creation, and organization chart',
     category: 'HRMS Tab',
+    permission: 'users:read', // Requires users:read to view HRMS section
     childItems: [
       {
         id: '1.1',
@@ -26,6 +25,7 @@ export const DropdownItems: DropDownItem[] = [
         description: 'Directory with department filtering',
         routeTo: '/employee/all',
         category: 'HRMS Tab',
+        permission: 'users:read',
       },
       {
         id: '1.2',
@@ -34,6 +34,7 @@ export const DropdownItems: DropDownItem[] = [
         description: 'Registration form and Bulk CSV upload',
         routeTo: '/employee/new',
         category: 'HRMS Tab',
+        permission: 'users:create', // Specifically requires user creation right
       },
       {
         id: '1.3',
@@ -42,6 +43,7 @@ export const DropdownItems: DropDownItem[] = [
         description: 'Bulk CSV upload for workers',
         routeTo: '/employee/new/bulk-upload',
         category: 'HRMS Tab',
+        permission: 'users:create',
       },
       {
         id: '1.4',
@@ -50,6 +52,7 @@ export const DropdownItems: DropDownItem[] = [
         description: 'Visual company hierarchy tree',
         routeTo: '/employee/org-chart',
         category: 'HRMS Tab',
+        permission: 'users:read',
       },
     ],
   },

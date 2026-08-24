@@ -54,7 +54,7 @@ import {
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { PasswordValidator } from '../../../../(public)/auth/components/password-validator/password-validator';
 import { finalize, forkJoin } from 'rxjs';
-import { Employee } from '../../model/employee.model';
+import { CategoryType, CreateEmployeeCommand, Employee } from '../../model/employee.model';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 
 @Component({
@@ -110,6 +110,7 @@ export class AddEmployee implements OnInit {
   protected showValidator = signal<boolean>(false);
   protected form!: FormGroup;
   protected employeeId = signal<string | null>(null);
+  protected currentUser = this.authService.currentUser();
   protected currentUserId = this.authService.currentUser()?.employeeInfo?.employeeId;
   protected isEditMode = computed(() => !!this.employeeId());
   protected pageTitle = computed(() => (this.isEditMode() ? 'Edit Employee' : 'Create Employee'));
@@ -186,71 +187,93 @@ export class AddEmployee implements OnInit {
       });
   }
 
-  private patchForm(data: Employee): void {
+private buildForm(): void {
+  const isEdit = this.isEditMode();
+
+  this.form = this.fb.group({
+    staffNo: [{ value: '', disabled: true }],
+    firstName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    dateOfBirth: new FormControl<TuiDay | null>(null, { nonNullable: true, validators: [Validators.required] }),
+    email: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.email],
+    }),
+    gender: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    mobile: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    niNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    departmentId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    designationId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    branchId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    managerId: new FormControl<string | null>(null, { nonNullable: true, validators: [Validators.required] }),
+    startDate: new FormControl<TuiDay | null>(null, { nonNullable: true, validators: [Validators.required] }),
+    employmentType: new FormControl('FULL_TIME', { nonNullable: true, validators: [Validators.required] }), // Default value set here
+    category: new FormControl('Academic', { nonNullable: true, validators: [Validators.required] }),       // Default value set here
+    isActive: new FormControl(true, { nonNullable: true, validators: [Validators.required] }),            // Replaced 'status' with 'isActive'
+    useDefaultPassword: new FormControl(false),
+    roles: new FormControl<string[]>([]),
+    password: new FormControl('', {
+      validators: isEdit
+        ? []
+        : [
+            Validators.minLength(8),
+            Validators.pattern(/(?=.*[a-z])/),
+            Validators.pattern(/(?=.*[A-Z])/),
+            Validators.pattern(/(?=.*\d)/),
+            Validators.pattern(/(?=.*[@$!%*?&])/),
+          ],
+    }),
+  });
+
+  this.form.get('useDefaultPassword')?.valueChanges.subscribe((useDefault) => {
+    const passwordControl = this.form.get('password');
+
+    if (useDefault) {
+      passwordControl?.disable();
+      passwordControl?.reset();
+    } else {
+      passwordControl?.enable();
+    }
+  });
+}
+
+ private patchForm(data: Employee): void {
+    // 1. Find the name/title from the service arrays using the incoming IDs
+    const departmentName = this.employeeService.allDepartments()?.find((d) => d.id === data.departmentId)?.name ?? '';
+    const designationTitle = this.employeeService.allDesignations()?.find((deg) => deg.id === data.designationId)?.title ?? '';
+    const branchName = this.employeeService.allBranches()?.find((b) => b.id === data.branchId)?.name ?? '';
+    const managerName = this.employeeService.allManagers()?.find((m) => m.id === data.managerId)?.fullName ?? null;
+
+    // 2. Handle category enum conversion (whether incoming is number or string)
+    // let categoryValue = 'Academic'; // default
+    // if (typeof data.category === 'number') {
+    //   categoryValue = CategoryType[data.category] ?? 'Academic';
+    // } else if (typeof data.category === 'string') {
+    //   categoryValue = data.category;
+    // }
+
+    // 3. Patch the form
     this.form.patchValue({
-      title: '',
+      staffNo: data.staffNo ?? '',
       firstName: data.firstName ?? '',
       lastName: data.lastName ?? '',
-      // dob:  '',
+      title: data.title ?? '',
+      dateOfBirth: data.dateOfBirth ,
       email: data.workEmail ?? '',
-      // gender:''
-      // niNumber:''
-      department: data.departmentName ?? '',
-      // designation:data.designation ?? '',
-      branch: data.branchName ?? '',
-      manager: data.managerName ?? '',
-      // startDate:data.startDate
-      // employmentType:data.
-      status: data.isActive ? 'Active' : 'InActive',
-    });
-  }
-
-  private buildForm(): void {
-    const isEdit = this.isEditMode();
-
-    this.form = this.fb.group({
-      firstName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-      lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-      title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-      dob: new FormControl<TuiDay | null>(null),
-      email: new FormControl('', {
-        nonNullable: true,
-        validators: [Validators.required, Validators.email],
-      }),
-      gender: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-      phone: new FormControl(''),
-      niNumber: new FormControl(''),
-      department: new FormControl(''),
-      designation: new FormControl(''),
-      branch: new FormControl(''),
-      manager: new FormControl(''),
-      startDate: new FormControl<TuiDay | null>(null),
-      employmentType: new FormControl(''),
-      status: new FormControl(true),
-      useDefaultPassword: new FormControl(false),
-      roles: new FormControl([]),
-      password: new FormControl('', {
-        validators: isEdit
-          ? []
-          : [
-              Validators.minLength(8),
-              Validators.pattern(/(?=.*[a-z])/),
-              Validators.pattern(/(?=.*[A-Z])/),
-              Validators.pattern(/(?=.*\d)/),
-              Validators.pattern(/(?=.*[@$!%*?&])/),
-            ],
-      }),
-    });
-
-    this.form.get('useDefaultPassword')?.valueChanges.subscribe((useDefault) => {
-      const passwordControl = this.form.get('password');
-
-      if (useDefault) {
-        passwordControl?.disable(); // Disables the input and removes it from form.value
-        passwordControl?.reset(); // Optional: Clears the typed password if they check the box
-      } else {
-        passwordControl?.enable(); // Re-enables the input
-      }
+      gender: data.gender ?? '',
+      mobile: data.mobile ?? '',
+      niNumber: data.niNumber ?? '',
+      departmentId: departmentName,
+      designationId: designationTitle,
+      branchId: branchName,
+      managerId: managerName,
+      startDate: data.startDate,
+      employmentType: data.employmentType ?? 'full-time',
+      // category: categoryValue,
+      isActive: data.isActive ?? true,
+      useDefaultPassword: false,
+      // roles: data.roles ?? [],
     });
   }
 
@@ -275,9 +298,13 @@ export class AddEmployee implements OnInit {
     if (this.isEditMode() && !rawValue.password) {
       delete rawValue.password;
     }
-    const payload = {
+    const payload:CreateEmployeeCommand = {
       ...rawValue,
-      dob: rawValue.dob ? rawValue.dob.toLocalNativeDate().toISOString() : null,
+      departmentId: this.employeeService.allDepartments()?.find((b)=> b.name == rawValue.departmentId)?.id,
+      designationId: this.employeeService.allDesignations()?.find((b)=> b.title == rawValue.designationId)?.id,
+      branchId: this.employeeService.allBranches()?.find((b)=> b.name == rawValue.branchId)?.id,
+      managerId: this.employeeService.allManagers()?.find((b)=> b.fullName == rawValue.managerId)?.id,
+category: CategoryType[rawValue.category as keyof typeof CategoryType] ?? CategoryType.Administrative      // dateOfBirth: rawValue.dob ? rawValue.dob.toLocalNativeDate().toISOString() : null,
     };
 
     if (this.isEditMode()) {
@@ -289,10 +316,12 @@ export class AddEmployee implements OnInit {
         .pipe(finalize(() => this.isSubmiting.set(false)))
         .subscribe({
           next: () => {
-            // Toast or Navigate
+             this.toast.success(`Employee created successfully!`, 'Employee Created');
+             this.router.navigate(['/employee/all'])
           },
           error: (err) => {
-            // Handle error
+              this.toast.error(`${err}`, 'Creation Failed');
+
           },
         });
     }

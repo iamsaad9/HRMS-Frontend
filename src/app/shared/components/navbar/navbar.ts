@@ -107,7 +107,10 @@ export class NavbarComponent {
 
   protected filterByPermission(items: DropDownItem[], permissions: string[]): DropDownItem[] {
     return items.reduce<DropDownItem[]>((acc, item) => {
-      const hasOwnAccess = !item.permissions || permissions.includes(item.permissions);
+      const hasOwnAccess = !item.permission
+        || (Array.isArray(item.permission)
+          ? item.permission.some((permission) => permissions.includes(permission))
+          : permissions.includes(item.permission));
 
       const filteredChildren = item.childItems
         ? this.filterByPermission(item.childItems, permissions)

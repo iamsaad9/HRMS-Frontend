@@ -37,6 +37,11 @@ export interface BrancheItem {
 
 // Employee Form
 
+export enum CategoryType {
+  Administrative = 1,
+  Academic = 2,
+}
+
 export interface EmployeeDetailsForm {
   firstName: string;
   lastName: string;
@@ -53,12 +58,22 @@ export interface CreateEmployeeCommand {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string | null;
-  dob: Date | null;
-  department: string | null;
-  employmentType: string | null;
-  isRemote: boolean | null;
-  requireVisa: boolean | null;
+  departmentId:string;
+  designationId:string;
+  branchId:string;
+  category:string;
+  isActive:boolean;
+  useDefaultPassword:boolean;
+  managerId:string | null;
+  password:string | null;
+  roles:string[];
+  title:string | null;
+  gender:string | null;
+  dateOfBirth:string | null;
+  mobile: string | null;
+  niNumber:string | null;
+  startDate:string | null;
+  employmentType:string | null
 }
 
 export interface UpdateEmployeeCommand {

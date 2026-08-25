@@ -1,42 +1,60 @@
 <div class="flex flex-col w-full mx-auto max-w-7xl gap-5">
   <app-main-heading [title]="pageTitle()" [description]="pageDescription()">
-    <button type="button" tuiButton iconStart="@tui.folder-up" size="s"
+    <button
+      type="button"
+      tuiButton
+      iconStart="@tui.folder-up"
+      size="s"
       class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
-      (click)="router.navigate(['/employee/new/bulk-upload'])">
+      (click)="router.navigate(['/employee/new/bulk-upload'])"
+    >
       Bulk Upload
     </button>
   </app-main-heading>
 
-  <form [formGroup]="form" (submit)="submitFullPayload()" class="flex flex-col gap-3 w-full text-(--theme2)">
+  <form
+    [formGroup]="form"
+    (submit)="submitFullPayload()"
+    class="flex flex-col gap-3 w-full text-(--theme2)"
+  >
     <div class="flex flex-col! gap-5">
       <!-- Personal Details -->
-      <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+      <div
+        tuiCardLarge
+        class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!"
+      >
         <header class="flex flex-row gap-2 items-center">
           <tui-icon icon="@tui.book-user" class="text-3xl!" />
           <div class="flex flex-col">
             <span class="uppercase text-xl font-semibold">Employee Details</span>
-            <span tuiSubtitle class="text-(--primary)/50 text-sm">Personal & Basic Employment Information</span>
+            <span tuiSubtitle class="text-(--primary)/50 text-sm"
+              >Personal & Basic Employment Information</span
+            >
           </div>
         </header>
 
-        <div>
-          <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-            <label tuiLabel>Staff No.
+        @if (isEditMode()) {
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+              <label tuiLabel>Staff No. </label>
+              <input formControlName="staffNo" tuiInput />
+            </tui-textfield>
+          </div>
+        }
 
-            </label>
-            <input formControlName="staffNo" tuiInput />
-          </tui-textfield>
-        </div>
         <!-- Title / First Name / Last Name -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-
           <div>
-            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
-              [tuiTextfieldCleaner]="false">
-              <label tuiLabel>Title
+            <tui-textfield
+              tuiTextfieldSize="m"
+              class="bg-(--background_light)/40!"
+              tuiChevron
+              [tuiTextfieldCleaner]="false"
+            >
+              <label tuiLabel
+                >Title
                 @if (isRequired('title')) {
-                <span class="text-red-500">*</span>
+                  <span class="text-red-500">*</span>
                 }
               </label>
               <input formControlName="title" tuiSelect />
@@ -47,9 +65,10 @@
 
           <div>
             <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>First Name
+              <label tuiLabel
+                >First Name
                 @if (isRequired('firstName')) {
-                <span class="text-red-500">*</span>
+                  <span class="text-red-500">*</span>
                 }
               </label>
               <input formControlName="firstName" placeholder="e.g. John" tuiInput />
@@ -59,9 +78,10 @@
 
           <div>
             <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>Last Name
+              <label tuiLabel
+                >Last Name
                 @if (isRequired('lastName')) {
-                <span class="text-red-500">*</span>
+                  <span class="text-red-500">*</span>
                 }
               </label>
               <input formControlName="lastName" placeholder="e.g. Doe" tuiInput />
@@ -74,21 +94,28 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>Work Email
+              <label tuiLabel
+                >Work Email
                 @if (isRequired('email')) {
-                <span class="text-red-500">*</span>
+                  <span class="text-red-500">*</span>
                 }
               </label>
-              <input formControlName="email" type="email" placeholder="john.doe@company.com" tuiInput />
+              <input
+                formControlName="email"
+                type="email"
+                placeholder="john.doe@company.com"
+                tuiInput
+              />
             </tui-textfield>
             <tui-error formControlName="email" />
           </div>
 
           <div>
             <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>Phone Number
+              <label tuiLabel
+                >Phone Number
                 @if (isRequired('mobile')) {
-                <span class="text-red-500">*</span>
+                  <span class="text-red-500">*</span>
                 }
               </label>
               <input formControlName="mobile" tuiInput />
@@ -98,9 +125,10 @@
 
           <div>
             <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>NI Number
+              <label tuiLabel
+                >NI Number
                 @if (isRequired('niNumber')) {
-                <span class="text-red-500">*</span>
+                  <span class="text-red-500">*</span>
                 }
               </label>
               <input formControlName="niNumber" placeholder="e.g. QQ 12 34 56 C" tuiInput />
@@ -113,9 +141,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>Date of Birth
+              <label tuiLabel
+                >Date of Birth
                 @if (isRequired('dateOfBirth')) {
-                <span class="text-red-500">*</span>
+                  <span class="text-red-500">*</span>
                 }
               </label>
               <input formControlName="dateOfBirth" placeholder="DD.MM.YYYY" tuiInputDate />
@@ -125,11 +154,16 @@
           </div>
 
           <div>
-            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
-              [tuiTextfieldCleaner]="false">
-              <label tuiLabel>Gender
+            <tui-textfield
+              tuiTextfieldSize="m"
+              class="bg-(--background_light)/40!"
+              tuiChevron
+              [tuiTextfieldCleaner]="false"
+            >
+              <label tuiLabel
+                >Gender
                 @if (isRequired('gender')) {
-                <span class="text-red-500">*</span>
+                  <span class="text-red-500">*</span>
                 }
               </label>
               <input formControlName="gender" tuiSelect />
@@ -141,8 +175,10 @@
       </div>
 
       <!-- Employment Details -->
-      <div tuiCardLarge
-        class="drop-shadow-sm overflow-visible! bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+      <div
+        tuiCardLarge
+        class="drop-shadow-sm overflow-visible! bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!"
+      >
         <header class="flex flex-row gap-2 items-center">
           <tui-icon icon="@tui.briefcase" class="text-3xl!" />
           <div class="flex flex-col">
@@ -153,63 +189,90 @@
 
         <!-- Employment Type/ Category (Radio Group) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-          @if(!isEditMode()){
-          <div class="flex flex-col gap-2 itemc">
-            <label class="text-sm font-semibold text-(--primary)">Category Type
-              @if (isRequired('employmentType')) {
-              <span class="text-red-500">*</span>
-              }
-            </label>
-            <div class="w-full flex flex-col gap-2 text-sm">
-              <label class="gap-2 flex items-center">
-                <input type="radio" formControlName="category" size="s" value="Academic" tuiRadio
-                  class="checked:bg-(--theme2)! cursor-pointer" />
-                <span class="text-white!">Academic</span>
+          @if (!isEditMode()) {
+            <div class="flex flex-col gap-2 itemc">
+              <label class="text-sm font-semibold text-(--primary)"
+                >Category Type
+                @if (isRequired('employmentType')) {
+                  <span class="text-red-500">*</span>
+                }
               </label>
-              <label class="gap-2 flex items-center">
-                <input type="radio" formControlName="category" size="s" value="Administrative" tuiRadio
-                  class="checked:bg-(--theme2)! cursor-pointer" />
-                <span class="text-white!">Administrative</span>
-              </label>
+              <div class="w-full flex flex-col gap-2 text-sm">
+                <label class="gap-2 flex items-center">
+                  <input
+                    type="radio"
+                    formControlName="category"
+                    size="s"
+                    value="Academic"
+                    tuiRadio
+                    class="checked:bg-(--theme2)! cursor-pointer"
+                  />
+                  <span class="text-white!">Academic</span>
+                </label>
+                <label class="gap-2 flex items-center">
+                  <input
+                    type="radio"
+                    formControlName="category"
+                    size="s"
+                    value="Administrative"
+                    tuiRadio
+                    class="checked:bg-(--theme2)! cursor-pointer"
+                  />
+                  <span class="text-white!">Administrative</span>
+                </label>
+              </div>
+              <tui-error formControlName="employmentType" />
             </div>
-            <tui-error formControlName="employmentType" />
-          </div>
           }
 
-
-
-
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-semibold text-(--primary)">Employment Type
+            <label class="text-sm font-semibold text-(--primary)"
+              >Employment Type
               @if (isRequired('employmentType')) {
-              <span class="text-red-500">*</span>
+                <span class="text-red-500">*</span>
               }
             </label>
             <div class="w-full flex flex-col gap-2 text-sm">
               <label class="gap-2 flex items-center">
-                <input type="radio" formControlName="employmentType" size="s" value="full-time" tuiRadio
-                  class="checked:bg-(--theme2)! cursor-pointer" />
+                <input
+                  type="radio"
+                  formControlName="employmentType"
+                  size="s"
+                  value="full-time"
+                  tuiRadio
+                  class="checked:bg-(--theme2)! cursor-pointer"
+                />
                 <span class="text-white!">Permanent</span>
               </label>
               <label class="gap-2 flex items-center">
-                <input type="radio" formControlName="employmentType" size="s" value="part-time" tuiRadio
-                  class="checked:bg-(--theme2)! cursor-pointer" />
+                <input
+                  type="radio"
+                  formControlName="employmentType"
+                  size="s"
+                  value="part-time"
+                  tuiRadio
+                  class="checked:bg-(--theme2)! cursor-pointer"
+                />
                 <span class="text-white!">Part-Time / Contract</span>
               </label>
             </div>
             <tui-error formControlName="employmentType" />
           </div>
-
         </div>
 
         <!-- Department / Designation -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
-              [tuiTextfieldCleaner]="false">
-              <label tuiLabel>Department
+            <tui-textfield
+              tuiTextfieldSize="m"
+              class="bg-(--background_light)/40!"
+              tuiChevron
+              [tuiTextfieldCleaner]="false"
+            >
+              <label tuiLabel
+                >Department
                 @if (isRequired('departmentId')) {
-                <span class="text-red-500">*</span>
+                  <span class="text-red-500">*</span>
                 }
               </label>
               <input formControlName="departmentId" tuiSelect />
@@ -220,9 +283,10 @@
 
           <div>
             <tui-textfield tuiChevron tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>Designation
+              <label tuiLabel
+                >Designation
                 @if (isRequired('designationId')) {
-                <span class="text-red-500">*</span>
+                  <span class="text-red-500">*</span>
                 }
               </label>
               <input formControlName="designationId" tuiSelect />
@@ -235,11 +299,16 @@
         <!-- Branch / Manager -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
-              [tuiTextfieldCleaner]="false">
-              <label tuiLabel>Branch
+            <tui-textfield
+              tuiTextfieldSize="m"
+              class="bg-(--background_light)/40!"
+              tuiChevron
+              [tuiTextfieldCleaner]="false"
+            >
+              <label tuiLabel
+                >Branch
                 @if (isRequired('branchId')) {
-                <span class="text-red-500">*</span>
+                  <span class="text-red-500">*</span>
                 }
               </label>
               <input formControlName="branchId" tuiSelect />
@@ -249,11 +318,16 @@
           </div>
 
           <div>
-            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
-              [tuiTextfieldCleaner]="false">
-              <label tuiLabel>Reporting Manager
+            <tui-textfield
+              tuiTextfieldSize="m"
+              class="bg-(--background_light)/40!"
+              tuiChevron
+              [tuiTextfieldCleaner]="false"
+            >
+              <label tuiLabel
+                >Reporting Manager
                 @if (isRequired('managerId')) {
-                <span class="text-red-500">*</span>
+                  <span class="text-red-500">*</span>
                 }
               </label>
               <input formControlName="managerId" tuiSelect />
@@ -267,9 +341,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
           <div>
             <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>Start Date
+              <label tuiLabel
+                >Start Date
                 @if (isRequired('startDate')) {
-                <span class="text-red-500">*</span>
+                  <span class="text-red-500">*</span>
                 }
               </label>
               <input formControlName="startDate" placeholder="DD.MM.YYYY" tuiInputDate />
@@ -280,8 +355,13 @@
 
           <!-- Roles -->
           <div>
-            <tui-textfield multi tuiChevron tuiTextfieldSize="m" class="bg-(--background_light)/40! w-full"
-              [tuiTextfieldCleaner]="false">
+            <tui-textfield
+              multi
+              tuiChevron
+              tuiTextfieldSize="m"
+              class="bg-(--background_light)/40! w-full"
+              [tuiTextfieldCleaner]="false"
+            >
               <label tuiLabel>Select roles...</label>
 
               <input tuiInputChip tuiSelectLike formControlName="roles" />
@@ -293,88 +373,112 @@
           </div>
         </div>
 
-
-
         <div>
           <label class="flex items-center gap-2 text-sm cursor-pointer">
-            <input tuiCheckbox type="checkbox" formControlName="isActive"
-              class="checked:bg-(--theme2)! cursor-pointer" />
+            <input
+              tuiCheckbox
+              type="checkbox"
+              formControlName="isActive"
+              class="checked:bg-(--theme2)! cursor-pointer"
+            />
             <span class="text-white!">Is Active?</span>
           </label>
         </div>
       </div>
 
-      @if ( !isEditMode() || (isEditMode() && currentUser?.roles?.includes('Admin'))) {
-      <!-- Security -->
-      <div tuiCardLarge
-        class="drop-shadow-sm overflow-visible! bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
-        <header class="flex flex-row gap-2 items-center">
-          <tui-icon icon="@tui.clipboard-plus" class="text-3xl!" />
-          <div class="flex flex-col">
-            <span class="uppercase text-xl font-semibold">Additional Details</span>
-            <span tuiSubtitle class="text-(--primary)/50 text-sm">Additional Employment Details</span>
-          </div>
-        </header>
+      @if (!isEditMode() || (isEditMode() && currentUser?.roles?.includes('Admin'))) {
+        <!-- Security -->
+        <div
+          tuiCardLarge
+          class="drop-shadow-sm overflow-visible! bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!"
+        >
+          <header class="flex flex-row gap-2 items-center">
+            <tui-icon icon="@tui.clipboard-plus" class="text-3xl!" />
+            <div class="flex flex-col">
+              <span class="uppercase text-xl font-semibold">Additional Details</span>
+              <span tuiSubtitle class="text-(--primary)/50 text-sm"
+                >Additional Employment Details</span
+              >
+            </div>
+          </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-          <div class="relative">
-            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>Password
-                @if (isRequired('password')) {
-                <span class="text-red-500">*</span>
-                }
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+            <div class="relative">
+              <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+                <label tuiLabel
+                  >Password
+                  @if (isRequired('password')) {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
+
+                <!-- Removed the empty [disabled] attribute, Angular will manage it via the TS file -->
+                <input
+                  #pwd
+                  formControlName="password"
+                  type="password"
+                  placeholder="Abc@123"
+                  tuiInput
+                  (focus)="showValidator.set(true)"
+                  (blur)="showValidator.set(false)"
+                />
+              </tui-textfield>
+
+              <tui-error formControlName="password" />
+
+              @if (showValidator()) {
+                <app-password-validator [password]="pwd.value" />
+              }
+            </div>
+
+            <div>
+              <label class="flex items-center gap-2 text-sm cursor-pointer select-none w-fit bg-">
+                <!-- Renamed template reference variable to avoid conflict -->
+                <input
+                  #defaultPwdCheckbox
+                  tuiCheckbox
+                  type="checkbox"
+                  formControlName="useDefaultPassword"
+                  class="h-4 w-4 checked:bg-(--theme2)! cursor-pointer"
+                />
+                <span class="text-white!">Use default password?</span>
               </label>
-
-              <!-- Removed the empty [disabled] attribute, Angular will manage it via the TS file -->
-              <input #pwd formControlName="password" type="password" placeholder="Abc@123" tuiInput
-                (focus)="showValidator.set(true)" (blur)="showValidator.set(false)" />
-            </tui-textfield>
-
-            <tui-error formControlName="password" />
-
-            @if (showValidator()) {
-            <app-password-validator [password]="pwd.value" />
-            }
-          </div>
-
-          <div>
-            <label class="flex items-center gap-2 text-sm cursor-pointer select-none w-fit bg-">
-              <!-- Renamed template reference variable to avoid conflict -->
-              <input #defaultPwdCheckbox tuiCheckbox type="checkbox" formControlName="useDefaultPassword"
-                class="h-4 w-4 checked:bg-(--theme2)! cursor-pointer" />
-              <span class="text-white!">Use default password?</span>
-            </label>
+            </div>
           </div>
         </div>
-      </div>
       } @else if (employeeId() == currentUserId) {
-      <div
-        class="flex gap-2 p-3 rounded-lg items-center bg-(--accent)/10 border border-(--accent)/50 text-(--background_dark) text-sm mt-2">
-        <tui-icon icon="@tui.info" class="text-lg!" />
-        <div class="flex flex-col">
-          <span class="font-medium">Note</span>
-          <span class="text-(--background_dark)/70">The password can you changed from your profile.</span>
+        <div
+          class="flex gap-2 p-3 rounded-lg items-center bg-(--accent)/10 border border-(--accent)/50 text-(--background_dark) text-sm mt-2"
+        >
+          <tui-icon icon="@tui.info" class="text-lg!" />
+          <div class="flex flex-col">
+            <span class="font-medium">Note</span>
+            <span class="text-(--background_dark)/70"
+              >The password can you changed from your profile.</span
+            >
+          </div>
         </div>
-      </div>
       }
     </div>
 
     <footer class="relative z-0 flex justify-end gap-3 pt-4 border-t border-(--background_dark)/10">
       <button tuiButton type="submit" class="gap-0!" size="m" [disabled]="isSubmiting()">
         @if (isSubmiting() && isEditMode()) {
-        <div class="flex items-center justify-center gap-2">
-          <span
-            class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"></span>
-          <span>Updating Employee..</span>
-        </div>
+          <div class="flex items-center justify-center gap-2">
+            <span
+              class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"
+            ></span>
+            <span>Updating Employee..</span>
+          </div>
         } @else if (isSubmiting() && !isEditMode()) {
-        <div class="flex items-center justify-center gap-2">
-          <span
-            class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"></span>
-          <span>Creating Employee..</span>
-        </div>
+          <div class="flex items-center justify-center gap-2">
+            <span
+              class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"
+            ></span>
+            <span>Creating Employee..</span>
+          </div>
         } @else {
-        <span>{{ submitLabel() }}</span>
+          <span>{{ submitLabel() }}</span>
         }
       </button>
     </footer>

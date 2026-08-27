@@ -22,7 +22,6 @@ import {
   TeamAttendanceParams,
   TeamAttendanceRecord,
 } from '../model/attendance.model';
-import { ToastService } from '../../../../core/services/toast.service';
 import { AuthService } from '../../../(public)/auth/services/auth.service';
 
     const toLocalDateStr = (d: Date): string => {
@@ -41,21 +40,28 @@ export class AttendanceService {
   utctoday = new Date()
   today = toLocalDateStr(this.utctoday);
   currentUserId = this.authService.currentUser()?.employeeInfo.employeeId
-
 todayStatus = computed(() => {
-  return this.currentMonth()?.find((day) => day.date === this.today);
+  const monthData = this.currentMonth();
+  if (!monthData || monthData.length === 0) return null;
+
+  const sorted = [...monthData].sort((a, b) => 
+    new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
+  const latestRecord = sorted[sorted.length - 1];
+  return latestRecord;
 });
 
-#adjustments = signal<AttendanceAdjustmentResponseDto[] | null>(null);
-allAdjustments = this.#adjustments.asReadonly();
+  #adjustments = signal<AttendanceAdjustmentResponseDto[] | null>(null);
+  allAdjustments = this.#adjustments.asReadonly();
 
-#currentMonth = signal<DailyAttendance[] | null>(null);
-currentMonth = this.#currentMonth.asReadonly();
+  #currentMonth = signal<DailyAttendance[] | null>(null);
+  currentMonth = this.#currentMonth.asReadonly();
 
-hasCachedAdjustments = computed(() => {
-  const list = this.allAdjustments();
-  return list !== null && list.length > 0;
-});
+  hasCachedAdjustments = computed(() => {
+    const list = this.allAdjustments();
+    return list !== null && list.length > 0;
+  });
 
 
 // Call this.todayStatus() as a function, and convert to boolean if needed

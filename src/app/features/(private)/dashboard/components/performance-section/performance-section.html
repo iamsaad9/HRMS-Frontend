@@ -106,7 +106,7 @@
               Today's Date
             </span>
             <h3 class="text-lg font-bold text-(--primary) mt-0.5">
-              Monday, Aug 17, 2026
+              {{formattedDate()}}
             </h3>
           </div>
 
@@ -130,7 +130,9 @@
                   (attendanceService.isClockedIn() ? 'bg-green-600 animate-pulse' :  'bg-red-500')
                 "></span>
 
-              {{ attendanceService.isClockedIn() ? 'Clocked In' : 'Clocked Out' }}
+              {{ attendanceService.isClockedIn() &&
+              attendanceService.isClockedOut() ? 'Shift Ended' : attendanceService.isClockedIn() ? 'Clocked In' :
+              'Clocked Out' }}
             </span>
           </div>
 
@@ -227,7 +229,7 @@
             </div>
 
             @for (session of breakSessions(); track session.start) {
-            <div class="p-2 rounded-xl bg-(--theme2)/40">
+            <div class="p-2 rounded-xl bg-(--theme1)/20">
               <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
               <span class="text-sm font-semibold text-(--primary) mt-0.5 block">
                 {{ session.start | date:'hh:mm a' }}
@@ -235,7 +237,7 @@
             </div>
 
             @if (session.end) {
-            <div class="p-2 rounded-xl bg-(--theme1)/50">
+            <div class="p-2 rounded-xl bg-(--theme1)/20">
               <span class="text-xs text-(--primary)/80 block font-medium">Break End</span>
               <span class="text-sm font-bold text-(--primary) mt-0.5 block">
                 {{ session.end | date:'hh:mm a' }}

@@ -26,12 +26,6 @@ function toIsoDate(d: Date): string {
 }
 
 
-interface MinutesSegment {
-  lateMins: number;
-  regularMins: number;
-  overtimeMins: number;
-}
-
 export interface PerformanceMetric {
   title: string;
   score: number; // e.g., 94%
@@ -55,21 +49,29 @@ export interface TeamMember {
   templateUrl: './performance-section.html',
 })
 export class PerformanceSection {
-    protected readonly attendanceService = inject(AttendanceService);
-   protected router = inject(Router);
+  protected readonly attendanceService = inject(AttendanceService);
+  protected router = inject(Router);
   private readonly authService = inject(AuthService);
   readonly currentUser = this.authService.currentUser();
-    private readonly toast = inject(ToastService);
-     readonly employeeId = this.currentUser?.employeeInfo?.employeeId;
-    
-     isPunchingIn = signal(false);
+  private readonly toast = inject(ToastService);
+  readonly employeeId = this.currentUser?.employeeInfo?.employeeId;
+  isPunchingIn = signal(false);
+  today = new Date();
+  
+  options: Intl.DateTimeFormatOptions = { 
+    weekday: 'long', 
+    month: 'short', 
+    day: 'numeric', 
+    year: 'numeric' 
+  };
+
+  formattedDate = signal(this.today.toLocaleDateString('en-US', this.options));
 
   isToday(dateStr: string): boolean {
-  const today = new Date();
   const d = new Date(dateStr);
-  return d.getFullYear() === today.getFullYear()
-    && d.getMonth() === today.getMonth()
-    && d.getDate() === today.getDate();
+  return d.getFullYear() === this.today.getFullYear()
+    && d.getMonth() === this.today.getMonth()
+    && d.getDate() === this.today.getDate();
 }
 
   fullWeekAttendance = computed(() => {

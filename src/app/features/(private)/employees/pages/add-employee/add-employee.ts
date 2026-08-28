@@ -54,8 +54,14 @@ import {
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { PasswordValidator } from '../../../../(public)/auth/components/password-validator/password-validator';
 import { finalize, forkJoin } from 'rxjs';
-import { CategoryType, CreateEmployeeCommand, Employee } from '../../model/employee.model';
+import {
+  CategoryType,
+  CreateEmployeeCommand,
+  Employee,
+  UpdateEmployeeCommand,
+} from '../../model/employee.model';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
+import { E } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-add-employee',
@@ -331,8 +337,36 @@ export class AddEmployee implements OnInit {
         CategoryType[rawValue.category as keyof typeof CategoryType] ?? CategoryType.Administrative, // dateOfBirth: rawValue.dob ? rawValue.dob.toLocalNativeDate().toISOString() : null,
     };
 
-    if (this.isEditMode()) {
+    if (this.isEditMode() && this.employeeId()) {
+      const updatePayload: UpdateEmployeeCommand = {
+        ...rawValue,
+        departmentId: this.employeeService
+          .allDepartments()
+          ?.find((b) => b.name == rawValue.departmentId)?.id,
+        designationId: this.employeeService
+          .allDesignations()
+          ?.find((b) => b.title == rawValue.designationId)?.id,
+        branchId: this.employeeService.allBranches()?.find((b) => b.name == rawValue.branchId)?.id,
+        managerId: this.employeeService.allManagers()?.find((b) => b.fullName == rawValue.managerId)
+          ?.id,
+        category:
+          CategoryType[rawValue.category as keyof typeof CategoryType] ??
+          CategoryType.Administrative, // dateOfBirth: rawValue.dob ? rawValue.dob.toLocalNativeDate().toISOString() : null,
+      };
+
       console.log('Edit Payload: ', payload);
+      this.employeeService
+        .updateEmployee(this.employeeId() || '', updatePayload)
+        .pipe(finalize(() => this.isSubmiting.set(false)))
+        .subscribe({
+          next: () => {
+            this.toast.success(`Employee created successfully!`, 'Employee Created');
+            this.router.navigate(['/employee/all']);
+          },
+          error: (err) => {
+            this.toast.error(`${err}`, 'Creation Failed');
+          },
+        });
     } else {
       console.log('New Payload: ', payload);
       this.employeeService

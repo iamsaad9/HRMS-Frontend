@@ -11,6 +11,7 @@ import {
   Employee,
   ManagerItem,
   RoleItem,
+  UpdateEmployeeCommand,
 } from '../model/employee.model';
 import { ApiResponse } from '../../../../core/models/api-response.model';
 import { catchError, finalize, map, Observable, of, switchMap, tap } from 'rxjs';
@@ -58,6 +59,18 @@ export class EmployeeService {
       }),
     );
   }
+
+  updateEmployee(id: string, command: UpdateEmployeeCommand): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.apiUrl}/${id}`, command).pipe(
+      tap((response) => {
+        if (response.isSuccess) {
+          console.log('✅ Employee updated successfully:');
+          // this.#allEmployees.set(null);
+        }
+      }),
+    );
+  }
+
   bulkUpload(file: File, upsert: boolean): Observable<BulkUploadResult> {
     const formData = new FormData();
     formData.append('file', file);

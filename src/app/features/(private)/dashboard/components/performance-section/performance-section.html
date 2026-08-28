@@ -1,4 +1,7 @@
-<div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+<div
+  tuiCardLarge
+  class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]!"
+>
   <div class="flex items-center justify-start gap-2">
     <mat-icon class="text-(--theme2)!">track_changes</mat-icon>
     <div>
@@ -11,25 +14,32 @@
 
   <div class="flex gap-5">
     <!-- 7 Days Clock-in / Clock-out History Card -->
-    <div tuiCardLarge
-      class="bg-(--background_light)/40! min-w-md rounded-2xl  border! border-(--secondary)/20! drop-shadow-sm flex flex-col gap-1!">
-
+    <div
+      tuiCardLarge
+      class="bg-(--background_light)/40! min-w-md rounded-2xl border! border-(--secondary)/20! drop-shadow-sm flex flex-col gap-1!"
+    >
       <div class="flex items-center justify-between border-b border-(--secondary) pb-3">
         <div>
           <h3 class="text-xl font-bold text-(--theme2) uppercase">Shift History</h3>
           <p class="text-sm text-(--primary)/80">Last 7 days attendance record</p>
         </div>
-        <button type="button" tuiButton size="s" (click)="router.navigate(['attendance/history'])"
-          class="btn-lift text-sm text-white hover:text-(--background_dark)!  bg-(--theme2)! hover:bg-transparent! border! border-(--theme2)!">
+        <button
+          type="button"
+          tuiButton
+          size="s"
+          (click)="router.navigate(['attendance/history'])"
+          class="btn-lift text-sm text-white hover:text-(--background_dark)! bg-(--theme2)! hover:bg-transparent! border! border-(--theme2)!"
+        >
           View All <tui-icon icon="@tui.chevron-right" class="separator ml-2" />
-
         </button>
       </div>
 
       <div class="overflow-x-auto flex-1">
         <table class="w-full text-left text-sm border-collapse">
           <thead>
-            <tr class="border-b border-(--secondary) text-(--primary)/80! uppercase text-xs tracking-wider">
+            <tr
+              class="border-b border-(--secondary) text-(--primary)/80! uppercase text-xs tracking-wider"
+            >
               <th class="py-3 px-2 font-semibold">Date</th>
               <th class="py-3 px-2 font-semibold">Clock In</th>
               <th class="py-3 px-2 font-semibold">Clock Out</th>
@@ -37,80 +47,90 @@
           </thead>
           <tbody class="divide-y divide-(--secondary)">
             @for (day of fullWeekAttendance(); track day.dateStr) {
+              <tr
+                (click)="router.navigate([`attendance/adjustment/${day.record?.id}`])"
+                [class.bg-(--success)/10]="isToday(day.dateStr)"
+                [class.bg-(--error)/50]="day.record?.status == 'NeedsRegularization'"
+                class="hover:bg-(--secondary)/20 transition-colors cursor-pointer"
+              >
+                <td
+                  [class.border-l-2!]="isToday(day.dateStr)"
+                  [class.border-(--success)/70!]="isToday(day.dateStr)"
+                  class="py-2 px-2 font-semibold text-(--primary)"
+                >
+                  {{ day.dateStr | date: 'EEE, MMM d' }}
+                </td>
 
-            <tr (click)="router.navigate([`attendance/adjustment/${day.record?.id}`])"
-              [class.bg-(--success)/10]="isToday(day.dateStr)"
-              class="hover:bg-(--secondary)/20 transition-colors cursor-pointer ">
-              <td [class.border-l-2!]="isToday(day.dateStr)" [class.border-(--success)/70!]="isToday(day.dateStr)"
-                class="py-2 px-2 font-semibold text-(--primary)">
-                {{ day.dateStr | date: 'EEE, MMM d' }}
-              </td>
+                <td class="py-2 px-2 text-(--primary)">
+                  <span class="inline-flex items-center gap-1.5">
+                    <span
+                      class="w-1.5 h-1.5 rounded-full"
+                      [class.bg-(--success)]="day.record?.firstIn"
+                      [class.bg-slate-300]="!day.record?.firstIn"
+                    ></span>
+                    @if (day.record?.firstIn) {
+                      {{ day.record?.firstIn | date: 'hh:mm a' }}
+                    } @else {
+                      <span class="text-(--primary)/40 italic">N/A</span>
+                    }
+                  </span>
+                </td>
 
-              <td class="py-2 px-2 text-(--primary)">
-                <span class="inline-flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full" [class.bg-(--success)]="day.record?.firstIn"
-                    [class.bg-slate-300]="!day.record?.firstIn"></span>
-                  @if (day.record?.firstIn) {
-                  {{ day.record?.firstIn | date: 'hh:mm a' }}
-                  } @else {
-                  <span class="text-(--primary)/40 italic">N/A</span>
-                  }
-                </span>
-              </td>
-
-              <td class="py-2 px-2 text-(--primary)">
-                <span class="inline-flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full" [class.bg-amber-500]="day.record?.lastOut"
-                    [class.bg-slate-300]="!day.record?.lastOut"></span>
-                  @if (day.record?.lastOut) {
-                  {{ day.record?.lastOut | date: 'hh:mm a' }}
-                  } @else {
-                  <span class="text-(--primary)/40 italic">N/A</span>
-                  }
-                </span>
-              </td>
-
-            </tr>
+                <td class="py-2 px-2 text-(--primary)">
+                  <span class="inline-flex items-center gap-1.5">
+                    <span
+                      class="w-1.5 h-1.5 rounded-full"
+                      [class.bg-amber-500]="day.record?.lastOut"
+                      [class.bg-slate-300]="!day.record?.lastOut"
+                    ></span>
+                    @if (day.record?.lastOut) {
+                      {{ day.record?.lastOut | date: 'hh:mm a' }}
+                    } @else {
+                      <span class="text-(--primary)/40 italic">N/A</span>
+                    }
+                    @if (day.record?.status == 'NeedsRegularization') {
+                      <tui-icon icon="@tui.circle-alert" style="font-size: 15px" />
+                    }
+                  </span>
+                </td>
+              </tr>
             }
           </tbody>
         </table>
       </div>
     </div>
 
-    <div tuiCardLarge
-      class="bg-(--background_light)/40! grid-cols-2! flex flex-1 flex-col justify-between rounded-xl p-6 drop-shadow-sm text-(--primary) overflow-visible border! border-(--secondary)/20!">
+    <div
+      tuiCardLarge
+      class="bg-(--background_light)/40! grid-cols-2! flex flex-1 flex-col justify-between rounded-xl p-6 drop-shadow-sm text-(--primary) overflow-visible border! border-(--secondary)/20!"
+    >
       <div class="flex items-center justify-between border-b border-(--secondary) pb-4">
         <div>
           <h3 class="text-lg font-bold text-(--theme2) uppercase">Work Hour Overview</h3>
-          <p class="text-sm text-(--primary)/80">Last {{ punches().length }} days work hour overview.</p>
+          <p class="text-sm text-(--primary)/80">
+            Last {{ punches().length }} days work hour overview.
+          </p>
         </div>
-
-
       </div>
 
-
       <app-attendance-bar-chart />
-
-
-
     </div>
 
-    <div tuiCardLarge
+    <div
+      tuiCardLarge
       class="min-w-sm bg-(--background_light)! rounded-2xl p-6 drop-shadow-sm flex flex-col justify-between border-2! border-(--error)!"
-      [class.border-(--success)!]="attendanceService.isClockedIn()">
+      [class.border-(--success)!]="attendanceService.isClockedIn()"
+    >
       <div>
-
         <div class="flex items-center justify-between pb-5 border-b border-(--primary)/20">
           <div>
             <span class="text-xs font-semibold text-(--primary)/60 uppercase tracking-wider block">
               Today's Date
             </span>
             <h3 class="text-lg font-bold text-(--primary) mt-0.5">
-              {{formattedDate()}}
+              {{ formattedDate() }}
             </h3>
           </div>
-
-
         </div>
 
         <!-- Today's Attendance Status -->
@@ -119,143 +139,166 @@
             <span class="text-sm font-semibold text-(--primary)/80 uppercase tracking-wider">
               Today's Shift
             </span>
-            <span [class]="
+            <span
+              [class]="
                 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ' +
                 (attendanceService.isClockedIn()
                   ? 'bg-emerald-100 text-emerald-600'
                   : 'bg-red-100 text-red-600')
-              ">
-              <span [class]="
+              "
+            >
+              <span
+                [class]="
                   'w-2 h-2 rounded-full ' +
-                  (attendanceService.isClockedIn() ? 'bg-green-600 animate-pulse' :  'bg-red-500')
-                "></span>
+                  (attendanceService.isClockedIn() ? 'bg-green-600 animate-pulse' : 'bg-red-500')
+                "
+              ></span>
 
-              {{ attendanceService.isClockedIn() &&
-              attendanceService.isClockedOut() ? 'Shift Ended' : attendanceService.isClockedIn() ? 'Clocked In' :
-              'Clocked Out' }}
+              {{
+                attendanceService.isClockedIn() && attendanceService.isClockedOut()
+                  ? 'Shift Ended'
+                  : attendanceService.isClockedIn()
+                    ? 'Clocked In'
+                    : 'Clocked Out'
+              }}
             </span>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
-
             @if (!attendanceService.isClockedIn()) {
-            <!-- STATE 1: Not clocked in -->
-            <button (click)="onClockIn()"
-              class="col-span-2 flex items-center justify-center p-3 rounded-xl bg-emerald-400 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
-              @if(isPunchingIn()){
-              <div class="flex items-center justify-center gap-2">
-                <span
-                  class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"></span>
-                <span class="uppercase font-bold text-md text-(--background_light)">Clocking In..</span>
-              </div>
-              }@else {
-              <span class="uppercase font-bold text-md text-(--background_light)">Clock In</span>
-              }
-            </button>
-
+              <!-- STATE 1: Not clocked in -->
+              <button
+                (click)="onClockIn()"
+                class="col-span-2 flex items-center justify-center p-3 rounded-xl bg-emerald-400 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md"
+              >
+                @if (isPunchingIn()) {
+                  <div class="flex items-center justify-center gap-2">
+                    <span
+                      class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"
+                    ></span>
+                    <span class="uppercase font-bold text-md text-(--background_light)"
+                      >Clocking In..</span
+                    >
+                  </div>
+                } @else {
+                  <span class="uppercase font-bold text-md text-(--background_light)"
+                    >Clock In</span
+                  >
+                }
+              </button>
             } @else if (!attendanceService.isClockedOut()) {
-            <!-- STATE 2: Clocked in, active session -->
+              <!-- STATE 2: Clocked in, active session -->
 
-            <div class="p-3.5 rounded-xl bg-(--secondary)/50">
-              <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
-              <span class="text-lg font-bold text-(--primary) mt-0.5 block">
-                {{ attendanceService.todayStatus()?.firstIn | date:'hh:mm a' }}
-              </span>
-            </div>
-
-            <!-- Clock Out disabled while ANY break is still open -->
-
-
-            <button (click)="onClockOut()" [disabled]="!canClockOut()" [class.opacity-50]="!canClockOut()"
-              [class.cursor-not-allowed]="!canClockOut()" [class.cursor-pointer]="canClockOut()"
-              class="flex items-center justify-center p-3 rounded-xl bg-(--error) active:scale-95 transition-all duration-300 drop-shadow-md">
-              @if(isPunchingIn()){
-              <div class="flex items-center justify-center gap-2">
-                <span
-                  class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"></span>
-                <span class="uppercase font-bold text-md text-(--background_light)">Clocking Out..</span>
+              <div class="p-3.5 rounded-xl bg-(--secondary)/50">
+                <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
+                <span class="text-lg font-bold text-(--primary) mt-0.5 block">
+                  {{ attendanceService.todayStatus()?.firstIn | date: 'hh:mm a' }}
+                </span>
               </div>
-              }@else {
-              <span class="uppercase font-bold text-md text-White">Clock Out</span>
+
+              <!-- Clock Out disabled while ANY break is still open -->
+
+              <button
+                (click)="onClockOut()"
+                [disabled]="!canClockOut()"
+                [class.opacity-50]="!canClockOut()"
+                [class.cursor-not-allowed]="!canClockOut()"
+                [class.cursor-pointer]="canClockOut()"
+                class="flex items-center justify-center p-3 rounded-xl bg-(--error) active:scale-95 transition-all duration-300 drop-shadow-md"
+              >
+                @if (isPunchingIn()) {
+                  <div class="flex items-center justify-center gap-2">
+                    <span
+                      class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"
+                    ></span>
+                    <span class="uppercase font-bold text-md text-(--background_light)"
+                      >Clocking Out..</span
+                    >
+                  </div>
+                } @else {
+                  <span class="uppercase font-bold text-md text-White">Clock Out</span>
+                }
+              </button>
+
+              <!-- List every break session so far -->
+              @for (session of breakSessions(); track session.start) {
+                <div class="p-2 rounded-xl bg-(--secondary)/50">
+                  <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
+                  <span class="text-sm font-bold text-(--primary) mt-0.5 block">
+                    {{ session.start | date: 'hh:mm a' }}
+                  </span>
+                </div>
+
+                @if (session.end) {
+                  <div class="p-2 rounded-xl bg-(--secondary)/50">
+                    <span class="text-xs text-(--primary)/80 block font-medium">Break End</span>
+                    <span class="text-sm font-bold text-(--primary) mt-0.5 block">
+                      {{ session.end | date: 'hh:mm a' }}
+                    </span>
+                  </div>
+                }
               }
-            </button>
 
-            <!-- List every break session so far -->
-            @for (session of breakSessions(); track session.start) {
-            <div class="p-2 rounded-xl bg-(--secondary)/50">
-              <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
-              <span class="text-sm font-bold text-(--primary) mt-0.5 block">
-                {{ session.start | date:'hh:mm a' }}
-              </span>
-            </div>
-
-            @if (session.end) {
-            <div class="p-2 rounded-xl bg-(--secondary)/50">
-              <span class="text-xs text-(--primary)/80 block font-medium">Break End</span>
-              <span class="text-sm font-bold text-(--primary) mt-0.5 block">
-                {{ session.end | date:'hh:mm a' }}
-              </span>
-            </div>
-            }
-            }
-
-            <!-- Toggle: Start Break vs End Break, based on whether a break is currently open -->
-            @if (!isOnBreak()) {
-            <button (click)="onBreakStart()"
-              class="col-span-2 flex items-center justify-center p-1 rounded-lg bg-(--theme3) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
-              <span class="uppercase font-bold text-md text-white">Start Break</span>
-            </button>
+              <!-- Toggle: Start Break vs End Break, based on whether a break is currently open -->
+              @if (!isOnBreak()) {
+                <button
+                  (click)="onBreakStart()"
+                  class="col-span-2 flex items-center justify-center p-1 rounded-lg bg-(--theme3) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md"
+                >
+                  <span class="uppercase font-bold text-md text-white">Start Break</span>
+                </button>
+              } @else {
+                <button
+                  (click)="onBreakEnd()"
+                  class="col-span-1 flex items-center justify-center p-3 rounded-xl bg-blue-500 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md"
+                >
+                  <span class="uppercase font-bold text-md text-white">End Break</span>
+                </button>
+              }
             } @else {
-            <button (click)="onBreakEnd()"
-              class="col-span-1 flex items-center justify-center p-3 rounded-xl bg-blue-500 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
-              <span class="uppercase font-bold text-md text-white">End Break</span>
-            </button>
+              <!-- STATE 3: Session ended -->
+              <div class="p-3.5 rounded-xl bg-(--secondary)/50">
+                <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
+                <span class="text-lg font-bold text-(--primary) mt-0.5 block">
+                  {{ attendanceService.todayStatus()?.firstIn | date: 'hh:mm a' }}
+                </span>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-(--secondary)/50">
+                <span class="text-xs text-(--primary)/80 block font-medium">End Time</span>
+                <span class="text-lg font-bold text-(--primary) mt-0.5 block">
+                  {{ attendanceService.todayStatus()?.lastOut | date: 'hh:mm a' }}
+                </span>
+              </div>
+
+              @for (session of breakSessions(); track session.start) {
+                <div class="p-2 rounded-xl bg-(--theme2)/40">
+                  <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
+                  <span class="text-sm font-semibold text-(--primary) mt-0.5 block">
+                    {{ session.start | date: 'hh:mm a' }}
+                  </span>
+                </div>
+
+                @if (session.end) {
+                  <div class="p-2 rounded-xl bg-(--theme1)/50">
+                    <span class="text-xs text-(--primary)/80 block font-medium">Break End</span>
+                    <span class="text-sm font-bold text-(--primary) mt-0.5 block">
+                      {{ session.end | date: 'hh:mm a' }}
+                    </span>
+                  </div>
+                }
+              }
             }
-
-            } @else {
-            <!-- STATE 3: Session ended -->
-            <div class="p-3.5 rounded-xl bg-(--secondary)/50">
-              <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
-              <span class="text-lg font-bold text-(--primary) mt-0.5 block">
-                {{ attendanceService.todayStatus()?.firstIn | date:'hh:mm a' }}
-              </span>
-            </div>
-
-            <div class="p-3.5 rounded-xl bg-(--secondary)/50">
-              <span class="text-xs text-(--primary)/80 block font-medium">End Time</span>
-              <span class="text-lg font-bold text-(--primary) mt-0.5 block">
-                {{ attendanceService.todayStatus()?.lastOut | date:'hh:mm a' }}
-              </span>
-            </div>
-
-            @for (session of breakSessions(); track session.start) {
-            <div class="p-2 rounded-xl bg-(--theme1)/20">
-              <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
-              <span class="text-sm font-semibold text-(--primary) mt-0.5 block">
-                {{ session.start | date:'hh:mm a' }}
-              </span>
-            </div>
-
-            @if (session.end) {
-            <div class="p-2 rounded-xl bg-(--theme1)/20">
-              <span class="text-xs text-(--primary)/80 block font-medium">Break End</span>
-              <span class="text-sm font-bold text-(--primary) mt-0.5 block">
-                {{ session.end | date:'hh:mm a' }}
-              </span>
-            </div>
-            }
-            }
-            }
-
           </div>
         </div>
       </div>
 
       <!-- Quick Status Note -->
-      <div class="mt-6 pt-4 border-t border-slate-100 text-xs text-(--primary)/80 flex items-center justify-between">
+      <div
+        class="mt-6 pt-4 border-t border-slate-100 text-xs text-(--primary)/80 flex items-center justify-between"
+      >
         <span>Standard Shift: 9:00 AM - 5:00 PM</span>
       </div>
     </div>
-
   </div>
 </div>

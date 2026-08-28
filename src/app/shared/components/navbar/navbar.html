@@ -126,7 +126,7 @@
             <tui-data-list class="bg-(--background_light)!">
               <button tuiOption type="button" class="hover:bg-(--primary)/10! border! border-(--accent)! border-dashed"
                 (click)="userDropdownOpen.set(false)"
-                [routerLink]="['/employee', currentUser?.employeeInfo?.employeeId, 'view']">
+                [routerLink]="['/employee', currentUser?.employeeInfo?.id, 'view']">
                 <div class="flex items-center gap-2 w-full text-(--background_dark)!">
                   <tui-icon class="scale-80 shrink-0 text-(--accent)" icon="@tui.user-round" />
 
@@ -141,7 +141,7 @@
 
                     <!-- Right (Chips Array) -->
                     <div class="flex flex-wrap items-center justify-end gap-1.5 shrink-0">
-                      @for (role of currentUser?.roles; track role) {
+                      @for (role of currentUser?.employeeInfo?.roles; track role) {
                       <span
                         class="rounded-full bg-(--primary)/10 px-2 py-0.5 text-[11px] font-medium text-(--primary) border border-(--primary)/20 whitespace-nowrap">
                         {{ role }}

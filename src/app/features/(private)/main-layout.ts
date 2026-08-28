@@ -22,7 +22,7 @@ export default class MainLayout implements OnInit {
   ngOnInit(): void {
     firstValueFrom(this.authService.checkSession()).then(() => {
       const currentUser = this.authService.currentUser();
-      const currentUserId = currentUser?.employeeInfo?.employeeId;
+      const currentUserId = currentUser?.employeeInfo?.id;
 
       if (currentUserId) {
         console.log('Current User ID in main layout:', currentUserId);

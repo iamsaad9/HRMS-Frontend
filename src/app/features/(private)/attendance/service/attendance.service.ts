@@ -39,7 +39,7 @@ export class AttendanceService {
   private authService = inject(AuthService);
   utctoday = new Date()
   today = toLocalDateStr(this.utctoday);
-  currentUserId = this.authService.currentUser()?.employeeInfo.employeeId
+  currentUserId = this.authService.currentUser()?.employeeInfo.id
 todayStatus = computed(() => {
   const monthData = this.currentMonth();
   if (!monthData || monthData.length === 0) return null;

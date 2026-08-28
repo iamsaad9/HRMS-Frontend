@@ -12,7 +12,7 @@ export class LeaveRequestsService {
     private http = inject(HttpClient);
     private loadingService = inject(LoadingService);
     private authService = inject(AuthService);
-    currentUserId = this.authService.currentUser()?.employeeInfo.employeeId
+    currentUserId = this.authService.currentUser()?.employeeInfo.id
 
     #leaveTypes = signal<LeaveTypeResponse[]>([]);
     leaveTypes = this.#leaveTypes.asReadonly();

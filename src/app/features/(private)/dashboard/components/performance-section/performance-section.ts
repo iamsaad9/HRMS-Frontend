@@ -54,7 +54,7 @@ export class PerformanceSection {
   private readonly authService = inject(AuthService);
   readonly currentUser = this.authService.currentUser();
   private readonly toast = inject(ToastService);
-  readonly employeeId = this.currentUser?.employeeInfo?.employeeId;
+  readonly employeeId = this.currentUser?.employeeInfo?.id;
   isPunchingIn = signal(false);
   today = new Date();
   
@@ -290,7 +290,7 @@ canClockOut = computed(() => this.attendanceService.isClockedIn()
 
   protected onClockOut(): void {
 
-    const employeeId = this.currentUser?.employeeInfo?.employeeId;
+    const employeeId = this.currentUser?.employeeInfo?.id;
 
     if (!employeeId) {
       this.toast.error('Employee ID not found', 'Attendance Updated');

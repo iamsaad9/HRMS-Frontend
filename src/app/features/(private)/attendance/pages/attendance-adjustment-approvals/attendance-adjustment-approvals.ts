@@ -192,7 +192,7 @@ export class AttendanceAdjustmentApprovals implements OnInit {
     if (this.actionForm.invalid) return;
 
     const command: AdjustmentActionCommand = {
-      actionByUserId: this.currentUser()?.employeeInfo.employeeId ?? '',
+      actionByUserId: this.currentUser()?.employeeInfo.id ?? '',
       remarks: this.actionForm.get('remarks')?.value || null,
     };
 

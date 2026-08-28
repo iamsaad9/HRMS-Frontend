@@ -17,7 +17,7 @@
         <div class="flex items-center gap-2">
           <h2 class="text-lg font-bold m-0 leading-tight">{{ user.employeeInfo.firstName }} {{
             user.employeeInfo.lastName }}</h2>
-          @for (role of user.roles; track role) {
+          @for (role of user.employeeInfo.roles; track role) {
           <span tuiBadge appearance="accent" size="m">{{ role }}</span>
           }
         </div>

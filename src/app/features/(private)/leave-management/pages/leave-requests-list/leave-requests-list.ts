@@ -84,7 +84,7 @@ export class LeaveRequestList implements OnInit {
     // this.loadError.set(null);
 
     this.leaveService
-      .getAllLeaves(this.currentUser()?.employeeInfo.employeeId)
+      .getAllLeaves(this.currentUser()?.employeeInfo.id)
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (response) => {

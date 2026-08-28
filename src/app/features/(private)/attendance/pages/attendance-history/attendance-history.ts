@@ -48,7 +48,7 @@ export class AttendanceHistory implements OnInit {
   private readonly authService = inject(AuthService);
   protected readonly router = inject(Router);
 
-  protected currentUserId = this.authService.currentUser()?.employeeInfo.employeeId;
+  protected currentUserId = this.authService.currentUser()?.employeeInfo.id;
 
   protected allRecords = signal<AttendanceRecord[]>([]);
 

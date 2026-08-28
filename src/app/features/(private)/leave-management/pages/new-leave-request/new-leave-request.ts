@@ -215,7 +215,7 @@ export class LeaveRequest implements OnInit {
     const selectedType = this.leaveService.leaveTypes().find((i) => i.name === raw.leaveType);
 
     const payload: LeaveRequestPayload = {
-      employeeId: this.currentUser()?.employeeInfo.employeeId ?? '',
+      employeeId: this.currentUser()?.employeeInfo.id ?? '',
       leaveTypeId: selectedType?.id ?? '',
       startDate: raw.startDate,
       endDate: raw.endDate,

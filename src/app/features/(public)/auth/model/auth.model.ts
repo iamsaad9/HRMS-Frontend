@@ -1,3 +1,5 @@
+import { Employee } from "../../../(private)/employees/model/employee.model";
+
 export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
@@ -7,15 +9,8 @@ export interface LoginResponse {
 export interface User {
   userId: string;
   email: string;
-  roles: string[];
   permissions: string[];
-  employeeInfo: {
-    employeeId: string;
-    firstName: string;
-    lastName: string;
-    departmentId: string | null;
-    branchId: string | null;
-  };
+  employeeInfo: Employee
 }
 
 export interface LoginCommand {

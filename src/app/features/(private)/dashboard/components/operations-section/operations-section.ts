@@ -73,7 +73,7 @@ export class OperationsSection implements OnInit {
     this.approvingId.set(record.id);
 
     const command: AdjustmentActionCommand = {
-      actionByUserId: this.currentUser()?.employeeInfo.employeeId ?? '',
+      actionByUserId: this.currentUser()?.employeeInfo.id ?? '',
       remarks: null,
     };
 
@@ -137,7 +137,7 @@ export class OperationsSection implements OnInit {
     this.leaveApprovingId.set(record.id);
 
     const payload: ApproveRejectLeaveRequest = {
-      approvedByEmployeeId: this.currentUser()?.employeeInfo.employeeId ?? '',
+      approvedByEmployeeId: this.currentUser()?.employeeInfo.id ?? '',
       remarks: null,
     };
 

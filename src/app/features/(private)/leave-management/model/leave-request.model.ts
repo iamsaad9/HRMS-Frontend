@@ -38,14 +38,15 @@ export interface UpdateLeaveRequestPayload {
 
 export interface LeaveRequestResponse {
   id: string;
-   employeeId: string;
+  employeeId: string;
   leaveTypeId: string;
   leaveTypeName: string;
-   startDate: string;
+  startDate: string;
   endDate: string;
   totalDays:number;
   reason:string;
   status: 'Pending' | 'Approved' | 'Rejected';
+  adminRemarks:string | null;
   createdAtUtc: string;
 }
 

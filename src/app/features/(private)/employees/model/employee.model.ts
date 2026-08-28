@@ -155,6 +155,7 @@ export interface Employee {
   managerName?: string;
   managerEmail?: string;
   shiftCode?: string;
+  roles?:string[]
 }
 
 export interface EmployeeFilter {

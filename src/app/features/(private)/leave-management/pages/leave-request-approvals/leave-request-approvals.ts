@@ -104,7 +104,6 @@ export class LeaveRequestApprovals implements OnInit {
       });
   }
 
-  /** Fetches each unique employeeId referenced by the leave requests, in parallel. */
 private loadEmployeesForRequests(records: LeaveRequestResponse[]): void {
   const uniqueIds = Array.from(new Set(records.map((r) => r.employeeId)));
   if (uniqueIds.length === 0) return;
@@ -199,7 +198,7 @@ private loadEmployeesForRequests(records: LeaveRequestResponse[]): void {
     if (this.actionForm.invalid) return;
 
     const payload: ApproveRejectLeaveRequest = {
-      approvedByEmployeeId: this.currentUser()?.employeeInfo.employeeId ?? '', // ASSUMPTION: confirm this field name
+      approvedByEmployeeId: this.currentUser()?.employeeInfo.id ?? '', // ASSUMPTION: confirm this field name
       remarks: this.actionForm.get('remarks')?.value || null,
     };
 

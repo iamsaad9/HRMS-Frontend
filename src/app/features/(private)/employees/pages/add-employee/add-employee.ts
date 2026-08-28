@@ -115,7 +115,7 @@ export class AddEmployee implements OnInit {
   protected form!: FormGroup;
   protected employeeId = signal<string | null>(null);
   protected currentUser = this.authService.currentUser();
-  protected currentUserId = this.authService.currentUser()?.employeeInfo?.employeeId;
+  protected currentUserId = this.authService.currentUser()?.employeeInfo?.id;
   protected isEditMode = computed(() => !!this.employeeId());
   protected pageTitle = computed(() => (this.isEditMode() ? 'Edit Employee' : 'Create Employee'));
   protected pageDescription = computed(() =>

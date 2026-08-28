@@ -56,7 +56,7 @@ export class AttendanceHistoryFilterBar {
   protected readonly leaveService = inject(LeaveRequestsService);
 
 
-  isAdmin = this.authService.currentUser()?.roles.includes("Admin") || false;
+  isAdmin = this.authService.currentUser()?.employeeInfo?.roles?.includes("Admin") || false;
   showMoreFilters = false;
   // Option lists exposed to the template
   protected readonly statusOptions = ATTENDANCE_STATUS_OPTIONS;

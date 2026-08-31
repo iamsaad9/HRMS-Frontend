@@ -192,7 +192,10 @@
               <div class="p-3.5 rounded-xl bg-(--secondary)/50">
                 <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
                 <span class="text-lg font-bold text-(--primary) mt-0.5 block">
-                  {{ attendanceService.todayStatus()?.firstIn | date: 'hh:mm a' }}
+                  {{
+                    attendanceService.todayStatus()?.punches?.find((p) => p.punchType == 'In')
+                      ?.punchTime | date: 'hh:mm a'
+                  }}
                 </span>
               </div>
 
@@ -260,14 +263,20 @@
               <div class="p-3.5 rounded-xl bg-(--secondary)/50">
                 <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
                 <span class="text-lg font-bold text-(--primary) mt-0.5 block">
-                  {{ attendanceService.todayStatus()?.firstIn | date: 'hh:mm a' }}
+                  {{
+                    attendanceService.todayStatus()?.punches?.find((p) => p.punchType == 'In')
+                      ?.punchTime | date: 'hh:mm a'
+                  }}
                 </span>
               </div>
 
               <div class="p-3.5 rounded-xl bg-(--secondary)/50">
                 <span class="text-xs text-(--primary)/80 block font-medium">End Time</span>
                 <span class="text-lg font-bold text-(--primary) mt-0.5 block">
-                  {{ attendanceService.todayStatus()?.lastOut | date: 'hh:mm a' }}
+                  {{
+                    attendanceService.todayStatus()?.punches?.find((p) => p.punchType == 'Out')
+                      ?.punchTime | date: 'hh:mm a'
+                  }}
                 </span>
               </div>
 

@@ -24,7 +24,7 @@ import {
 } from '../model/attendance.model';
 import { AuthService } from '../../../(public)/auth/services/auth.service';
 
-    const toLocalDateStr = (d: Date): string => {
+const toLocalDateStr = (d: Date): string => {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
@@ -37,20 +37,20 @@ export class AttendanceService {
   private http = inject(HttpClient);
   private loadingService = inject(LoadingService);
   private authService = inject(AuthService);
-  utctoday = new Date()
+  utctoday = new Date();
   today = toLocalDateStr(this.utctoday);
-  currentUserId = this.authService.currentUser()?.employeeInfo.id
-todayStatus = computed(() => {
-  const monthData = this.currentMonth();
-  if (!monthData || monthData.length === 0) return null;
+  currentUserId = this.authService.currentUser()?.employeeInfo.id;
+  todayStatus = computed(() => {
+    const monthData = this.currentMonth();
+    if (!monthData || monthData.length === 0) return null;
 
-  const sorted = [...monthData].sort((a, b) => 
-    new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
+    const sorted = [...monthData].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
 
-  const latestRecord = sorted[sorted.length - 1];
-  return latestRecord;
-});
+    const latestRecord = sorted[sorted.length - 1];
+    return latestRecord;
+  });
 
   #adjustments = signal<AttendanceAdjustmentResponseDto[] | null>(null);
   allAdjustments = this.#adjustments.asReadonly();
@@ -63,62 +63,57 @@ todayStatus = computed(() => {
     return list !== null && list.length > 0;
   });
 
+  // Call this.todayStatus() as a function, and convert to boolean if needed
+  isClockedIn = computed(() => !!this.todayStatus()?.punches.find((p) => p.punchType == 'In'));
+  isClockedOut = computed(() => !!this.todayStatus()?.punches.find((p) => p.punchType == 'Out'));
 
-// Call this.todayStatus() as a function, and convert to boolean if needed
-isClockedIn = computed(() => !!this.todayStatus()?.firstIn);
-isClockedOut = computed(() => !!this.todayStatus()?.lastOut);
+  isOnBreak = computed(() => this.todayStatus()?.lastOut ?? false);
 
+  private upsertDailyAttendance(todayRecord: DailyAttendance): void {
+    this.#currentMonth.update((records) => {
+      const list = records ?? [];
+      const index = list.findIndex((day) => day.date === todayRecord.date);
 
-// Also fixed typo: isEarlyExist -> isEarlyExit
-isOnBreak = computed(() => this.todayStatus()?.lastOut ?? false);
+      if (index !== -1) {
+        // Replace existing day
+        return list.map((day, i) => (i === index ? todayRecord : day));
+      }
 
-private upsertDailyAttendance(todayRecord: DailyAttendance): void {
-  this.#currentMonth.update((records) => {
-    const list = records ?? [];
-    const index = list.findIndex((day) => day.date === todayRecord.date);
-
-    if (index !== -1) {
-      // Replace existing day
-      return list.map((day, i) => (i === index ? todayRecord : day));
-    }
-
-    // Append today's new entry
-    return [...list, todayRecord];
-  });
-}
+      // Append today's new entry
+      return [...list, todayRecord];
+    });
+  }
 
   // ---------------------------------------------------------------
   // Punch actions
   // ---------------------------------------------------------------
   punch(command: PunchCommand): Observable<ApiResponse<PunchResponseDto>> {
-    return this.http
-      .post<ApiResponse<PunchResponseDto>>(`${this.apiUrl}/punch`, command)
-      .pipe(
-        switchMap((response) => {
-          if (!response.isSuccess) {
-            return of(response);
-          }
+    return this.http.post<ApiResponse<PunchResponseDto>>(`${this.apiUrl}/punch`, command).pipe(
+      switchMap((response) => {
+        if (!response.isSuccess) {
+          return of(response);
+        }
 
-          const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+        const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
 
-          // Fetch attendance filtering by today's date
-          return this.getDailyAttendance(command.employeeId, today).pipe(
-            tap((todayResponse) => {
-              if (todayResponse.isSuccess && todayResponse.data) {
-                // Handle single item or array based on API response structure
-                const todayAttendance = Array.isArray(todayResponse.data) 
-                  ? todayResponse.data[0] 
-                  : todayResponse.data;
+        // Fetch attendance filtering by today's date
+        return this.getDailyAttendance(command.employeeId, today).pipe(
+          tap((todayResponse) => {
+            if (todayResponse.isSuccess && todayResponse.data) {
+              // Handle single item or array based on API response structure
+              const todayAttendance = Array.isArray(todayResponse.data)
+                ? todayResponse.data[0]
+                : todayResponse.data;
 
-                if (todayAttendance) {
-                  this.upsertDailyAttendance(todayAttendance);
-                }
+              if (todayAttendance) {
+                this.upsertDailyAttendance(todayAttendance);
               }
-            }),
-            map(() => response) // Return original punch response to subscriber
-          );
-        })
-      );
+            }
+          }),
+          map(() => response), // Return original punch response to subscriber
+        );
+      }),
+    );
   }
 
   // ---------------------------------------------------------------
@@ -163,7 +158,7 @@ private upsertDailyAttendance(todayRecord: DailyAttendance): void {
 
   getCurrentMonth(): Observable<ApiResponse<DailyAttendance[]>> {
     const today = new Date();
-    // const endDate = toLocalDateStr(today); 
+    // const endDate = toLocalDateStr(today);
 
     // Set start date to the 1st of the current month
     const start = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -172,13 +167,13 @@ private upsertDailyAttendance(todayRecord: DailyAttendance): void {
     const endDate = toLocalDateStr(end);
 
     this.loadingService.showLoading();
-    
+
     const httpParams = new HttpParams()
       .set('employeeId', this.currentUserId || '')
       .set('startDate', startDate)
       .set('endDate', endDate);
 
-      console.log("Params: ",httpParams)
+    console.log('Params: ', httpParams);
     return this.http
       .get<ApiResponse<DailyAttendance[]>>(`${this.apiUrl}/history`, { params: httpParams })
       .pipe(
@@ -220,7 +215,7 @@ private upsertDailyAttendance(todayRecord: DailyAttendance): void {
   // Adjustments
   // ---------------------------------------------------------------
   createAdjustment(
-    command: AttendanceAdjustmentForm ,
+    command: AttendanceAdjustmentForm,
   ): Observable<ApiResponse<AttendanceAdjustmentResponseDto>> {
     return this.http
       .post<ApiResponse<AttendanceAdjustmentResponseDto>>(`${this.apiUrl}/adjustments`, command)
@@ -277,7 +272,9 @@ private upsertDailyAttendance(todayRecord: DailyAttendance): void {
     command: AdjustmentActionCommand,
   ): Observable<ApiResponse<AttendanceAdjustmentResponseDto>> {
     return this.http
-      .put<ApiResponse<AttendanceAdjustmentResponseDto>>(`${this.apiUrl}/adjustments/${id}/approve`, command)
+      .put<
+        ApiResponse<AttendanceAdjustmentResponseDto>
+      >(`${this.apiUrl}/adjustments/${id}/approve`, command)
       .pipe(
         tap((response) => {
           if (response.isSuccess) {
@@ -293,7 +290,9 @@ private upsertDailyAttendance(todayRecord: DailyAttendance): void {
     command: AdjustmentActionCommand,
   ): Observable<ApiResponse<AttendanceAdjustmentResponseDto>> {
     return this.http
-      .put<ApiResponse<AttendanceAdjustmentResponseDto>>(`${this.apiUrl}/adjustments/${id}/reject`, command)
+      .put<
+        ApiResponse<AttendanceAdjustmentResponseDto>
+      >(`${this.apiUrl}/adjustments/${id}/reject`, command)
       .pipe(
         tap((response) => {
           if (response.isSuccess) {

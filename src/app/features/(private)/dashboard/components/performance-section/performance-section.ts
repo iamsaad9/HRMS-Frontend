@@ -45,7 +45,7 @@ export interface TeamMember {
 @Component({
   selector: 'app-performance-section',
   standalone: true,
-  imports: [CommonModule, TuiButton,  TuiCardLarge, MatIcon, TuiIcon, AttendanceBarChartComponent],
+  imports: [CommonModule, TuiButton, TuiCardLarge, MatIcon, TuiIcon, AttendanceBarChartComponent],
   templateUrl: './performance-section.html',
 })
 export class PerformanceSection {
@@ -57,32 +57,34 @@ export class PerformanceSection {
   readonly employeeId = this.currentUser?.employeeInfo?.id;
   isPunchingIn = signal(false);
   today = new Date();
-  
-  options: Intl.DateTimeFormatOptions = { 
-    weekday: 'long', 
-    month: 'short', 
-    day: 'numeric', 
-    year: 'numeric' 
+
+  options: Intl.DateTimeFormatOptions = {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
   };
 
   formattedDate = signal(this.today.toLocaleDateString('en-US', this.options));
 
   isToday(dateStr: string): boolean {
-  const d = new Date(dateStr);
-  return d.getFullYear() === this.today.getFullYear()
-    && d.getMonth() === this.today.getMonth()
-    && d.getDate() === this.today.getDate();
-}
+    const d = new Date(dateStr);
+    return (
+      d.getFullYear() === this.today.getFullYear() &&
+      d.getMonth() === this.today.getMonth() &&
+      d.getDate() === this.today.getDate()
+    );
+  }
 
   fullWeekAttendance = computed(() => {
     const rawData = this.attendanceService.currentMonth() ?? [];
-    
+
     const attendanceMap = new Map(rawData.map((item) => [item.date, item]));
 
     const now = new Date();
     const currentDayOfWeek = now.getDay(); // 0 = Sun, 1 = Mon, ...
     const distanceToMonday = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
-    
+
     const monday = new Date(now);
     monday.setDate(now.getDate() + distanceToMonday);
 
@@ -136,75 +138,75 @@ export class PerformanceSection {
 
   readonly punches = input<readonly AttendancePunch[]>([
     { date: '2026-03-01', checkIn: '09:58', checkOut: '17:05' }, // Sunday
-  { date: '2026-03-02', checkIn: '08:55', checkOut: '17:05' },
-  { date: '2026-03-03', checkIn: '09:00', checkOut: '17:00' },
-  { date: '2026-03-04', checkIn: '08:48', checkOut: '17:15' },
-  { date: '2026-03-05', checkIn: '09:12', checkOut: '17:02' }, // Late check-in
-  { date: '2026-03-06', checkIn: '08:58', checkOut: '15:30' }, // Early check-out
-  { date: '2026-03-07', checkIn: '08:58', checkOut: '15:30'  }, // Saturday
-  { date: '2026-03-08', checkIn: '08:58', checkOut: '15:30'  }, // Sunday
-  { date: '2026-03-09', checkIn: '08:52', checkOut: '17:08' },
-  { date: '2026-03-10', checkIn: '09:05', checkOut: '17:00' },
-  { date: '2026-03-11', checkIn: '08:59', checkOut: '17:12' },    // Missing check-out
-  { date: '2026-03-12', checkIn: '08:45', checkOut: '17:30' },
-  { date: '2026-03-13', checkIn: '09:00', checkOut: '16:45' },
-  { date: '2026-03-14', checkIn: '08:58', checkOut: '15:30'  }, // Saturday
-  { date: '2026-03-15', checkIn: '08:58', checkOut: '15:30'  }, // Sunday
-  { date: '2026-03-16', checkIn: '08:50', checkOut: '17:10' },
-  { date: '2026-03-17', checkIn: '09:30', checkOut: '18:00' }, // Shifted schedule
-  { date: '2026-03-18', checkIn: '08:55', checkOut: '17:00' },
-  { date: '2026-03-19', checkIn: '08:57', checkOut: '17:03' },
-  { date: '2026-03-20', checkIn: '09:01', checkOut: '17:00' },
-  { date: '2026-03-21', checkIn: '08:58', checkOut: '15:30'  }, // Saturday
-  { date: '2026-03-22', checkIn: '08:58', checkOut: '15:30'  }, // Sunday
-  { date: '2026-03-23', checkIn: '08:58', checkOut: '15:30'  }, // Leave / Absent
-  { date: '2026-03-24', checkIn: '08:40', checkOut: '17:20' },
-  { date: '2026-03-25', checkIn: '08:59', checkOut: '17:01' },
-  { date: '2026-03-26', checkIn: '08:58', checkOut: '15:30'  },    // Missing check-in
-  { date: '2026-03-27', checkIn: '08:50', checkOut: '16:00' },
-  { date: '2026-03-28', checkIn: '08:58', checkOut: '15:30'  }, // Saturday
-  { date: '2026-03-29', checkIn: '08:58', checkOut: '15:30'  }, // Sunday
-  { date: '2026-03-30', checkIn: '08:53', checkOut: '17:12' },
-   ]);
+    { date: '2026-03-02', checkIn: '08:55', checkOut: '17:05' },
+    { date: '2026-03-03', checkIn: '09:00', checkOut: '17:00' },
+    { date: '2026-03-04', checkIn: '08:48', checkOut: '17:15' },
+    { date: '2026-03-05', checkIn: '09:12', checkOut: '17:02' }, // Late check-in
+    { date: '2026-03-06', checkIn: '08:58', checkOut: '15:30' }, // Early check-out
+    { date: '2026-03-07', checkIn: '08:58', checkOut: '15:30' }, // Saturday
+    { date: '2026-03-08', checkIn: '08:58', checkOut: '15:30' }, // Sunday
+    { date: '2026-03-09', checkIn: '08:52', checkOut: '17:08' },
+    { date: '2026-03-10', checkIn: '09:05', checkOut: '17:00' },
+    { date: '2026-03-11', checkIn: '08:59', checkOut: '17:12' }, // Missing check-out
+    { date: '2026-03-12', checkIn: '08:45', checkOut: '17:30' },
+    { date: '2026-03-13', checkIn: '09:00', checkOut: '16:45' },
+    { date: '2026-03-14', checkIn: '08:58', checkOut: '15:30' }, // Saturday
+    { date: '2026-03-15', checkIn: '08:58', checkOut: '15:30' }, // Sunday
+    { date: '2026-03-16', checkIn: '08:50', checkOut: '17:10' },
+    { date: '2026-03-17', checkIn: '09:30', checkOut: '18:00' }, // Shifted schedule
+    { date: '2026-03-18', checkIn: '08:55', checkOut: '17:00' },
+    { date: '2026-03-19', checkIn: '08:57', checkOut: '17:03' },
+    { date: '2026-03-20', checkIn: '09:01', checkOut: '17:00' },
+    { date: '2026-03-21', checkIn: '08:58', checkOut: '15:30' }, // Saturday
+    { date: '2026-03-22', checkIn: '08:58', checkOut: '15:30' }, // Sunday
+    { date: '2026-03-23', checkIn: '08:58', checkOut: '15:30' }, // Leave / Absent
+    { date: '2026-03-24', checkIn: '08:40', checkOut: '17:20' },
+    { date: '2026-03-25', checkIn: '08:59', checkOut: '17:01' },
+    { date: '2026-03-26', checkIn: '08:58', checkOut: '15:30' }, // Missing check-in
+    { date: '2026-03-27', checkIn: '08:50', checkOut: '16:00' },
+    { date: '2026-03-28', checkIn: '08:58', checkOut: '15:30' }, // Saturday
+    { date: '2026-03-29', checkIn: '08:58', checkOut: '15:30' }, // Sunday
+    { date: '2026-03-30', checkIn: '08:53', checkOut: '17:12' },
+  ]);
 
- 
-   // <-------------- PUNCHES LOGIC --------------> 
+  // <-------------- PUNCHES LOGIC -------------->
 
   breakSessions = computed(() => {
-  const punches = this.attendanceService.todayStatus()?.punches ?? [];
-  const breakPunches = punches
-    .filter(p => p.punchType === 'BreakStart' || p.punchType === 'BreakEnd')
-    .sort((a, b) => new Date(a.punchTime).getTime() - new Date(b.punchTime).getTime());
+    const punches = this.attendanceService.todayStatus()?.punches ?? [];
+    const breakPunches = punches
+      .filter((p) => p.punchType === 'BreakStart' || p.punchType === 'BreakEnd')
+      .sort((a, b) => new Date(a.punchTime).getTime() - new Date(b.punchTime).getTime());
 
-  const sessions: { start: string; end: string | null }[] = [];
-  for (const p of breakPunches) {
-    if (p.punchType === 'BreakStart') {
-      sessions.push({ start: p.punchTime, end: null });
-    } else if (p.punchType === 'BreakEnd') {
-      const open = sessions.find(s => s.end === null);
-      if (open) open.end = p.punchTime;
+    const sessions: { start: string; end: string | null }[] = [];
+    for (const p of breakPunches) {
+      if (p.punchType === 'BreakStart') {
+        sessions.push({ start: p.punchTime, end: null });
+      } else if (p.punchType === 'BreakEnd') {
+        const open = sessions.find((s) => s.end === null);
+        if (open) open.end = p.punchTime;
+      }
     }
-  }
-  return sessions;
-});
+    return sessions;
+  });
 
-isOnBreak = computed(() => this.breakSessions().some(s => s.end === null));
+  isOnBreak = computed(() => this.breakSessions().some((s) => s.end === null));
 
-canClockOut = computed(() => this.attendanceService.isClockedIn() 
-  && !this.attendanceService.isClockedOut() 
-  && !this.isOnBreak());
+  canClockOut = computed(
+    () =>
+      this.attendanceService.isClockedIn() &&
+      !this.attendanceService.isClockedOut() &&
+      !this.isOnBreak(),
+  );
 
   protected onClockIn(): void {
-
-
     if (!this.employeeId) {
       this.toast.error('Employee ID not found', 'Attendance Updated');
       return;
     }
     this.isPunchingIn.set(true);
     const command: PunchCommand = {
-      employeeId:this.employeeId,
-      punchType:PunchType.ClockIn,
+      employeeId: this.employeeId,
+      punchType: PunchType.ClockIn,
       channel: AttendanceChannelType.Web,
       deviceId: null,
       latitude: null,
@@ -222,13 +224,11 @@ canClockOut = computed(() => this.attendanceService.isClockedIn()
       error: () => {
         this.toast.error('Clock in failed!', 'Attendance Updated');
       },
-      
-      
     });
     this.isPunchingIn.set(false);
   }
 
-    protected onBreakStart(): void {
+  protected onBreakStart(): void {
     if (!this.employeeId) {
       this.toast.error('Employee ID not found', 'Failed');
       return;
@@ -236,7 +236,7 @@ canClockOut = computed(() => this.attendanceService.isClockedIn()
 
     const command: PunchCommand = {
       employeeId: this.employeeId,
-      punchType:PunchType.BreakStart,
+      punchType: PunchType.BreakStart,
       channel: AttendanceChannelType.Web,
       deviceId: null,
       latitude: null,
@@ -254,11 +254,10 @@ canClockOut = computed(() => this.attendanceService.isClockedIn()
       error: () => {
         this.toast.error('Break start failed!', 'Attendance Updated');
       },
-      
     });
   }
 
-   protected onBreakEnd(): void {
+  protected onBreakEnd(): void {
     if (!this.employeeId) {
       this.toast.error('Employee ID not found', 'Failed');
       return;
@@ -266,7 +265,7 @@ canClockOut = computed(() => this.attendanceService.isClockedIn()
 
     const command: PunchCommand = {
       employeeId: this.employeeId,
-      punchType:PunchType.BreakEnd,
+      punchType: PunchType.BreakEnd,
       channel: AttendanceChannelType.Web,
       deviceId: null,
       latitude: null,
@@ -284,12 +283,10 @@ canClockOut = computed(() => this.attendanceService.isClockedIn()
       error: () => {
         this.toast.error('Break end failed!', 'Attendance Updated');
       },
-      
     });
   }
 
   protected onClockOut(): void {
-
     const employeeId = this.currentUser?.employeeInfo?.id;
 
     if (!employeeId) {
@@ -299,7 +296,7 @@ canClockOut = computed(() => this.attendanceService.isClockedIn()
 
     const command: PunchCommand = {
       employeeId,
-      punchType:PunchType.ClockOut,
+      punchType: PunchType.ClockOut,
       channel: AttendanceChannelType.Web,
       deviceId: null,
       latitude: null,
@@ -317,11 +314,7 @@ canClockOut = computed(() => this.attendanceService.isClockedIn()
       error: () => {
         this.toast.error('Clock out failed!', 'Attendance Updated');
       },
-      
     });
     this.isPunchingIn.set(false);
   }
-
-
-
 }

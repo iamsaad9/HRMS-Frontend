@@ -16,16 +16,17 @@
 [tuiTheme="light"] {
   --theme_primary: #811323;
   --primary: #3f3d41;
-  --secondary: #D6D6D6;
-  --background_light: white;
+  --secondary: white;
+  --background_light: #f6f6f6;
   --background_dark: #1d1d1d;
   --error: #ffc9c9;
   --success: #00d492;
 
+
   /* Glass & Gradient Extensions */
   --card-bg-glass: rgba(255, 255, 255, 0.65);
   --card-border-glass: rgba(255, 255, 255, 0.8);
-  --card-shadow-glass: 0 8px 32px 0 rgba(129, 19, 35, 0.06);
+  --card-shadow-glass: 2px 2px 5px 2px rgba(129, 19, 35, 0.06);
 
   /* Subtle background radial glows */
   --bg-gradient-glow: radial-gradient(circle at 10% 20%,
@@ -39,8 +40,9 @@
 [tuiTheme="dark"] {
   --theme_primary: #c23347;
   --primary: #e4e4e6;
-  --secondary: #4a4a4a;
-  --background_light: #1d1d1d;
+  --text-secondary: #4a4a4a;
+  --secondary: #1d1d1d67;
+  --background_light: #242424;
   --background_dark: white;
   --error: #82181a;
   --success: #00d492;
@@ -49,7 +51,7 @@
   /* Glass & Gradient Extensions */
   --card-bg-glass: rgba(45, 45, 48, 0.6);
   --card-border-glass: rgba(255, 255, 255, 0.08);
-  --card-shadow-glass: 0 8px 15px 0 rgba(0, 0, 0, 0.37);
+  --card-shadow-glass: 2px 2px 5px 2px rgba(0, 0, 0, 0.37);
 
   /* Subtle background radial glows */
   --bg-gradient-glow: radial-gradient(circle at 15% 15%,

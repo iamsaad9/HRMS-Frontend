@@ -1,7 +1,4 @@
-<div
-  tuiCardLarge
-  class="drop-shadow-sm bg-(--secondary)/10! shadow-[0_0_5px_rgba(0,0,0,0.2)]! gap-2! glass-card"
->
+<div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/70! shadow-[0_0_5px_rgba(0,0,0,0.2)]! gap-2! glass-card">
   <div class="flex items-center justify-start gap-2">
     <mat-icon class="text-(--theme2)!">person</mat-icon>
     <div>
@@ -13,17 +10,14 @@
   </div>
 
   <div class="flex gap-5">
-    <div
-      tuiCardLarge
-      class="flex-1 bg-(--background_light)/40! border! drop-shadow-sm flex flex-col justify-between gap-6 border-(--secondary)/20!"
-    >
+    <div tuiCardLarge
+      class="flex-1 bg-(--secondary)! border! drop-shadow-sm flex flex-col justify-between gap-6 border-(--secondary)/20!">
       <!-- Header: Avatar, Name & Status -->
-      <div class="flex items-center justify-between gap-4 pb-5 border-b border-slate-100">
+      <div class="flex items-center justify-between gap-4 pb-5 border-b border-(--primary)/20">
         <!-- Left Side: Avatar + Details -->
         <div class="flex items-center gap-4 min-w-0">
           <div
-            class="size-16 rounded-full bg-(--theme1)/15 border border-(--theme1)/25 flex items-center justify-center text-xl font-semibold text-(--theme1) shrink-0"
-          >
+            class="size-16 rounded-full bg-(--theme1)/25 border border-(--theme1)/50 flex items-center justify-center text-xl font-semibold text-(--theme1) shrink-0">
             {{ initials() }}
           </div>
 
@@ -34,9 +28,13 @@
 
             <div class="flex flex-wrap items-center gap-2 mt-2">
               <span
-                class="inline-block text-xs px-2.5 py-0.5 rounded-full bg-(--secondary)/50 text-(--primary)/80 font-semibold"
-              >
+                class="inline-block text-xs px-2.5 py-0.5 rounded-full bg-(--primary)/20 text-(--primary)/80 font-semibold">
                 {{ currentUser?.employeeInfo?.designationTitle || 'N/A' }}
+              </span>
+              <!-- Employee ID -->
+              <span
+                class="inline-block text-xs px-2 py-0.5 rounded-full bg-(--primary) text-(--background_light) font-mono font-medium">
+                {{ currentUser?.employeeInfo?.staffNo || 'N/A' }}
               </span>
             </div>
           </div>
@@ -44,63 +42,51 @@
 
         <!-- Right Side: Status Badge + Emp ID -->
         <div class="flex flex-col items-end gap-2 shrink-0">
-          <!-- Active Status Badge -->
+          <button tuiButton type="button" size="s" iconStart="@tui.pencil"
+            [routerLink]="['/employee', currentUser?.employeeInfo?.id, 'view']" class="bg-(--theme1)!"></button>
+
+
+          <!-- Departmnet Badge -->
           <span
             class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-(--success) text-emerald-900"
-            title="Active Employee"
-          >
+            title="Active Employee">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
             {{ currentUser?.employeeInfo?.departmentName || 'N/A' }}
           </span>
 
-          <!-- Employee ID -->
-          <span
-            class="inline-block text-xs px-2 py-0.5 rounded-full bg-(--primary) text-(--background_light) font-mono font-medium"
-          >
-            {{ currentUser?.employeeInfo?.staffNo || 'N/A' }}
-          </span>
+
         </div>
       </div>
 
       <!-- Content: Key Employee Details Grid -->
       <div class="grid grid-cols-2 gap-4">
-        <div class="p-3 rounded-xl bg-(--secondary)/30">
-          <span class="text-xs text-(--primary)/60 block font-medium uppercase tracking-wider"
-            >Role</span
-          >
+        <div class="p-3 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+          <span class="text-xs text-(--primary)/60 block font-medium uppercase tracking-wider">Role</span>
           <div class="flex gap-2 mt-2">
             @for (roles of currentUser?.employeeInfo?.roles; track $index) {
-              <span
-                class="text-sm font-semibold text-(--primary) capitalize truncate bg-(--error) px-1 rounded-full"
-              >
-                {{ roles || 'N/A' }}
-              </span>
+            <span class="text-sm font-semibold text-(--primary) capitalize truncate bg-(--theme1)/50 px-2 rounded-full">
+              {{ roles || 'N/A' }}
+            </span>
             }
           </div>
         </div>
 
-        <div class="p-3 rounded-xl bg-(--secondary)/30">
-          <span class="text-xs text-(--primary)/60 block font-medium uppercase tracking-wider"
-            >Branch</span
-          >
+        <div class="p-3 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+          <span class="text-xs text-(--primary)/60 block font-medium uppercase tracking-wider">Branch</span>
           <span class="text-sm font-semibold text-(--primary) truncate block mt-0.5">
             {{ currentUser?.employeeInfo?.branchName || 'N/A' }}
           </span>
         </div>
 
-        <div class="p-3 rounded-xl bg-(--secondary)/30">
-          <span class="text-xs text-(--primary)/60 block font-medium uppercase tracking-wider"
-            >Manager</span
-          >
+        <div class="p-3 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+          <span class="text-xs text-(--primary)/60 block font-medium uppercase tracking-wider">Manager</span>
           <span class="text-sm font-semibold text-(--primary) truncate block mt-0.5">
             {{ currentUser?.employeeInfo?.managerName || 'N/A' }}
           </span>
         </div>
 
-        <div class="p-3 rounded-xl bg-(--secondary)/30">
-          <span class="text-xs text-(--primary)/60 block font-medium uppercase tracking-wider"
-            >Joined</span
-          >
+        <div class="p-3 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+          <span class="text-xs text-(--primary)/60 block font-medium uppercase tracking-wider">Joined</span>
           <span class="text-sm font-semibold text-(--primary) truncate block mt-0.5">
             {{ currentUser?.employeeInfo?.startDate || 'N/A' }}
           </span>
@@ -108,61 +94,28 @@
       </div>
 
       <!-- Footer: Email & Employment Status -->
-      <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
+      <div class="pt-4 border-t border-(--primary)/20 flex items-center justify-between gap-2 text-xs">
         <div class="truncate">
-          <span class="text-slate-400 font-medium block">Email</span>
-          <a
-            href="mailto:saad.masood@company.com"
-            class="font-semibold text-(--theme2) hover:underline truncate block"
-          >
+          <span class="text-(--primary)/60 font-medium block">Email</span>
+          <a href="mailto:saad.masood@company.com" class="font-semibold text-(--theme2) hover:underline truncate block">
             {{ currentUser?.email || 'N/A' }}
           </a>
         </div>
 
         <div class="shrink-0 text-right">
-          <span class="text-slate-400 font-medium block">Type</span>
+          <span class="text-(--primary)/60 font-medium block">Type</span>
           <span
-            class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 font-semibold text-[11px] uppercase inline-block mt-0.5"
-          >
-            Full-Time
+            class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 font-semibold text-[11px] uppercase inline-block mt-0.5">
+            {{ currentUser?.employeeInfo?.employmentType || 'N/A' }}
           </span>
         </div>
       </div>
     </div>
 
     <div class="w-sm flex flex-col justify-between gap-6">
-      <!-- <div tuiCardLarge
-        class="flex-1 bg-(--background_light)/40! rounded-2xl    drop-shadow-sm flex flex-col justify-between gap-3! border! border-(--secondary)/20!">
-        <span class="text-base text-(--theme2) block font-medium uppercase tracking-wider">Sick Leaves
-          Remaining</span>
-        <span class="text-xl font-semibold text-(--primary) truncate block mt-0.5">
-          15
-        </span>
-      </div>
-
       <div tuiCardLarge
-        class="flex-1 bg-(--background_light)/40! rounded-2xl  drop-shadow-sm flex flex-col justify-between gap-3! border! border-(--secondary)/20!">
-        <span class="text-base text-(--theme2) block font-medium uppercase tracking-wider">Annual Leaves
-          Remaining</span>
-        <span class="text-xl font-semibold text-(--primary) truncate block mt-0.5">
-          9
-        </span>
-      </div>
-
-      <div tuiCardLarge
-        class="flex-1 bg-(--background_light)/40! rounded-2xl  drop-shadow-sm flex flex-col justify-between gap-3! border! border-(--secondary)/20!">
-        <span class="text-base text-(--theme2) block font-medium uppercase tracking-wider">Casual Leaves
-          Remaining</span>
-        <span class="text-xl font-semibold text-(--primary) truncate block mt-0.5">
-          12
-        </span>
-      </div> -->
-
-      <div
-        tuiCardLarge
-        class="flex-1 bg-(--background_light)/40! rounded-2xl drop-shadow-sm flex flex-col justify-between gap-3! border! border-(--secondary)/20!"
-      >
-        <div class="flex items-center justify-between border-b border-(--secondary) pb-3">
+        class="flex-1  bg-(--secondary)! rounded-2xl drop-shadow-sm flex flex-col justify-between gap-3! border! border-(--secondary)/20!">
+        <div class="flex items-center justify-between border-b border-(--primary)/20 pb-3">
           <div>
             <h3 class="text-xl font-bold text-(--theme2) uppercase">remaining leaves</h3>
             <p class="text-sm text-(--primary)/80">Your remaining leaves.</p>
@@ -174,18 +127,13 @@
             <div>Total</div>
           </tui-ring-chart>
 
-          <div class="legend">
+          <div class="legend flex gap-2">
             @for (label of labels; track label) {
-              <tui-legend-item
-                size="s"
-                class="item"
-                [active]="isItemActive($index)"
-                [color]="`var(--tui-chart-categorical-${$index.toString().padStart(2, '0')})`"
-                [text]="label"
-                (tuiHoveredChange)="onHover($index, $event)"
-              >
-                <span>{{ value[$index] || 0 }}</span>
-              </tui-legend-item>
+            <tui-legend-item size="s" class="item" [active]="isItemActive($index)"
+              [color]="`var(--tui-chart-categorical-${$index.toString().padStart(2, '0')})`" [text]="label"
+              (tuiHoveredChange)="onHover($index, $event)">
+              <span>{{ value[$index] || 0 }}</span>
+            </tui-legend-item>
             }
           </div>
         </div>

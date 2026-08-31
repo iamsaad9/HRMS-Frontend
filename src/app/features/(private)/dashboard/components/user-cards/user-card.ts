@@ -4,7 +4,7 @@ import { TuiCardLarge, TuiHeader } from '@taiga-ui/layout';
 import { MatIcon } from '@angular/material/icon';
 import { AttendanceService } from '../../../attendance/service/attendance.service';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AttendanceBarChartComponent } from "../attendance-bar-chart/attendance-bar-chart";
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { LeaveCalendarCard } from "../leave-calendar/leave-calendar";
@@ -23,7 +23,7 @@ export interface ClockHistoryItem {
   selector: 'app-user-cards',
   templateUrl: './user-card.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TuiAmountPipe, TuiHovered, TuiCardLarge,  MatIcon, LeaveCalendarCard, TuiRingChart, TuiLegendItem],
+  imports: [TuiButton,RouterLink, TuiHovered, TuiCardLarge,  MatIcon, LeaveCalendarCard, TuiRingChart, TuiLegendItem],
 })
 export class UserCardsComponent {
   protected readonly attendanceService = inject(AttendanceService);

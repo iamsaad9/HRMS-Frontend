@@ -1,5 +1,5 @@
 <div class="flex flex-col items-center">
-    <div class="relative flex flex-col items-center gap-1.5 rounded-xl border border-(--secondary) bg-(--background_light)/60 px-4 py-3 shadow-[0_0_8px_rgba(0,0,0,0.12)] min-w-[168px] max-w-[200px] transition-opacity"
+    <div class="relative flex flex-col items-center gap-1.5 rounded-xl border border-(--secondary) bg-(--secondary) px-4 py-3 shadow-[0_0_8px_rgba(0,0,0,0.12)] min-w-[168px] max-w-[200px] transition-opacity"
         [ngClass]="{
       'ring-2 ring-(--theme1)': isRoot,
       'ring-2 ring-amber-400': isMatch(),
@@ -38,15 +38,15 @@
     <!-- Children -->
     @if (node.children.length > 0 && expanded()) {
     <div class="flex flex-col items-center mt-6">
-        <div class="w-px h-6 bg-(--secondary)"></div>
+        <div class="w-px h-6 bg-(--theme1)"></div>
         <div class="flex items-start">
             @for (child of node.children; track child.employee.id; let first = $first; let last = $last) {
             <div class="flex flex-col items-center flex-1 px-4">
                 <div class="flex w-full h-px">
-                    <div class="flex-1" [ngClass]="{ 'border-t border-(--secondary)': !first }"></div>
-                    <div class="flex-1" [ngClass]="{ 'border-t border-(--secondary)': !last }"></div>
+                    <div class="flex-1" [ngClass]="{ 'border-t border-(--theme1)': !first }"></div>
+                    <div class="flex-1" [ngClass]="{ 'border-t border-(--theme1)': !last }"></div>
                 </div>
-                <div class="w-px h-6 bg-(--secondary)"></div>
+                <div class="w-px h-6 bg-(--theme1)"></div>
                 <app-org-chart-node [node]="child" [searchTerm]="searchTerm" [matchIds]="matchIds" />
             </div>
             }

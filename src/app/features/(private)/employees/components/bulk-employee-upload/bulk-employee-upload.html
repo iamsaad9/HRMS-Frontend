@@ -9,7 +9,7 @@
   </header>
 
   <div tuiCardLarge
-    class="flex flex-col gap-5 p-4 w-full bg-(--secondary)/20! drop-shadow-sm glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+    class="flex flex-col gap-5 p-4 w-full bg-(--secondary)! drop-shadow-sm glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
     <!-- FILE INPUT -->
     @if (!control.value) {
     <label tuiInputFiles class="h-50!">
@@ -20,7 +20,7 @@
     <div class="p-4 border border-(--theme1)/70 bg-(--theme1)/10 rounded-lg w-full">
       <label class="flex items-center gap-2 text-sm cursor-pointer select-none w-fit bg-">
         <input tuiCheckbox type="checkbox" [formControl]="upsertControl"
-          class="h-4 w-4 checked:bg-(--theme1)! cursor-pointer" />
+          class="h-4 w-4 checked:bg-(--theme1)! border! border-(--theme1)! cursor-pointer" />
         <span>Update existing employees if duplicates are found (Upsert)?</span>
       </label>
     </div>

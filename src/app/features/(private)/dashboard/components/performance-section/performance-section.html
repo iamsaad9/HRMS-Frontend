@@ -1,4 +1,4 @@
-<div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/70! glass-card ">
+<div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/70! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
   <div class="flex items-center justify-start gap-2">
     <mat-icon class="text-(--theme2)!">track_changes</mat-icon>
     <div>
@@ -151,7 +151,7 @@
             } @else if (!attendanceService.isClockedOut()) {
             <!-- STATE 2: Clocked in, active session -->
 
-            <div class="p-3.5 rounded-xl bg-(--secondary)/50">
+            <div class="p-3.5 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
               <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
               <span class="text-lg font-bold text-(--primary) mt-0.5 block">
                 {{
@@ -165,7 +165,7 @@
 
             <button (click)="onClockOut()" [disabled]="!canClockOut()" [class.opacity-50]="!canClockOut()"
               [class.cursor-not-allowed]="!canClockOut()" [class.cursor-pointer]="canClockOut()"
-              class="flex items-center justify-center p-3 rounded-xl bg-(--error) active:scale-95 transition-all duration-300 drop-shadow-md">
+              class="flex items-center justify-center p-3 rounded-xl bg-(--error) active:scale-95 transition-all duration-300 drop-shadow-md shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
               @if (isPunchingIn()) {
               <div class="flex items-center justify-center gap-2">
                 <span
@@ -179,7 +179,7 @@
 
             <!-- List every break session so far -->
             @for (session of breakSessions(); track session.start) {
-            <div class="p-2 rounded-xl bg-(--secondary)/50">
+            <div class="p-2 rounded-xl bg-(--theme1)/20 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
               <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
               <span class="text-sm font-bold text-(--primary) mt-0.5 block">
                 {{ session.start | date: 'hh:mm a' }}
@@ -187,7 +187,7 @@
             </div>
 
             @if (session.end) {
-            <div class="p-2 rounded-xl bg-(--secondary)/50">
+            <div class="p-2 rounded-xl bg-(--theme1)/20 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
               <span class="text-xs text-(--primary)/80 block font-medium">Break End</span>
               <span class="text-sm font-bold text-(--primary) mt-0.5 block">
                 {{ session.end | date: 'hh:mm a' }}
@@ -220,7 +220,7 @@
               </span>
             </div>
 
-            <div class="p-3.5 rounded-xl bg-(--secondary)/50">
+            <div class="p-3.5 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
               <span class="text-xs text-(--primary)/80 block font-medium">End Time</span>
               <span class="text-lg font-bold text-(--primary) mt-0.5 block">
                 {{

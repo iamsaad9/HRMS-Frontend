@@ -35,6 +35,9 @@
     radial-gradient(circle at 90% 80%,
       rgba(247, 168, 51, 0.08) 0%,
       transparent 40%);
+
+
+
 }
 
 [tuiTheme="dark"] {
@@ -95,7 +98,7 @@ tui-root {
 }
 
 [tuiAppearance][data-appearance=textfield][data-focus=true] {
-  outline: 1.5px solid var(--secondary) !important;
+  outline: 1.5px solid #a8a7a7 !important;
 }
 
 [tuiCardLarge] {
@@ -139,6 +142,7 @@ tui-root {
   padding: 0.3rem 0.5rem !important;
   transition: all 0.2s !important;
   cursor: pointer;
+  box-shadow: 0 2px 5px rgba(129, 19, 35, 0.25) !important;
 }
 
 .btn-lift:active {

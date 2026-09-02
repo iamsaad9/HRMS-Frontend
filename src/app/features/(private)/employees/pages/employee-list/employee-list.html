@@ -7,7 +7,7 @@
       </button>
 
       <button type="button" iconStart="@tui.download" tuiButton size="s" (click)="exportToCsv()"
-        class="cursor-pointer bg-(--secondary)! text-(--primary)! hover:bg-(--secondary)/80!">
+        class="cursor-pointer bg-(--primary)/20! text-(--primary)! hover:bg-(--secondary)/80!">
         Export
       </button>
     </div>
@@ -15,19 +15,19 @@
 
   <app-employee-filter-bar [employees]="employees() ?? []" (filterChange)="onFilterChange($event)" s />
 
-  <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20!">
+  <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)! ">
     <table tuiTable class="attendance-table w-full" size="m" [(ngModel)]="selected">
       <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
         <tr>
           <th tuiTh class="text-white!">Actions</th>
-          <th tuiTh class="text-white!">StaffNo</th>
-          <th tuiTh class="text-white!">Title</th>
           <th tuiTh class="col-checkbox">
             <div [tuiCell]="size" class="text-white!">
               <input tuiCheckbox tuiCheckboxTable type="checkbox" [size]="size === 'l' ? 'm' : 's'" />
-              <span tuiTitle>FirstName</span>
+              <span tuiTitle>StaffNo</span>
             </div>
           </th>
+          <th tuiTh class="text-white!">Title</th>
+          <th tuiTh class="text-white!">First Name</th>
           <th tuiTh class="text-white!">Last Name</th>
           <th tuiTh class="text-white!">Work Email</th>
           <th tuiTh class="text-white!">Gender</th>
@@ -63,18 +63,24 @@
             </span>
           </td>
 
-          <!-- StaffNo -->
-          <td tuiTd>{{ employee.staffNo || 'N/A' }}</td>
+
+          <!--  (with Avatar & Checkbox) -->
+          <td tuiTd class="col-checkbox">
+            <div [tuiCell]="size">
+              <input tuiCheckbox class="border border-(--theme1)!" type="checkbox" [size]="size === 'l' ? 'm' : 's'"
+                [tuiCheckboxRow]="employee" />
+              <span tuiTitle> {{ employee.staffNo || 'N/A' }}</span>
+            </div>
+          </td>
 
           <!-- Title -->
           <td tuiTd>{{ employee.title || 'N/A' }}</td>
 
-          <!-- FirstName (with Avatar & Checkbox) -->
-          <td tuiTd class="col-checkbox">
+          <!-- FirstName -->
+          <td tuiTd>
             <div [tuiCell]="size">
               <div [style.background]="employee.firstName | tuiAutoColor"
                 [tuiAvatar]="employee.firstName | tuiInitials"></div>
-              <input tuiCheckbox type="checkbox" [size]="size === 'l' ? 'm' : 's'" [tuiCheckboxRow]="employee" />
               <span tuiTitle>{{ employee.firstName || 'N/A' }}</span>
             </div>
           </td>
@@ -135,7 +141,7 @@
 
   @if (filteredEmployees().length > 0) {
   <div tuiCardLarge
-    class="flex flex-row! items-center! justify-between  shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
+    class="flex flex-row! items-center! justify-between  shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card">
 
     <span class="text-sm">
       Showing {{ page() * pageSize + 1 }}–{{ page() * pageSize + paginatedEmployees().length }} of

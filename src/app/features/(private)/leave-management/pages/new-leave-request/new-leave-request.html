@@ -122,7 +122,6 @@
                 </div>
 
                 <!-- Half Day Period -->
-                <!-- @if (selectedDuration() === 'half_day') {
                 <div class="flex flex-col gap-2">
                     <label class="text-sm font-semibold text-(--primary)">
                         Which Half?
@@ -144,38 +143,7 @@
                     </div>
                     <tui-error formControlName="halfDayPeriod" />
                 </div>
-                } -->
 
-                <!-- Custom Hours -->
-                <!-- @if (selectedDuration() === 'custom_hours') {
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" formGroupName="customHours">
-                    <div>
-                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
-                            <label tuiLabel>
-                                Start Time
-                                @if (isRequired(form.get('customHours.startTime'))) {
-                                <span class="text-red-500">*</span>
-                                }
-                            </label>
-                            <input formControlName="startTime" tuiInputTime mode="HH:MM" />
-                        </tui-textfield>
-                        <tui-error formControlName="startTime" />
-                    </div>
-
-                    <div>
-                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
-                            <label tuiLabel>
-                                End Time
-                                @if (isRequired(form.get('customHours.endTime'))) {
-                                <span class="text-red-500">*</span>
-                                }
-                            </label>
-                            <input formControlName="endTime" tuiInputTime mode="HH:MM" />
-                        </tui-textfield>
-                        <tui-error formControlName="endTime" />
-                    </div>
-                </div>
-                } -->
             </div>
 
             <div tuiCardLarge class="bg-(--background_light)/50! shadow-[0_0_5px_rgba(0,0,0,0.2)]!">

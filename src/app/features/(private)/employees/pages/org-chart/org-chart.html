@@ -4,7 +4,7 @@
 
 
     <div #scrollContainer
-        class="w-full  max-h-[75vh] rounded-xl  border border-(--secondary)/40 bg-(--secondary)/10 shadow-[0_0_5px_rgba(0,0,0,0.2)]! p-8 select-none overflow-hidden "
+        class="w-full  max-h-[75vh] rounded-xl  border border-(--theme1) bg-(--secondary)/10 shadow-[0_0_5px_rgba(0,0,0,0.2)]! p-8 select-none overflow-hidden "
         [class.cursor-grabbing]="isDragging()" [class.cursor-grab]="!isDragging()" (mousedown)="onDragStart($event)"
         (wheel)="onWheelZoom($event)">
         <div class="origin-top transition-transform duration-75" [style.transform]="'scale(' + zoom() + ')'">

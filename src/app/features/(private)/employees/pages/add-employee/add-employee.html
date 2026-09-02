@@ -10,12 +10,12 @@
   <form [formGroup]="form" (submit)="submitFullPayload()" class="flex flex-col gap-3 w-full text-(--theme2)">
     <div class="flex flex-col! gap-5">
       <!-- Personal Details -->
-      <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+      <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
         <header class="flex flex-row gap-2 items-center">
           <tui-icon icon="@tui.book-user" class="text-3xl!" />
           <div class="flex flex-col">
             <span class="uppercase text-xl font-semibold">Employee Details</span>
-            <span tuiSubtitle class="text-(--primary)/50 text-sm">Personal & Basic Employment Information</span>
+            <span tuiSubtitle class="text-(--primary)/80 text-sm">Personal & Basic Employment Information</span>
           </div>
         </header>
 
@@ -141,12 +141,12 @@
 
       <!-- Employment Details -->
       <div tuiCardLarge
-        class="drop-shadow-sm overflow-visible! bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+        class="drop-shadow-sm overflow-visible! bg-(--secondary)! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
         <header class="flex flex-row gap-2 items-center">
           <tui-icon icon="@tui.briefcase" class="text-3xl!" />
           <div class="flex flex-col">
             <span class="uppercase text-xl font-semibold">Employment Details</span>
-            <span tuiSubtitle class="text-(--primary)/50 text-sm">Role, Structure & Reporting</span>
+            <span tuiSubtitle class="text-(--primary)/80 text-sm">Role, Structure & Reporting</span>
           </div>
         </header>
 
@@ -163,12 +163,12 @@
               <label class="gap-2 flex items-center">
                 <input type="radio" formControlName="category" size="s" value="Academic" tuiRadio
                   class="checked:bg-(--theme2)! cursor-pointer" />
-                <span class="text-white!">Academic</span>
+                <span class="text-(--primary)!">Academic</span>
               </label>
               <label class="gap-2 flex items-center">
                 <input type="radio" formControlName="category" size="s" value="Administrative" tuiRadio
                   class="checked:bg-(--theme2)! cursor-pointer" />
-                <span class="text-white!">Administrative</span>
+                <span class="text-(--primary)!">Administrative</span>
               </label>
             </div>
             <tui-error formControlName="employmentType" />
@@ -185,12 +185,12 @@
               <label class="gap-2 flex items-center">
                 <input type="radio" formControlName="employmentType" size="s" value="full-time" tuiRadio
                   class="checked:bg-(--theme2)! cursor-pointer" />
-                <span class="text-white!">Permanent</span>
+                <span class="text-(--primary)!">Permanent</span>
               </label>
               <label class="gap-2 flex items-center">
                 <input type="radio" formControlName="employmentType" size="s" value="part-time" tuiRadio
                   class="checked:bg-(--theme2)! cursor-pointer" />
-                <span class="text-white!">Part-Time / Contract</span>
+                <span class="text-(--primary)!">Part-Time / Contract</span>
               </label>
             </div>
             <tui-error formControlName="employmentType" />
@@ -300,12 +300,12 @@
       @if (!isEditMode() || (isEditMode() && currentUser?.employeeInfo?.roles?.includes('Admin'))) {
       <!-- Security -->
       <div tuiCardLarge
-        class="drop-shadow-sm overflow-visible! bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+        class="drop-shadow-sm overflow-visible! bg-(--secondary)! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
         <header class="flex flex-row gap-2 items-center">
           <tui-icon icon="@tui.clipboard-plus" class="text-3xl!" />
           <div class="flex flex-col">
             <span class="uppercase text-xl font-semibold">Additional Details</span>
-            <span tuiSubtitle class="text-(--primary)/50 text-sm">Additional Employment Details</span>
+            <span tuiSubtitle class="text-(--primary)/80 text-sm">Additional Employment Details</span>
           </div>
         </header>
 

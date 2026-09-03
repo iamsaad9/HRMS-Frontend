@@ -16,7 +16,7 @@ export const DropdownItems: DropDownItem[] = [
     title: 'HRMS',
     description: 'Manage employee directory, user creation, and organization chart',
     category: 'HRMS Tab',
-    permission: 'users:read', // Requires users:read to view HRMS section
+    // permission: 'users:read', // Requires users:read to view HRMS section
     childItems: [
       {
         id: '1.1',
@@ -25,7 +25,7 @@ export const DropdownItems: DropDownItem[] = [
         description: 'Directory with department filtering',
         routeTo: '/employee/all',
         category: 'HRMS Tab',
-        permission: 'users:read',
+        // permission: 'users:read',
       },
       {
         id: '1.2',
@@ -34,7 +34,7 @@ export const DropdownItems: DropDownItem[] = [
         description: 'Registration form and Bulk CSV upload',
         routeTo: '/employee/new',
         category: 'HRMS Tab',
-        permission: 'users:create', // Specifically requires user creation right
+        // permission: 'users:create', // Specifically requires user creation right
       },
       {
         id: '1.3',
@@ -43,7 +43,7 @@ export const DropdownItems: DropDownItem[] = [
         description: 'Bulk CSV upload for workers',
         routeTo: '/employee/new/bulk-upload',
         category: 'HRMS Tab',
-        permission: 'users:create',
+        // permission: 'users:create',
       },
       {
         id: '1.4',
@@ -52,7 +52,7 @@ export const DropdownItems: DropDownItem[] = [
         description: 'Visual company hierarchy tree',
         routeTo: '/employee/org-chart',
         category: 'HRMS Tab',
-        permission: 'users:read',
+        // permission: 'users:read',
       },
     ],
   },
@@ -111,12 +111,28 @@ export const DropdownItems: DropDownItem[] = [
     description: 'User actions and approval dashboards',
     category: 'Requests Tab',
     childItems: [
+       {
+        id: '4.01',
+        icon: 'add_circle',
+        title: 'Apply for Leave/ WFH/ Adjustment',
+        description: 'Apply for Leave, WFH, and Missing Time entries',
+        routeTo: '/requests/new',
+        category: 'Requests Tab',
+      },
       {
         id: '4.1',
         icon: 'add_circle',
         title: 'Apply for Leave / WFH',
         description: 'Apply for Leave, WFH, and Missing Time entries',
         routeTo: '/leave-requests/new',
+        category: 'Requests Tab',
+      },
+      {
+        id: '4.15',
+        icon: 'person',
+        title: 'Your Requests',
+        description: 'View status of your submitted requests',
+        routeTo: '/requests/my',
         category: 'Requests Tab',
       },
       {

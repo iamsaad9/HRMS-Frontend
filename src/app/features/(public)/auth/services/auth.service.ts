@@ -167,10 +167,13 @@ export class AuthService {
   }
 
   hasRole(allowedRoles: string[]): boolean {
+    console.log("Checking roles for allowedRoles:", allowedRoles);
     const user = this.#currentUser();
     if (!user || !user.employeeInfo.roles) return false;
+    console.log("User Roles:", user.employeeInfo.roles);
 
     const userRoles = Array.isArray(user.employeeInfo.roles) ? user.employeeInfo.roles : [user.employeeInfo.roles];
+    console.log("Allowed Roles:", allowedRoles);
     return allowedRoles.some((role) => userRoles.includes(role));
   }
 }

@@ -21,6 +21,7 @@ import { LeaveRequest } from './features/(private)/leave-management/pages/new-le
 import { LeaveRequestList } from './features/(private)/leave-management/pages/leave-requests-list/leave-requests-list';
 import { LeaveRequestApprovals } from './features/(private)/leave-management/pages/leave-request-approvals/leave-request-approvals';
 import { NewRequest } from './features/(private)/requests/pages/new-requests/new-requests';
+import { AllMyRequestsComponent } from './features/(private)/requests/pages/my-requests-page/my-requests';
 
 export const routes: Routes = [
   { path: 'login', canActivate: [guestGuard], component: Login },
@@ -93,6 +94,11 @@ export const routes: Routes = [
         component: NewRequest,
         canActivate: [roleGuard],
         data: { roles: ['Admin', 'User'] },
+      },
+      {
+        path: 'requests/my',
+        component: AllMyRequestsComponent,
+        canActivate: [roleGuard],
       },
       {
         path: 'leave-requests/my',

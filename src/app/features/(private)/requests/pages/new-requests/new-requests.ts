@@ -13,6 +13,7 @@ import {
   TuiButton, TuiCalendar, TuiError, TuiGroup, TuiLabel, TuiRadio,
   TuiTextfield, TuiTitle, TuiIcon,
   TuiCheckbox,
+  TuiInput,
 } from '@taiga-ui/core';
 import {
   TuiBlock, TuiChevron, TuiDataListWrapper, TuiInputDate, TuiInputTime,
@@ -26,6 +27,7 @@ import { ToastService } from '../../../../../core/services/toast.service';
 import { Router } from '@angular/router';
 import { LeaveRequestsService } from '../../../leave-management/service/leave-requests.service';
 import { HalfDayType, NewRequestPayload, RequestType } from '../../model/request.model';
+import { RequestsService } from '../../service/request.service';
 
 @Component({
   selector: 'app-new-request',
@@ -34,7 +36,7 @@ import { HalfDayType, NewRequestPayload, RequestType } from '../../model/request
     ReactiveFormsModule, TuiCardLarge, TuiBlock, TuiButton, TuiCalendar,
     TuiChevron, TuiDataListWrapper, TuiError, TuiGroup, TuiInputDate,
     TuiInputTime, TuiLabel, TuiRadio, TuiSelect, TuiTextarea, TuiTextfield,
-    TuiTitle, TuiIcon, TuiCheckbox, MainHeading,
+    TuiTitle, TuiIcon,TuiInput, TuiCheckbox, MainHeading,
   ],
   templateUrl: './new-requests.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +44,7 @@ import { HalfDayType, NewRequestPayload, RequestType } from '../../model/request
 export class NewRequest implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly leaveService = inject(LeaveRequestsService);
+  private readonly requestService = inject(RequestsService);
   private readonly authService = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
@@ -55,7 +58,7 @@ export class NewRequest implements OnInit {
   currentUser = this.authService.currentUser;
   isSubmitting = signal(false);
 
-  protected leaveTypesOptions = this.leaveService?.leaveTypes;
+  protected leaveTypesOptions = this.leaveService?.leaveTypes().map((t) => t.name) ?? [];
 
   // Mirrors form controls as signals so the template can @switch/@if on them
   protected selectedType = signal<RequestType>('leave');
@@ -150,10 +153,10 @@ export class NewRequest implements OnInit {
   private buildRegularizationRow(date: TuiDay): FormGroup {
     return this.fb.group({
       date: [date],
-      clockIn: ['', Validators.required],
-      clockOut: ['', Validators.required],
-      breakIn: [''],
-      breakOut: [''],
+      requestedClockIn: ['', Validators.required],
+      requestedClockOut: ['', Validators.required],
+      requestedBreakIn: [''],
+      requestedBreakOut: [''],
       remarks: [''],
     });
   }
@@ -181,42 +184,59 @@ export class NewRequest implements OnInit {
   }
 
   protected formatDate(date: TuiDay): string {
-    return `${String(date.day).padStart(2, '0')}.${String(date.month + 1).padStart(2, '0')}.${date.year}`;
+    return `${String(date.day).padStart(2, '0')}/${String(date.month + 1).padStart(2, '0')}/${date.year}`;
   }
 
-  protected onSubmit(): void {
-  
+  private formatTime(value: { hours: number; minutes: number; seconds?: number } | null | undefined): string {
+  if (!value) return '';
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${pad(value.hours)}:${pad(value.minutes)}:${pad(value.seconds ?? 0)}`;
+}
 
-    const raw = this.form.getRawValue();
-    const type: RequestType = raw.requestType;
-    const selectedLeaveType = this.leaveService.leaveTypes().find((t) => t.name === raw.leaveType);
+protected onSubmit(): void {
+  const raw = this.form.getRawValue();
+  const type: RequestType = raw.requestType;
+  const selectedLeaveType = this.leaveService.leaveTypes().find((t) => t.name === raw.leaveType);
 
-    const payload: NewRequestPayload = {
-      requestType: type,
-      employeeId: this.currentUser()?.employeeInfo.id ?? '',
-      reason: raw.reason,
-      startDate: raw.startDate,
-      endDate: raw.endDate,
-      ...(type === 'leave' ? { leaveTypeId: selectedLeaveType?.id ?? '' } : {}),
-      ...(raw.lineItems?.length ? { lineItems: raw.lineItems } : {}),
-    };
+ const payload: NewRequestPayload = {
+  requestType: type,
+  employeeId: this.currentUser()?.employeeInfo.id ?? '',
+  reason: raw.reason,
+  startDate: raw.startDate,
+  endDate: raw.endDate,
+  ...(type === 'leave' ? { leaveTypeId: selectedLeaveType?.id ?? '' } : {}),
+  ...(raw.lineItems?.length
+    ? {
+        lineItems: raw.lineItems.map((item: any) => ({
+          ...item,
+          requestedClockIn: this.formatTime(item.requestedClockIn),
+          requestedClockOut: this.formatTime(item.requestedClockOut),
+        })),
+      }
+    : {}),
+};
+  console.log("Payload to submit:", payload);
 
-    console.log("Payload to submit:", payload);
+  const request$ =
+    type === 'leave'
+      ? this.requestService.addLeave(payload)
+      : type === 'wfh'
+      ? this.requestService.addWorkFromHome(payload)
+      : this.requestService.addAttendanceRegularization(payload);
 
-    // this.leaveService
-    //   .createRequest(payload) // wire to the right endpoint per requestType server-side, or branch here
-    //   .pipe(finalize(() => this.isSubmitting.set(false)))
-    //   .subscribe({
-    //     next: (response) => {
-    //       if (response.isSuccess) {
-    //         this.toast.success('Request sent for approval.', 'Created Successfully!');
-    //         this.router.navigate(['/leave-requests/my']);
-    //       }
-    //     },
-    //     error: (error) => {
-    //       const msg = error.error?.message || 'Request creation failed. Please try again.';
-    //       this.toast.error(msg, 'Creation Unsuccessful!');
-    //     },
-    //   });
-  }
+  request$
+    .pipe(finalize(() => this.isSubmitting.set(false)))
+    .subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success('Request sent for approval.', 'Created Successfully!');
+          this.router.navigate(['/leave-requests/my']);
+        }
+      },
+      error: (error) => {
+        const msg = error.error?.message || 'Request creation failed. Please try again.';
+        this.toast.error(msg, 'Creation Unsuccessful!');
+      },
+    });
+}
 }

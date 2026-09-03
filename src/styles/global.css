@@ -24,7 +24,7 @@
 
 
   /* Glass & Gradient Extensions */
-  --card-bg-glass: rgba(255, 255, 255, 0.65);
+  --card-bg-glass: #ffffffa6;
   --card-border-glass: rgba(255, 255, 255, 0.8);
   --card-shadow-glass: 2px 2px 5px 2px rgba(129, 19, 35, 0.06);
 
@@ -142,6 +142,14 @@ tui-root {
   padding: 0.3rem 0.5rem !important;
   transition: all 0.2s !important;
   cursor: pointer;
+  box-shadow: 0 2px 5px rgba(129, 19, 35, 0.25) !important;
+}
+
+.bt-secondary {
+  background-color: #cacaca !important;
+  color: var(--primary) !important;
+  border: none !important;
+  border-radius: 5px !important;
   box-shadow: 0 2px 5px rgba(129, 19, 35, 0.25) !important;
 }
 

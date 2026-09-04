@@ -91,6 +91,7 @@ export interface AttendanceRegularizationDetail extends BaseDetail {
   requestedClockOut: string | null;
   requestedBreakIn: string | null;
   requestedBreakOut: string | null;
+  remarks: string | null;
 }
 
 // Union type for details

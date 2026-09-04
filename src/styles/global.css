@@ -138,7 +138,7 @@ tui-root {
 }
 
 .btn-lift {
-  border-radius: 5px !important;
+  border-radius: 8px !important;
   padding: 0.3rem 0.6rem !important;
   transition: all 0.2s !important;
   cursor: pointer;
@@ -148,7 +148,7 @@ tui-root {
   background-color: #cacaca !important;
   color: var(--primary) !important;
   border: none !important;
-  border-radius: 5px !important;
+  border-radius: 10px !important;
   box-shadow: 0 2px 5px rgba(129, 19, 35, 0.25) !important;
 }
 

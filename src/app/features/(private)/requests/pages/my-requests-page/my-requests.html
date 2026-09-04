@@ -121,7 +121,7 @@
                                         {{ req.overallStatus }}
                                     </span>
                                     <button tuiButton type="button" size="s" iconStart="@tui.eye"
-                                        [routerLink]="['/requests', req.id, 'view']" class="bg-(--theme2)!"></button>
+                                        [routerLink]="['/requests', req.id]" class="bg-(--theme2)!"></button>
                                     @if(req.overallStatus === 'Pending'){
                                     <button tuiButton type="button" size="s" iconStart="@tui.pencil"
                                         [routerLink]="['/requests', req.id, 'edit']" class="bg-(--theme1)!"></button>

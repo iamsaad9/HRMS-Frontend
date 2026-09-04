@@ -139,10 +139,9 @@ tui-root {
 
 .btn-lift {
   border-radius: 5px !important;
-  padding: 0.3rem 0.5rem !important;
+  padding: 0.3rem 0.6rem !important;
   transition: all 0.2s !important;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(129, 19, 35, 0.25) !important;
 }
 
 .bt-secondary {
@@ -153,6 +152,8 @@ tui-root {
   box-shadow: 0 2px 5px rgba(129, 19, 35, 0.25) !important;
 }
 
-.btn-lift:active {
-  transform: translateY(0) scale(0.98);
+.btn-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(129, 19, 35, 0.25) !important;
+
 }

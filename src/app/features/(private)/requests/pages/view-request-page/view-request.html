@@ -1,0 +1,130 @@
+<div class="w-full flex flex-col gap-6 max-w-5xl mx-auto">
+    <header>
+        <app-main-heading [title]="title()" description="Review the details of this request">
+        </app-main-heading>
+    </header>
+
+    @if (loading()) {
+    <div class="flex items-center justify-center p-10">
+        <span class="animate-spin rounded-full h-6 w-6 border-2 border-(--theme1) border-t-transparent"></span>
+    </div>
+    } @else if (error()) {
+    <div class="p-4 text-sm rounded-lg bg-(--error)/20 text-(--background_dark) border border-red-800">
+        {{ error() }}
+    </div>
+    } @else if (request(); as r) {
+
+    <!-- Overview Card (Header Details Bar with Period & Total Days) -->
+    <div tuiCardLarge
+        class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! flex flex-col gap-5">
+        <header class="flex flex-row gap-2 items-center">
+            <tui-icon icon="@tui.file-text" class="text-3xl! text-(--theme2)" />
+            <div class="flex flex-col">
+                <span class="uppercase text-lg font-semibold text-(--theme2)">Request Overview</span>
+                <span tuiSubtitle class="text-(--primary)/50 text-sm">{{ r.requestType }} Details & Progress</span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-4">
+            <div>
+                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Overall Status</p>
+                <p class="text-base m-0 mt-1">
+                    <span class="text-xs px-3 py-1 rounded-full font-medium" [ngClass]="statusClass(r.overallStatus)">
+                        {{ statusLabel(r.overallStatus) }}
+                    </span>
+                </p>
+            </div>
+            <div>
+                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Progress Step</p>
+                <p class="text-base text-(--primary) m-0">Step {{ r.currentStepOrder }} of {{ r.totalSteps }}</p>
+            </div>
+
+            @if (r.details && r.details.length > 0) {
+            <div>
+                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Period / Duration</p>
+                <p class="text-base text-(--primary) m-0">
+                    {{ r.startDate | date: 'mediumDate' }}
+                    @if (r.totalDays > 1) {
+                    – {{ r.endDate | date: 'mediumDate' }}
+                    }
+                </p>
+            </div>
+            <div>
+                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Total Days</p>
+                <p class="text-base text-(--primary) m-0">{{ r.totalDays }}</p>
+            </div>
+            }
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 pt-2 border-t border-(--primary)/10">
+            <div>
+                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Requested On</p>
+                <p class="text-base text-(--primary) m-0">{{ r.createdAtUtc | date: 'medium' }}</p>
+            </div>
+        </div>
+
+        @if (r.requestReason) {
+        <div class="p-3 text-sm rounded-lg bg-(--theme1)/10 border border-(--theme1)/30 text-(--primary)">
+            <span class="font-semibold uppercase tracking-wide text-xs text-(--theme2) block mb-1">Reason</span>
+            {{ r.requestReason }}
+        </div>
+        }
+    </div>
+
+    <!-- Request Line Items (Detailed Breakdown) -->
+    <div class="flex flex-col gap-4">
+        <h3 class="text-md uppercase font-semibold text-(--theme2) tracking-wide m-0">Detailed Breakdown</h3>
+
+        @for (detail of r.details; track detail.detailId) {
+        <div tuiCardLarge
+            class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! flex flex-col gap-4">
+
+            <!-- Line Item Header: Date -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-(--primary)/10 pb-3">
+                <span class="text-base font-semibold text-(--primary) flex items-center gap-2">
+                    <tui-icon icon="@tui.calendar-clock" class="text-(--theme2)" />
+                    {{ detail.date | date: 'mediumDate' }}
+                </span>
+            </div>
+
+            <!-- Line Item Body: Specific Details per Type -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">
+                @if (isLeaveDetail(detail) || isWorkFromHomeDetail(detail)) {
+                <div>
+                    <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Is Half Day</p>
+                    <p class="text-base text-(--primary) m-0">
+                        {{ detail.isHalfDay ? 'Yes' : 'No' }}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Half Day Type</p>
+                    <p class="text-base text-(--primary) m-0">
+                        {{ detail.isHalfDay ? halfDayLabel(detail.halfDayType) : '—' }}
+                    </p>
+                </div>
+                }
+
+                @if (isAttendanceRegularizationDetail(detail)) {
+                <div>
+                    <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Clock In</p>
+                    <p class="text-base text-(--primary) m-0">{{ detail.requestedClockIn ?? '—' }}</p>
+                </div>
+                <div>
+                    <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Clock Out</p>
+                    <p class="text-base text-(--primary) m-0">{{ detail.requestedClockOut ?? '—' }}</p>
+                </div>
+                <div>
+                    <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Break In</p>
+                    <p class="text-base text-(--primary) m-0">{{ detail.requestedBreakIn ?? '—' }}</p>
+                </div>
+                <div>
+                    <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Break Out</p>
+                    <p class="text-base text-(--primary) m-0">{{ detail.requestedBreakOut ?? '—' }}</p>
+                </div>
+                }
+            </div>
+        </div>
+        }
+    </div>
+    }
+</div>

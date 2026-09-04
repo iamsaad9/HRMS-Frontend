@@ -40,15 +40,22 @@ export interface RequestResponse {
   createdAtUtc: string;
 }
  
-
-// Single Request Response
-
-export interface GetRequestByIdResponse<T extends RequestDetail = RequestDetail> {
+// Top-level API Response wrapper
+export interface ApiResponse<T extends RequestDetail = RequestDetail> {
   data: RequestData<T>;
+  isSuccess: boolean;
+  message: string;
 }
 
+export type GetRequestByIdResponse<T extends RequestDetail = RequestDetail> = RequestData<T>;
+
 export interface RequestData<T extends RequestDetail> {
+  moduleEntityId: string;
   requestType: 'WorkFromHome' | 'Leave' | 'AttendanceRegularization';
+  requesterEmployeeId: string;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
   overallStatus: number;
   currentStepOrder: number;
   totalSteps: number;
@@ -57,54 +64,53 @@ export interface RequestData<T extends RequestDetail> {
   details: T[];
 }
 
-// Base shared properties across all detail types
+// Base shared properties across all detail line items
 export interface BaseDetail {
   detailId: string;
-  employeeId: string;
-  startDate: string;
-  endDate: string;
-  totalDays: number;
-  approvalRequestId: string;
-  overallStatus: number;
-  currentStepOrder: number;
-  totalSteps: number;
-  approvalReason: string;
-}
-
-// 1. Work From Home Detail
-export interface WorkFromHomeDetail extends BaseDetail {
   date: string;
-  isHalfDay: boolean;
-  halfDayType: number;
-  dayCount: number;
-  workFromHomeRequestId: string;
-  requestCreatedAtUtc: string;
 }
 
-// 2. Leave Detail
+// 1. Leave Detail Line Item
 export interface LeaveDetail extends BaseDetail {
-  date: string;
   isHalfDay: boolean;
   halfDayType: number;
   dayCount: number;
-  leaveApplicationId: string;
   leaveTypeId: string;
-  applicationCreatedAtUtc: string;
 }
 
-// 3. Attendance Regularization Detail
+// 2. Work From Home Detail Line Item
+export interface WorkFromHomeDetail extends BaseDetail {
+  isHalfDay: boolean;
+  halfDayType: number;
+  dayCount: number;
+}
+
+// 3. Attendance Regularization Detail Line Item
 export interface AttendanceRegularizationDetail extends BaseDetail {
-  date: string;
   requestedClockIn: string | null;
   requestedClockOut: string | null;
   requestedBreakIn: string | null;
   requestedBreakOut: string | null;
-  attendanceRegularizationId: string;
-  requestCreatedAtUtc: string;
 }
 
 // Union type for details
-export type RequestDetail = 
-  | WorkFromHomeDetail 
-  | LeaveDetail 
+export type RequestDetail =
+  | LeaveDetail
+  | WorkFromHomeDetail
   | AttendanceRegularizationDetail;
+
+// --- Updated Type Guards ---
+
+export function isLeaveDetail(detail: RequestDetail): detail is LeaveDetail {
+  return 'leaveTypeId' in detail;
+}
+
+export function isAttendanceRegularizationDetail(
+  detail: RequestDetail,
+): detail is AttendanceRegularizationDetail {
+  return 'requestedClockIn' in detail;
+}
+
+export function isWorkFromHomeDetail(detail: RequestDetail): detail is WorkFromHomeDetail {
+  return 'isHalfDay' in detail && !('leaveTypeId' in detail);
+}

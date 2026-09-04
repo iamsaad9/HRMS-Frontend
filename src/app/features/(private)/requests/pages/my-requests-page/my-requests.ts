@@ -147,9 +147,9 @@ export class AllMyRequestsComponent implements OnInit {
 
   protected getRequestTypeIcon(requestType: string): string {
     const iconMap: Record<string, string> = {
-      leave: '@tui.calendar-days',
-      wfh: '@tui.home',
-      attendance: '@tui.clock',
+      leave: '@tui.volleyball',
+      workfromhome: '@tui.home',
+      attendanceregularization: '@tui.clock',
       default: '@tui.file',
     };
     return iconMap[requestType.toLowerCase()];

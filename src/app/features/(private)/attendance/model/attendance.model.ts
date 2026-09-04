@@ -82,7 +82,7 @@ export interface PunchResponseDto {
   id: string;
   punchTime: string;
   punchType: string | PunchType;
-  channel: string | AttendanceChannelType;
+  punchChannel: string | AttendanceChannelType;
 }
 
 export interface DailyAttendance {
@@ -184,7 +184,7 @@ export interface AttendanceAdjustmentResponseDto {
 export interface PunchCommand {
   employeeId: string;
   punchType: PunchType;
-  channel: AttendanceChannelType;
+  punchChannel: AttendanceChannelType;
   deviceId: string | null;
   latitude: string | null;
   longitude: string | null;

@@ -207,7 +207,7 @@ export class PerformanceSection {
     const command: PunchCommand = {
       employeeId: this.employeeId,
       punchType: PunchType.ClockIn,
-      channel: AttendanceChannelType.Web,
+      punchChannel: AttendanceChannelType.Web,
       deviceId: null,
       latitude: null,
       longitude: null,
@@ -237,7 +237,7 @@ export class PerformanceSection {
     const command: PunchCommand = {
       employeeId: this.employeeId,
       punchType: PunchType.BreakStart,
-      channel: AttendanceChannelType.Web,
+      punchChannel: AttendanceChannelType.Web,
       deviceId: null,
       latitude: null,
       longitude: null,
@@ -266,7 +266,7 @@ export class PerformanceSection {
     const command: PunchCommand = {
       employeeId: this.employeeId,
       punchType: PunchType.BreakEnd,
-      channel: AttendanceChannelType.Web,
+      punchChannel: AttendanceChannelType.Web,
       deviceId: null,
       latitude: null,
       longitude: null,
@@ -297,7 +297,7 @@ export class PerformanceSection {
     const command: PunchCommand = {
       employeeId,
       punchType: PunchType.ClockOut,
-      channel: AttendanceChannelType.Web,
+      punchChannel: AttendanceChannelType.Web,
       deviceId: null,
       latitude: null,
       longitude: null,

@@ -100,7 +100,7 @@ export class RequestsService {
       );
     }
 
-getLeaveById(id?: string): Observable<ApiResponse<GetRequestByIdResponse>> {
+getRequestById(id?: string): Observable<ApiResponse<GetRequestByIdResponse>> {
     return this.http
       .get<ApiResponse<GetRequestByIdResponse>>(`${this.apiUrl}/request-detail/${id}`)
       .pipe(

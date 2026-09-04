@@ -22,6 +22,7 @@ import { LeaveRequestList } from './features/(private)/leave-management/pages/le
 import { LeaveRequestApprovals } from './features/(private)/leave-management/pages/leave-request-approvals/leave-request-approvals';
 import { NewRequest } from './features/(private)/requests/pages/new-requests/new-requests';
 import { AllMyRequestsComponent } from './features/(private)/requests/pages/my-requests-page/my-requests';
+import { ViewRequest } from './features/(private)/requests/pages/view-request-page/view-request';
 
 export const routes: Routes = [
   { path: 'login', canActivate: [guestGuard], component: Login },
@@ -98,6 +99,11 @@ export const routes: Routes = [
       {
         path: 'requests/my',
         component: AllMyRequestsComponent,
+        canActivate: [roleGuard],
+      },
+       {
+        path: 'requests/:id',
+        component: ViewRequest,
         canActivate: [roleGuard],
       },
       {

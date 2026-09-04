@@ -113,7 +113,7 @@ export const routes: Routes = [
         data: { roles: ['Admin', 'User'] },
       },
       {
-        path: 'leave-requests/all',
+        path: 'requests/approvals',
         component: LeaveRequestApprovals,
         canActivate: [roleGuard],
         data: { roles: ['Admin', 'User'] },

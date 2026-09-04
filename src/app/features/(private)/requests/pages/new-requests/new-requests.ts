@@ -211,6 +211,7 @@ protected onSubmit(): void {
           ...item,
           requestedClockIn: this.formatTime(item.requestedClockIn),
           requestedClockOut: this.formatTime(item.requestedClockOut),
+          halfDayType: item.halfDayType === 'First Half' ? 'first_half' : item.halfDayType === 'Second Half' ? 'second_half' : null,
         })),
       }
     : {}),

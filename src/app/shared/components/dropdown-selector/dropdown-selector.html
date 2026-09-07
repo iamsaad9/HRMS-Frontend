@@ -1,19 +1,16 @@
-<!-- Parent trigger button -->
+@if (dropDownItem().childItems) {
+<!-- Dropdown Trigger Button -->
 <button class="text-(--background_dark) lg:text-white text-shadow-lg text-base cursor-pointer flex items-center"
-  type="button" [tuiDropdown]="dropDownItem().childItems ? dropdownContent : ''" [tuiDropdownManual]="open()"
-  [tuiObscuredEnabled]="open()"
-  (click)="dropDownItem().childItems ? toggleDropdown() : navigateTo(dropDownItem().routeTo)"
-  (tuiActiveZoneChange)="onActiveZone($event)" (tuiObscured)="onObscured($event)">
+  type="button" [tuiDropdown]="dropdownContent" [tuiDropdownManual]="open()" [tuiObscuredEnabled]="open()"
+  (click)="toggleDropdown()" (tuiActiveZoneChange)="onActiveZone($event)" (tuiObscured)="onObscured($event)">
+
   <div class="flex items-center justify-center">
     <mat-icon class="scale-60 lg:scale-80">{{ dropDownItem().icon }}</mat-icon>
     <span class="text-sm xl:text-base line-clamp-1"> {{ dropDownItem().title }}</span>
-    @if (dropDownItem().childItems) {
     <mat-icon class="scale-80 font-light">keyboard_arrow_down</mat-icon>
-    }
   </div>
 
   <ng-template #dropdownContent>
-    @if (dropDownItem().childItems) {
     <tui-data-list tuiDataListDropdownManager class="bg-(--background_light)">
       @for (item of dropDownItem().childItems; track item.title) {
       @if (item.childItems) {
@@ -24,14 +21,15 @@
           <mat-icon class="scale-80">{{ item.icon }}</mat-icon>
           <span tuiTitle class="text-xs lg:text-sm">
             {{ item.title }}
-            <span tuiSubtitle class="text-[0.7rem] lg:text-xs text-(--background_dark)!">{{
-              item.description
-              }}</span>
+            <span tuiSubtitle class="text-[0.7rem] lg:text-xs text-(--background_dark)!">
+              {{ item.description }}
+            </span>
           </span>
           @if (item.childItems) {
           <mat-icon class="scale-60 lg:scale-80 font-light">keyboard_arrow_right</mat-icon>
           }
         </div>
+
         <ng-template #subMenu>
           <tui-data-list class="bg-(--background_light)">
             @for (subItem of item.childItems; track subItem.title) {
@@ -41,9 +39,9 @@
                 <mat-icon class="scale-80">{{ subItem.icon }}</mat-icon>
                 <span tuiTitle class="text-[0.8rem] sm:text-xs lg:text-sm">
                   {{ subItem.title }}
-                  <span tuiSubtitle class="text-[0.7rem] lg:text-xs text-(--primary)!">{{
-                    subItem.description
-                    }}</span>
+                  <span tuiSubtitle class="text-[0.7rem] lg:text-xs text-(--primary)!">
+                    {{ subItem.description }}
+                  </span>
                 </span>
                 @if (subItem.childItems) {
                 <mat-icon class="scale-80 font-light">keyboard_arrow_right</mat-icon>
@@ -56,20 +54,29 @@
       </button>
       } @else {
       <button tuiOption (click)="navigateTo(item.routeTo)" type="button"
-        class="p-2 w-full flex flex-col items-start! text-(--background_dark)! hover:bg-(--secondary)/50!">
+        class="p-2 w-full flex flex-col items-start! text-(--theme)! hover:bg-(--primary)/10!">
         <div class="flex items-center justify-start gap-2">
           <mat-icon class="scale-60 lg:scale-80">{{ item.icon }}</mat-icon>
           <span tuiTitle class="text-xs lg:text-sm">
             {{ item.title }}
-            <span tuiSubtitle class="text-[0.7rem] lg:text-xs text-(--primary)!">{{
-              item.description
-              }}</span>
+            <span tuiSubtitle class="text-[0.7rem] lg:text-xs text-(--primary)/50!">
+              {{ item.description }}
+            </span>
           </span>
         </div>
       </button>
       }
       }
     </tui-data-list>
-    }
   </ng-template>
 </button>
+} @else {
+<!-- Standard Direct-Navigation Button (No Dropdown Directives) -->
+<button class="text-(--background_dark) lg:text-white text-shadow-lg text-base cursor-pointer flex items-center"
+  type="button" (click)="navigateTo(dropDownItem().routeTo)">
+  <div class="flex items-center justify-center">
+    <mat-icon class="scale-60 lg:scale-80">{{ dropDownItem().icon }}</mat-icon>
+    <span class="text-sm xl:text-base line-clamp-1"> {{ dropDownItem().title }}</span>
+  </div>
+</button>
+}

@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { TuiCard, TuiCardLarge, TuiHeader } from '@taiga-ui/layout';
 import { tuiSum } from '@taiga-ui/cdk';
 import { TuiAmountPipe } from '@taiga-ui/addon-commerce';
+import {AdminDashboardData} from '../../../../../core/config/navigation.config';
 
 @Component({
   selector: 'app-quick-cards',
@@ -32,7 +33,7 @@ export class QuickCards {
   readonly headcountProgress = signal<number>(0.925);
   protected activeItemIndex = Number.NaN;
   protected readonly sum = tuiSum(...this.attendanceValues());
- 
+  adminDashboardData = AdminDashboardData;
   expanded = true;
 
 

@@ -105,29 +105,37 @@ export class NavbarComponent {
     this.filterByPermission(this.dropdownItems, this.userPermissions()),
   );
 
-  protected filterByPermission(items: DropDownItem[], permissions: string[]): DropDownItem[] {
-    return items.reduce<DropDownItem[]>((acc, item) => {
-      const hasOwnAccess = !item.permission
+protected filterByPermission(items: DropDownItem[], permissions: string[]): DropDownItem[] {
+  if (permissions.map(p => p.trim()).includes('*')) return items;
+
+  return items.reduce<DropDownItem[]>((acc, item) => {
+    const isParent = !!item.childItems && item.childItems.length > 0;
+
+    const filteredChildren = isParent
+      ? this.filterByPermission(item.childItems!, permissions)
+      : undefined;
+
+    const hasVisibleChildren = !!filteredChildren && filteredChildren.length > 0;
+
+    // Only leaf items get "no permission required = visible" treatment.
+    // Parent items are visible only if they have visible children.
+    const hasOwnAccess = isParent
+      ? false
+      : (!item.permission
         || (Array.isArray(item.permission)
-          ? item.permission.some((permission) => permissions.includes(permission))
-          : permissions.includes(item.permission));
+          ? item.permission.some((permission) => this.authService.hasPermission(permission))
+          : this.authService.hasPermission(item.permission)));
 
-      const filteredChildren = item.childItems
-        ? this.filterByPermission(item.childItems, permissions)
-        : undefined;
+    if (hasOwnAccess || hasVisibleChildren) {
+      acc.push({
+        ...item,
+        ...(isParent ? { childItems: filteredChildren } : {}),
+      });
+    }
 
-      const hasVisibleChildren = !!filteredChildren && filteredChildren.length > 0;
-
-      if (hasOwnAccess || hasVisibleChildren) {
-        acc.push({
-          ...item,
-          ...(item.childItems ? { childItems: filteredChildren } : {}),
-        });
-      }
-
-      return acc;
-    }, []);
-  }
+    return acc;
+  }, []);
+}
 
   protected openQuickAddOpen(): void {
     this.quickActionsOpen.update((open) => !open);

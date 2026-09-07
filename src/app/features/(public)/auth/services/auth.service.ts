@@ -31,6 +31,30 @@ export class AuthService {
   #isInitialized = signal<boolean>(false);
   isInitialized = this.#isInitialized.asReadonly();
 
+
+  private normalize(p: string): string {
+  return p.trim();
+}
+
+private userPermissions(): string[] {
+  const user = this.#currentUser() as (User & {
+    permissions?: string[];
+    employeeInfo?: { permissions?: string[] };
+  }) | null;
+
+  return user?.permissions ?? user?.employeeInfo?.permissions ?? [];
+}
+
+hasPermission(required: string | string[]): boolean {
+  const userPerms = this.userPermissions().map(p => this.normalize(p));
+
+  // Super-admin wildcard
+  if (userPerms.includes('*')) return true;
+
+  const requiredList = Array.isArray(required) ? required : [required];
+  return requiredList.some(p => userPerms.includes(this.normalize(p)));
+}
+
   constructor() {
     effect(() => {
       const user = this.#currentUser();

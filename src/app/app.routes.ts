@@ -10,7 +10,7 @@ import { OrgChart } from './features/(private)/employees/pages/org-chart/org-cha
 import { EmployeeList } from './features/(private)/employees/pages/employee-list/employee-list';
 import { guestGuard } from './core/guards/guest.guard';
 import { authGuard } from './core/guards/auth.guard';
-import { roleGuard } from './core/guards/role.guard';
+import { permissionGuard } from './core/guards/permission.guard';
 import { AttendanceHistory } from './features/(private)/attendance/pages/attendance-history/attendance-history';
 import { DepartmentAttendanceLog } from './features/(private)/attendance/pages/department-attendance-log/department-attendance-log';
 import { AttendanceAdjustment } from './features/(private)/attendance/pages/attendance-adjustment/attendance-adjustment';
@@ -23,6 +23,7 @@ import { LeaveRequestApprovals } from './features/(private)/leave-management/pag
 import { NewRequest } from './features/(private)/requests/pages/new-requests/new-requests';
 import { AllMyRequestsComponent } from './features/(private)/requests/pages/my-requests-page/my-requests';
 import { ViewRequest } from './features/(private)/requests/pages/view-request-page/view-request';
+import { selfOrPermissionGuard } from './core/guards/self-or-permission.guard';
 
 export const routes: Routes = [
   { path: 'login', canActivate: [guestGuard], component: Login },
@@ -35,113 +36,106 @@ export const routes: Routes = [
       { path: 'dashboard', component: Dashboard },
 
       // HRMS Tab (Admin Only)
-      {
-        path: 'employee/all',
-        component: EmployeeList,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin'] },
-      },
-      {
-        path: 'employee',
-        canActivate: [roleGuard],
-        data: { roles: ['Admin'] },
-         children: [
-          { path: '', component: AddEmployee },
-          { path: 'new', component: AddEmployee },
-          { path: ':id/edit', component: AddEmployee },
-          { path: ':id/view', component: EmployeeView },
-        ],
-      },
-      {
-        path: 'employee/new/bulk-upload',
-        component: BulkUploadEmployee,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin'] },
-      },
-      {
-        path: 'employee/org-chart',
-        component: OrgChart,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin'] },
-      },
+     { path: 'employee/all', component: EmployeeList, canActivate: [permissionGuard], data: { permissions: ['users:read'] } },
 
-      // Attendance Tab (Admin Only)
-      {
-        path: 'attendance/history',
-        component: AttendanceHistory,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin'] },
-      }, 
-      {
-        path: 'attendance/daily-logs',
-        component: DepartmentAttendanceLog,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin'] },
-      },
+//      {
+//   path: 'employee',
+//   canActivate: [permissionGuard],
+//   data: { permissions: ['users:create'] }, // ⚠️ see note below
+//   children: [
+//     { path: '', component: AddEmployee },
+//     { path: 'new', component: AddEmployee },
+//     { path: ':id/edit', component: AddEmployee },
+//     { path: ':id/view', component: EmployeeView },
+//   ],
+// },
+
+{
+  path: 'employee',
+  children: [
+    {
+      path: '',
+      component: AddEmployee,
+      canActivate: [permissionGuard],
+      data: { permissions: ['users:create'] },
+    },
+    {
+      path: 'new',
+      component: AddEmployee,
+      canActivate: [permissionGuard],
+      data: { permissions: ['users:create'] },
+    },
+    {
+      path: ':id/edit',
+      component: AddEmployee,
+      canActivate: [permissionGuard],
+      data: { permissions: ['users:create'] }, // editing someone else stays admin-only
+    },
+    {
+      path: ':id/view',
+      component: EmployeeView,
+      canActivate: [selfOrPermissionGuard],
+      data: { permissions: ['users:read', 'users:create'] }, // whichever grants "view others"
+    },
+  ],
+},
+
+    { path: 'employee/new/bulk-upload', component: BulkUploadEmployee, canActivate: [permissionGuard], data: { permissions: ['users:create'] } }, // ⚠️
+{ path: 'employee/org-chart', component: OrgChart, canActivate: [permissionGuard], data: { permissions: ['orgchart:read'] } },
+
+
+   // Attendance
+{ path: 'attendance/history', component: AttendanceHistory, canActivate: [permissionGuard], data: { permissions: ['attendance:view'] } },
+{ path: 'attendance/daily-logs', component: DepartmentAttendanceLog, canActivate: [permissionGuard], data: { permissions: ['attendance:logs'] } },
+
 
       // Requests Tab (Both Admin & User)
-      {
-        path: 'leave-requests',
-        canActivate: [roleGuard],
-        data: { roles: ['Admin', 'User'] },
-        children: [
-          { path: '', component: LeaveRequest },
-          { path: 'new', component: LeaveRequest },
-          { path: ':id/edit', component: LeaveRequest },
-        ],
-      },
-      {
-        path: 'requests/new',
-        component: NewRequest,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin', 'User'] },
-      },
-      {
-        path: 'requests/my',
-        component: AllMyRequestsComponent,
-        canActivate: [roleGuard],
-      },
-       {
-        path: 'requests/:id',
-        component: ViewRequest,
-        canActivate: [roleGuard],
-      },
-      {
-        path: 'leave-requests/my',
-        component: LeaveRequestList,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin', 'User'] },
-      },
-      {
-        path: 'requests/approvals',
-        component: LeaveRequestApprovals,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin', 'User'] },
-      },
-      {
-        path: 'attendance/adjustment/:id',
-        component: AttendanceAdjustment,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin', 'User'] },
-      },
-      {
-        path: 'attendance/adjustments-approval/all',
-        component: AttendanceAdjustmentApprovals,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin', 'User'] },
-      },
-      {
-        path: 'schedule/roster-config',
-        component: ScheduleShift,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin', 'User'] },
-      },
-       {
-        path: 'reports/compliance',
-        component: ReportsExtraction,
-        canActivate: [roleGuard],
-        data: { roles: ['Admin', 'User'] },
-      },
+    
+    { path: 'requests/new', component: NewRequest, canActivate: [permissionGuard], data: { permissions: ['requests:apply'] } },
+{ path: 'requests/my', component: AllMyRequestsComponent, canActivate: [permissionGuard], data: { permissions: ['requests:read'] } },
+{ path: 'requests/:id', component: ViewRequest, canActivate: [permissionGuard], data: { permissions: ['requests:read'] } },
+{ path: 'requests/approvals', component: LeaveRequestApprovals, canActivate: [permissionGuard], data: { permissions: ['requests:approve'] } },
+
+  // {
+      //   path: 'leave-requests',
+      //   canActivate: [roleGuard],
+      //   data: { roles: ['Admin', 'User'] },
+      //   children: [
+      //     { path: '', component: LeaveRequest },
+      //     { path: 'new', component: LeaveRequest },
+      //     { path: ':id/edit', component: LeaveRequest },
+      //   ],
+      // },
+      // {
+      //   path: 'leave-requests/my',
+      //   component: LeaveRequestList,
+      //   canActivate: [roleGuard],
+      //   data: { roles: ['Admin', 'User'] },
+      // },
+      // {
+      //   path: 'attendance/adjustment/:id',
+      //   component: AttendanceAdjustment,
+      //   canActivate: [roleGuard],
+      //   data: { roles: ['Admin', 'User'] },
+      // },
+      // {
+      //   path: 'attendance/adjustments-approval/all',
+      //   component: AttendanceAdjustmentApprovals,
+      //   canActivate: [roleGuard],
+      //   data: { roles: ['Admin', 'User'] },
+      // },
+      // {
+      //   path: 'schedule/roster-config',
+      //   component: ScheduleShift,
+      //   canActivate: [roleGuard],
+      //   data: { roles: ['Admin', 'User'] },
+      // },
+      //  {
+      //   path: 'reports/compliance',
+      //   component: ReportsExtraction,
+      //   canActivate: [roleGuard],
+      //   data: { roles: ['Admin', 'User'] },
+      // },
 
     ],
   },

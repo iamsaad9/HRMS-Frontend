@@ -1,11 +1,22 @@
 <div class="flex flex-col w-full mx-auto max-w-7xl gap-5">
   <app-main-heading title="Employee Profile" description="View employee details and employment information.">
     <button type="button" tuiButton iconStart="@tui.pencil" size="s"
-      class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!">
+      class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
+      [routerLink]="['/employee', employee()?.id, 'edit']">
       Edit
     </button>
   </app-main-heading>
 
+  @if (isLoading()) {
+  <div class="flex flex-col items-center justify-center gap-2 py-16 text-(--primary)/60">
+    <p class="text-sm">Loading employee…</p>
+  </div>
+  } @else if (errorMessage()) {
+  <div class="flex flex-col items-center justify-center gap-2 py-16 text-(--primary)/70">
+    <tui-icon icon="@tui.circle-alert" style="font-size: 2.5rem;" />
+    <p class="text-sm font-medium m-0">{{ errorMessage() }}</p>
+  </div>
+  } @else if (employee(); as emp) {
   <div class="flex flex-col gap-5">
 
     <!-- Identity summary strip -->
@@ -13,16 +24,20 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-4">
         <div
           class="size-16 rounded-full bg-(--theme1)/15 border border-(--theme1)/25 flex items-center justify-center text-xl font-semibold text-(--theme1) shrink-0">
-          AU
+          {{ initials() }}
         </div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
-            <h1 class="text-2xl font-semibold text-(--theme2) m-0 uppercase">Admin User</h1>
-            <span class="text-xs font-medium rounded-full px-2 py-0.5 bg-emerald-500/10 text-emerald-500">
-              Active
+            <h1 class="text-2xl font-semibold text-(--theme2) m-0 uppercase">{{ emp.fullName }}</h1>
+            <span class="text-xs font-medium rounded-full px-2 py-0.5" [ngClass]="emp.isActive
+                ? 'bg-emerald-500/10 text-emerald-500'
+                : 'bg-red-500/10 text-red-500'">
+              {{ emp.isActive ? 'Active' : 'Inactive' }}
             </span>
           </div>
-          <p class="text-sm text-(--primary)/70 m-0">General</p>
+          @if (emp.departmentName) {
+          <p class="text-sm text-(--primary)/50 m-0">{{ emp.departmentName }}</p>
+          }
         </div>
       </div>
     </div>
@@ -40,31 +55,11 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
         <div>
           <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Staff No.</p>
-          <p class="text-base text-(--primary) m-0">EMP-0001</p>
+          <p class="text-base text-(--primary) m-0">{{ emp.staffNo || '—' }}</p>
         </div>
         <div>
           <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Email</p>
-          <p class="text-base text-(--primary) m-0 truncate" title="admin@user.com">admin@user.com</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Designation</p>
-          <p class="text-base text-(--primary) m-0">CEO</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Mobile</p>
-          <p class="text-base text-(--primary) m-0">—</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Date of Birth</p>
-          <p class="text-base text-(--primary) m-0">—</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Gender</p>
-          <p class="text-base text-(--primary) m-0">—</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">NI Number</p>
-          <p class="text-base text-(--primary) m-0">—</p>
+          <p class="text-base text-(--primary) m-0 truncate" [title]="emp.workEmail">{{ emp.workEmail }}</p>
         </div>
       </div>
     </div>
@@ -80,33 +75,35 @@
       </header>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+
         <div>
           <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Department</p>
-          <p class="text-base text-(--primary) m-0">General</p>
+          <p class="text-base text-(--primary) m-0">{{ emp.departmentName || '—' }}</p>
         </div>
         <div>
           <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Branch</p>
-          <p class="text-base text-(--primary) m-0">As-Suffa Old Building</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Start Date</p>
-          <p class="text-base text-(--primary) m-0">—</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Employment Type</p>
-          <p class="text-base text-(--primary) m-0">—</p>
+          <p class="text-base text-(--primary) m-0">{{ emp.branchName || '—' }}</p>
         </div>
         <div>
           <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Manager</p>
+          @if (emp.managerName && emp.managerId) {
+          <button type="button"
+            class="text-sm text-(--theme1) hover:underline cursor-pointer p-0 bg-transparent border-0"
+            (click)="navigateToManager(emp.managerId)">
+            {{ emp.managerName }}
+          </button>
+          } @else {
           <p class="text-base text-(--primary) m-0">—</p>
+          }
         </div>
+
         <div>
           <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Status</p>
-          <p class="text-base text-(--primary) m-0">Active</p>
+          <p class="text-base text-(--primary) m-0">{{ emp.isActive || '—' }}</p>
         </div>
         <div>
           <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Created</p>
-          <p class="text-base text-(--primary) m-0">Aug 19, 2026</p>
+          <p class="text-base text-(--primary) m-0">{{ emp.createdAtUtc | date: 'mediumDate' }}</p>
         </div>
       </div>
     </div>
@@ -121,30 +118,41 @@
         </div>
       </header>
 
-      <form class="flex flex-col gap-4">
+      <form [formGroup]="passwordForm" (submit)="submitPasswordChange()" class="flex flex-col gap-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
               <label tuiLabel>Current Password <span class="text-red-500">*</span></label>
-              <input type="password" placeholder="Enter current password" tuiInput />
+              <input formControlName="currentPassword" type="password" placeholder="Enter new password" tuiInput />
             </tui-textfield>
+            <tui-error formControlName="newPassword" />
           </div>
 
           <div>
             <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
               <label tuiLabel>New Password <span class="text-red-500">*</span></label>
-              <input type="password" placeholder="Enter new password" tuiInput />
+              <input formControlName="newPassword" type="password" placeholder="Re-enter new password" tuiInput />
             </tui-textfield>
+            <tui-error formControlName="confirmPassword" />
           </div>
         </div>
 
+        @if (passwordSuccessMessage()) {
+        <p class="text-sm text-emerald-500 m-0">{{ passwordSuccessMessage() }}</p>
+        }
+        @if (passwordErrorMessage()) {
+        <p class="text-sm text-red-500 m-0">{{ passwordErrorMessage() }}</p>
+        }
+
         <div class="flex justify-end">
-          <button type="submit" tuiButton size="s" class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!">
-            Update Password
+          <button type="submit" tuiButton size="s" class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
+            [disabled]="passwordForm.invalid || isSubmittingPassword()">
+            {{ isSubmittingPassword() ? 'Updating…' : 'Update Password' }}
           </button>
         </div>
       </form>
     </div>
 
   </div>
+  }
 </div>

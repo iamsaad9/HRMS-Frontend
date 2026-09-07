@@ -9,15 +9,15 @@
         </div>
     </div>
 
-    <div class="flex gap-5 ">
+    <div class="grid grid-cols-2 gap-5">
         <div tuiCardLarge
             class="flex flex-1 flex-col rounded-xl bg-(--secondary)! p-6 drop-shadow-sm lg:col-span-1 gap-2!">
 
             <!-- Header -->
             <div class="flex items-center justify-between border-b border-(--primary)/20 pb-4">
                 <div>
-                    <h3 class="text-lg  text-(--theme2) font-bold uppercase">Pending Approvals</h3>
-                    <p class="text-sm text-(--primary)/80">Attendance adjustment requests</p>
+                    <h3 class="text-lg  text-(--theme2) font-bold uppercase">Pending Request</h3>
+                    <p class="text-sm text-(--primary)/80">All pending requests</p>
                 </div>
                 <div class="flex flex-col gap-2 items-end">
                     <span class="rounded-full bg-(--primary)/10 px-2.5 py-0.5 text-xs font-semibold text-(--primary)">
@@ -95,89 +95,6 @@
 
         </div>
 
-        <div tuiCardLarge
-            class="flex flex-1 flex-col rounded-xl bg-(--secondary)! p-6 drop-shadow-sm lg:col-span-1 gap-2!">
-
-            <!-- Header -->
-            <div class="flex items-center justify-between border-b border-(--primary)/20 pb-4">
-                <div>
-                    <h3 class="text-lg font-bold text-(--theme2) uppercase">Pending Leaves</h3>
-                    <p class="text-sm text-(--primary)/80">Leave requests awaiting approval</p>
-                </div>
-                <div class="flex flex-col gap-2 items-end">
-                    <span class="rounded-full bg-(--primary)/10 px-2.5 py-0.5 text-xs font-semibold text-(--primary)">
-                        {{ totalLeavePending() }} Pending
-                    </span>
-                    <button (click)="viewAllLeaves()" size="s" type="button" tuiButton iconEnd="@tui.chevron-right"
-                        class="btn-lift text-sm text-white   bg-(--theme2)!  border! border-(--theme2)!">
-                        View
-                        All
-                        Leaves
-                    </button>
-                </div>
-            </div>
-
-            <!-- Request List -->
-            @if (leaveIsLoading()) {
-            <div class="flex flex-col divide-y divide-(--secondary)">
-                @for (i of [1,2,3]; track i) {
-                <div class="flex items-center justify-between py-3">
-                    <div class="flex items-center gap-x-3">
-                        <div class="size-9 rounded-full bg-(--secondary)/40 animate-pulse shrink-0"></div>
-                        <div class="flex flex-col gap-1">
-                            <div class="h-3 w-24 rounded bg-(--secondary)/40 animate-pulse"></div>
-                            <div class="h-2.5 w-16 rounded bg-(--secondary)/30 animate-pulse"></div>
-                        </div>
-                    </div>
-                </div>
-                }
-            </div>
-            } @else if (pendingLeaveRequests().length === 0) {
-            <div class="flex flex-col items-center justify-center gap-1 h-full py-6 text-(--primary)/70">
-                <tui-icon icon="@tui.circle-check" class="text-(--success) scale-125" />
-                <p class="text-sm font-medium m-0">All caught up</p>
-                <p class="text-xs m-0">No pending leave requests</p>
-            </div>
-            } @else {
-            <div class="flex flex-col divide-y divide-(--secondary)">
-                @for (record of pendingLeaveRequests(); track record.id) {
-                <div class="flex items-center justify-between py-3 gap-3">
-
-                    <div class="flex items-center gap-x-3 min-w-0">
-                        <div tuiAvatar="@tui.user" class="shrink-0"></div>
-                        <div class="min-w-0">
-                            @if (employeeMap()[record.employeeId]; as employee) {
-                            <p class="text-sm font-semibold text-(--primary) leading-none truncate">
-                                {{ employee.fullName }}
-                            </p>
-                            } @else {
-                            <p class="text-sm font-semibold text-(--primary) leading-none truncate">
-                                {{ record.employeeId }}
-                            </p>
-                            }
-                            <p class="mt-1 text-xs text-(--primary)/80 truncate">
-                                {{ record.leaveTypeName }} · {{ daysLabel(record.totalDays) }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <button tuiButton type="button" size="xs" appearance="flat"
-                        class="bg-emerald-500! text-white! shrink-0" [disabled]="leaveApprovingId() === record.id"
-                        (click)="quickApproveLeave(record)">
-                        @if (leaveApprovingId() === record.id) {
-                        <span
-                            class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent"></span>
-                        } @else {
-                        <tui-icon icon="@tui.check" class="scale-90" />
-                        }
-                    </button>
-                </div>
-                }
-            </div>
-            }
-
-
-        </div>
 
         <div tuiCardLarge
             class="min-w-sm flex flex-col rounded-xl bg-(--secondary)! p-6 drop-shadow-sm lg:col-span-1 gap-2!">

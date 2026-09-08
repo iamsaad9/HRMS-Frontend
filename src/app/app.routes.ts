@@ -124,12 +124,11 @@ export const routes: Routes = [
       //   canActivate: [roleGuard],
       //   data: { roles: ['Admin', 'User'] },
       // },
-      // {
-      //   path: 'schedule/roster-config',
-      //   component: ScheduleShift,
-      //   canActivate: [roleGuard],
-      //   data: { roles: ['Admin', 'User'] },
-      // },
+      {
+        path: 'schedule/roster-config',
+        component: ScheduleShift,
+       canActivate: [permissionGuard], data: { permissions: ['calendar:manage'] } ,
+      },
       //  {
       //   path: 'reports/compliance',
       //   component: ReportsExtraction,

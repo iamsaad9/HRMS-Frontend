@@ -113,7 +113,7 @@ export const DropdownItems: DropDownItem[] = [
       permission: 'requests:apply',
     },
         {
-      id: '4.15', icon: 'person', title: 'Your Requests',
+      id: '4.15', icon: 'person', title: 'My Requests',
       description: 'View status of your submitted requests',
       routeTo: '/requests/my', category: 'Requests Tab',
       permission: 'requests:apply',

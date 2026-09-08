@@ -49,6 +49,7 @@ export class AttendanceService {
     );
 
     const latestRecord = sorted[sorted.length - 1];
+    console.log("Today's Status:", latestRecord);
     return latestRecord;
   });
 

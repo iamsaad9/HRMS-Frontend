@@ -50,7 +50,7 @@ export class RequestsService {
            .pipe(
              tap((response) => {
                if (response.isSuccess && response.data) {
-                 console.log(`✅ Attendance Regularization Created:`, response.data);
+                 console.log(`✅ Attendance Adjustment Created:`, response.data);
                }
              })
            ); 

@@ -38,7 +38,7 @@ export class ViewRequest {
       case 'Leave':
         return 'Leave Request';
       case 'AttendanceRegularization':
-        return 'Attendance Regularization Request';
+        return 'Attendance Adjustment Request';
       default:
         return 'Request Details';
     }

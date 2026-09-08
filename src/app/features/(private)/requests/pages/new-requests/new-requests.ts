@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -58,12 +58,12 @@ export class NewRequest implements OnInit {
   currentUser = this.authService.currentUser;
   isSubmitting = signal(false);
 
-  protected leaveTypesOptions = this.leaveService?.leaveTypes().map((t) => t.name) ?? [];
+protected leaveTypesOptions = computed(() => 
+    this.leaveService.leaveTypes()?.map((t) => t.name) ?? []
+  );
 
-  // Mirrors form controls as signals so the template can @switch/@if on them
   protected selectedType = signal<RequestType>('leave');
   protected manualBreakdown = signal(false);
-
   protected form!: FormGroup;
 
   ngOnInit(): void {

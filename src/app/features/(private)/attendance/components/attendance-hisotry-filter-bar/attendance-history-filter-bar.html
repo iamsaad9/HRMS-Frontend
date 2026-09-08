@@ -1,22 +1,5 @@
 <div tuiCardLarge
     class="flex flex-col gap-3! rounded-xl border border-slate-200 bg-(--secondary)/20! glass-card text-(--primary)! p-4  shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-    <!-- TOP ROW: Action Buttons & Admin Search Bar -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <!-- Admin-only Employee ID Search Input -->
-        @if (isAdmin) {
-        <tui-textfield iconStart="@tui.search" tuiTextfieldSize="m"
-            class="w-full bg-(--background_light)/40! border! border-(--secondary) items-center! rounded-lg text-(--theme1)!">
-            <input placeholder="Search by Employee ID..." class="text-(--primary)! placeholder:text-(--primary)/60!"
-                tuiInput [ngModel]="draft().employeeId" (ngModelChange)="onEmployeeIdChange($event)"
-                (keyup.enter)="onSearch()" />
-        </tui-textfield>
-        } @else {
-        <!-- Placeholder spacer for alignment when non-admin -->
-        <div class="hidden sm:block"></div>
-        }
-
-
-    </div>
 
     <!-- FIXED ROW: DATE RANGE -->
     <div class="flex w-full gap-5">
@@ -43,9 +26,8 @@
             <!-- Toggle More Filters Button -->
 
 
-            <button type="button" tuiButton iconStart="@tui.filter" size="s" [disabled]="!canSearch"
-                class="cursor-pointer bg-(--theme3)! hover:bg-(--theme3)/80! disabled:opacity-40! disabled:cursor-not-allowed!"
-                (click)="onSearch()">
+            <button type="button" tuiButton iconStart="@tui.filter" size="s"
+                class="cursor-pointer bg-(--theme3)! hover:bg-(--theme3)/80! disabled:opacity-40! disabled:cursor-not-allowed!">
                 Search
             </button>
 
@@ -62,19 +44,9 @@
 
     <!-- COLLAPSIBLE SECTION: ADDITIONAL FILTERS -->
     <tui-elastic-container>
-        <tui-expand [expanded]="showMoreFilters" class="flex flex-col gap-3 ">
+        <tui-expand [expanded]="showMoreFilters" class="flex flex-col gap-3">
             <!-- ATTENDANCE / LEAVE / LOCATION ROW -->
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-
-                <!-- Work Location -->
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-medium text-(--theme1)">Work Location</label>
-                    <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg">
-                        <input placeholder="Any location" tuiSelect class="text-(--primary)!"
-                            [ngModel]="draft().workLocation" (ngModelChange)="onWorkLocationChange($event)" />
-                        <tui-data-list-wrapper *tuiDropdown [items]="workLocationOptions" />
-                    </tui-textfield>
-                </div>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-1">
 
                 <!-- Leave Type -->
                 <div class="flex flex-col gap-1">
@@ -85,40 +57,9 @@
                         <tui-data-list-wrapper *tuiDropdown [items]="leaveTypeOptions" />
                     </tui-textfield>
                 </div>
+
             </div>
 
-            <!-- SHIFT / DEPARTMENT / EMPLOYMENT ROW -->
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <!-- Shift Type -->
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-medium text-(--theme1)">Shift Type</label>
-                    <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg">
-                        <input placeholder="Any shift" tuiSelect class="text-(--primary)!" [ngModel]="draft().shiftType"
-                            (ngModelChange)="onShiftTypeChange($event)" />
-                        <tui-data-list-wrapper *tuiDropdown [items]="shiftTypeOptions" />
-                    </tui-textfield>
-                </div>
-
-                <!-- Department / Team -->
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-medium text-(--theme1)">Department / Team</label>
-                    <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg">
-                        <input placeholder="Any department" tuiSelect class="text-(--primary)!"
-                            [ngModel]="draft().department" (ngModelChange)="onDepartmentChange($event)" />
-                        <tui-data-list-wrapper *tuiDropdown [items]="departmentOptions" />
-                    </tui-textfield>
-                </div>
-
-                <!-- Employment Type -->
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-medium text-(--theme1)">Employment Type</label>
-                    <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg">
-                        <input placeholder="Any type" tuiSelect class="text-(--primary)!"
-                            [ngModel]="draft().employmentType" (ngModelChange)="onEmploymentTypeChange($event)" />
-                        <tui-data-list-wrapper *tuiDropdown [items]="employmentTypeOptions" />
-                    </tui-textfield>
-                </div>
-            </div>
 
             <!-- OVERTIME / EXCEPTION FLAGS ROW -->
             <div class="flex flex-col gap-2">

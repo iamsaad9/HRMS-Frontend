@@ -80,7 +80,7 @@ export const routes: Routes = [
   ],
 },
 
-    { path: 'employee/new/bulk-upload', component: BulkUploadEmployee, canActivate: [permissionGuard], data: { permissions: ['users:create'] } }, // ⚠️
+{ path: 'employee/new/bulk-upload', component: BulkUploadEmployee, canActivate: [permissionGuard], data: { permissions: ['users:create'] } }, // ⚠️
 { path: 'employee/org-chart', component: OrgChart, canActivate: [permissionGuard], data: { permissions: ['orgchart:read'] } },
 
 
@@ -92,7 +92,7 @@ export const routes: Routes = [
       // Requests Tab (Both Admin & User)
     
     { path: 'requests/new', component: NewRequest, canActivate: [permissionGuard], data: { permissions: ['requests:apply'] } },
-{ path: 'requests/my', component: AllMyRequestsComponent, canActivate: [permissionGuard], data: { permissions: ['requests:read'] } },
+{ path: 'requests/my', component: AllMyRequestsComponent, canActivate: [permissionGuard], data: { permissions: ['requests:apply'] } },
 { path: 'requests/:id', component: ViewRequest, canActivate: [permissionGuard], data: { permissions: ['requests:read'] } },
 { path: 'requests/approvals', component: LeaveRequestApprovals, canActivate: [permissionGuard], data: { permissions: ['requests:approve'] } },
 

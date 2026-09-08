@@ -320,7 +320,8 @@
 
               <!-- Removed the empty [disabled] attribute, Angular will manage it via the TS file -->
               <input #pwd formControlName="password" type="password" placeholder="Abc@123" tuiInput
-                (focus)="showValidator.set(true)" (blur)="showValidator.set(false)" />
+                [type]="form.get('useDefaultPassword')?.value ? 'text' : 'password'" (focus)="showValidator.set(true)"
+                (blur)="showValidator.set(false)" />
             </tui-textfield>
 
             <tui-error formControlName="password" />

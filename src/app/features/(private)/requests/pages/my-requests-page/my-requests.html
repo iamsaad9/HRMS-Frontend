@@ -66,11 +66,13 @@
         <p class="text-sm font-medium text-(--theme2)/70 m-0">{{ loadError() }}</p>
     </div>
     } @else if (monthGroups().length === 0) {
-    <div tuiCardLarge
-        class="bg-(--secondary)/15 border border-dashed border-(--background_dark)/15 rounded-xl p-10 text-center">
-        <mat-icon class="text-4xl text-(--theme2)/25 mb-2">inbox</mat-icon>
-        <p class="text-sm font-medium text-(--theme2)/70 m-0">No requests yet</p>
-        <p class="text-xs text-(--theme2)/45 mt-1 m-0">Requests you submit will show up here, grouped by month.</p>
+
+
+    <div tuiCardLarge class="bg-(--secondary)/15 flex! justify-center! items-center! gap-2! p-10! text-(--primary)">
+        <tui-icon icon="@tui.circle-alert" style="font-size: 4rem;" />
+        <p class="text-sm font-medium m-0">
+        <p class="text-base font-medium  m-0">No requests yet</p>
+        <p class="text-sm mt-1 m-0">Requests you submit will show up here, grouped by month.</p>
     </div>
     } @else {
 

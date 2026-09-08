@@ -250,7 +250,7 @@ export class AddEmployee implements OnInit {
 
       if (useDefault) {
         passwordControl?.disable();
-        passwordControl?.reset();
+        passwordControl?.setValue('Welcome@123'); // Set default password value
       } else {
         passwordControl?.enable();
       }
@@ -269,13 +269,6 @@ export class AddEmployee implements OnInit {
     const managerName =
       this.employeeService.allManagers()?.find((m) => m.id === data.managerId)?.fullName ?? null;
 
-    // 2. Handle category enum conversion (whether incoming is number or string)
-    // let categoryValue = 'Academic'; // default
-    // if (typeof data.category === 'number') {
-    //   categoryValue = CategoryType[data.category] ?? 'Academic';
-    // } else if (typeof data.category === 'string') {
-    //   categoryValue = data.category;
-    // }
 
     // 3. Patch the form
     this.form.patchValue({
@@ -324,6 +317,7 @@ export class AddEmployee implements OnInit {
     }
     const payload: CreateEmployeeCommand = {
       ...rawValue,
+      password: rawValue.useDefaultPassword ? '' : rawValue.password,
       departmentId: this.employeeService
         .allDepartments()
         ?.find((b) => b.name == rawValue.departmentId)?.id,

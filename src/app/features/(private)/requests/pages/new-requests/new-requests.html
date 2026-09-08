@@ -65,7 +65,7 @@
                 <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
                     [tuiTextfieldCleaner]="false">
                     <input formControlName="leaveType" placeholder="Select Leave Type" tuiSelect />
-                    <tui-data-list-wrapper *tuiDropdown [items]="leaveTypesOptions"
+                    <tui-data-list-wrapper *tuiDropdown [items]="leaveTypesOptions()"
                         class="bg-(--background_light)/40!" />
                 </tui-textfield>
                 <tui-error formControlName="leaveType" />

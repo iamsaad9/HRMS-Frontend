@@ -60,18 +60,10 @@ export class AttendanceHistoryFilterBar {
   showMoreFilters = false;
   // Option lists exposed to the template
   protected readonly statusOptions = ATTENDANCE_STATUS_OPTIONS;
-  protected readonly workLocationOptions = WORK_LOCATION_OPTIONS;
   protected readonly leaveTypeOptions = this.leaveService.leaveTypes();
-  protected readonly shiftTypeOptions = SHIFT_TYPE_OPTIONS;
   protected readonly exceptionFlagOptions = EXCEPTION_FLAG_OPTIONS;
-  protected readonly departmentOptions = DEPARTMENT_OPTIONS;
-  protected readonly employmentTypeOptions = EMPLOYMENT_TYPE_OPTIONS;
 
   protected draft = signal<AttendanceHistoryFilter>({ ...EMPTY_ATTENDANCE_HISTORY_FILTER });
-
-  protected onEmployeeIdChange(value: string): void {
-    this.draft.update((f) => ({ ...f, employeeId: value }));
-  }
 
   protected onStartDateChange(value: string): void {
     this.draft.update((f) => ({ ...f, startDate: value }));
@@ -85,37 +77,19 @@ export class AttendanceHistoryFilterBar {
     this.draft.update((f) => ({ ...f, statuses: value }));
   }
 
-  protected onWorkLocationChange(value: WorkLocation | null): void {
-    this.draft.update((f) => ({ ...f, workLocation: value }));
-  }
 
   protected onLeaveTypeChange(value: LeaveType | null): void {
     this.draft.update((f) => ({ ...f, leaveType: value }));
-  }
-
-  protected onShiftTypeChange(value: ShiftType | null): void {
-    this.draft.update((f) => ({ ...f, shiftType: value }));
   }
 
   protected onExceptionFlagsChange(value: ExceptionFlag[]): void {
     this.draft.update((f) => ({ ...f, exceptionFlags: value }));
   }
 
-  protected onDepartmentChange(value: Department | null): void {
-    this.draft.update((f) => ({ ...f, department: value }));
-  }
 
-  protected onEmploymentTypeChange(value: EmploymentType | null): void {
-    this.draft.update((f) => ({ ...f, employmentType: value }));
-  }
-
-  protected get canSearch(): boolean {
-    const f = this.draft();
-    return !!f.employeeId && !!f.startDate && !!f.endDate;
-  }
 
   protected onSearch(): void {
-    if (!this.canSearch) return;
+   
     this.filterChange.emit({ ...this.draft() });
   }
 

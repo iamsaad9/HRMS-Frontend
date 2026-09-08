@@ -11,6 +11,7 @@ import { LeaveCalendarCard } from "../leave-calendar/leave-calendar";
 import { TuiRingChart, TuiLegendItem } from '@taiga-ui/addon-charts';
 import { TuiHovered, tuiSum } from '@taiga-ui/cdk';
 import { TuiAmountPipe } from '@taiga-ui/addon-commerce';
+import { DashboardService } from '../../service/dashboard.service';
 
 export interface ClockHistoryItem {
   date: string;
@@ -28,6 +29,7 @@ export interface ClockHistoryItem {
 export class UserCardsComponent {
   protected readonly attendanceService = inject(AttendanceService);
   private readonly authService = inject(AuthService);
+  private readonly dashboardService = inject(DashboardService);
   protected router = inject(Router);
   readonly currentUser = this.authService.currentUser();
 
@@ -38,14 +40,16 @@ export class UserCardsComponent {
   });
 
   protected activeItemIndex = Number.NaN;
-    protected readonly value = [9, 12, 10];
-    protected readonly sum = tuiSum(...this.value);
-    protected readonly labels = ['Annual', 'Casual', 'Sick'];
- 
+
+  protected readonly leaveBalances = computed(() => this.dashboardService.data()?.leaveBalances ?? []);
+  protected readonly labels = computed(() => this.leaveBalances().map((b) => b.leaveTypeName));
+  protected readonly value = computed(() => this.leaveBalances().map((b) => b.remainingDays));
+  protected readonly sum = computed(() => tuiSum(...this.value()));
+
     protected isItemActive(index: number): boolean {
         return this.activeItemIndex === index;
     }
- 
+
     protected onHover(index: number, hovered: boolean): void {
         this.activeItemIndex = hovered ? index : Number.NaN;
     }

@@ -1,0 +1,41 @@
+<div class="flex flex-col gap-5 max-w-5xl mx-auto">
+    <app-main-heading title="My Shift History" description="Your assigned shift history" />
+
+    <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20!">
+        <table tuiTable class="w-full" size="m">
+            <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
+                <tr>
+                    <th tuiTh>Shift</th>
+                    <th tuiTh>Start Time</th>
+                    <th tuiTh>End Time</th>
+                    <th tuiTh>Effective From</th>
+                    <th tuiTh>Effective To</th>
+                    <th tuiTh>Status</th>
+                </tr>
+            </thead>
+            <tbody tuiTbody>
+                @for (entry of history(); track entry.shiftAssignmentId) {
+                <tr class="text-(--primary)">
+                    <td tuiTd class="font-medium">{{ entry.shiftName }} <span class="text-xs text-(--primary)/60">({{
+                            entry.shiftCode }})</span></td>
+                    <td tuiTd>{{ formatTime(entry.startTime) }}</td>
+                    <td tuiTd>{{ formatTime(entry.endTime) }}</td>
+                    <td tuiTd>{{ entry.effectiveFrom | date: 'mediumDate' }}</td>
+                    <td tuiTd>{{ entry.effectiveTo ? (entry.effectiveTo | date: 'mediumDate') : 'Ongoing' }}</td>
+                    <td tuiTd>
+                        <span tuiBadge [appearance]="entry.isCurrent ? 'positive' : 'neutral'">
+                            {{ entry.isCurrent ? 'Current' : 'Past' }}
+                        </span>
+                    </td>
+                </tr>
+                } @empty {
+                @if (!isLoading()) {
+                <tr>
+                    <td tuiTd colspan="6" class="text-center py-6 text-(--primary)/60">No shift history found.</td>
+                </tr>
+                }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

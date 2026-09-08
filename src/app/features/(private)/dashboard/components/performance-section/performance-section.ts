@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TuiLineChart, TuiAxes } from '@taiga-ui/addon-charts';
 import { TuiAvatar } from '@taiga-ui/kit';
@@ -7,16 +7,11 @@ import { MatIcon } from '@angular/material/icon';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { Router } from '@angular/router';
 import { AttendanceService } from '../../../attendance/service/attendance.service';
-import { AttendanceBarChartComponent } from "../attendance-bar-chart/attendance-bar-chart";
+import { AttendanceBarChartComponent, AttendancePunch } from "../attendance-bar-chart/attendance-bar-chart";
 import { AttendanceChannelType, PunchCommand, PunchType } from '../../../attendance/model/attendance.model';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { ToastService } from '../../../../../core/services/toast.service';
-
-export interface AttendancePunch {
-    readonly date: string;       // 'YYYY-MM-DD'
-    readonly checkIn: string | null;   // 'HH:mm'
-    readonly checkOut: string | null;  // 'HH:mm'
-}
+import { DashboardService } from '../../service/dashboard.service';
 
 function toIsoDate(d: Date): string {
   const year = d.getFullYear();
@@ -50,6 +45,7 @@ export interface TeamMember {
 })
 export class PerformanceSection {
   protected readonly attendanceService = inject(AttendanceService);
+  protected readonly dashboardService = inject(DashboardService);
   protected router = inject(Router);
   private readonly authService = inject(AuthService);
   readonly currentUser = this.authService.currentUser();
@@ -74,6 +70,18 @@ export class PerformanceSection {
       d.getMonth() === this.today.getMonth() &&
       d.getDate() === this.today.getDate()
     );
+  }
+
+  protected isPendingRegularization(day: { record: { status?: string; adjustmentStatus?: string | null } | null }): boolean {
+    return day.record?.status === 'NeedsRegularization' || day.record?.adjustmentStatus === 'Pending';
+  }
+
+  protected isWfhRow(day: { record: { status?: string; adjustmentStatus?: string | null } | null }): boolean {
+    return day.record?.status === 'WorkFromHome' || day.record?.adjustmentStatus === 'Pending WFH';
+  }
+
+  protected requestTypeForRow(day: { record: { status?: string; adjustmentStatus?: string | null } | null }): string {
+    return this.isWfhRow(day) ? 'wfh' : 'regularization';
   }
 
   fullWeekAttendance = computed(() => {
@@ -136,38 +144,34 @@ export class PerformanceSection {
     [29, 98],
   ];
 
-  readonly punches = input<readonly AttendancePunch[]>([
-    { date: '2026-03-01', checkIn: '09:58', checkOut: '17:05' }, // Sunday
-    { date: '2026-03-02', checkIn: '08:55', checkOut: '17:05' },
-    { date: '2026-03-03', checkIn: '09:00', checkOut: '17:00' },
-    { date: '2026-03-04', checkIn: '08:48', checkOut: '17:15' },
-    { date: '2026-03-05', checkIn: '09:12', checkOut: '17:02' }, // Late check-in
-    { date: '2026-03-06', checkIn: '08:58', checkOut: '15:30' }, // Early check-out
-    { date: '2026-03-07', checkIn: '08:58', checkOut: '15:30' }, // Saturday
-    { date: '2026-03-08', checkIn: '08:58', checkOut: '15:30' }, // Sunday
-    { date: '2026-03-09', checkIn: '08:52', checkOut: '17:08' },
-    { date: '2026-03-10', checkIn: '09:05', checkOut: '17:00' },
-    { date: '2026-03-11', checkIn: '08:59', checkOut: '17:12' }, // Missing check-out
-    { date: '2026-03-12', checkIn: '08:45', checkOut: '17:30' },
-    { date: '2026-03-13', checkIn: '09:00', checkOut: '16:45' },
-    { date: '2026-03-14', checkIn: '08:58', checkOut: '15:30' }, // Saturday
-    { date: '2026-03-15', checkIn: '08:58', checkOut: '15:30' }, // Sunday
-    { date: '2026-03-16', checkIn: '08:50', checkOut: '17:10' },
-    { date: '2026-03-17', checkIn: '09:30', checkOut: '18:00' }, // Shifted schedule
-    { date: '2026-03-18', checkIn: '08:55', checkOut: '17:00' },
-    { date: '2026-03-19', checkIn: '08:57', checkOut: '17:03' },
-    { date: '2026-03-20', checkIn: '09:01', checkOut: '17:00' },
-    { date: '2026-03-21', checkIn: '08:58', checkOut: '15:30' }, // Saturday
-    { date: '2026-03-22', checkIn: '08:58', checkOut: '15:30' }, // Sunday
-    { date: '2026-03-23', checkIn: '08:58', checkOut: '15:30' }, // Leave / Absent
-    { date: '2026-03-24', checkIn: '08:40', checkOut: '17:20' },
-    { date: '2026-03-25', checkIn: '08:59', checkOut: '17:01' },
-    { date: '2026-03-26', checkIn: '08:58', checkOut: '15:30' }, // Missing check-in
-    { date: '2026-03-27', checkIn: '08:50', checkOut: '16:00' },
-    { date: '2026-03-28', checkIn: '08:58', checkOut: '15:30' }, // Saturday
-    { date: '2026-03-29', checkIn: '08:58', checkOut: '15:30' }, // Sunday
-    { date: '2026-03-30', checkIn: '08:53', checkOut: '17:12' },
-  ]);
+  /** Real work-hour-overview data: this employee's actual clock in/out per day. */
+  protected readonly barChartPunches = computed<AttendancePunch[]>(() =>
+    (this.attendanceService.currentMonth() ?? []).map((d) => ({
+      date: d.date,
+      checkIn: this.toHm(d.firstIn),
+      checkOut: this.toHm(d.lastOut),
+    })),
+  );
+
+  /** The employee's current shift, used as the expected start/end reference on the bar chart. */
+  protected readonly currentShift = computed(() => {
+    const history = this.dashboardService.data()?.shiftHistory ?? [];
+    return history.find((s) => s.isCurrent) ?? history[0] ?? null;
+  });
+
+  protected formatShiftTime(time: string): string {
+    const [h, m] = time.split(':').map(Number);
+    const period = h >= 12 ? 'PM' : 'AM';
+    const hour12 = h % 12 === 0 ? 12 : h % 12;
+    return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+  }
+
+  private toHm(iso: string | null): string | null {
+    if (!iso) return null;
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return null;
+    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+  }
 
   // <-------------- PUNCHES LOGIC -------------->
 

@@ -37,7 +37,12 @@ import {
 import { TuiItemGroup, TuiCardLarge } from '@taiga-ui/layout';
 import { TuiTable, TuiTableControl } from '@taiga-ui/addon-table';
 
-import { EmployeeFilter, EMPTY_EMPLOYEE_FILTER, type Employee } from '../../model/employee.model';
+import {
+  EmployeeFilter,
+  EMPTY_EMPLOYEE_FILTER,
+  filterEmployees,
+  type Employee,
+} from '../../model/employee.model';
 import { EmployeeFilterBarComponent } from '../../components/employee-filter-bar/employee-filter-bar';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { LoadingService } from '../../../../../core/services/loading.service';
@@ -135,29 +140,9 @@ export class EmployeeList implements OnInit {
     this.page.set(page);
   }
 
-  protected filteredEmployees = computed(() => {
-    const list = this.employees() || [];
-    const currentFilter = this.filter();
-
-    return list.filter((emp: Employee) => {
-      const matchesSearch =
-        !currentFilter.search ||
-        emp.fullName?.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
-        emp.workEmail?.toLowerCase().includes(currentFilter.search.toLowerCase());
-
-      const matchesDept =
-        !currentFilter.departmentId || emp.departmentId === currentFilter.departmentId;
-
-      const matchesRole =
-        !currentFilter.role ||
-        (emp as any).role === currentFilter.role ||
-        (emp as any).designation === currentFilter.role;
-
-      const matchIsActive = !currentFilter.isActive || emp.isActive === currentFilter.isActive;
-
-      return matchesSearch && matchesDept && matchesRole && matchIsActive;
-    });
-  });
+  protected filteredEmployees = computed(() =>
+    filterEmployees(this.employees() || [], this.filter()),
+  );
 
   protected readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.filteredEmployees().length / this.pageSize)),

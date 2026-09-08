@@ -1,0 +1,83 @@
+<div class="flex flex-col gap-5 max-w-7xl mx-auto">
+    <app-main-heading title="Holiday Calendar" description="Manage holiday calendar entries by employee category">
+        @if (selectedCategory() !== null) {
+        <button type="button" tuiButton size="s" (click)="addHoliday()"
+            class="cursor-pointer bg-(--theme1)! text-white hover:bg-(--theme1)/80!">
+            Add Holiday
+        </button>
+        }
+    </app-main-heading>
+
+    <!-- Category-first selection -->
+    <div tuiCardLarge class="flex flex-wrap items-end gap-3 shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
+        <label class="flex flex-col gap-1 text-sm text-(--primary) min-w-56">
+            Employee Category <span class="text-red-500">*</span>
+            <select class="rounded-md border border-(--secondary)/40 bg-transparent px-2 py-1.5"
+                [ngModel]="selectedCategory()" (ngModelChange)="selectCategory($event)">
+                <option [ngValue]="null" disabled>Select category</option>
+                <option [ngValue]="CategoryType.Administrative">Administrative</option>
+                <option [ngValue]="CategoryType.Academic">Academic</option>
+            </select>
+        </label>
+
+        @if (selectedCategory() === CategoryType.Academic) {
+        <label class="flex flex-col gap-1 text-sm text-(--primary)">
+            Academic Year <span class="text-red-500">*</span>
+            <input type="text" placeholder="e.g. 2026-2027" [ngModel]="academicYear()"
+                (ngModelChange)="academicYear.set($event)"
+                class="rounded-md border border-(--secondary)/40 bg-transparent px-2 py-1.5" />
+        </label>
+        }
+
+        <button type="button" tuiButton size="m" [disabled]="!canSearch() || isLoading()" (click)="search()"
+            class="cursor-pointer bg-(--theme1)! text-white hover:bg-(--theme1)/80! disabled:opacity-40!">
+            {{ isLoading() ? 'Loading...' : 'View Calendar' }}
+        </button>
+    </div>
+
+    @if (hasSearched()) {
+    <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20!">
+        <table tuiTable class="w-full" size="m">
+            <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
+                <tr>
+                    <th tuiTh>Title</th>
+                    <th tuiTh>Start Date</th>
+                    <th tuiTh>End Date</th>
+                    <th tuiTh>Type</th>
+                    <th tuiTh>Optional</th>
+                    <th tuiTh>Actions</th>
+                </tr>
+            </thead>
+            <tbody tuiTbody>
+                @for (holiday of holidays(); track holiday.id) {
+                <tr class="text-(--primary)">
+                    <td tuiTd class="font-medium">{{ holiday.title }}</td>
+                    <td tuiTd>{{ holiday.startDate | date: 'mediumDate' }}</td>
+                    <td tuiTd>{{ holiday.endDate | date: 'mediumDate' }}</td>
+                    <td tuiTd>
+                        <span tuiBadge [appearance]="typeAppearance(holiday.type)">{{ holiday.type }}</span>
+                    </td>
+                    <td tuiTd>{{ holiday.isOptional ? 'Yes' : 'No' }}</td>
+                    <td tuiTd>
+                        <button type="button" tuiIconButton appearance="action" iconStart="@tui.trash-2" size="xs"
+                            (click)="deleteHoliday(holiday)" class="text-red-500!">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td tuiTd colspan="6" class="text-center py-6 text-(--primary)/60">
+                        No holiday calendar entries for this selection yet.
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    } @else {
+    <div tuiCardLarge class="text-center py-10 text-(--primary)/60 bg-(--secondary)/20! glass-card">
+        Select a category (and academic year, if Academic) to view its holiday calendar.
+    </div>
+    }
+</div>

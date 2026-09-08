@@ -3,6 +3,21 @@ import { TuiDay } from '@taiga-ui/cdk';
 export type RequestType = 'leave' | 'wfh' | 'regularization';
 export type HalfDayType = 'first_half' | 'second_half';
 
+/** Maps the backend's RequestType string (as seen on RequestData/RequestResponse) to the frontend union. */
+export function toRequestType(backendType: string): RequestType | null {
+  switch (backendType) {
+    case 'Leave':
+      return 'leave';
+    case 'WorkFromHome':
+      return 'wfh';
+    case 'AttendanceRegularization':
+    case 'Regularization':
+      return 'regularization';
+    default:
+      return null;
+  }
+}
+
 export interface LeaveWfhLineItem {
   date: string;              // ISO date, formatted on submit
   isHalfDay: boolean;

@@ -105,46 +105,41 @@
                     <p class="text-sm text-(--primary)/80">Direct reports & presence status</p>
                 </div>
                 <span class="rounded-full bg-(--primary)/10 px-2.5 py-0.5 text-xs font-semibold text-(--primary)">
-                    15 Members
+                    {{ teamMembers().length }} Members
                 </span>
             </div>
 
             <!-- Member List -->
             <div class=" flex flex-col divide-y divide-(--primary)/20">
-                @for (member of teamMembers(); track member.id) {
+                @for (member of teamMembers(); track member.employeeId) {
                 <div class="flex items-center justify-between py-3">
                     <div class="flex items-center gap-x-3">
                         <!-- Taiga Avatar / Fallback -->
                         <div class="relative">
                             <div tuiAvatar="@tui.user"></div>
-                            <!-- Presence indicator -->
                             <span
-                                class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full ring-2 ring-(--background_light) dark:ring-slate-900"
-                                [ngClass]="{
-                    'bg-(--success)': member.status === 'online',
-                    'bg-amber-500': member.status === 'busy',
-                    'bg-slate-300': member.status === 'leave',
-                  }"></span>
+                                class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full ring-2 ring-(--background_light) dark:ring-slate-900 bg-(--success)"></span>
                         </div>
 
                         <div>
                             <p class="text-sm font-semibold text-(--primary) leading-none">
-                                {{ member.name }}
+                                {{ member.fullName }}
                             </p>
                             <p class="mt-1 text-xs text-(--primary)/80">
-                                {{ member.role }}
+                                {{ member.designation }}
                             </p>
                         </div>
                     </div>
 
-                    <!-- Attendance Badge -->
+                    <!-- Department -->
                     <div class="text-right">
                         <span class="text-xs font-medium text-(--primary)">
-                            {{ member.attendanceRate }}
+                            {{ member.departmentName }}
                         </span>
-                        <p class="text-[10px] text-(--primary)">Attendance</p>
                     </div>
                 </div>
+                } @empty {
+                <p class="py-3 text-sm text-(--primary)/60">No direct reports.</p>
                 }
             </div>
 

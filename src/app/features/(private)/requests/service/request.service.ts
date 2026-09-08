@@ -4,7 +4,19 @@ import { LoadingService } from "../../../../core/services/loading.service";
 import { AuthService } from "../../../(public)/auth/services/auth.service";
 import { Observable, tap } from "rxjs";
 import { ApiResponse } from "../../../../core/models/api-response.model";
-import { GetRequestByIdResponse, NewRequestPayload, RequestResponse } from "../model/request.model";
+import { GetRequestByIdResponse, NewRequestPayload, RequestResponse, RequestType } from "../model/request.model";
+
+export interface ApproveRejectPayload {
+  approvedByEmployeeId?: string;
+  rejectedByEmployeeId?: string;
+  remarks: string | null;
+}
+
+const TYPE_TO_ROUTE_SEGMENT: Record<RequestType, string> = {
+  leave: 'leaves',
+  wfh: 'work-from-home',
+  regularization: 'attendance-regularization',
+};
 
 @Injectable({ providedIn: 'root' })
 export class RequestsService {
@@ -112,23 +124,38 @@ getRequestById(id?: string): Observable<ApiResponse<GetRequestByIdResponse>> {
       );
     }    
 
-//     approveLeave(
-//       id: string,
-//     payload: ApproveRejectLeaveRequest,
-//   ): Observable<ApiResponse<LeaveRequestResponse>> {
-//     return this.http.post<ApiResponse<LeaveRequestResponse>>(
-//       `${this.apiUrl}/leaves/${id}/approve`,
-//       payload,
-//     );
-//     }
+    approve(type: RequestType, id: string, payload: ApproveRejectPayload): Observable<ApiResponse<boolean>> {
+      return this.http.post<ApiResponse<boolean>>(
+        `${this.apiUrl}/${TYPE_TO_ROUTE_SEGMENT[type]}/${id}/approve`,
+        { approvedByEmployeeId: this.currentUserId, remarks: payload.remarks },
+      );
+    }
 
-//     rejectLeave(
-//     id: string,
-//     payload: ApproveRejectLeaveRequest,
-//   ): Observable<ApiResponse<LeaveRequestResponse>> {
-//     return this.http.post<ApiResponse<LeaveRequestResponse>>(
-//       `${this.apiUrl}/leaves/${id}/reject`,
-//       payload,
-//     );
-//     }
+    reject(type: RequestType, id: string, payload: ApproveRejectPayload): Observable<ApiResponse<boolean>> {
+      return this.http.post<ApiResponse<boolean>>(
+        `${this.apiUrl}/${TYPE_TO_ROUTE_SEGMENT[type]}/${id}/reject`,
+        { rejectedByEmployeeId: this.currentUserId, remarks: payload.remarks ?? '' },
+      );
+    }
+
+    cancel(type: RequestType, id: string): Observable<ApiResponse<boolean>> {
+      const params = new HttpParams().set('employeeId', this.currentUserId ?? '');
+      return this.http.delete<ApiResponse<boolean>>(
+        `${this.apiUrl}/${TYPE_TO_ROUTE_SEGMENT[type]}/${id}`,
+        { params },
+      );
+    }
+
+    getManagerPendingRequests(managerId: string): Observable<ApiResponse<RequestResponse[]>> {
+      const params = new HttpParams().set('managerId', managerId);
+      return this.http.get<ApiResponse<RequestResponse[]>>(`${this.apiUrl}/manager/pending-requests`, { params });
+    }
+
+    getHrPendingRequests(): Observable<ApiResponse<RequestResponse[]>> {
+      return this.http.get<ApiResponse<RequestResponse[]>>(`${this.apiUrl}/hr/pending-requests`);
+    }
+
+    getAllPendingRequests(): Observable<ApiResponse<RequestResponse[]>> {
+      return this.http.get<ApiResponse<RequestResponse[]>>(`${this.apiUrl}/admin/pending-requests`);
+    }
 }

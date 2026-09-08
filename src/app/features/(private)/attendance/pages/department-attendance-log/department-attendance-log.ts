@@ -8,8 +8,6 @@ import { TuiCardLarge } from '@taiga-ui/layout';
 import { Router } from '@angular/router';
 
 import {
-  Department,
-  DEPARTMENT_OPTIONS,
   DepartmentAttendanceFilter,
   DepartmentAttendanceRecord,
   DepartmentDaySummary,
@@ -17,6 +15,7 @@ import {
 } from '../../model/attendance.model';
 import { DepartmentAttendanceLogService } from '../../pages/department-attendance-log/department-attendance-log.service';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
+import { EmployeeService } from '../../../employees/services/employee.service';
 
 @Component({
   selector: 'app-department-attendance-log',
@@ -39,9 +38,10 @@ import { MainHeading } from '../../../../../shared/components/main-heading/main-
 })
 export class DepartmentAttendanceLog implements OnInit {
   private readonly attendanceService = inject(DepartmentAttendanceLogService);
+  private readonly employeeService = inject(EmployeeService);
   protected readonly router = inject(Router);
 
-  protected departments = DEPARTMENT_OPTIONS;
+  protected departments = computed(() => this.employeeService.allDepartments() ?? []);
   protected filter = signal<DepartmentAttendanceFilter>({ ...EMPTY_DEPARTMENT_ATTENDANCE_FILTER });
 
   protected allRecords = signal<DepartmentAttendanceRecord[]>([]);
@@ -98,8 +98,8 @@ export class DepartmentAttendanceLog implements OnInit {
     if (!date || records.length === 0) return null;
 
     const present = records.filter((r) => r.status === 'Present').length;
-    const late = records.filter((r) => r.status === 'Late').length;
-    const absent = records.filter((r) => r.status === 'Absent' || r.status === 'On Leave').length;
+    const late = records.filter((r) => r.lateMinutes > 0).length;
+    const absent = records.filter((r) => r.status === 'Absent' || r.status === 'OnLeave').length;
 
     const workedHours = records
       .map((r) => r.totalHoursWorked)
@@ -137,9 +137,7 @@ export class DepartmentAttendanceLog implements OnInit {
   });
 
   ngOnInit(): void {
-    // this.attendanceService.getDepartments().subscribe((departments) => {
-    //   this.departments.set(departments);
-    // });
+    this.employeeService.getDepartments().subscribe();
   }
 
   private toDateStr(d: Date): string {
@@ -202,20 +200,18 @@ export class DepartmentAttendanceLog implements OnInit {
     switch (status) {
       case 'Present':
         return 'positive';
-      case 'Late':
+      case 'NeedsRegularization':
         return 'warning';
       case 'Absent':
         return 'negative';
-      case 'On Leave':
+      case 'OnLeave':
+      case 'WorkFromHome':
+      case 'WeeklyOff':
+      case 'Holiday':
         return 'neutral';
       default:
         return 'neutral';
     }
   }
 
-  protected onEdit(record: DepartmentAttendanceRecord): void {
-    this.router.navigate([`attendance/adjustment/${record.employeeId}`], {
-      queryParams: { date: record.date },
-    });
-  }
 }

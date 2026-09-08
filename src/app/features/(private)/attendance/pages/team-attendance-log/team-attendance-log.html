@@ -1,0 +1,72 @@
+<div class="flex flex-col gap-5 max-w-6xl mx-auto">
+    <app-main-heading title="My Team's Attendance Logs" description="Daily attendance for your direct reports">
+        <button type="button" tuiButton size="s" [disabled]="isLoading()" (click)="search()"
+            class="cursor-pointer bg-(--theme3)! text-white hover:bg-(--theme3)/80! disabled:opacity-40!">
+            Refresh
+        </button>
+    </app-main-heading>
+
+    <div tuiCardLarge class="flex flex-wrap items-end gap-3 shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
+        <label class="flex flex-col gap-1 text-sm text-(--primary)">
+            Start Date
+            <input type="date" class="rounded-md border border-(--secondary)/40 bg-transparent px-2 py-1.5"
+                [ngModel]="filter().startDate" (ngModelChange)="onStartDateChange($event)" />
+        </label>
+
+        <label class="flex flex-col gap-1 text-sm text-(--primary)">
+            End Date
+            <input type="date" class="rounded-md border border-(--secondary)/40 bg-transparent px-2 py-1.5"
+                [ngModel]="filter().endDate" (ngModelChange)="onEndDateChange($event)" />
+        </label>
+
+        <button type="button" tuiButton size="m" [disabled]="isLoading()" (click)="search()"
+            class="cursor-pointer bg-(--theme1)! text-white hover:bg-(--theme1)/80! disabled:opacity-40!">
+            {{ isLoading() ? 'Loading...' : 'Search' }}
+        </button>
+    </div>
+
+    @if (hasSearched()) {
+    @for (date of sortedDates(); track date) {
+    <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20!">
+        <div class="flex items-center justify-between px-4 py-2 text-sm font-semibold text-(--primary)">
+            <span>{{ date | date: 'EEE, MMM d, y' }}</span>
+            <span class="text-(--primary)/60 font-normal">{{ (byDate().get(date) ?? []).length }} employee(s)</span>
+        </div>
+
+        <table tuiTable class="w-full" size="m">
+            <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
+                <tr>
+                    <th tuiTh>Employee</th>
+                    <th tuiTh>Clock In</th>
+                    <th tuiTh>Clock Out</th>
+                    <th tuiTh>Total Hours</th>
+                    <th tuiTh>Late (min)</th>
+                    <th tuiTh>Status</th>
+                </tr>
+            </thead>
+            <tbody tuiTbody>
+                @for (record of byDate().get(date); track record.id) {
+                <tr class="text-(--primary)">
+                    <td tuiTd class="font-medium">{{ record.employeeName }}</td>
+                    <td tuiTd>{{ record.firstIn ? (record.firstIn | date: 'shortTime') : 'N/A' }}</td>
+                    <td tuiTd>{{ record.lastOut ? (record.lastOut | date: 'shortTime') : 'N/A' }}</td>
+                    <td tuiTd>
+                        {{ record.totalHoursWorked != null ? (record.totalHoursWorked | number: '1.1-2') + ' hrs' :
+                        'N/A' }}
+                    </td>
+                    <td tuiTd>{{ record.lateMinutes ?? 0 }} min</td>
+                    <td tuiTd>
+                        <span tuiBadge [appearance]="statusAppearance(record.status)">{{ record.status }}</span>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    } @empty {
+    <div tuiCardLarge class="text-center py-10 text-(--primary)/60 bg-(--secondary)/20! glass-card">
+        No records found for this date range — you may not have any direct reports.
+    </div>
+    }
+    }
+</div>

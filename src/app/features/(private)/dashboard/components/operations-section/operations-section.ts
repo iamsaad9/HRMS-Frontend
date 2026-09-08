@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 import { catchError, finalize, forkJoin, map, of } from 'rxjs';
 import { LeaveRequestsService } from '../../../leave-management/service/leave-requests.service';
 import { ApproveRejectLeaveRequest, LeaveRequestResponse } from '../../../leave-management/model/leave-request.model';
-import { TeamMember } from '../performance-section/performance-section';
+import { DashboardService } from '../../service/dashboard.service';
 
 @Component({
   selector: 'app-operations-section',
@@ -29,6 +29,7 @@ export class OperationsSection implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly authService = inject(AuthService);
   private readonly toast = inject(ToastService);
+  private readonly dashboardService = inject(DashboardService);
   protected readonly router = inject(Router);
 
   currentUser = this.authService.currentUser;
@@ -199,35 +200,6 @@ export class OperationsSection implements OnInit {
     this.loadLeaveRequests();
   }
 
-   readonly teamMembers = signal<TeamMember[]>([
-      {
-        id: 'usr-1',
-        name: 'Alex Rivera',
-        role: 'Frontend Engineer',
-        status: 'online',
-        attendanceRate: '98%',
-      },
-      {
-        id: 'usr-2',
-        name: 'Sarah Jenkins',
-        role: 'UI/UX Designer',
-        status: 'online',
-        attendanceRate: '96%',
-      },
-      {
-        id: 'usr-3',
-        name: 'Maria Chen',
-        role: 'Backend Developer',
-        status: 'busy',
-        attendanceRate: '92%',
-      },
-      {
-        id: 'usr-4',
-        name: 'James Wilson',
-        role: 'QA Engineer',
-        status: 'leave',
-        attendanceRate: '89%',
-      },
-    ]);
+  protected readonly teamMembers = computed(() => this.dashboardService.data()?.teamMembers ?? []);
 }
 

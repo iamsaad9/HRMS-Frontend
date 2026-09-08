@@ -24,7 +24,7 @@ import { TuiDay } from '@taiga-ui/cdk';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { ToastService } from '../../../../../core/services/toast.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LeaveRequestsService } from '../../../leave-management/service/leave-requests.service';
 import { HalfDayType, NewRequestPayload, RequestType } from '../../model/request.model';
 import { RequestsService } from '../../service/request.service';
@@ -48,6 +48,7 @@ export class NewRequest implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly minDate = TuiDay.currentLocal();
   protected get minEndDate(): TuiDay {
@@ -69,6 +70,38 @@ protected leaveTypesOptions = computed(() =>
   ngOnInit(): void {
     this.leaveService.getAllLeaveTypes().subscribe();
     this.buildForm();
+    this.applyQueryPreset();
+  }
+
+  /** Pre-fills the form when navigated here with `?type=&date=` (e.g. clicking a Shift History row). */
+  private applyQueryPreset(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const type = params.get('type');
+    const date = params.get('date');
+
+    if (type) {
+      const normalized: RequestType | null =
+        type === 'regularization' || type === 'AttendanceRegularization'
+          ? 'regularization'
+          : type === 'wfh' || type === 'WorkFromHome'
+            ? 'wfh'
+            : type === 'leave' || type === 'Leave'
+              ? 'leave'
+              : null;
+
+      if (normalized) {
+        this.form.get('requestType')?.setValue(normalized);
+      }
+    }
+
+    if (date) {
+      const parsed = new Date(date);
+      if (!isNaN(parsed.getTime())) {
+        const tuiDay = TuiDay.fromLocalNativeDate(parsed);
+        this.form.get('startDate')?.setValue(tuiDay);
+        this.form.get('endDate')?.setValue(tuiDay);
+      }
+    }
   }
 
   protected get lineItems(): FormArray {

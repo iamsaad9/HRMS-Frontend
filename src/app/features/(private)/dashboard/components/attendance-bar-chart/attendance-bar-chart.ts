@@ -44,38 +44,7 @@ function formatHours(hours: number): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AttendanceBarChartComponent {
-readonly punches = input<readonly AttendancePunch[]>([
-    { date: '2026-08-01', checkIn: '09:58', checkOut: '17:05' }, // Sunday
-  { date: '2026-08-02', checkIn: '08:55', checkOut: '17:05' },
-  { date: '2026-08-03', checkIn: '09:00', checkOut: '17:00' },
-  { date: '2026-08-04', checkIn: '08:48', checkOut: '17:15' },
-  { date: '2026-08-05', checkIn: '09:12', checkOut: '17:02' }, // Late check-in
-  { date: '2026-08-06', checkIn: '08:58', checkOut: '15:30' }, // Early check-out
-  { date: '2026-08-07', checkIn: '08:58', checkOut: '15:30'  }, // Saturday
-  { date: '2026-08-08', checkIn: '08:58', checkOut: '15:30'  }, // Sunday
-  { date: '2026-08-09', checkIn: '08:52', checkOut: '17:08' },
-  { date: '2026-08-10', checkIn: '09:05', checkOut: '17:00' },
-  { date: '2026-08-11', checkIn: '08:59', checkOut: '17:12' },    // Missing check-out
-  { date: '2026-08-12', checkIn: '08:45', checkOut: '17:30' },
-  { date: '2026-08-13', checkIn: '09:00', checkOut: '16:45' },
-  { date: '2026-08-14', checkIn: '08:58', checkOut: '15:30'  }, // Saturday
-  { date: '2026-08-15', checkIn: '08:58', checkOut: '15:30'  }, // Sunday
-  { date: '2026-08-16', checkIn: '08:50', checkOut: '17:10' },
-  { date: '2026-08-17', checkIn: '09:30', checkOut: '18:00' }, // Shifted schedule
-  { date: '2026-08-18', checkIn: '08:55', checkOut: '17:00' },
-  { date: '2026-08-19', checkIn: '08:57', checkOut: '17:03' },
-  { date: '2026-08-20', checkIn: '09:01', checkOut: '17:00' },
-  { date: '2026-08-21', checkIn: '08:58', checkOut: '15:30'  }, // Saturday
-  { date: '2026-08-22', checkIn: '08:58', checkOut: '15:30'  }, // Sunday
-  { date: '2026-08-23', checkIn: '08:58', checkOut: '15:30'  }, // Leave / Absent
-  { date: '2026-08-24', checkIn: '08:40', checkOut: '17:20' },
-  { date: '2026-08-25', checkIn: '08:59', checkOut: '17:01' },
-  { date: '2026-08-26', checkIn: '08:58', checkOut: '15:30'  },    // Missing check-in
-  { date: '2026-08-27', checkIn: '08:50', checkOut: '16:00' },
-  { date: '2026-08-28', checkIn: '08:58', checkOut: '15:30'  }, // Saturday
-  { date: '2026-08-29', checkIn: '08:58', checkOut: '15:30'  }, // Sunday
-  { date: '2026-08-30', checkIn: '08:53', checkOut: '17:12' },
-   ]);
+  readonly punches = input<readonly AttendancePunch[]>([]);
 
   readonly shiftStart = input<string>('09:00');
   readonly shiftEnd = input<string>('18:00');

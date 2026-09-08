@@ -1,5 +1,31 @@
 // attendance-model.ts
 
+// Mirrors backend DepartmentAttendanceLogDto (Modules.Attendance/Application/DTOs/AttendanceDTOs.cs) -
+// deliberately lightweight (no punches) for department/team daily-log views.
+export interface DepartmentDailyLogEntry {
+  employeeId: string;
+  fullName: string;
+  designation: string;
+  date: string;
+  status: string;
+  firstIn: string | null;
+  lastOut: string | null;
+  lateMinutes: number;
+}
+
+// Mirrors backend ShiftHistoryDto (Modules.Attendance/Application/DTOs/DashboardDTOs.cs)
+export interface ShiftHistoryEntry {
+  shiftAssignmentId: string;
+  shiftId: string;
+  shiftCode: string;
+  shiftName: string;
+  startTime: string; // "HH:mm:ss"
+  endTime: string; // "HH:mm:ss"
+  effectiveFrom: string;
+  effectiveTo: string | null;
+  isCurrent: boolean;
+}
+
 /* ==========================================================================
    1. ENUMS & CORE DOMAIN TYPES
    ========================================================================== */
@@ -365,7 +391,7 @@ export interface DepartmentAttendanceRecord {
   lateMinutes: number;
   earlyExitMinutes: number;
   overtimeHours: number;
-  status: AttendanceStatus;
+  status: string;
 }
 
 // Quick-info stats for the department, scoped to the day currently being viewed.

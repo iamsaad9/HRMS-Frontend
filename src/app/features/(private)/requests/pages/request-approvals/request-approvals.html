@@ -1,0 +1,46 @@
+<div class="flex flex-col gap-5 w-full p-4 md:p-5 text-(--theme2) max-w-7xl mx-auto">
+    <app-main-heading title="Request Approvals" [description]="scopeLabel()" />
+
+    @if (isLoading()) {
+    <div class="flex items-center gap-2 py-10 justify-center text-sm text-(--theme2)/50">
+        Loading pending requests…
+    </div>
+    } @else if (loadError()) {
+    <div tuiCardLarge class="bg-(--secondary)/15 border border-dashed border-(--background_dark)/15 rounded-xl p-10 text-center">
+        <p class="text-sm font-medium text-(--theme2)/70 m-0">{{ loadError() }}</p>
+    </div>
+    } @else if (requests().length === 0) {
+    <div tuiCardLarge class="bg-(--secondary)/15 flex! justify-center! items-center! gap-2! p-10! text-(--primary)">
+        <tui-icon icon="@tui.circle-check" style="font-size: 3rem;" />
+        <p class="text-base font-medium m-0">No pending requests to approve.</p>
+    </div>
+    } @else {
+    <div class="flex flex-col gap-3">
+        @for (req of requests(); track req.id) {
+        <div tuiCardLarge class="relative overflow-hidden rounded-lg p-4 bg-(--secondary)! shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+            <span class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></span>
+
+            <div class="pl-2 flex items-start justify-between gap-3 text-(--primary)">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                        <tui-icon [icon]="getRequestTypeIcon(req.requestType)" class="text-(--theme1)" />
+                        <p class="text-base font-semibold text-xl m-0 capitalize">{{ req.requestType }}</p>
+                    </div>
+                    <p class="text-sm text-(--primary)/60 mt-0.5 m-0">{{ dateRangeLabel(req) }} · {{ req.totalDays }} day(s)</p>
+                    <p class="text-xs text-(--primary)/40 m-0 mt-1">
+                        Submitted {{ req.createdAtUtc | date: 'medium' }} · Step {{ req.currentStepOrder }}
+                    </p>
+                </div>
+                <div class="flex gap-2 items-center shrink-0">
+                    <span tuiBadge appearance="warning">{{ req.overallStatus }}</span>
+                    <button tuiButton type="button" size="s" [routerLink]="['/requests', req.id]"
+                        class="bg-(--theme2)! cursor-pointer">
+                        Review
+                    </button>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+    }
+</div>

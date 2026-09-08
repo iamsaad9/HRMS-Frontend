@@ -1,35 +1,59 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { TuiButton, TuiIcon } from '@taiga-ui/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TuiButton, TuiIcon, TuiTextfield } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
+import { TuiTextarea } from '@taiga-ui/kit';
+import { FormsModule } from '@angular/forms';
 import { catchError, finalize, of, switchMap, tap } from 'rxjs';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { RequestsService } from '../../service/request.service';
-import { 
-  isAttendanceRegularizationDetail, 
-  isLeaveDetail, 
-  isWorkFromHomeDetail, 
-  RequestData, 
+import { AuthService } from '../../../../(public)/auth/services/auth.service';
+import { ToastService } from '../../../../../core/services/toast.service';
+import {
+  isAttendanceRegularizationDetail,
+  isLeaveDetail,
+  isWorkFromHomeDetail,
+  RequestData,
   RequestDetail,
   LeaveDetail,
-  WorkFromHomeDetail 
+  WorkFromHomeDetail,
+  toRequestType,
 } from '../../model/request.model';
 
 @Component({
   selector: 'app-view-request',
   standalone: true,
-  imports: [CommonModule, RouterLink, TuiButton, TuiCardLarge, MainHeading, TuiIcon],
+  imports: [CommonModule, FormsModule, RouterLink, TuiButton, TuiCardLarge, MainHeading, TuiIcon, TuiTextarea, TuiTextfield],
   templateUrl: './view-request.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewRequest {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly requestService = inject(RequestsService);
- 
+  private readonly authService = inject(AuthService);
+  private readonly toast = inject(ToastService);
+
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly request = signal<RequestData<RequestDetail> | null>(null);
+  protected readonly isSubmittingAction = signal(false);
+  protected readonly remarks = signal('');
+
+  protected readonly currentEmployeeId = this.authService.currentUser()?.employeeInfo?.id ?? null;
+
+  protected readonly isOwnRequest = computed(
+    () => !!this.currentEmployeeId && this.request()?.requesterEmployeeId === this.currentEmployeeId,
+  );
+
+  protected readonly isPending = computed(() => this.request()?.overallStatus === 1);
+
+  protected readonly canCancel = computed(
+    () => this.isOwnRequest() && this.isPending() && this.request()?.currentStepOrder === 1,
+  );
+
+  protected readonly canApproveOrReject = computed(() => !this.isOwnRequest() && this.isPending());
  
   protected readonly title = computed(() => {
     switch (this.request()?.requestType) {
@@ -54,22 +78,25 @@ export class ViewRequest {
     return isLeaveDetail(detail) || isWorkFromHomeDetail(detail);
   }
  
+  private currentId: string | null = null;
+
   constructor() {
     this.route.paramMap
       .pipe(
         switchMap((params) => {
           const id = params.get('id');
- 
+          this.currentId = id;
+
           this.loading.set(true);
           this.error.set(null);
           this.request.set(null);
- 
+
           if (!id) {
             this.error.set('No request id was provided.');
             this.loading.set(false);
             return of(null);
           }
- 
+
           return this.requestService.getRequestById(id).pipe(
             tap((res) => {
               if (res.isSuccess && res.data) {
@@ -87,6 +114,89 @@ export class ViewRequest {
         }),
       )
       .subscribe();
+  }
+
+  private reload(): void {
+    if (!this.currentId) return;
+    this.requestService.getRequestById(this.currentId).subscribe((res) => {
+      if (res.isSuccess && res.data) this.request.set(res.data);
+    });
+  }
+
+  protected approve(): void {
+    const r = this.request();
+    if (!r || !this.currentId) return;
+    const type = toRequestType(r.requestType);
+    if (!type) return;
+
+    this.isSubmittingAction.set(true);
+    this.requestService
+      .approve(type, this.currentId, { remarks: this.remarks() || null })
+      .pipe(finalize(() => this.isSubmittingAction.set(false)))
+      .subscribe({
+        next: (res) => {
+          if (res.isSuccess) {
+            this.toast.success('Request approved.', 'Approved');
+            this.remarks.set('');
+            this.reload();
+          } else {
+            this.toast.error(res.message || 'Could not approve this request.', 'Approve Failed');
+          }
+        },
+        error: (err) => this.toast.error(err?.error?.message || 'Could not approve this request.', 'Approve Failed'),
+      });
+  }
+
+  protected reject(): void {
+    const r = this.request();
+    if (!r || !this.currentId) return;
+    const type = toRequestType(r.requestType);
+    if (!type) return;
+
+    if (!this.remarks().trim()) {
+      this.toast.error('Please provide a reason for rejecting this request.', 'Reason Required');
+      return;
+    }
+
+    this.isSubmittingAction.set(true);
+    this.requestService
+      .reject(type, this.currentId, { remarks: this.remarks() })
+      .pipe(finalize(() => this.isSubmittingAction.set(false)))
+      .subscribe({
+        next: (res) => {
+          if (res.isSuccess) {
+            this.toast.success('Request rejected.', 'Rejected');
+            this.remarks.set('');
+            this.reload();
+          } else {
+            this.toast.error(res.message || 'Could not reject this request.', 'Reject Failed');
+          }
+        },
+        error: (err) => this.toast.error(err?.error?.message || 'Could not reject this request.', 'Reject Failed'),
+      });
+  }
+
+  protected cancel(): void {
+    const r = this.request();
+    if (!r || !this.currentId) return;
+    const type = toRequestType(r.requestType);
+    if (!type) return;
+
+    this.isSubmittingAction.set(true);
+    this.requestService
+      .cancel(type, this.currentId)
+      .pipe(finalize(() => this.isSubmittingAction.set(false)))
+      .subscribe({
+        next: (res) => {
+          if (res.isSuccess) {
+            this.toast.success('Request cancelled.', 'Cancelled');
+            this.reload();
+          } else {
+            this.toast.error(res.message || 'Could not cancel this request.', 'Cancel Failed');
+          }
+        },
+        error: (err) => this.toast.error(err?.error?.message || 'Could not cancel this request.', 'Cancel Failed'),
+      });
   }
  
   protected statusLabel(status: number): string {

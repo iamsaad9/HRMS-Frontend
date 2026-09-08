@@ -16,9 +16,11 @@ import {
   AttendanceSummaryParams,
   CreateShiftCommand,
   DailyAttendance,
+  DepartmentDailyLogEntry,
   PunchCommand,
   PunchResponseDto,
   Shift,
+  ShiftHistoryEntry,
   TeamAttendanceParams,
   TeamAttendanceRecord,
 } from '../model/attendance.model';
@@ -39,7 +41,7 @@ export class AttendanceService {
   private authService = inject(AuthService);
   utctoday = new Date();
   today = toLocalDateStr(this.utctoday);
-  currentUserId = this.authService.currentUser()?.employeeInfo.id;
+  currentUserId = computed(() => this.authService.currentUser()?.employeeInfo.id);
   todayStatus = computed(() => {
     const monthData = this.currentMonth();
     if (!monthData || monthData.length === 0) return null;
@@ -159,18 +161,17 @@ export class AttendanceService {
 
   getCurrentMonth(): Observable<ApiResponse<DailyAttendance[]>> {
     const today = new Date();
-    // const endDate = toLocalDateStr(today);
 
-    // Set start date to the 1st of the current month
+    // Set start date to the 1st of the current month, end date to the actual last day of the month
     const start = new Date(today.getFullYear(), today.getMonth(), 1);
-    const end = new Date(today.getFullYear(), today.getMonth(), 30);
+    const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     const startDate = toLocalDateStr(start);
     const endDate = toLocalDateStr(end);
 
     this.loadingService.showLoading();
 
     const httpParams = new HttpParams()
-      .set('employeeId', this.currentUserId || '')
+      .set('employeeId', this.currentUserId() || '')
       .set('startDate', startDate)
       .set('endDate', endDate);
 
@@ -184,6 +185,32 @@ export class AttendanceService {
             this.#currentMonth.set(response.data); // Update signal/subject reference if needed
           }
         }),
+        finalize(() => {
+          this.loadingService.stopLoading();
+        }),
+      );
+  }
+
+  getDepartmentDailyLog(departmentId: string, date: string): Observable<ApiResponse<DepartmentDailyLogEntry[]>> {
+    const httpParams = new HttpParams().set('departmentId', departmentId).set('date', date);
+    return this.http.get<ApiResponse<DepartmentDailyLogEntry[]>>(`${this.apiUrl}/department-daily-log`, {
+      params: httpParams,
+    });
+  }
+
+  getTeamDailyLog(managerId: string, date: string): Observable<ApiResponse<DepartmentDailyLogEntry[]>> {
+    const httpParams = new HttpParams().set('managerId', managerId).set('date', date);
+    return this.http.get<ApiResponse<DepartmentDailyLogEntry[]>>(`${this.apiUrl}/team-daily-log`, {
+      params: httpParams,
+    });
+  }
+
+  getShiftHistory(employeeId: string): Observable<ApiResponse<ShiftHistoryEntry[]>> {
+    this.loadingService.showLoading();
+    const httpParams = new HttpParams().set('employeeId', employeeId);
+    return this.http
+      .get<ApiResponse<ShiftHistoryEntry[]>>(`${this.apiUrl}/shift-history`, { params: httpParams })
+      .pipe(
         finalize(() => {
           this.loadingService.stopLoading();
         }),

@@ -276,7 +276,7 @@ export class AddEmployee implements OnInit {
       firstName: data.firstName ?? '',
       lastName: data.lastName ?? '',
       title: data.title ?? '',
-      dateOfBirth: data.dateOfBirth,
+      dateOfBirth: this.isoToTuiDay(data.dateOfBirth),
       email: data.workEmail ?? '',
       gender: data.gender ?? '',
       mobile: data.mobile ?? '',
@@ -285,13 +285,33 @@ export class AddEmployee implements OnInit {
       designationId: designationTitle,
       branchId: branchName,
       managerId: managerName,
-      startDate: data.startDate,
+      startDate: this.isoToTuiDay(data.startDate),
       employmentType: data.employmentType ?? 'full-time',
       // category: categoryValue,
       isActive: data.isActive ?? true,
       useDefaultPassword: false,
-      // roles: data.roles ?? [],
+      // Display-only: the backend update endpoint doesn't accept role changes,
+      // so this reflects current roles but isn't submitted on save.
+      roles: data.roles ?? [],
     });
+  }
+
+  /** Converts a `TuiDay` form value to an ISO "YYYY-MM-DD" string using local date parts (avoids UTC day-shift). */
+  private tuiDayToIso(day: TuiDay | null): string | null {
+    if (!day) return null;
+    const date = day.toLocalNativeDate();
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  /** Converts an ISO date string from the API into a `TuiDay` for the date-picker form control. */
+  private isoToTuiDay(iso: string | null | undefined): TuiDay | null {
+    if (!iso) return null;
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return null;
+    return TuiDay.fromLocalNativeDate(date);
   }
 
   protected isRequired(controlPath: string): boolean {
@@ -312,57 +332,69 @@ export class AddEmployee implements OnInit {
     this.isSubmiting.set(true);
     const rawValue = this.form.getRawValue();
 
-    if (this.isEditMode() && !rawValue.password) {
-      delete rawValue.password;
-    }
-    const payload: CreateEmployeeCommand = {
-      ...rawValue,
-      password: rawValue.useDefaultPassword ? '' : rawValue.password,
-      departmentId: this.employeeService
-        .allDepartments()
-        ?.find((b) => b.name == rawValue.departmentId)?.id,
-      designationId: this.employeeService
-        .allDesignations()
-        ?.find((b) => b.title == rawValue.designationId)?.id,
-      branchId: this.employeeService.allBranches()?.find((b) => b.name == rawValue.branchId)?.id,
-      managerId: this.employeeService.allManagers()?.find((b) => b.fullName == rawValue.managerId)
-        ?.id,
-      category:
-        CategoryType[rawValue.category as keyof typeof CategoryType] ?? CategoryType.Administrative, // dateOfBirth: rawValue.dob ? rawValue.dob.toLocalNativeDate().toISOString() : null,
-    };
+    const departmentId = this.employeeService
+      .allDepartments()
+      ?.find((b) => b.name == rawValue.departmentId)?.id;
+    const designationId = this.employeeService
+      .allDesignations()
+      ?.find((b) => b.title == rawValue.designationId)?.id;
+    const branchId = this.employeeService.allBranches()?.find((b) => b.name == rawValue.branchId)?.id;
+    const managerId =
+      this.employeeService.allManagers()?.find((b) => b.fullName == rawValue.managerId)?.id ?? null;
+    const dateOfBirth = this.tuiDayToIso(rawValue.dateOfBirth);
+    const startDate = this.tuiDayToIso(rawValue.startDate);
 
     if (this.isEditMode() && this.employeeId()) {
       const updatePayload: UpdateEmployeeCommand = {
-        ...rawValue,
-        departmentId: this.employeeService
-          .allDepartments()
-          ?.find((b) => b.name == rawValue.departmentId)?.id,
-        designationId: this.employeeService
-          .allDesignations()
-          ?.find((b) => b.title == rawValue.designationId)?.id,
-        branchId: this.employeeService.allBranches()?.find((b) => b.name == rawValue.branchId)?.id,
-        managerId: this.employeeService.allManagers()?.find((b) => b.fullName == rawValue.managerId)
-          ?.id,
-        category:
-          CategoryType[rawValue.category as keyof typeof CategoryType] ??
-          CategoryType.Administrative, // dateOfBirth: rawValue.dob ? rawValue.dob.toLocalNativeDate().toISOString() : null,
+        title: rawValue.title,
+        firstName: rawValue.firstName,
+        lastName: rawValue.lastName,
+        dateOfBirth: dateOfBirth ?? '',
+        gender: rawValue.gender,
+        workEmail: rawValue.email,
+        mobile: rawValue.mobile || null,
+        niNumber: rawValue.niNumber || null,
+        startDate,
+        department: null,
+        isActive: rawValue.isActive,
+        employmentType: rawValue.employmentType || null,
+        departmentId: departmentId ?? null,
+        branchId: branchId ?? null,
+        designationId: designationId ?? null,
+        managerId,
+        newPassword: rawValue.useDefaultPassword
+          ? 'Welcome@123'
+          : rawValue.password
+            ? rawValue.password
+            : null,
       };
 
-      console.log('Edit Payload: ', payload);
       this.employeeService
         .updateEmployee(this.employeeId() || '', updatePayload)
         .pipe(finalize(() => this.isSubmiting.set(false)))
         .subscribe({
           next: () => {
-            this.toast.success(`Employee created successfully!`, 'Employee Created');
+            this.toast.success(`Employee updated successfully!`, 'Employee Updated');
             this.router.navigate(['/employee/all']);
           },
           error: (err) => {
-            this.toast.error(`${err}`, 'Creation Failed');
+            this.toast.error(`${err}`, 'Update Failed');
           },
         });
     } else {
-      console.log('New Payload: ', payload);
+      const payload: CreateEmployeeCommand = {
+        ...rawValue,
+        password: rawValue.useDefaultPassword ? '' : rawValue.password,
+        departmentId,
+        designationId,
+        branchId,
+        managerId,
+        dateOfBirth,
+        startDate,
+        category:
+          CategoryType[rawValue.category as keyof typeof CategoryType] ?? CategoryType.Administrative,
+      };
+
       this.employeeService
         .addEmployee(payload)
         .pipe(finalize(() => this.isSubmiting.set(false)))

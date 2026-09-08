@@ -163,7 +163,8 @@ export interface EmployeeFilter {
   departmentId: string | null;
   branchId: string | null;
   managerId: string | null;
-  isActive: boolean;
+  // null = no status filter applied (show both active and inactive)
+  isActive: boolean | null;
   status: string | null;
   role: string | null;
 }
@@ -173,7 +174,7 @@ export const EMPTY_EMPLOYEE_FILTER: EmployeeFilter = {
   departmentId: null,
   branchId: null,
   managerId: null,
-  isActive: true,
+  isActive: null,
   status: null,
   role: '',
 };
@@ -208,7 +209,7 @@ export function filterEmployees(
     const matchesDepartment = !filter.departmentId || employee.departmentId === filter.departmentId;
     const matchesBranch = !filter.branchId || employee.branchId === filter.branchId;
     const matchesManager = !filter.managerId || employee.managerId === filter.managerId;
-    const matchesRole = !role || employee.workEmail?.toLowerCase() === role;
+    const matchesRole = !role || employee.designationTitle?.toLowerCase() === role;
     const isActive =
       filter.isActive === null ||
       filter.isActive === undefined ||

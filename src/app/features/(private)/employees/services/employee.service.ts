@@ -65,7 +65,7 @@ export class EmployeeService {
       tap((response) => {
         if (response.isSuccess) {
           console.log('✅ Employee updated successfully:');
-          // this.#allEmployees.set(null);
+          this.#allEmployees.set(null); // invalidate cache so List/View re-fetch fresh data
         }
       }),
     );
@@ -119,18 +119,8 @@ export class EmployeeService {
   }
 
   getEmployeeById(id: string): Observable<ApiResponse<Employee>> {
-    const cachedEmployee = this.#allEmployees()?.find((emp) => emp.id === id);
-
-    if (cachedEmployee) {
-      console.log(`Fetched cached employee with ID: ${id}`);
-      return of({
-        isSuccess: true,
-        data: cachedEmployee,
-        message: 'Retrieved from cache',
-        errors: [],
-      });
-    }
-
+    // Always fetch fresh (not served from the list cache) so a just-saved edit is reflected
+    // immediately instead of showing the pre-edit snapshot until the cache is invalidated elsewhere.
     this.loadingService.showLoading();
     return this.http.get<ApiResponse<Employee>>(`${this.apiUrl}/${id}`).pipe(
       tap((response) => {

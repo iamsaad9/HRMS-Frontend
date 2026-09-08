@@ -99,7 +99,7 @@ export class AttendanceHistory implements OnInit {
       if (key) fetchedMap.set(key, rec);
     });
 
-  return this.weekDays().map((dayStr) => {
+  const weekRecords = this.weekDays().map((dayStr): DisplayAttendanceRecord => {
     const match = fetchedMap.get(dayStr);
     if (match) {
       return {
@@ -110,17 +110,23 @@ export class AttendanceHistory implements OnInit {
     }
       return {
         attendanceDate: dayStr,
+        date: dayStr,
         employeeId: this.filter().employeeId || 'N/A',
-        employeeName: 'N/A',
-        clockIn: null,
-        clockOut: null,
-        breakStart: null,
-        breakEnd: null,
-        channel: undefined,
-        totalHours: undefined,
-        status: undefined,
         hasData: false,
       };
+    });
+
+    const selectedStatuses = this.filter().statuses;
+    if (selectedStatuses.length === 0) return weekRecords;
+
+    return weekRecords.filter((r) => {
+      if (!r.hasData) return false;
+      return selectedStatuses.some((s) => {
+        if (s === 'Late') return !!r.lateMinutes && r.lateMinutes > 0;
+        if (s === 'On Leave') return r.status === 'OnLeave';
+        if (s === 'Half-day') return r.status === 'HalfDay';
+        return r.status === s;
+      });
     });
   });
 
@@ -205,7 +211,10 @@ private fetchAndMergeRange(startDate: string, endDate: string, newEarliest: stri
 }
 
   protected onFilterChange(updatedFilter: AttendanceHistoryFilter): void {
-    // left as-is per your note to ignore filter for now
+    // Only the status filter is actually applied (client-side, against the currently loaded week) -
+    // the other fields (workLocation/shiftType/department/employmentType/exceptionFlags) have no
+    // backend equivalent on the real attendance-history endpoint.
+    this.filter.update((f) => ({ ...f, statuses: updatedFilter.statuses }));
   }
 
   protected previousWeek(): void {

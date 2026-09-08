@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, ViewChild, computed, signal } from '@angular/core';import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, ViewChild, computed, inject, signal } from '@angular/core';import { FormsModule } from '@angular/forms';
 import { TuiIcon, TuiTextfield, TuiInputDirective } from '@taiga-ui/core';
 import { OrgChartNode } from '../../components/org-chart-node/org-chart-node';
 import { buildOrgTree, computeSearchMatches, OrgNode } from '../../model/org-chart.model';
-import { MOCK_EMPLOYEES } from '../../model/org-char.mock';
 import { MainHeading } from "../../../../../shared/components/main-heading/main-heading";
+import { EmployeeService } from '../../services/employee.service';
 
 
 @Component({
@@ -13,10 +13,18 @@ imports: [OrgChartNode, FormsModule, TuiTextfield, TuiIcon, TuiInputDirective, M
   templateUrl: './org-chart.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OrgChart {
-  protected isLoading = signal(false);
-  protected allEmployees = signal(MOCK_EMPLOYEES);
+export class OrgChart implements OnInit {
+  private readonly employeeService = inject(EmployeeService);
 
+  protected isLoading = signal(false);
+  protected allEmployees = computed(() => this.employeeService.allEmployees() ?? []);
+
+  ngOnInit(): void {
+    this.isLoading.set(true);
+    this.employeeService.getAllEmployees().subscribe({
+      complete: () => this.isLoading.set(false),
+    });
+  }
 
   protected roots = computed<OrgNode[]>(() => buildOrgTree(this.allEmployees()));
 

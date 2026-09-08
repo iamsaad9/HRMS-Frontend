@@ -42,9 +42,9 @@
       <label class="text-xs font-medium">Branch</label>
       <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
         [tuiTextfieldCleaner]="true">
-        <input placeholder="All Departments" tuiSelect [ngModel]="selectedDepartment()"
-          (ngModelChange)="selectedDepartment.set($event)" />
-        <tui-data-list-wrapper *tuiDropdown [items]="departments" class="bg-(--background_light)/40!" />
+        <input placeholder="All Branches" tuiSelect [ngModel]="selectedBranch()"
+          (ngModelChange)="selectedBranch.set($event)" />
+        <tui-data-list-wrapper *tuiDropdown [items]="branches" class="bg-(--background_light)/40!" />
       </tui-textfield>
     </div>
 
@@ -52,18 +52,18 @@
       <label class="text-xs font-medium">Manager</label>
       <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
         [tuiTextfieldCleaner]="true">
-        <input placeholder="All Departments" tuiSelect [ngModel]="selectedDepartment()"
-          (ngModelChange)="selectedDepartment.set($event)" />
-        <tui-data-list-wrapper *tuiDropdown [items]="departments" class="bg-(--background_light)/40!" />
+        <input placeholder="All Managers" tuiSelect [ngModel]="selectedManager()"
+          (ngModelChange)="selectedManager.set($event)" />
+        <tui-data-list-wrapper *tuiDropdown [items]="managers" class="bg-(--background_light)/40!" />
       </tui-textfield>
     </div>
 
-    <!-- Role Filter -->
+    <!-- Designation Filter -->
     <div class="flex flex-col gap-1">
-      <label class="text-xs font-medium">Role</label>
+      <label class="text-xs font-medium">Designation</label>
       <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
         [tuiTextfieldCleaner]="true">
-        <input placeholder="All Roles" tuiSelect [ngModel]="selectedRole()"
+        <input placeholder="All Designations" tuiSelect [ngModel]="selectedRole()"
           (ngModelChange)="selectedRole.set($event)" />
         <tui-data-list-wrapper *tuiDropdown [items]="roles" class="bg-(--background_light)/40!" />
       </tui-textfield>

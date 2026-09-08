@@ -1,3 +1,4 @@
+@if (cards(); as c) {
 <div class="flex gap-5">
   <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)!  gap-2! glass-card flex-1 min-h-36">
     <div tuiHeader class="flex items-center justify-between">
@@ -6,7 +7,7 @@
 
     <div class="mt-4 ">
       <div>
-        <h2 class="text-3xl font-bold text-(--accent)">{{adminDashboardData[0].cards.totalActiveEmployees}}</h2>
+        <h2 class="text-3xl font-bold text-(--accent)">{{ c.totalActiveEmployees }}</h2>
         <span class="text-xs font-semibold text-(--primary)">Total active employees working</span>
       </div>
 
@@ -22,7 +23,7 @@
 
     <div class="mt-2 flex items-center justify-between">
       <div>
-        <h2 class="text-3xl font-bold">{{adminDashboardData[0].cards.totalPresentToday}}</h2>
+        <h2 class="text-3xl font-bold">{{ c.totalPresentToday }}</h2>
         <span class="text-xs font-semibold text-emerald-600">Total present employees today.</span>
       </div>
 
@@ -37,8 +38,8 @@
 
     <div class="mt-4 flex items-center justify-between">
       <div>
-        <h2 class="text-3xl font-bold text-(--theme1)">{{adminDashboardData[0].cards.onLeaveOrWfhToday}}</h2>
-        <p class="mt-1 text-xs text-(--primary)">4 Leave • 8 Absent</p>
+        <h2 class="text-3xl font-bold text-(--theme1)">{{ c.onLeaveToday + c.onWfhToday }}</h2>
+        <p class="mt-1 text-xs text-(--primary)">{{ c.onLeaveToday }} Leave • {{ c.onWfhToday }} WFH</p>
       </div>
 
     </div>
@@ -48,17 +49,20 @@
   <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)!  gap-2! glass-card flex-1">
     <div tuiHeader class="flex items-center justify-between">
       <span class="text-sm font-medium text-(--theme2) uppercase">Pending Approvals</span>
-      @if(adminDashboardData[0].cards.pendingApprovalsCount > 5){
+      @if(c.pendingApprovalsCount > 5){
       <span class="rounded-full bg-red-200 px-2.5 py-0.5 text-xs font-semibold text-red-500">Action Needed</span>
       }
     </div>
 
     <div class="mt-4 flex items-center justify-between">
       <div>
-        <h2 class="text-3xl font-bold text-(--theme1)">{{adminDashboardData[0].cards.pendingApprovalsCount}}</h2>
-        <p class="mt-1 text-xs text-(--primary)">4 Leaves • 3 Expenses</p>
+        <h2 class="text-3xl font-bold text-(--theme1)">{{ c.pendingApprovalsCount }}</h2>
+        <p class="mt-1 text-xs text-(--primary)">
+          {{ c.pendingLeaveApprovals }} Leaves • {{ c.pendingRegularizationApprovals }} Regularizations • {{ c.pendingWfhApprovals }} WFH
+        </p>
       </div>
 
     </div>
   </div>
 </div>
+}

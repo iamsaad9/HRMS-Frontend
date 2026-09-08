@@ -1,0 +1,43 @@
+<div class="flex flex-col gap-5 max-w-6xl mx-auto">
+    <app-main-heading title="Leave Adjustment" description="Employee leave balances — click View Details to adjust" />
+
+    <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20!">
+        <table tuiTable class="w-full" size="m">
+            <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
+                <tr>
+                    <th tuiTh>Employee</th>
+                    <th tuiTh>Staff No.</th>
+                    <th tuiTh>Total Allocated</th>
+                    <th tuiTh>Total Used</th>
+                    <th tuiTh>Total Remaining</th>
+                    <th tuiTh>Actions</th>
+                </tr>
+            </thead>
+            <tbody tuiTbody>
+                @for (row of summaries(); track row.employeeId) {
+                <tr class="text-(--primary)">
+                    <td tuiTd class="font-medium">{{ row.employeeName }}</td>
+                    <td tuiTd>{{ row.staffNo }}</td>
+                    <td tuiTd>{{ row.totalAllocated }}</td>
+                    <td tuiTd>{{ row.totalUsed }}</td>
+                    <td tuiTd>{{ row.totalRemaining }}</td>
+                    <td tuiTd>
+                        <button type="button" tuiButton appearance="outline" size="xs"
+                            (click)="viewDetails(row.employeeId)" class="cursor-pointer">
+                            View Details
+                        </button>
+                    </td>
+                </tr>
+                } @empty {
+                @if (!isLoading()) {
+                <tr>
+                    <td tuiTd colspan="6" class="text-center py-6 text-(--primary)/60">
+                        No leave allocations found for this year.
+                    </td>
+                </tr>
+                }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

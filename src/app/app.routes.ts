@@ -16,13 +16,19 @@ import { DepartmentAttendanceLog } from './features/(private)/attendance/pages/d
 import { AttendanceAdjustment } from './features/(private)/attendance/pages/attendance-adjustment/attendance-adjustment';
 import { AttendanceAdjustmentApprovals } from './features/(private)/attendance/pages/attendance-adjustment-approvals/attendance-adjustment-approvals';
 import { ScheduleShift } from './features/(private)/attendance/pages/schedule-shifts/schedule-shifts';
+import { HolidayCalendar } from './features/(private)/attendance/pages/holiday-calendar/holiday-calendar';
+import { EmployeeShiftHistory } from './features/(private)/attendance/pages/employee-shift-history/employee-shift-history';
+import { MyShiftHistory } from './features/(private)/attendance/pages/my-shift-history/my-shift-history';
+import { LeaveAdjustment } from './features/(private)/attendance/pages/leave-adjustment/leave-adjustment';
+import { LeaveAdjustmentDetail } from './features/(private)/attendance/pages/leave-adjustment-detail/leave-adjustment-detail';
+import { TeamAttendanceLog } from './features/(private)/attendance/pages/team-attendance-log/team-attendance-log';
 import { ReportsExtraction } from './features/(private)/reports/pages/report-extraction/report-extraction';
 import { LeaveRequest } from './features/(private)/leave-management/pages/new-leave-request/new-leave-request';
 import { LeaveRequestList } from './features/(private)/leave-management/pages/leave-requests-list/leave-requests-list';
-import { LeaveRequestApprovals } from './features/(private)/leave-management/pages/leave-request-approvals/leave-request-approvals';
 import { NewRequest } from './features/(private)/requests/pages/new-requests/new-requests';
 import { AllMyRequestsComponent } from './features/(private)/requests/pages/my-requests-page/my-requests';
 import { ViewRequest } from './features/(private)/requests/pages/view-request-page/view-request';
+import { RequestApprovals } from './features/(private)/requests/pages/request-approvals/request-approvals';
 import { selfOrPermissionGuard } from './core/guards/self-or-permission.guard';
 
 export const routes: Routes = [
@@ -87,6 +93,7 @@ export const routes: Routes = [
    // Attendance
 { path: 'attendance/history', component: AttendanceHistory, canActivate: [permissionGuard], data: { permissions: ['attendance:view'] } },
 { path: 'attendance/daily-logs', component: DepartmentAttendanceLog, canActivate: [permissionGuard], data: { permissions: ['attendance:logs'] } },
+{ path: 'attendance/team-logs', component: TeamAttendanceLog, canActivate: [permissionGuard], data: { permissions: ['attendance:view'] } },
 
 
       // Requests Tab (Both Admin & User)
@@ -94,7 +101,7 @@ export const routes: Routes = [
     { path: 'requests/new', component: NewRequest, canActivate: [permissionGuard], data: { permissions: ['requests:apply'] } },
 { path: 'requests/my', component: AllMyRequestsComponent, canActivate: [permissionGuard], data: { permissions: ['requests:apply'] } },
 { path: 'requests/:id', component: ViewRequest, canActivate: [permissionGuard], data: { permissions: ['requests:read'] } },
-{ path: 'requests/approvals', component: LeaveRequestApprovals, canActivate: [permissionGuard], data: { permissions: ['requests:approve'] } },
+{ path: 'requests/approvals', component: RequestApprovals, canActivate: [permissionGuard], data: { permissions: ['requests:approve', 'requests:apply'] } },
 
   // {
       //   path: 'leave-requests',
@@ -128,6 +135,31 @@ export const routes: Routes = [
         path: 'schedule/roster-config',
         component: ScheduleShift,
        canActivate: [permissionGuard], data: { permissions: ['calendar:manage'] } ,
+      },
+      {
+        path: 'schedule/holiday-calendar',
+        component: HolidayCalendar,
+        canActivate: [permissionGuard], data: { permissions: ['calendar:manage'] },
+      },
+      {
+        path: 'schedule/leave-adjustment',
+        component: LeaveAdjustment,
+        canActivate: [permissionGuard], data: { permissions: ['calendar:manage'] },
+      },
+      {
+        path: 'schedule/leave-adjustment/:employeeId',
+        component: LeaveAdjustmentDetail,
+        canActivate: [permissionGuard], data: { permissions: ['calendar:manage'] },
+      },
+      {
+        path: 'attendance/shift-history',
+        component: EmployeeShiftHistory,
+        canActivate: [permissionGuard], data: { permissions: ['attendance:view'] },
+      },
+      {
+        path: 'attendance/my-shift-history',
+        component: MyShiftHistory,
+        canActivate: [permissionGuard], data: { permissions: ['attendance:view'] },
       },
       //  {
       //   path: 'reports/compliance',

@@ -69,6 +69,37 @@
             {{ r.requestReason || '—' }}
         </div>
         }
+
+        @if (canCancel() || canApproveOrReject()) {
+        <div class="pt-2 border-t border-(--primary)/10 flex flex-col gap-3">
+            @if (canApproveOrReject()) {
+            <tui-textfield tuiTextfieldSize="m">
+                <label tuiLabel>Remarks</label>
+                <textarea [ngModel]="remarks()" (ngModelChange)="remarks.set($event)" tuiTextarea
+                    placeholder="Optional for approve, required for reject"></textarea>
+            </tui-textfield>
+            }
+
+            <div class="flex gap-3">
+                @if (canApproveOrReject()) {
+                <button tuiButton type="button" size="m" [disabled]="isSubmittingAction()" (click)="approve()"
+                    class="bg-emerald-500! text-white cursor-pointer">
+                    Approve
+                </button>
+                <button tuiButton type="button" size="m" appearance="outline" [disabled]="isSubmittingAction()"
+                    (click)="reject()" class="text-red-500! border-red-500! cursor-pointer">
+                    Reject
+                </button>
+                }
+                @if (canCancel()) {
+                <button tuiButton type="button" size="m" appearance="outline" [disabled]="isSubmittingAction()"
+                    (click)="cancel()" class="cursor-pointer">
+                    Cancel Request
+                </button>
+                }
+            </div>
+        </div>
+        }
     </div>
 
     <!-- Request Line Items (Detailed Breakdown) -->

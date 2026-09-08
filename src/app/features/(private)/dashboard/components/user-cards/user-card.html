@@ -98,7 +98,7 @@
       <div class="pt-4 border-t border-(--primary)/20 flex items-center justify-between gap-2 text-xs">
         <div class="truncate">
           <span class="text-(--primary)/60 font-medium block">Email</span>
-          <a href="mailto:saad.masood@company.com" class="font-semibold text-(--theme2) hover:underline truncate block">
+          <a [href]="'mailto:' + (currentUser?.email || '')" class="font-semibold text-(--theme2) hover:underline truncate block">
             {{ currentUser?.email || 'N/A' }}
           </a>
         </div>
@@ -123,20 +123,24 @@
           </div>
         </div>
         <div class="w-full h-full flex flex-col gap-5 items-center justify-center">
-          <tui-ring-chart [value]="value" [(activeItemIndex)]="activeItemIndex" size="l">
-            <span>{{ sum }}</span>
+          @if (leaveBalances().length) {
+          <tui-ring-chart [value]="value()" [(activeItemIndex)]="activeItemIndex" size="l">
+            <span>{{ sum() }}</span>
             <div>Total</div>
           </tui-ring-chart>
 
           <div class="legend flex gap-2">
-            @for (label of labels; track label) {
+            @for (label of labels(); track label) {
             <tui-legend-item size="s" class="item" [active]="isItemActive($index)"
               [color]="`var(--tui-chart-categorical-${$index.toString().padStart(2, '0')})`" [text]="label"
               (tuiHoveredChange)="onHover($index, $event)">
-              <span>{{ value[$index] || 0 }}</span>
+              <span>{{ value()[$index] || 0 }}</span>
             </tui-legend-item>
             }
           </div>
+          } @else {
+          <p class="text-sm text-(--primary)/60">No leave balance data.</p>
+          }
         </div>
       </div>
     </div>

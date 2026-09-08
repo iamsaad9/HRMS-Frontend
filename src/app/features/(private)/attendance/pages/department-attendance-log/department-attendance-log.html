@@ -18,8 +18,8 @@
             <select class="tui-select rounded-md border border-(--secondary)/40 bg-transparent px-2 py-1.5"
                 [ngModel]="filter().departmentId" (ngModelChange)="onDepartmentChange($event)">
                 <option value="" disabled>Select department</option>
-                @for (dept of departments; track $index) {
-                <option [value]="dept">{{ dept }}</option>
+                @for (dept of departments(); track dept.id) {
+                <option [value]="dept.id">{{ dept.name }}</option>
                 }
             </select>
         </label>
@@ -91,29 +91,17 @@
         <table tuiTable class="attendance-table w-full" size="m">
             <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
                 <tr>
-                    <th tuiTh>Actions</th>
                     <th tuiTh>Employee</th>
                     <th tuiTh>Clock In</th>
                     <th tuiTh>Clock Out</th>
                     <th tuiTh>Total Hours</th>
                     <th tuiTh>Late (min)</th>
-                    <th tuiTh>Early Exit (min)</th>
-                    <th tuiTh>Overtime</th>
                     <th tuiTh>Status</th>
                 </tr>
             </thead>
             <tbody tuiTbody>
                 @for (record of currentDayRecords(); track record.id) {
                 <tr class="text-(--primary)">
-                    <td tuiTd class="col-actions w-5">
-                        <span tuiStatus>
-                            <button appearance="action" iconStart="@tui.pen" size="xs" tuiIconButton type="button"
-                                (click)="onEdit(record)" class="text-(--theme1)!">
-                                Edit
-                            </button>
-                        </span>
-                    </td>
-
                     <td tuiTd class="font-medium">
                         <div class="flex flex-col">
                             <span>{{ record.employeeName }}</span>
@@ -130,11 +118,6 @@
                     </td>
 
                     <td tuiTd>{{ record.lateMinutes ?? 0 }} min</td>
-                    <td tuiTd>{{ record.earlyExitMinutes ?? 0 }} min</td>
-
-                    <td tuiTd>
-                        {{ record.overtimeHours ? record.overtimeHours + ' hrs' : '0 hrs' }}
-                    </td>
 
                     <td tuiTd>
                         <span tuiBadge [appearance]="statusAppearance(record.status)">
@@ -144,7 +127,7 @@
                 </tr>
                 } @empty {
                 <tr>
-                    <td tuiTd colspan="9" class="text-center py-6 text-(--primary)/60">
+                    <td tuiTd colspan="6" class="text-center py-6 text-(--primary)/60">
                         No records for this day.
                     </td>
                 </tr>

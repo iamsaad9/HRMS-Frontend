@@ -41,14 +41,23 @@ export class EmployeeFilterBarComponent implements OnChanges {
   @Output()
   readonly filterChange = new EventEmitter<EmployeeFilter>();
 
-  // Filter lists dynamically computed from inputs
+  // Filter lists dynamically computed from inputs (dropdowns display names; the
+  // maps below translate the selected name back to the id the filter actually needs)
   protected departments: string[] = [];
+  protected branches: string[] = [];
+  protected managers: string[] = [];
   protected roles: string[] = [];
-  protected statuses: string[] = [];
+  protected readonly statuses: string[] = ['Active', 'Inactive'];
+
+  private departmentIdByName = new Map<string, string>();
+  private branchIdByName = new Map<string, string>();
+  private managerIdByName = new Map<string, string>();
 
   // Local draft filter values before apply
   protected searchQuery = signal('');
   protected selectedDepartment = signal<string | null>(null);
+  protected selectedBranch = signal<string | null>(null);
+  protected selectedManager = signal<string | null>(null);
   protected selectedRole = signal<string | null>(null);
   protected selectedStatus = signal<string | null>(null);
 
@@ -57,33 +66,47 @@ export class EmployeeFilterBarComponent implements OnChanges {
 
   ngOnChanges(): void {
     if (this.employees?.length) {
-      this.departments = [
-        ...new Set(
-          this.employees
-            .map((e) => e.departmentName)
-            .filter((department): department is string => Boolean(department)),
-        ),
-      ].sort();
+      this.departmentIdByName.clear();
+      this.branchIdByName.clear();
+      this.managerIdByName.clear();
+
+      for (const e of this.employees) {
+        if (e.departmentName && e.departmentId) {
+          this.departmentIdByName.set(e.departmentName, e.departmentId);
+        }
+        if (e.branchName && e.branchId) {
+          this.branchIdByName.set(e.branchName, e.branchId);
+        }
+        if (e.managerName && e.managerId) {
+          this.managerIdByName.set(e.managerName, e.managerId);
+        }
+      }
+
+      this.departments = [...this.departmentIdByName.keys()].sort();
+      this.branches = [...this.branchIdByName.keys()].sort();
+      this.managers = [...this.managerIdByName.keys()].sort();
 
       this.roles = [
         ...new Set(
           this.employees
-            .map((e) => (e as any).role || (e as any).designation)
-            .filter((role): role is string => Boolean(role)),
+            .map((e) => e.designationTitle)
+            .filter((designation): designation is string => Boolean(designation)),
         ),
       ].sort();
-
-    
     }
   }
 
   protected applyFilter(): void {
+    const status = this.selectedStatus();
     this.activeFilter = {
       ...this.activeFilter,
       search: this.searchQuery().trim(),
-      departmentId: this.selectedDepartment() || null,
-      role: (this.selectedRole() || null) as any,
-      status: (this.selectedStatus() || null) as string | null,
+      departmentId: this.toId(this.departmentIdByName, this.selectedDepartment()),
+      branchId: this.toId(this.branchIdByName, this.selectedBranch()),
+      managerId: this.toId(this.managerIdByName, this.selectedManager()),
+      role: this.selectedRole() || null,
+      status,
+      isActive: status === 'Active' ? true : status === 'Inactive' ? false : null,
     };
     this.filterChange.emit(this.activeFilter);
   }
@@ -91,6 +114,8 @@ export class EmployeeFilterBarComponent implements OnChanges {
   protected clear(): void {
     this.searchQuery.set('');
     this.selectedDepartment.set(null);
+    this.selectedBranch.set(null);
+    this.selectedManager.set(null);
     this.selectedRole.set(null);
     this.selectedStatus.set(null);
 
@@ -98,14 +123,22 @@ export class EmployeeFilterBarComponent implements OnChanges {
     this.filterChange.emit(this.activeFilter);
   }
 
+  private toId(map: Map<string, string>, name: string | null): string | null {
+    return name ? (map.get(name) ?? null) : null;
+  }
+
   protected get hasActiveFilters(): boolean {
     return Boolean(
       this.searchQuery() ||
       this.selectedDepartment() ||
+      this.selectedBranch() ||
+      this.selectedManager() ||
       this.selectedRole() ||
       this.selectedStatus() ||
       this.activeFilter.search ||
       this.activeFilter.departmentId ||
+      this.activeFilter.branchId ||
+      this.activeFilter.managerId ||
       this.activeFilter.status,
     );
   }

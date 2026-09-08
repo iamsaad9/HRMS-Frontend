@@ -4,6 +4,7 @@ import { TuiButton, TuiIcon } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { Router } from '@angular/router';
 import { inject } from '@angular/core';
+import { DashboardService } from '../../service/dashboard.service';
 
 
 export interface CalendarDay {
@@ -20,17 +21,6 @@ export interface Holiday {
   name: string;
 }
 
-// TODO: replace with a real API call, e.g. this.leaveService.getHolidays()
-export const MOCK_HOLIDAYS: Holiday[] = [
-  { date: '2026-08-14', name: 'Independence Day' },
-  { date: '2026-08-28', name: 'Ashura (Tentative)' },
-  { date: '2026-09-07', name: 'Company Foundation Day' },
-  { date: '2026-09-25', name: 'Milad-un-Nabi (Tentative)' },
-  { date: '2026-11-09', name: 'Iqbal Day' },
-  { date: '2026-12-25', name: 'Quaid-e-Azam Day' },
-  { date: '2026-12-31', name: 'Year-End Holiday' },
-];
-
 @Component({
   selector: 'app-leave-calendar-card',
   standalone: true,
@@ -41,15 +31,32 @@ export const MOCK_HOLIDAYS: Holiday[] = [
 
 export class LeaveCalendarCard {
   protected readonly router = inject(Router);
- 
+  private readonly dashboardService = inject(DashboardService);
+
   private readonly today = this.stripTime(new Date());
   protected readonly weekDayLabels = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
- 
+
   // Which month is currently displayed. Day is irrelevant, only month/year is used.
   protected viewDate = signal<Date>(new Date());
- 
-  protected holidays = signal<Holiday[]>(MOCK_HOLIDAYS);
- 
+
+  // Expand each holiday's [startDate, endDate] range into one entry per day so
+  // multi-day term breaks/bank holidays highlight every day, not just the first.
+  protected holidays = computed<Holiday[]>(() => {
+    const raw = this.dashboardService.data()?.holidayCalendar ?? [];
+    const expanded: Holiday[] = [];
+
+    for (const h of raw) {
+      const cursor = new Date(h.startDate);
+      const end = new Date(h.endDate);
+      while (cursor <= end) {
+        expanded.push({ date: this.toDateStr(cursor), name: h.title });
+        cursor.setDate(cursor.getDate() + 1);
+      }
+    }
+
+    return expanded;
+  });
+
   private holidayMap = computed<Map<string, Holiday>>(() => {
     const map = new Map<string, Holiday>();
     for (const h of this.holidays()) map.set(h.date, h);

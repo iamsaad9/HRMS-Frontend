@@ -98,7 +98,8 @@
       <div class="pt-4 border-t border-(--primary)/20 flex items-center justify-between gap-2 text-xs">
         <div class="truncate">
           <span class="text-(--primary)/60 font-medium block">Email</span>
-          <a [href]="'mailto:' + (currentUser?.email || '')" class="font-semibold text-(--theme2) hover:underline truncate block">
+          <a [href]="'mailto:' + (currentUser?.email || '')"
+            class="font-semibold text-(--theme2) hover:underline truncate block">
             {{ currentUser?.email || 'N/A' }}
           </a>
         </div>
@@ -129,7 +130,7 @@
             <div>Total</div>
           </tui-ring-chart>
 
-          <div class="legend flex gap-2">
+          <div class="legend flex gap-2 flex-wrap justify-center items-center">
             @for (label of labels(); track label) {
             <tui-legend-item size="s" class="item" [active]="isItemActive($index)"
               [color]="`var(--tui-chart-categorical-${$index.toString().padStart(2, '0')})`" [text]="label"

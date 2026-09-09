@@ -15,27 +15,6 @@ import { firstValueFrom, forkJoin } from 'rxjs';
   standalone: true,
   templateUrl: './main-layout.html',
 })
-export default class MainLayout implements OnInit {
-  private readonly authService = inject(AuthService);
-  private readonly attendanceService = inject(AttendanceService);
+export default class MainLayout {
 
-  ngOnInit(): void {
-    firstValueFrom(this.authService.checkSession()).then(() => {
-      const currentUser = this.authService.currentUser();
-      const currentUserId = currentUser?.employeeInfo?.id;
-
-      if (currentUserId) {
-        console.log('Current User ID in main layout:', currentUserId);
-
-        this.attendanceService.getCurrentMonth().subscribe({
-          next: (history ) => {
-            console.log('Week History Loaded:', history);
-          },
-          error: (err) => {
-            console.error('Error loading initial attendance data:', err);
-          },
-        });
-      }
-    });
-  }
 }

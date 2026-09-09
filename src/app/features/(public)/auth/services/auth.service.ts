@@ -36,24 +36,24 @@ export class AuthService {
   return p.trim();
 }
 
-private userPermissions(): string[] {
-  const user = this.#currentUser() as (User & {
-    permissions?: string[];
-    employeeInfo?: { permissions?: string[] };
-  }) | null;
+  private userPermissions(): string[] {
+    const user = this.#currentUser() as (User & {
+      permissions?: string[];
+      employeeInfo?: { permissions?: string[] };
+    }) | null;
 
-  return user?.permissions ?? user?.employeeInfo?.permissions ?? [];
-}
+    return user?.permissions ?? user?.employeeInfo?.permissions ?? [];
+  }
 
-hasPermission(required: string | string[]): boolean {
-  const userPerms = this.userPermissions().map(p => this.normalize(p));
+  hasPermission(required: string | string[]): boolean {
+    const userPerms = this.userPermissions().map(p => this.normalize(p));
 
-  // Super-admin wildcard
-  if (userPerms.includes('*')) return true;
+    // Super-admin wildcard
+    if (userPerms.includes('*')) return true;
 
-  const requiredList = Array.isArray(required) ? required : [required];
-  return requiredList.some(p => userPerms.includes(this.normalize(p)));
-}
+    const requiredList = Array.isArray(required) ? required : [required];
+    return requiredList.some(p => userPerms.includes(this.normalize(p)));
+  }
 
   constructor() {
     effect(() => {
@@ -68,51 +68,60 @@ hasPermission(required: string | string[]): boolean {
     });
   }
 
-  checkSession(): Observable<boolean> {
-    return this.refreshToken().pipe(
-      switchMap((refreshRes) => {
-        if (!refreshRes || !refreshRes.isSuccess || !refreshRes.data) {
-          this.clearAuth();
-          return of(false);
-        }
+checkSession(): Observable<boolean> {
+  console.log('[checkSession] Starting session check...');
 
-        const token = refreshRes.data.accessToken;
-
-        return this.http
-          .get<ApiResponse<User>>(`${this.apiUrl}/me`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .pipe(
-            tap((meRes) => {
-              if (meRes?.isSuccess && meRes?.data) {
-                this.#currentUser.set(meRes.data);
-                return true;
-              }
-
-              this.clearAuth();
-              return false;
-            }),
-            map((meRes) => meRes.isSuccess),
-            catchError(() => {
-              this.clearAuth();
-              return of(false);
-            }),
-            finalize(() => {
-              this.#isInitialized.set(true);
-            }),
-          );
-      }),
-      catchError(() => {
+  return this.refreshToken().pipe(
+    tap((refreshRes) => console.log('[checkSession] Refresh token response:', refreshRes)),
+    switchMap((refreshRes) => {
+      if (!refreshRes || !refreshRes.isSuccess || !refreshRes.data) {
+        console.warn('[checkSession] Refresh failed or missing data. Clearing auth.');
         this.clearAuth();
         return of(false);
-      }),
-      finalize(() => {
-        this.#isInitialized.set(true);
-      }),
-    );
-  }
+      }
+
+      const token = refreshRes.data.accessToken;
+
+      return this.http
+        .get<ApiResponse<User>>(`${this.apiUrl}/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .pipe(
+          tap((meRes) => {
+            console.log('[checkSession] /me response:', meRes);
+            if (meRes?.isSuccess && meRes?.data) {
+              console.log('[checkSession] Session valid. Setting current user:', meRes.data);
+              this.#currentUser.set(meRes.data);
+            } else {
+              console.warn('[checkSession] /me request unsuccessful. Clearing auth.');
+              this.clearAuth();
+            }
+          }),
+          map((meRes) => meRes.isSuccess),
+          catchError((err) => {
+            console.error('[checkSession] Error fetching /me user data:', err);
+            this.clearAuth();
+            return of(false);
+          }),
+          finalize(() => {
+            console.log('[checkSession] /me flow finalized.');
+            this.#isInitialized.set(true);
+          })
+        );
+    }),
+    catchError((err) => {
+      console.error('[checkSession] Error refreshing token:', err);
+      this.clearAuth();
+      return of(false);
+    }),
+    finalize(() => {
+      console.log('[checkSession] Session check completely finished.');
+      this.#isInitialized.set(true);
+    })
+  );
+}
 
   refreshToken(): Observable<ApiResponse<LoginResponse | null>> {
     return this.http

@@ -9,6 +9,8 @@ import { TuiButton, TuiIcon } from '@taiga-ui/core';
 import { AuthService } from '../../../(public)/auth/services/auth.service';
 import { OperationsSection } from "../components/operations-section/operations-section";
 import { DashboardService } from '../service/dashboard.service';
+import { AttendanceService } from '../../attendance/service/attendance.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,12 +28,25 @@ import { DashboardService } from '../service/dashboard.service';
 export class Dashboard implements OnInit {
   currentDate: Date = new Date();
   private readonly authService = inject(AuthService);
+    private readonly attendanceService = inject(AttendanceService);
+
   protected readonly dashboardService = inject(DashboardService);
   currentUser = this.authService.currentUser();
 
-  ngOnInit(): void {
-    this.dashboardService.load().subscribe();
+ ngOnInit(): void {
+  this.dashboardService.load().subscribe();
+
+  // Read the current user directly from the signal/state without re-checking the session
+  const currentUser = this.authService.currentUser();
+  const currentUserId = currentUser?.employeeInfo?.id;
+
+  if (currentUserId) {
+    this.attendanceService.getCurrentMonth().subscribe({
+      next: (history) => console.log('Week History Loaded:', history),
+      error: (err) => console.error('Error loading initial attendance data:', err),
+    });
   }
+}
 
   protected refresh(): void {
     this.dashboardService.load().subscribe();

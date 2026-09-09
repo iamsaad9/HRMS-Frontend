@@ -9,8 +9,10 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   // 1. If we ALREADY have an access token in memory (e.g. fresh login), allow entry immediately
   if (authService.isAuthenticated()) {
+    console.log("AUTHENTHICATED USER PRESENT");
     return true;
   }
+    console.log("USER NOT PRESENT");
 
   // 2. Only if token is missing (e.g. hard page refresh F5), check the session via refresh token
   return authService.checkSession().pipe(

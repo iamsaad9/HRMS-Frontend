@@ -6,7 +6,6 @@ import { TuiCardLarge } from '@taiga-ui/layout';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { AddShiftModal, ShiftFormValue } from '../../components/add-shift-modal/add-shift-modal';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
-import { CustomCalendar } from "../../components/custom-calendar/custom-calendar";
 
 interface Shift {
   id: string;
@@ -33,7 +32,6 @@ interface Shift {
     TuiSwitch,
     TuiCardLarge,
     MainHeading,
-    CustomCalendar
 ],
   templateUrl: './schedule-shifts.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -159,11 +157,4 @@ protected editShift(shift: Shift): void {
     // TODO: open add-calendar dialog/form
   }
 
-  protected editCalendar(cal: CustomCalendar): void {
-    // TODO: open edit-calendar dialog/form
-  }
-
-  protected deleteCalendar(cal: CustomCalendar): void {
-    // TODO: confirm + call delete API
-  }
 }

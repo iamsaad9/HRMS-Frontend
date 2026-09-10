@@ -93,8 +93,8 @@
                             Start Date
                             @if (isRequired(form.get('startDate'))) { <span class="text-red-500">*</span> }
                         </label>
-                        <input formControlName="startDate" placeholder="DD.MM.YYYY" tuiInputDate [min]="minDate" />
-                        <tui-calendar *tuiDropdown [min]="minDate" />
+                        <input formControlName="startDate" placeholder="DD.MM.YYYY" tuiInputDate />
+                        <tui-calendar *tuiDropdown />
                     </tui-textfield>
                     <tui-error formControlName="startDate" />
                 </div>
@@ -104,8 +104,8 @@
                             End Date
                             @if (isRequired(form.get('endDate'))) { <span class="text-red-500">*</span> }
                         </label>
-                        <input formControlName="endDate" placeholder="DD.MM.YYYY" tuiInputDate [min]="minEndDate" />
-                        <tui-calendar *tuiDropdown [min]="minEndDate" />
+                        <input formControlName="endDate" placeholder="DD.MM.YYYY" tuiInputDate />
+                        <tui-calendar *tuiDropdown />
                     </tui-textfield>
                     <tui-error formControlName="endDate" />
                     @if (form.hasError('dateRange') && form.get('endDate')?.touched) {
@@ -236,7 +236,7 @@
         </div>
 
         <footer class="flex justify-end gap-3 pt-4 border-t border-(--background_dark)/10">
-            <button tuiButton type="reset" class="bt-secondary" iconStart="@tui.rotate-ccw" size="m">Reset</button>
+            <button tuiButton type="button" class="bt-secondary" iconStart="@tui.rotate-ccw" size="m" (click)="onReset()">Reset</button>
             <button tuiButton type="submit" size="m" class="btn-lift" [disabled]="isSubmitting()">
                 @if (isSubmitting()) {
                 <div class="flex items-center justify-center gap-2">

@@ -242,9 +242,37 @@ private upsertDailyAttendance(todayRecord: DailyAttendance): void {
     });
   }
 
+  getDepartmentDailyLogRange(
+    departmentId: string,
+    startDate: string,
+    endDate: string,
+  ): Observable<ApiResponse<DepartmentDailyLogEntry[]>> {
+    const httpParams = new HttpParams()
+      .set('departmentId', departmentId)
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+    return this.http.get<ApiResponse<DepartmentDailyLogEntry[]>>(`${this.apiUrl}/department-daily-log/range`, {
+      params: httpParams,
+    });
+  }
+
   getTeamDailyLog(managerId: string, date: string): Observable<ApiResponse<DepartmentDailyLogEntry[]>> {
     const httpParams = new HttpParams().set('managerId', managerId).set('date', date);
     return this.http.get<ApiResponse<DepartmentDailyLogEntry[]>>(`${this.apiUrl}/team-daily-log`, {
+      params: httpParams,
+    });
+  }
+
+  getTeamDailyLogRange(
+    managerId: string,
+    startDate: string,
+    endDate: string,
+  ): Observable<ApiResponse<DepartmentDailyLogEntry[]>> {
+    const httpParams = new HttpParams()
+      .set('managerId', managerId)
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+    return this.http.get<ApiResponse<DepartmentDailyLogEntry[]>>(`${this.apiUrl}/team-daily-log/range`, {
       params: httpParams,
     });
   }

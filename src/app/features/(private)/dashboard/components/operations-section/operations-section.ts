@@ -70,6 +70,10 @@ export class OperationsSection {
     this.router.navigate(['/requests/approvals']); // adjust to your real route
   }
 
+  protected viewAllTeamAnalytics(): void {
+    this.router.navigate(['/attendance/team-logs']);
+  }
+
   protected readonly teamMembers = computed(() => this.dashboardService.data()?.teamMembers ?? []);
 }
 

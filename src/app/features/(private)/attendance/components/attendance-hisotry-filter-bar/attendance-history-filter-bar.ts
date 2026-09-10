@@ -22,6 +22,7 @@ import {
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { TuiCardLarge, TuiElasticContainer, TuiItemGroup } from '@taiga-ui/layout';
 import { LeaveRequestsService } from '../../../leave-management/service/leave-requests.service';
+import { parseDisplayDate, toIsoDate } from '../../../../../shared/utils/date-format.util';
 
 /** Max span the date range can cover, so a filtered fetch can't turn into an unbounded scan. */
 export const MAX_HISTORY_RANGE_DAYS = 92;
@@ -84,26 +85,6 @@ export class AttendanceHistoryFilterBar implements OnInit {
     this.validateRange();
   }
 
-  // tuiInputDate, bound directly to a plain string ngModel, emits the locale-displayed
-  // "dd.mm.yyyy" text rather than an ISO string - parse that (with an ISO fallback) so range
-  // math and the emitted filter both use real dates instead of silently no-op'ing on NaN.
-  private parseDisplayDate(value: string): Date | null {
-    const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value);
-    if (match) {
-      const [, day, month, year] = match;
-      return new Date(Number(year), Number(month) - 1, Number(day));
-    }
-    const iso = new Date(value);
-    return isNaN(iso.getTime()) ? null : iso;
-  }
-
-  private toIsoDate(value: string): string {
-    const date = this.parseDisplayDate(value);
-    if (!date) return value;
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-  }
-
   protected onStatusesChange(value: AttendanceStatus[]): void {
     this.draft.update((f) => ({ ...f, statuses: value }));
   }
@@ -123,8 +104,8 @@ export class AttendanceHistoryFilterBar implements OnInit {
       this.rangeError.set(null);
       return true;
     }
-    const start = this.parseDisplayDate(startDate);
-    const end = this.parseDisplayDate(endDate);
+    const start = parseDisplayDate(startDate);
+    const end = parseDisplayDate(endDate);
     if (!start || !end) {
       // Still mid-typing an incomplete date - nothing to validate yet.
       this.rangeError.set(null);
@@ -148,8 +129,8 @@ export class AttendanceHistoryFilterBar implements OnInit {
     const draft = this.draft();
     this.filterChange.emit({
       ...draft,
-      startDate: draft.startDate ? this.toIsoDate(draft.startDate) : draft.startDate,
-      endDate: draft.endDate ? this.toIsoDate(draft.endDate) : draft.endDate,
+      startDate: draft.startDate ? toIsoDate(draft.startDate) : draft.startDate,
+      endDate: draft.endDate ? toIsoDate(draft.endDate) : draft.endDate,
     });
   }
 

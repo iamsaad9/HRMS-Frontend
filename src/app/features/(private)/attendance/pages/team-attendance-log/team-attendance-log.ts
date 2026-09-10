@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { FormsModule } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { TuiButton, TuiTextfield } from '@taiga-ui/core';
-import { TuiBadge } from '@taiga-ui/kit';
+import { TuiBadge, TuiInputDate } from '@taiga-ui/kit';
 import { TuiTable } from '@taiga-ui/addon-table';
 import { TuiCardLarge } from '@taiga-ui/layout';
 
@@ -10,6 +10,7 @@ import { DepartmentAttendanceFilter, DepartmentAttendanceRecord } from '../../mo
 import { TeamAttendanceLogService } from './team-attendance-log.service';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
+import { isoToDisplayDate, toIsoDate } from '../../../../../shared/utils/date-format.util';
 
 function toDateStr(d: Date): string {
   const year = d.getFullYear();
@@ -21,7 +22,10 @@ function toDateStr(d: Date): string {
 @Component({
   selector: 'app-team-attendance-log',
   standalone: true,
-  imports: [FormsModule, DatePipe, DecimalPipe, TuiButton, TuiBadge, TuiTable, TuiTextfield, TuiCardLarge, MainHeading],
+  imports: [
+    FormsModule, DatePipe, DecimalPipe, TuiButton, TuiBadge, TuiTable, TuiTextfield, TuiInputDate, TuiCardLarge,
+    MainHeading,
+  ],
   templateUrl: './team-attendance-log.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -39,6 +43,8 @@ export class TeamAttendanceLog implements OnInit {
   protected allRecords = signal<DepartmentAttendanceRecord[]>([]);
   protected isLoading = signal(false);
   protected hasSearched = signal(false);
+  protected rangeError = signal<string | null>(null);
+  protected readonly maxRangeDays = 92;
 
   protected byDate = computed(() => {
     const map = new Map<string, DepartmentAttendanceRecord[]>();
@@ -56,17 +62,31 @@ export class TeamAttendanceLog implements OnInit {
     if (this.managerId) this.search();
   }
 
-  protected onStartDateChange(startDate: string): void {
-    this.filter.update((f) => ({ ...f, startDate }));
+  protected displayStartDate = computed(() => isoToDisplayDate(this.filter().startDate));
+  protected displayEndDate = computed(() => isoToDisplayDate(this.filter().endDate));
+
+  protected onStartDateChange(displayValue: string): void {
+    this.filter.update((f) => ({ ...f, startDate: toIsoDate(displayValue) }));
   }
 
-  protected onEndDateChange(endDate: string): void {
-    this.filter.update((f) => ({ ...f, endDate }));
+  protected onEndDateChange(displayValue: string): void {
+    this.filter.update((f) => ({ ...f, endDate: toIsoDate(displayValue) }));
   }
 
   protected search(): void {
     const { startDate, endDate } = this.filter();
     if (!this.managerId || !startDate || !endDate) return;
+
+    const days = (new Date(endDate).getTime() - new Date(startDate).getTime()) / 86_400_000;
+    if (days < 0) {
+      this.rangeError.set('End date cannot be before start date.');
+      return;
+    }
+    if (days > this.maxRangeDays) {
+      this.rangeError.set(`Date range cannot exceed ${this.maxRangeDays} days (~3 months).`);
+      return;
+    }
+    this.rangeError.set(null);
 
     this.isLoading.set(true);
     this.teamAttendanceLogService.getTeamAttendanceLog(this.managerId, startDate, endDate).subscribe({

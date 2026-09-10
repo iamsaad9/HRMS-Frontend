@@ -63,12 +63,6 @@ export class NewRequest implements OnInit {
   /** Actual clock in/out + break times for each regularization date, keyed by yyyy-MM-dd. */
   protected actualAttendanceByDate = signal<Map<string, ActualDayAttendance>>(new Map());
 
-  protected readonly minDate = TuiDay.currentLocal();
-  protected get minEndDate(): TuiDay {
-    const start = this.form.get('startDate')?.value;
-    return start instanceof TuiDay ? start : this.minDate;
-  }
-
   currentUser = this.authService.currentUser;
   isSubmitting = signal(false);
 
@@ -155,6 +149,28 @@ protected leaveTypesOptions = computed(() =>
 
     this.form.get('startDate')!.valueChanges.subscribe(() => this.regenerateLineItems());
     this.form.get('endDate')!.valueChanges.subscribe(() => this.regenerateLineItems());
+  }
+
+  /**
+   * Native `type="reset"` only resets the underlying DOM form controls - the Taiga UI inputs
+   * are ControlValueAccessors bound to a reactive FormGroup, so a native reset never goes
+   * through Angular's form APIs and leaves selectedType/manualBreakdown/lineItems (and their
+   * signals) exactly as they were. Reset the FormGroup itself instead.
+   */
+  protected onReset(): void {
+    this.lineItems.clear();
+    this.actualAttendanceByDate.set(new Map());
+    this.form.reset({
+      requestType: 'leave',
+      leaveType: '',
+      startDate: '',
+      endDate: '',
+      manualBreakdown: false,
+      reason: '',
+      lineItems: [],
+    });
+    this.selectedType.set('leave');
+    this.manualBreakdown.set(false);
   }
 
   /** Rebuilds the per-date line items whenever type / range / toggle changes */

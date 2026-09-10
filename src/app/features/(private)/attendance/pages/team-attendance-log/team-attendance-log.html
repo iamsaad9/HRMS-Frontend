@@ -7,23 +7,29 @@
     </app-main-heading>
 
     <div tuiCardLarge class="flex flex-wrap items-end gap-3 shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
-        <label class="flex flex-col gap-1 text-sm text-(--primary)">
-            Start Date
-            <input type="date" class="rounded-md border border-(--secondary)/40 bg-transparent px-2 py-1.5"
-                [ngModel]="filter().startDate" (ngModelChange)="onStartDateChange($event)" />
-        </label>
+        <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg">
+            <label tuiLabel>Start Date</label>
+            <input tuiInputDate class="text-(--primary)!" [ngModel]="displayStartDate()"
+                (ngModelChange)="onStartDateChange($event)" />
+            <tui-calendar *tuiDropdown />
+        </tui-textfield>
 
-        <label class="flex flex-col gap-1 text-sm text-(--primary)">
-            End Date
-            <input type="date" class="rounded-md border border-(--secondary)/40 bg-transparent px-2 py-1.5"
-                [ngModel]="filter().endDate" (ngModelChange)="onEndDateChange($event)" />
-        </label>
+        <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg">
+            <label tuiLabel>End Date</label>
+            <input tuiInputDate class="text-(--primary)!" [ngModel]="displayEndDate()"
+                (ngModelChange)="onEndDateChange($event)" />
+            <tui-calendar *tuiDropdown />
+        </tui-textfield>
 
         <button type="button" tuiButton size="m" [disabled]="isLoading()" (click)="search()"
             class="cursor-pointer bg-(--theme1)! text-white hover:bg-(--theme1)/80! disabled:opacity-40!">
             {{ isLoading() ? 'Loading...' : 'Search' }}
         </button>
     </div>
+
+    @if (rangeError()) {
+    <p class="text-red-500 text-xs -mt-2">{{ rangeError() }}</p>
+    }
 
     @if (hasSearched()) {
     @for (date of sortedDates(); track date) {

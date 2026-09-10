@@ -40,7 +40,6 @@ import { TuiTable, TuiTableControl } from '@taiga-ui/addon-table';
 import {
   EmployeeFilter,
   EMPTY_EMPLOYEE_FILTER,
-  filterEmployees,
   type Employee,
 } from '../../model/employee.model';
 import { EmployeeFilterBarComponent } from '../../components/employee-filter-bar/employee-filter-bar';
@@ -88,6 +87,12 @@ export class EmployeeList implements OnInit {
   protected filter = signal<EmployeeFilter>({ ...EMPTY_EMPLOYEE_FILTER });
   protected openMoreOptions = signal(false);
 
+  // null = no filter active, show the unfiltered `employees()` cache. Non-null = the real,
+  // server-filtered result for the currently-applied filter (department/branch/manager/
+  // designation/status/search all apply on the backend, not by slicing the cached full list).
+  protected serverFilteredEmployees = signal<Employee[] | null>(null);
+  protected isFiltering = signal(false);
+
   @Output()
   readonly edit = new EventEmitter<Employee>();
 
@@ -134,15 +139,40 @@ export class EmployeeList implements OnInit {
 
   protected onFilterChange(updatedFilter: EmployeeFilter): void {
     this.filter.set(updatedFilter);
+
+    const isEmpty =
+      !updatedFilter.search &&
+      !updatedFilter.departmentId &&
+      !updatedFilter.branchId &&
+      !updatedFilter.managerId &&
+      !updatedFilter.designationId &&
+      updatedFilter.isActive === null;
+
+    if (isEmpty) {
+      this.serverFilteredEmployees.set(null);
+      return;
+    }
+
+    this.isFiltering.set(true);
+    this.employeeService
+      .getFilteredEmployees(updatedFilter)
+      .subscribe({
+        next: (response) => {
+          this.isFiltering.set(false);
+          this.serverFilteredEmployees.set(response.isSuccess && response.data ? response.data : []);
+        },
+        error: () => {
+          this.isFiltering.set(false);
+          this.serverFilteredEmployees.set([]);
+        },
+      });
   }
 
   protected onPageChange(page: number): void {
     this.page.set(page);
   }
 
-  protected filteredEmployees = computed(() =>
-    filterEmployees(this.employees() || [], this.filter()),
-  );
+  protected filteredEmployees = computed(() => this.serverFilteredEmployees() ?? this.employees() ?? []);
 
   protected readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.filteredEmployees().length / this.pageSize)),

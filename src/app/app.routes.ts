@@ -100,8 +100,10 @@ export const routes: Routes = [
     
     { path: 'requests/new', component: NewRequest, canActivate: [permissionGuard], data: { permissions: ['requests:apply'] } },
 { path: 'requests/my', component: AllMyRequestsComponent, canActivate: [permissionGuard], data: { permissions: ['requests:apply'] } },
-{ path: 'requests/:id', component: ViewRequest, canActivate: [permissionGuard], data: { permissions: ['requests:read'] } },
+// Static segments (approvals) must come before the ':id' wildcard below, or the router matches
+// '/requests/approvals' as ViewRequest with id="approvals" and this route is never reached.
 { path: 'requests/approvals', component: RequestApprovals, canActivate: [permissionGuard], data: { permissions: ['requests:approve', 'requests:apply'] } },
+{ path: 'requests/:id', component: ViewRequest, canActivate: [permissionGuard], data: { permissions: ['requests:read'] } },
 
   // {
       //   path: 'leave-requests',

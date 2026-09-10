@@ -9,6 +9,7 @@ import {
   DepartmentItem,
   DesignationItem,
   Employee,
+  EmployeeFilter,
   ManagerItem,
   RoleItem,
   UpdateEmployeeCommand,
@@ -115,6 +116,28 @@ export class EmployeeService {
       finalize(() => {
         this.loadingService.stopLoading();
       }),
+    );
+  }
+
+  /**
+   * Real server-side filtering (department/branch/manager/designation/status/search) - always
+   * hits the backend fresh, never served from the `getAllEmployees()` cache, so a filtered view
+   * can't go stale relative to what the query params actually ask for.
+   */
+  getFilteredEmployees(filter: EmployeeFilter): Observable<ApiResponse<Employee[]>> {
+    let params = new HttpParams();
+    if (filter.departmentId) params = params.set('departmentId', filter.departmentId);
+    if (filter.branchId) params = params.set('branchId', filter.branchId);
+    if (filter.managerId) params = params.set('managerId', filter.managerId);
+    if (filter.designationId) params = params.set('designationId', filter.designationId);
+    if (filter.isActive !== null && filter.isActive !== undefined) {
+      params = params.set('isActive', String(filter.isActive));
+    }
+    if (filter.search) params = params.set('search', filter.search);
+
+    this.loadingService.showLoading();
+    return this.http.get<ApiResponse<Employee[]>>(`${this.apiUrl}`, { params }).pipe(
+      finalize(() => this.loadingService.stopLoading()),
     );
   }
 

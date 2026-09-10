@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { FormsModule } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { TuiButton, TuiCell, TuiTitle, TuiIcon, TuiTextfield } from '@taiga-ui/core';
-import { TuiBadge, TuiStatus } from '@taiga-ui/kit';
+import { TuiBadge, TuiInputDate, TuiStatus } from '@taiga-ui/kit';
 import { TuiTable } from '@taiga-ui/addon-table';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { Router } from '@angular/router';
@@ -16,6 +16,7 @@ import {
 import { DepartmentAttendanceLogService } from '../../pages/department-attendance-log/department-attendance-log.service';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { EmployeeService } from '../../../employees/services/employee.service';
+import { isoToDisplayDate, toIsoDate } from '../../../../../shared/utils/date-format.util';
 
 @Component({
   selector: 'app-department-attendance-log',
@@ -29,6 +30,7 @@ import { EmployeeService } from '../../../employees/services/employee.service';
     TuiTable,
     TuiStatus,
     TuiTextfield,
+    TuiInputDate,
     TuiCardLarge,
     TuiIcon,
     MainHeading,
@@ -47,6 +49,8 @@ export class DepartmentAttendanceLog implements OnInit {
   protected allRecords = signal<DepartmentAttendanceRecord[]>([]);
   protected isLoading = signal(false);
   protected hasSearched = signal(false);
+  protected rangeError = signal<string | null>(null);
+  protected readonly maxRangeDays = 92;
 
   // Pagination: one page == one day in the selected range.
   protected currentPage = signal(1);
@@ -151,17 +155,33 @@ export class DepartmentAttendanceLog implements OnInit {
     this.filter.update((f) => ({ ...f, departmentId }));
   }
 
-  protected onStartDateChange(startDate: string): void {
-    this.filter.update((f) => ({ ...f, startDate }));
+  // The date inputs display/emit "dd.mm.yyyy" (tuiInputDate's locale format) while `filter()`
+  // keeps plain ISO throughout, since day-range math and the HTTP params both need real ISO dates.
+  protected displayStartDate = computed(() => isoToDisplayDate(this.filter().startDate));
+  protected displayEndDate = computed(() => isoToDisplayDate(this.filter().endDate));
+
+  protected onStartDateChange(displayValue: string): void {
+    this.filter.update((f) => ({ ...f, startDate: toIsoDate(displayValue) }));
   }
 
-  protected onEndDateChange(endDate: string): void {
-    this.filter.update((f) => ({ ...f, endDate }));
+  protected onEndDateChange(displayValue: string): void {
+    this.filter.update((f) => ({ ...f, endDate: toIsoDate(displayValue) }));
   }
 
   protected onSearch(): void {
     const f = this.filter();
     if (!f.departmentId || !f.startDate || !f.endDate) return;
+
+    const days = (new Date(f.endDate).getTime() - new Date(f.startDate).getTime()) / 86_400_000;
+    if (days < 0) {
+      this.rangeError.set('End date cannot be before start date.');
+      return;
+    }
+    if (days > this.maxRangeDays) {
+      this.rangeError.set(`Date range cannot exceed ${this.maxRangeDays} days (~3 months).`);
+      return;
+    }
+    this.rangeError.set(null);
 
     this.isLoading.set(true);
     this.currentPage.set(1);

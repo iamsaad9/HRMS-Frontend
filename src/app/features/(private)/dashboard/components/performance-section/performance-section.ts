@@ -195,6 +195,8 @@ export class PerformanceSection {
 
   isOnBreak = computed(() => this.breakSessions().some((s) => s.end === null));
 
+  canStartBreak = computed(() => this.breakSessions().length === 0);
+
   canClockOut = computed(
     () =>
       this.attendanceService.isClockedIn() &&
@@ -235,6 +237,11 @@ export class PerformanceSection {
   protected onBreakStart(): void {
     if (!this.employeeId) {
       this.toast.error('Employee ID not found', 'Failed');
+      return;
+    }
+
+    if (!this.canStartBreak()) {
+      this.toast.error('Only one break session is allowed per shift', 'Break Unavailable');
       return;
     }
 

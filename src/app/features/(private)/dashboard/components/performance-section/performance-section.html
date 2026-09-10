@@ -36,9 +36,9 @@
           </thead>
           <tbody class="divide-y divide-(--primary)/20">
             @for (day of fullWeekAttendance(); track day.dateStr) {
-            <tr (click)="router.navigate(['requests/new'], { queryParams: { type: requestTypeForRow(day), date: day.dateStr } })"
-              [class.bg-(--success)/10]="isToday(day.dateStr)"
-              [class.bg-amber-500/20]="isPendingRegularization(day)"
+            <tr
+              (click)="router.navigate(['requests/new'], { queryParams: { type: requestTypeForRow(day), date: day.dateStr } })"
+              [class.bg-(--success)/10]="isToday(day.dateStr)" [class.bg-amber-500/20]="isPendingRegularization(day)"
               [class.bg-indigo-500/20]="isWfhRow(day)"
               class="hover:bg-(--background_light)! transition-colors cursor-pointer">
               <td [class.border-l-2!]="isToday(day.dateStr)" [class.border-(--success)/70!]="isToday(day.dateStr)"
@@ -104,8 +104,8 @@
         </div>
       </div>
 
-      <app-attendance-bar-chart [punches]="barChartPunches()"
-        [shiftStart]="currentShift()?.startTime ?? '09:00'" [shiftEnd]="currentShift()?.endTime ?? '18:00'" />
+      <app-attendance-bar-chart [punches]="barChartPunches()" [shiftStart]="currentShift()?.startTime ?? '09:00'"
+        [shiftEnd]="currentShift()?.endTime ?? '18:00'" />
     </div>
 
     <div tuiCardLarge
@@ -214,15 +214,15 @@
             }
 
             <!-- Toggle: Start Break vs End Break, based on whether a break is currently open -->
-            @if (!isOnBreak()) {
-            <button (click)="onBreakStart()"
-              class="col-span-2 flex items-center justify-center p-1 rounded-lg bg-(--theme3) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
-              <span class="uppercase font-bold text-md text-white">Start Break</span>
-            </button>
-            } @else {
+            @if (isOnBreak()) {
             <button (click)="onBreakEnd()"
               class="col-span-1 flex items-center justify-center p-3 rounded-xl bg-blue-500 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
               <span class="uppercase font-bold text-md text-white">End Break</span>
+            </button>
+            } @else if (canStartBreak()) {
+            <button (click)="onBreakStart()"
+              class="col-span-2 flex items-center justify-center p-1 rounded-lg bg-(--theme3) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
+              <span class="uppercase font-bold text-md text-white">Start Break</span>
             </button>
             }
             } @else {

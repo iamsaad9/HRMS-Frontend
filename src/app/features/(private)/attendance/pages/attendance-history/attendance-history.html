@@ -36,12 +36,12 @@
                 </tr>
             </thead>
             <tbody tuiTbody>
-                @for (record of filledWeekRecords(); track record.date) {
+                @for (record of displayedRecords(); track record.date) {
                 <tr [class.opacity-60]="!record.hasData" class="text-(--primary)">
                     <td tuiTd class="col-actions w-5">
                         <span tuiStatus>
                             <button appearance="action" iconStart="@tui.pen" size="xs" tuiIconButton type="button"
-                                (click)="router.navigate([`attendance/adjustment/${record.id}`])"
+                                (click)="router.navigate(['/requests/new'], { queryParams: { type: 'regularization', date: record.attendanceDate } })"
                                 class="text-(--theme1)!">
                                 Edit
                             </button>
@@ -88,6 +88,20 @@
         </table>
     </div>
 
+    @if (isRangeSearchActive()) {
+    <!-- Search Results Pagination -->
+    <div tuiCardLarge
+        class="flex flex-row! items-center! justify-between  shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
+        <span class="text-sm font-semibold text-(--primary)">
+            @if (isSearchingRange()) {
+            Searching...
+            } @else {
+            {{ matchedFilteredRecords().length }} record(s) found
+            }
+        </span>
+        <tui-pagination [length]="totalFilteredPages()" [index]="page()" (indexChange)="onPageChange($event)" />
+    </div>
+    } @else {
     <!-- Week Navigation Bar -->
     <div tuiCardLarge
         class="flex flex-row! items-center! justify-between  shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
@@ -118,4 +132,5 @@
             </button>
         </div>
     </div>
+    }
 </div>

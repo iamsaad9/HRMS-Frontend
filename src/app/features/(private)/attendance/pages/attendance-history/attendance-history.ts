@@ -2,19 +2,22 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { FormsModule } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { TuiButton, TuiCell, TuiTitle, TuiIcon } from '@taiga-ui/core';
-import { TuiBadge, TuiStatus } from '@taiga-ui/kit';
+import { TuiBadge, TuiPagination, TuiStatus } from '@taiga-ui/kit';
 import { TuiTable } from '@taiga-ui/addon-table';
 
 import {
   ATTENDANCE_CHANNEL_LABELS,
   AttendanceHistoryFilter,
   AttendanceRecord,
+  AttendanceStatus,
   EMPTY_ATTENDANCE_HISTORY_FILTER,
+  ExceptionFlag,
 } from '../../model/attendance.model';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { AttendanceService } from '../../service/attendance.service';
 import { AttendanceHistoryFilterBar } from '../../components/attendance-hisotry-filter-bar/attendance-history-filter-bar';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
+import { ToastService } from '../../../../../core/services/toast.service';
 import { TuiCardLarge } from "@taiga-ui/layout";
 import { Router } from '@angular/router';
 
@@ -37,7 +40,8 @@ export interface DisplayAttendanceRecord extends Partial<AttendanceRecord> {
     AttendanceHistoryFilterBar,
     TuiCardLarge,
     TuiIcon,
-    DecimalPipe
+    DecimalPipe,
+    TuiPagination,
 ],
   templateUrl: './attendance-history.html',
   styleUrl: './attendance-history.less',
@@ -46,6 +50,7 @@ export interface DisplayAttendanceRecord extends Partial<AttendanceRecord> {
 export class AttendanceHistory implements OnInit {
   private readonly attendanceService = inject(AttendanceService);
   private readonly authService = inject(AuthService);
+  private readonly toast = inject(ToastService);
   protected readonly router = inject(Router);
 
   protected currentUserId = this.authService.currentUser()?.employeeInfo.id;
@@ -59,6 +64,13 @@ export class AttendanceHistory implements OnInit {
   protected filter = signal<AttendanceHistoryFilter>({ ...EMPTY_ATTENDANCE_HISTORY_FILTER });
   protected hasSearched = signal(false);
   protected readonly channelLabels = ATTENDANCE_CHANNEL_LABELS;
+
+  // Non-null once a Start Date + End Date search has been run - switches the table from the
+  // rolling week view to a flat, paginated view of exactly that (server-capped) range.
+  protected filteredRecords = signal<AttendanceRecord[] | null>(null);
+  protected isSearchingRange = signal(false);
+  protected page = signal(0);
+  protected readonly pageSize = 15;
 
   protected weekOffset = signal<number>(0);
 
@@ -116,19 +128,72 @@ export class AttendanceHistory implements OnInit {
       };
     });
 
-    const selectedStatuses = this.filter().statuses;
-    if (selectedStatuses.length === 0) return weekRecords;
+    const f = this.filter();
+    if (f.statuses.length === 0 && f.exceptionFlags.length === 0 && !f.leaveTypeId) return weekRecords;
 
-    return weekRecords.filter((r) => {
-      if (!r.hasData) return false;
-      return selectedStatuses.some((s) => {
-        if (s === 'Late') return !!r.lateMinutes && r.lateMinutes > 0;
-        if (s === 'On Leave') return r.status === 'OnLeave';
-        if (s === 'Half-day') return r.status === 'HalfDay';
-        return r.status === s;
-      });
-    });
+    return weekRecords.filter((r) => r.hasData && this.matchesFilters(r, f));
   });
+
+  /** Flat list for the date-range search results, filtered but not yet paginated. */
+  protected matchedFilteredRecords = computed<DisplayAttendanceRecord[]>(() => {
+    const filtered = this.filteredRecords();
+    if (filtered === null) return [];
+    const f = this.filter();
+    return filtered
+      .map((r): DisplayAttendanceRecord => ({ ...r, attendanceDate: r.date, hasData: true }))
+      .filter((r) => this.matchesFilters(r, f));
+  });
+
+  protected totalFilteredPages = computed(() =>
+    Math.max(1, Math.ceil(this.matchedFilteredRecords().length / this.pageSize)),
+  );
+
+  private pagedFilteredRecords = computed<DisplayAttendanceRecord[]>(() => {
+    const start = this.page() * this.pageSize;
+    return this.matchedFilteredRecords().slice(start, start + this.pageSize);
+  });
+
+  /** What the table actually renders - filtered/paginated search results, or the default week view. */
+  protected displayedRecords = computed<DisplayAttendanceRecord[]>(() =>
+    this.filteredRecords() === null ? this.filledWeekRecords() : this.pagedFilteredRecords(),
+  );
+
+  protected isRangeSearchActive = computed(() => this.filteredRecords() !== null);
+
+  private matchesFilters(r: DisplayAttendanceRecord, f: AttendanceHistoryFilter): boolean {
+    if (f.statuses.length > 0 && !this.matchesStatus(r, f.statuses)) return false;
+    if (f.exceptionFlags.length > 0 && !this.matchesExceptionFlags(r, f.exceptionFlags)) return false;
+    if (f.leaveTypeId && r.leaveTypeId !== f.leaveTypeId) return false;
+    return true;
+  }
+
+  private matchesStatus(r: DisplayAttendanceRecord, statuses: AttendanceStatus[]): boolean {
+    return statuses.some((s) => {
+      if (s === 'Late') return !!r.lateMinutes && r.lateMinutes > 0;
+      if (s === 'On Leave') return r.status === 'OnLeave';
+      if (s === 'Half-day') return r.status === 'HalfDay';
+      return r.status === s;
+    });
+  }
+
+  private matchesExceptionFlags(r: DisplayAttendanceRecord, flags: ExceptionFlag[]): boolean {
+    return flags.some((flag) => {
+      switch (flag) {
+        case 'Overtime Worked':
+          return !!r.overtimeHours && r.overtimeHours > 0;
+        case 'Late Arrival':
+          return !!r.lateMinutes && r.lateMinutes > 0;
+        case 'Early Departure':
+          return !!r.earlyExitMinutes && r.earlyExitMinutes > 0;
+        case 'Missing Punch / Check-out':
+          return !!r.firstIn && !r.lastOut;
+        case 'Short Hours':
+          return r.totalHoursWorked != null && r.totalHoursWorked > 0 && r.totalHoursWorked < 4;
+        default:
+          return false;
+      }
+    });
+  }
 
   ngOnInit(): void {
     console.log("User Id in attendance history: ", this.currentUserId)
@@ -211,10 +276,48 @@ private fetchAndMergeRange(startDate: string, endDate: string, newEarliest: stri
 }
 
   protected onFilterChange(updatedFilter: AttendanceHistoryFilter): void {
-    // Only the status filter is actually applied (client-side, against the currently loaded week) -
-    // the other fields (workLocation/shiftType/department/employmentType/exceptionFlags) have no
-    // backend equivalent on the real attendance-history endpoint.
-    this.filter.update((f) => ({ ...f, statuses: updatedFilter.statuses }));
+    this.filter.set(updatedFilter);
+    this.page.set(0);
+
+    if (updatedFilter.startDate && updatedFilter.endDate) {
+      this.searchRange(updatedFilter.startDate, updatedFilter.endDate);
+    } else {
+      // No explicit range - fall back to the rolling week view (statuses/exceptionFlags/leaveType
+      // still apply there via filledWeekRecords).
+      this.filteredRecords.set(null);
+    }
+  }
+
+  /** Fetches exactly the requested range (server-capped at ~3 months) for the filtered/paginated view. */
+  private searchRange(startDate: string, endDate: string): void {
+    if (!this.currentUserId) return;
+
+    this.isSearchingRange.set(true);
+    this.attendanceService.getHistory({ employeeId: this.currentUserId, startDate, endDate }).subscribe({
+      next: (response) => {
+        this.hasSearched.set(true);
+        this.isSearchingRange.set(false);
+        if (response.isSuccess && response.data) {
+          this.filteredRecords.set(response.data);
+        } else {
+          this.filteredRecords.set([]);
+          this.toast.error(response.message || 'Could not load attendance for that range.', 'Search failed');
+        }
+      },
+      error: (err) => {
+        this.hasSearched.set(true);
+        this.isSearchingRange.set(false);
+        this.filteredRecords.set([]);
+        this.toast.error(
+          err?.error?.message || 'Could not load attendance for that range.',
+          'Search failed',
+        );
+      },
+    });
+  }
+
+  protected onPageChange(page: number): void {
+    this.page.set(page);
   }
 
   protected previousWeek(): void {
@@ -230,6 +333,11 @@ private fetchAndMergeRange(startDate: string, endDate: string, newEarliest: stri
   }
 
   protected onRefresh(): void {
+    const f = this.filter();
+    if (f.startDate && f.endDate) {
+      this.searchRange(f.startDate, f.endDate);
+      return;
+    }
     this.allRecords.set([]);
     this.earliestLoadedDate.set(null);
     this.weekOffset.set(0);
@@ -237,13 +345,15 @@ private fetchAndMergeRange(startDate: string, endDate: string, newEarliest: stri
   }
 
   protected onExport(): void {
+    if (!this.currentUserId) return;
+
+    const filter = this.filter();
     const days = this.weekDays();
     const f = {
-      ...this.filter(),
-      startDate: days[0],
-      endDate: days[days.length - 1],
+      employeeId: this.currentUserId,
+      startDate: filter.startDate && filter.endDate ? filter.startDate : days[0],
+      endDate: filter.startDate && filter.endDate ? filter.endDate : days[days.length - 1],
     };
-    if (!f.employeeId) return;
 
     this.attendanceService.exportAttendance(f).subscribe({
       next: (blob) => {

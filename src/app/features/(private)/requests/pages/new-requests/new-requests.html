@@ -171,6 +171,17 @@
                 @for (row of lineItems.controls; track row; let i = $index) {
                 <div [formGroupName]="i" class="flex flex-col gap-2 p-3 rounded-2xl bg-(--background_light)!">
                     <span class="font-medium text-(--primary)">{{ formatDate(row.get('date')?.value) }}</span>
+
+                    @let actual = actualFor(row.get('date')?.value);
+                    @if (actual) {
+                    <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-(--primary)/70 -mt-1">
+                        <span>Actual Clock In: <b class="text-(--primary)">{{ actual.clockIn ? (actual.clockIn | date: 'shortTime') : '—' }}</b></span>
+                        <span>Actual Clock Out: <b class="text-(--primary)">{{ actual.clockOut ? (actual.clockOut | date: 'shortTime') : '—' }}</b></span>
+                        <span>Actual Break In: <b class="text-(--primary)">{{ actual.breakIn ? (actual.breakIn | date: 'shortTime') : '—' }}</b></span>
+                        <span>Actual Break Out: <b class="text-(--primary)">{{ actual.breakOut ? (actual.breakOut | date: 'shortTime') : '—' }}</b></span>
+                    </div>
+                    }
+
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
                             <label tuiLabel>Clock In *</label>

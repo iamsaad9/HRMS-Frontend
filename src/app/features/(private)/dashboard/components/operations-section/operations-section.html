@@ -34,21 +34,7 @@
             </div>
 
             <!-- Request List -->
-            @if (isLoading()) {
-            <div class="flex flex-col divide-y divide-(--secondary)">
-                @for (i of [1,2,3]; track i) {
-                <div class="flex items-center justify-between py-3">
-                    <div class="flex items-center gap-x-3">
-                        <div class="size-9 rounded-full bg-(--secondary)/40 animate-pulse shrink-0"></div>
-                        <div class="flex flex-col gap-1">
-                            <div class="h-3 w-24 rounded bg-(--secondary)/40 animate-pulse"></div>
-                            <div class="h-2.5 w-16 rounded bg-(--secondary)/30 animate-pulse"></div>
-                        </div>
-                    </div>
-                </div>
-                }
-            </div>
-            } @else if (pendingRequests().length === 0) {
+            @if (pendingRequests().length === 0) {
             <div class="flex flex-col items-center justify-center h-full gap-1 py-6 text-(--primary)/70">
                 <tui-icon icon="@tui.circle-check" class="text-(--success) scale-125" />
                 <p class="text-sm font-medium m-0">All caught up</p>
@@ -56,31 +42,25 @@
             </div>
             } @else {
             <div class="flex flex-col divide-y divide-(--secondary)">
-                @for (record of pendingRequests(); track record.id) {
+                @for (record of pendingRequests(); track record.approvalRequestId) {
                 <div class="flex items-center justify-between py-3 gap-3">
 
                     <div class="flex items-center gap-x-3 min-w-0">
                         <div tuiAvatar="@tui.user" class="shrink-0"></div>
                         <div class="min-w-0">
-                            @if (employeeMap()[record.employeeId]; as employee) {
                             <p class="text-sm font-semibold text-(--primary) leading-none truncate">
-                                {{ employee.fullName }}
+                                {{ record.requesterName }}
                             </p>
-                            } @else {
-                            <p class="text-sm font-semibold text-(--primary) leading-none truncate">
-                                {{ record.employeeId }}
-                            </p>
-                            }
-                            <p class="mt-1 text-xs text-(--primary)/80">
-                                {{ record.attendanceDate | date: 'MMM d' }}
+                            <p class="mt-1 text-xs text-(--primary)/80 truncate">
+                                {{ record.summary }}
                             </p>
                         </div>
                     </div>
 
                     <button tuiButton type="button" size="xs" appearance="flat"
-                        class="bg-emerald-500! text-white! shrink-0" [disabled]="approvingId() === record.id"
+                        class="bg-emerald-500! text-white! shrink-0" [disabled]="approvingId() === record.approvalRequestId"
                         (click)="quickApprove(record)">
-                        @if (approvingId() === record.id) {
+                        @if (approvingId() === record.approvalRequestId) {
                         <span
                             class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent"></span>
                         } @else {

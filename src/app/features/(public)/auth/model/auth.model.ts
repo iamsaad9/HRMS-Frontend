@@ -10,7 +10,9 @@ export interface User {
   userId: string;
   email: string;
   permissions: string[];
-  employeeInfo: Employee
+  employeeInfo: Employee;
+  /** True if this employee has direct reports - "Manager" is structural, not an Identity role. */
+  isManager?: boolean;
 }
 
 export interface LoginCommand {

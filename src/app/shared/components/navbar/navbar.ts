@@ -119,12 +119,7 @@ protected filterByPermission(items: DropDownItem[], permissions: string[]): Drop
 
     // Only leaf items get "no permission required = visible" treatment.
     // Parent items are visible only if they have visible children.
-    const hasOwnAccess = isParent
-      ? false
-      : (!item.permission
-        || (Array.isArray(item.permission)
-          ? item.permission.some((permission) => this.authService.hasPermission(permission))
-          : this.authService.hasPermission(item.permission)));
+    const hasOwnAccess = isParent ? false : this.hasItemAccess(item);
 
     if (hasOwnAccess || hasVisibleChildren) {
       acc.push({
@@ -136,6 +131,21 @@ protected filterByPermission(items: DropDownItem[], permissions: string[]): Drop
     return acc;
   }, []);
 }
+
+  /**
+   * `requireManager` items (Roster Config, Employee Shift History, My Team's Attendance Logs,
+   * Request Approvals) are visible to Admin/HR or a manager (has direct reports) - "Manager" isn't
+   * a real Identity role here, so a plain permission claim can't express this on its own.
+   */
+  private hasItemAccess(item: DropDownItem): boolean {
+    if (item.requireManager) {
+      return this.authService.hasRole(['Admin', 'HR']) || !!this.authService.currentUser()?.isManager;
+    }
+    if (!item.permission) return true;
+    return Array.isArray(item.permission)
+      ? item.permission.some((permission) => this.authService.hasPermission(permission))
+      : this.authService.hasPermission(item.permission);
+  }
 
   protected openQuickAddOpen(): void {
     this.quickActionsOpen.update((open) => !open);

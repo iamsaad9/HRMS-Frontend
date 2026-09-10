@@ -7,6 +7,7 @@ import { LoadingService } from '../../../../core/services/loading.service';
 import {
   AdjustmentActionCommand,
   AdjustmentListParams,
+  AssignShiftCommand,
   AttendanceAdjustmentForm,
   AttendanceAdjustmentResponseDto,
   AttendanceExportParams,
@@ -301,14 +302,22 @@ private upsertDailyAttendance(todayRecord: DailyAttendance): void {
   // ---------------------------------------------------------------
   // Shifts
   // ---------------------------------------------------------------
-  createShift(command: CreateShiftCommand): Observable<ApiResponse<Shift>> {
-    return this.http.post<ApiResponse<Shift>>(`${this.apiUrl}/shifts`, command).pipe(
+  createShift(command: CreateShiftCommand): Observable<ApiResponse<string>> {
+    return this.http.post<ApiResponse<string>>(`${this.apiUrl}/shifts`, command).pipe(
       tap((response) => {
         if (response.isSuccess && response.data) {
           console.log('✅ Shift created:', response.data);
         }
       }),
     );
+  }
+
+  getShifts(): Observable<ApiResponse<Shift[]>> {
+    return this.http.get<ApiResponse<Shift[]>>(`${this.apiUrl}/shifts`);
+  }
+
+  assignShift(command: AssignShiftCommand): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/shift-assignments`, command);
   }
 
   // ---------------------------------------------------------------

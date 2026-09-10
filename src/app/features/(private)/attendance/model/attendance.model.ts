@@ -167,6 +167,8 @@ export interface Shift {
   endTime: string;
   gracePeriodLateMinutes: number;
   gracePeriodEarlyExitMinutes: number;
+  isActive: boolean;
+  isDefault: boolean;
 }
 
 // --- Regularization / Adjustment Models ---
@@ -215,6 +217,14 @@ export interface CreateShiftCommand {
   endTime: string;
   gracePeriodLateMinutes: number;
   gracePeriodEarlyExitMinutes: number;
+  isDefault?: boolean;
+}
+
+export interface AssignShiftCommand {
+  employeeId: string;
+  shiftId: string;
+  effectiveFrom: string; // yyyy-MM-dd
+  effectiveTo: string | null;
 }
 
 export interface AdjustmentActionCommand {

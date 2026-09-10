@@ -11,6 +11,7 @@ import { EmployeeList } from './features/(private)/employees/pages/employee-list
 import { guestGuard } from './core/guards/guest.guard';
 import { authGuard } from './core/guards/auth.guard';
 import { permissionGuard } from './core/guards/permission.guard';
+import { managerOrPrivilegedGuard } from './core/guards/manager-or-privileged.guard';
 import { AttendanceHistory } from './features/(private)/attendance/pages/attendance-history/attendance-history';
 import { DepartmentAttendanceLog } from './features/(private)/attendance/pages/department-attendance-log/department-attendance-log';
 import { AttendanceAdjustment } from './features/(private)/attendance/pages/attendance-adjustment/attendance-adjustment';
@@ -93,7 +94,7 @@ export const routes: Routes = [
    // Attendance
 { path: 'attendance/history', component: AttendanceHistory, canActivate: [permissionGuard], data: { permissions: ['attendance:view'] } },
 { path: 'attendance/daily-logs', component: DepartmentAttendanceLog, canActivate: [permissionGuard], data: { permissions: ['attendance:logs'] } },
-{ path: 'attendance/team-logs', component: TeamAttendanceLog, canActivate: [permissionGuard], data: { permissions: ['attendance:view'] } },
+{ path: 'attendance/team-logs', component: TeamAttendanceLog, canActivate: [permissionGuard, managerOrPrivilegedGuard], data: { permissions: ['attendance:view'] } },
 
 
       // Requests Tab (Both Admin & User)
@@ -102,7 +103,7 @@ export const routes: Routes = [
 { path: 'requests/my', component: AllMyRequestsComponent, canActivate: [permissionGuard], data: { permissions: ['requests:apply'] } },
 // Static segments (approvals) must come before the ':id' wildcard below, or the router matches
 // '/requests/approvals' as ViewRequest with id="approvals" and this route is never reached.
-{ path: 'requests/approvals', component: RequestApprovals, canActivate: [permissionGuard], data: { permissions: ['requests:approve', 'requests:apply'] } },
+{ path: 'requests/approvals', component: RequestApprovals, canActivate: [managerOrPrivilegedGuard] },
 { path: 'requests/:id', component: ViewRequest, canActivate: [permissionGuard], data: { permissions: ['requests:read'] } },
 
   // {
@@ -136,7 +137,7 @@ export const routes: Routes = [
       {
         path: 'schedule/roster-config',
         component: ScheduleShift,
-       canActivate: [permissionGuard], data: { permissions: ['calendar:manage'] } ,
+       canActivate: [managerOrPrivilegedGuard],
       },
       {
         path: 'schedule/holiday-calendar',
@@ -156,7 +157,7 @@ export const routes: Routes = [
       {
         path: 'attendance/shift-history',
         component: EmployeeShiftHistory,
-        canActivate: [permissionGuard], data: { permissions: ['attendance:view'] },
+        canActivate: [permissionGuard, managerOrPrivilegedGuard], data: { permissions: ['attendance:view'] },
       },
       {
         path: 'attendance/my-shift-history',

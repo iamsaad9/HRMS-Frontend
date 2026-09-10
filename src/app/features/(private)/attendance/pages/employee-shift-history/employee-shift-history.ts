@@ -1,20 +1,36 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { TuiButton } from '@taiga-ui/core';
+import { TuiButton, TuiDropdown, TuiLabel, TuiTextfield, TuiTextfieldComponent } from '@taiga-ui/core';
 import { TuiTable } from '@taiga-ui/addon-table';
-import { TuiBadge } from '@taiga-ui/kit';
+import { TuiBadge, TuiChevron, TuiDataListWrapperComponent, TuiSelect } from '@taiga-ui/kit';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { AttendanceService } from '../../service/attendance.service';
 import { EmployeeService } from '../../../employees/services/employee.service';
 import { ShiftHistoryEntry } from '../../model/attendance.model';
 import { ToastService } from '../../../../../core/services/toast.service';
+import { Employee } from '../../../employees/model/employee.model';
 
 @Component({
   selector: 'app-employee-shift-history',
   standalone: true,
-  imports: [FormsModule, DatePipe, TuiButton, TuiTable, TuiBadge, TuiCardLarge, MainHeading],
+  imports: [
+    FormsModule, 
+    DatePipe, 
+    TuiButton, 
+    TuiTable, 
+    TuiBadge, 
+    TuiCardLarge, 
+    MainHeading, 
+    TuiTextfieldComponent, 
+    TuiDataListWrapperComponent,
+    TuiChevron,
+    TuiLabel,
+    TuiSelect,
+    TuiDropdown,
+    TuiTextfield
+  ],
   templateUrl: './employee-shift-history.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -23,18 +39,34 @@ export class EmployeeShiftHistory implements OnInit {
   protected readonly employeeService = inject(EmployeeService);
   private readonly toast = inject(ToastService);
 
+  // Return full Employee objects instead of string names
   protected employees = computed(() => this.employeeService.allEmployees() ?? []);
-  protected selectedEmployeeId = signal<string | null>(null);
+  
+  // Stores the selected Employee object
+  protected selectedEmployee = signal<Employee | null>(null);
+  
   protected history = signal<ShiftHistoryEntry[]>([]);
   protected isLoading = signal(false);
   protected hasSearched = signal(false);
+
+  // Taiga UI Helper to format employee option labels in the dropdown
+  readonly stringifyEmployee = (emp: Employee): string =>
+    emp ? `${emp.fullName} (${emp.staffNo})` : '';
 
   ngOnInit(): void {
     this.employeeService.getAllEmployees().subscribe();
   }
 
+  protected employeeOptions = computed(() => 
+  this.employeeService.allEmployees()?.map(emp => ({
+    id: emp.id,
+    toString: () => `${emp.fullName} (${emp.staffNo})`
+  })) ?? []
+);
+
   protected search(): void {
-    const employeeId = this.selectedEmployeeId();
+    // Extract employeeId from the selected object
+    const employeeId = this.selectedEmployee()?.id;
     if (!employeeId) return;
 
     this.isLoading.set(true);

@@ -69,7 +69,6 @@ export class AuthService {
   }
 
 checkSession(): Observable<boolean> {
-  console.log('[checkSession] Starting session check...');
 
   return this.refreshToken().pipe(
     tap((refreshRes) => console.log('[checkSession] Refresh token response:', refreshRes)),
@@ -101,23 +100,19 @@ checkSession(): Observable<boolean> {
           }),
           map((meRes) => meRes.isSuccess),
           catchError((err) => {
-            console.error('[checkSession] Error fetching /me user data:', err);
             this.clearAuth();
             return of(false);
           }),
           finalize(() => {
-            console.log('[checkSession] /me flow finalized.');
             this.#isInitialized.set(true);
           })
         );
     }),
     catchError((err) => {
-      console.error('[checkSession] Error refreshing token:', err);
       this.clearAuth();
       return of(false);
     }),
     finalize(() => {
-      console.log('[checkSession] Session check completely finished.');
       this.#isInitialized.set(true);
     })
   );

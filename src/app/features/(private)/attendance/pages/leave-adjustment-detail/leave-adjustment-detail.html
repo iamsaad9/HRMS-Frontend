@@ -6,76 +6,102 @@
         </button>
     </app-main-heading>
 
-    <!-- Table A: Balances Breakdown -->
-    <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20!">
-        <div class="px-4 py-2 text-sm font-semibold text-(--primary) border-b border-(--primary)/10">
-            Balances Breakdown
+    <!-- Balances: quick stat cards -->
+    <div class="flex flex-col gap-3">
+        <span class="text-sm font-semibold text-(--primary)/70 uppercase tracking-wide">Balances Breakdown</span>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            @for (row of balances(); track row.id) {
+            <div tuiCardLarge
+                class="flex flex-col gap-2! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20!">
+                <div class="flex items-center justify-between">
+                    <span class="text-lg font-semibold text-(--theme1)">{{ row.leaveTypeName }}</span>
+                    <span class="text-2xl font-bold text-(--primary)">{{ row.remainingBalance }}</span>
+                </div>
+
+                <p class="text-xs text-(--primary)/50 m-0">Days remaining</p>
+                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-(--primary)/10">
+                    <div class="flex flex-col">
+                        <span class="text-xs uppercase tracking-wide text-(--success)/40">Allocated</span>
+                        <span class="text-sm text-(--primary)">{{ row.allocatedDays }}</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xs uppercase tracking-wide text-(--accent)/40">Adjusted</span>
+                        <span class="text-sm text-(--primary)">{{ row.adjustedDays }}</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xs uppercase tracking-wide text-(--primary)/40">Used</span>
+                        <span class="text-sm text-(--primary)">{{ row.usedDays }}</span>
+                    </div>
+                </div>
+            </div>
+            } @empty {
+            @if (!isLoading()) {
+            <div tuiCardLarge
+                class="col-span-full text-center py-6 text-(--primary)/60 glass-card bg-(--secondary)/20!">
+                No leave allocations found.
+            </div>
+            }
+            }
         </div>
-        <table tuiTable class="w-full" size="m">
-            <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
-                <tr>
-                    <th tuiTh>Leave Type</th>
-                    <th tuiTh>Allocated</th>
-                    <th tuiTh>Adjustments</th>
-                    <th tuiTh>Used</th>
-                    <th tuiTh>Remaining</th>
-                </tr>
-            </thead>
-            <tbody tuiTbody>
-                @for (row of balances(); track row.id) {
-                <tr class="text-(--primary)">
-                    <td tuiTd class="font-medium">{{ row.leaveTypeName }}</td>
-                    <td tuiTd>{{ row.allocatedDays }}</td>
-                    <td tuiTd>{{ row.adjustedDays }}</td>
-                    <td tuiTd>{{ row.usedDays }}</td>
-                    <td tuiTd>{{ row.remainingBalance }}</td>
-                </tr>
-                } @empty {
-                @if (!isLoading()) {
-                <tr>
-                    <td tuiTd colspan="5" class="text-center py-6 text-(--primary)/60">No leave allocations found.</td>
-                </tr>
-                }
-                }
-            </tbody>
-        </table>
     </div>
 
-    <!-- Table B: Audit Log -->
-    <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20!">
-        <div class="px-4 py-2 text-sm font-semibold text-(--primary) border-b border-(--primary)/10">
-            Adjustment Audit Log
+    <!-- Audit log: history cards -->
+    <div class="flex flex-col gap-3">
+        <span class="text-sm font-semibold text-(--primary)/70 uppercase tracking-wide">Adjustment Audit Log</span>
+
+        <div tuiCardLarge
+            class="flex flex-col sm:flex-row sm:items-center  gap-4 shadow-[0_0_5px_rgba(0,0,0,0.2)]!  glass-card bg-(--secondary)/20!">
+            @for (entry of auditLog(); track entry.id) {
+            <div tuiCardLarge
+                class="flex flex-col gap-4 shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
+
+                <!-- Row 1: Date & Adjusted By -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="flex flex-col">
+                        <span class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Date</span>
+                        <span class="text-lg font-semibold text-(--theme1) m-0">{{ entry.createdAtUtc | date: 'medium'
+                            }}</span>
+                    </div>
+
+                    <div class="flex flex-col sm:text-right">
+                        <span class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Adjusted By</span>
+                        <span class="text-sm font-medium text-(--primary) m-0">{{ entry.approvedByName }}</span>
+                    </div>
+                </div>
+
+                <hr class="border-t border-(--secondary)/40 m-0" />
+
+                <!-- Row 2: Leave Type & Adjustment -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col">
+                        <span class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Leave Type</span>
+                        <span class="text-base font-medium text-(--primary) m-0">{{ entry.leaveTypeName }}</span>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <span class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Adjustment</span>
+                        <span class="text-base font-semibold m-0" [class.text-emerald-500]="entry.adjustmentDays > 0"
+                            [class.text-rose-500]="entry.adjustmentDays < 0">
+                            {{ entry.adjustmentDays > 0 ? '+' : '' }}{{ entry.adjustmentDays }} {{ entry.adjustmentDays
+                            === 1 || entry.adjustmentDays === -1 ? 'day' : 'days' }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Row 3: Reason -->
+                <div class="flex flex-col pt-1">
+                    <span class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Reason</span>
+                    <span class="text-sm text-(--primary) m-0" [title]="entry.reason">{{ entry.reason }}</span>
+                </div>
+            </div>
+            } @empty {
+            @if (!isLoading()) {
+            <div tuiCardLarge class="text-center py-6 text-(--primary)/60 glass-card bg-(--secondary)/20!">
+                No adjustments recorded yet.
+            </div>
+            }
+            }
         </div>
-        <table tuiTable class="w-full" size="m">
-            <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
-                <tr>
-                    <th tuiTh>Date</th>
-                    <th tuiTh>Leave Type</th>
-                    <th tuiTh>Adjustment</th>
-                    <th tuiTh>Reason</th>
-                    <th tuiTh>By</th>
-                </tr>
-            </thead>
-            <tbody tuiTbody>
-                @for (entry of auditLog(); track entry.id) {
-                <tr class="text-(--primary)">
-                    <td tuiTd>{{ entry.createdAtUtc | date: 'medium' }}</td>
-                    <td tuiTd>{{ entry.leaveTypeName }}</td>
-                    <td tuiTd [class.text-emerald-600]="entry.adjustmentDays > 0"
-                        [class.text-red-500]="entry.adjustmentDays < 0">
-                        {{ entry.adjustmentDays > 0 ? '+' : '' }}{{ entry.adjustmentDays }}
-                    </td>
-                    <td tuiTd>{{ entry.reason }}</td>
-                    <td tuiTd>{{ entry.approvedByName }}</td>
-                </tr>
-                } @empty {
-                @if (!isLoading()) {
-                <tr>
-                    <td tuiTd colspan="5" class="text-center py-6 text-(--primary)/60">No adjustments recorded yet.</td>
-                </tr>
-                }
-                }
-            </tbody>
-        </table>
     </div>
 </div>

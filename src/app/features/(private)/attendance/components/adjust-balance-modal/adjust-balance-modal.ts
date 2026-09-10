@@ -3,14 +3,18 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
 import {
   TuiButton,
+  TuiDataList,
   TuiDialogContext,
+  TuiDropdown,
   TuiError,
   TuiErrorComponent,
   TuiInput,
   TuiLabel,
+  TuiOption,
+  TuiTextfield,
   TuiTextfieldComponent,
 } from '@taiga-ui/core';
-import { TuiInputNumber, TuiTextarea } from '@taiga-ui/kit';
+import { TuiChevron, TuiInputNumber, TuiSelect, TuiTextarea } from '@taiga-ui/kit';
 import { LeaveTypeResponse } from '../../../leave-management/model/leave-request.model';
 
 export interface AdjustBalanceFormValue {
@@ -23,9 +27,9 @@ export interface AdjustBalanceModalData {
   employeeName: string;
   leaveTypes: LeaveTypeResponse[];
 }
-
 @Component({
   selector: 'app-adjust-balance-modal',
+  standalone: true,
   imports: [
     ReactiveFormsModule,
     TuiButton,
@@ -36,6 +40,12 @@ export interface AdjustBalanceModalData {
     TuiInput,
     TuiInputNumber,
     TuiTextarea,
+    TuiChevron,
+    TuiDataList,
+    TuiDropdown,
+    TuiOption,
+    TuiSelect,
+    TuiTextfield
   ],
   templateUrl: './adjust-balance-modal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

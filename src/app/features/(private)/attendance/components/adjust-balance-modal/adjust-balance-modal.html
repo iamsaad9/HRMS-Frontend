@@ -2,15 +2,18 @@
     <p class="text-sm text-(--primary)/70">Adjusting leave balance for <strong>{{ employeeName }}</strong></p>
 
     <div>
-        <label class="flex flex-col gap-1 text-sm text-(--primary)">
-            Leave Type <span class="text-red-500">*</span>
-            <select formControlName="leaveTypeId" class="rounded-md border border-(--secondary)/40 bg-transparent px-2 py-1.5">
-                <option value="" disabled>Select leave type</option>
+        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
+            [tuiTextfieldCleaner]="false">
+            <label tuiLabel>Leave Type <span class="text-red-500">*</span></label>
+            <input tuiSelect placeholder="Select leave type" [formControl]="form.controls.leaveTypeId" />
+            <tui-data-list *tuiDropdown>
                 @for (type of leaveTypes; track type.id) {
-                <option [value]="type.id">{{ type.name }}</option>
+                <button tuiOption [value]="type.id">
+                    {{ type.name }}
+                </button>
                 }
-            </select>
-        </label>
+            </tui-data-list>
+        </tui-textfield>
     </div>
 
     <div>

@@ -1,30 +1,15 @@
 <div class="flex flex-col w-full mx-auto max-w-7xl gap-5">
-    <app-main-heading title="Schedule / Shift"
-        description="Setup shifts, penalties and custom calendars for your organization.">
-        <button tuiButton type="button" iconStart="@tui.save" size="s"
-            class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!" (click)="saveChanges()">
-            Save Changes
-        </button>
+    <app-main-heading title="Schedule / Shift" description="View shifts and custom calendars for your organization.">
     </app-main-heading>
 
-    <tui-tabs [(activeItemIndex)]="activeTabIndex" class="border-b border-(--background_dark)/10">
-        <button tuiTab>Shifts</button>
-        <button tuiTab>Penalty Rules</button>
-        <button tuiTab>Custom Calendar</button>
-    </tui-tabs>
-
     <!-- SHIFTS TAB -->
-    @if (activeTabIndex() === 0) {
+
     <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
         <header class="flex flex-row items-center justify-between">
             <div class="flex flex-col">
-                <span class="text-lg font-semibold">Shift Setup</span>
-                <span tuiSubtitle class="text-(--primary)/50 text-sm">Manage and configure working shifts.</span>
+                <span class="text-lg font-semibold">All Shifts</span>
+                <span tuiSubtitle class="text-(--primary)/50 text-sm">View all working shifts.</span>
             </div>
-            <button tuiButton type="button" iconStart="@tui.plus" size="s"
-                class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!" (click)="addShift()">
-                Add Shift
-            </button>
         </header>
 
         <div class="flex flex-col gap-3">
@@ -66,44 +51,18 @@
                     <span class="text-(--primary)/60">{{ shift.paidBreak ? 'Enabled' : 'Disabled' }}</span>
                 </div>
 
-                <!-- Actions -->
-                <div class="flex items-center gap-2 shrink-0">
-                    <input type="checkbox" tuiSwitch [ngModel]="shift.status === 'active'"
-                        (ngModelChange)="toggleShiftStatus(shift)" />
-                    <button tuiIconButton type="button" appearance="flat" icon="@tui.ellipsis-vertical" size="s"
-                        (click)="openShiftMenu(shift)"></button>
-                    <button tuiButton type="button" appearance="outline" size="s" iconStart="@tui.pencil"
-                        (click)="editShift(shift)">
-                        Edit
-                    </button>
-                    <button tuiButton type="button" appearance="outline" size="s" iconStart="@tui.trash-2"
-                        class="text-red-500! border-red-200!" (click)="deleteShift(shift)">
-                        Delete
-                    </button>
+                <!-- Read-only Status Badge (Replaces Edit/Delete/Toggle controls) -->
+                <div class="flex items-center shrink-0">
+                    <span class="text-xs px-3 py-1 rounded-full font-medium border" [class]="shift.status === 'active'
+                            ? 'bg-green-50 text-green-700 border-green-200'
+                            : 'bg-gray-50 text-gray-600 border-gray-200'">
+                        {{ shift.status === 'active' ? 'Active Shift' : 'Inactive Shift' }}
+                    </span>
                 </div>
             </div>
             }
         </div>
 
-        <div
-            class="flex items-start gap-2 p-3 rounded-lg bg-(--accent)/10 border border-(--accent)/50 text-(--background_dark) text-sm mt-2">
-            <tui-icon icon="@tui.info" class="text-base! mt-0.5" />
-            <div class="flex flex-col">
-                <span class="font-medium">Note</span>
-                <span class="text-(--background_dark)/70">Shifts will be available while creating rosters and assigning
-                    employees.</span>
-            </div>
-        </div>
     </div>
-    }
-
-    <!-- PENALTY RULES TAB -->
-    @if (activeTabIndex() === 1) {
-    <div tuiCardLarge
-        class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! items-center justify-center py-16">
-        <span class="text-(--primary)/50 text-sm">Penalty Rules configuration coming soon.</span>
-    </div>
-    }
-
 
 </div>

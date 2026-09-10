@@ -39,21 +39,8 @@ export class AttendanceService {
   private http = inject(HttpClient);
   private loadingService = inject(LoadingService);
   private authService = inject(AuthService);
-  utctoday = new Date();
-  today = toLocalDateStr(this.utctoday);
+
   currentUserId = computed(() => this.authService.currentUser()?.employeeInfo.id);
-  todayStatus = computed(() => {
-    const monthData = this.currentMonth();
-    if (!monthData || monthData.length === 0) return null;
-
-    const sorted = [...monthData].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-    );
-
-    const latestRecord = sorted[sorted.length - 1];
-    console.log("Today's Status:", latestRecord);
-    return latestRecord;
-  });
 
   #adjustments = signal<AttendanceAdjustmentResponseDto[] | null>(null);
   allAdjustments = this.#adjustments.asReadonly();
@@ -66,29 +53,85 @@ export class AttendanceService {
     return list !== null && list.length > 0;
   });
 
-  // Call this.todayStatus() as a function, and convert to boolean if needed
+  // ---------------------------------------------------------------
+  // Robust Active Shift Selector
+  // ---------------------------------------------------------------
+ activeShiftRecord = computed(() => {
+  const records = this.#currentMonth() ?? [];
+  if (records.length === 0) {
+    console.log('[activeShiftRecord] No current month records available.');
+    return null;
+  }
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  console.log(`[activeShiftRecord] Evaluating active shift. Today: ${todayStr}, Total Records: ${records.length}`);
+
+  // 1. Open shift priority (has punches, but last punch isn't 'Out')
+  const openShift = records
+    .filter((r) => r.date <= todayStr && r.punches && r.punches.length > 0)
+    .find((r) => {
+      const lastPunch = r.punches[r.punches.length - 1];
+      return lastPunch.punchType !== 'Out';
+    });
+
+  if (openShift) {
+    console.log('[activeShiftRecord] Strategy 1 Hit -> Selected Open Shift:', openShift);
+    return openShift;
+  }
+
+  // 2. Exact current date match
+  const todayRecord = records.find((r) => r.date === todayStr);
+  if (todayRecord) {
+    console.log('[activeShiftRecord] Strategy 2 Hit -> Selected Exact Today Record:', todayRecord);
+    return todayRecord;
+  }
+
+  // 3. Fallback to latest non-future date
+  const pastOrPresentRecords = records
+    .filter((r) => r.date <= todayStr)
+    .sort((a, b) => b.date.localeCompare(a.date));
+
+  const fallbackRecord = pastOrPresentRecords[0] ?? null;
+  console.log('[activeShiftRecord] Strategy 3 Hit -> Selected Fallback Record:', fallbackRecord);
+  return fallbackRecord;
+});
+
+// Legacy replacement mapping to active shift
+todayStatus = computed(() => {
+  const status = this.activeShiftRecord();
+  console.log('[todayStatus] Selected:', status);
+  return status;
+});
+
+
+
   isClockedIn = computed(() => !!this.todayStatus()?.punches.find((p) => p.punchType == 'In'));
   isClockedOut = computed(() => !!this.todayStatus()?.punches.find((p) => p.punchType == 'Out'));
 
   isOnBreak = computed(() => this.todayStatus()?.lastOut ?? false);
 
-  private upsertDailyAttendance(todayRecord: DailyAttendance): void {
-    this.#currentMonth.update((records) => {
-      const list = records ?? [];
-      const index = list.findIndex((day) => day.date === todayRecord.date);
+private upsertDailyAttendance(todayRecord: DailyAttendance): void {
+  console.log('[upsertDailyAttendance] Upserting Record:', todayRecord);
+  this.#currentMonth.update((records) => {
+    const list = records ?? [];
 
-      if (index !== -1) {
-        // Replace existing day
-        return list.map((day, i) => (i === index ? todayRecord : day));
-      }
+    const index = list.findIndex((day) => 
+      (todayRecord.id && todayRecord.id !== '00000000-0000-0000-0000-000000000000' && day.id === todayRecord.id) ||
+      day.date === todayRecord.date
+    );
 
-      // Append today's new entry
-      return [...list, todayRecord];
-    });
-  }
+    if (index !== -1) {
+      console.log(`[upsertDailyAttendance] Updating existing record at index ${index}`);
+      return list.map((day, i) => (i === index ? todayRecord : day));
+    }
+
+    console.log('[upsertDailyAttendance] Appending new record to list');
+    return [...list, todayRecord].sort((a, b) => b.date.localeCompare(a.date));
+  });
+}
 
   // ---------------------------------------------------------------
-  // Punch actions
+  // Punch actions (FIXED for overnight shifts)
   // ---------------------------------------------------------------
   punch(command: PunchCommand): Observable<ApiResponse<PunchResponseDto>> {
     return this.http.post<ApiResponse<PunchResponseDto>>(`${this.apiUrl}/punch`, command).pipe(
@@ -97,13 +140,12 @@ export class AttendanceService {
           return of(response);
         }
 
-        const today = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+        // Target the active shift's date (e.g., yesterday's date if clocking out post-midnight)
+        const targetShiftDate = this.activeShiftRecord()?.date ?? new Date().toISOString().split('T')[0];
 
-        // Fetch attendance filtering by today's date
-        return this.getDailyAttendance(command.employeeId, today).pipe(
+        return this.getDailyAttendance(command.employeeId, targetShiftDate).pipe(
           tap((todayResponse) => {
             if (todayResponse.isSuccess && todayResponse.data) {
-              // Handle single item or array based on API response structure
               const todayAttendance = Array.isArray(todayResponse.data)
                 ? todayResponse.data[0]
                 : todayResponse.data;
@@ -113,9 +155,9 @@ export class AttendanceService {
               }
             }
           }),
-          map(() => response), // Return original punch response to subscriber
+          map(() => response)
         );
-      }),
+      })
     );
   }
 
@@ -129,12 +171,12 @@ export class AttendanceService {
       .pipe(
         tap((response) => {
           if (response.isSuccess && response.data) {
-            console.log("Today's Status:", this.todayStatus);
+            console.log("Active Shift Status:", this.activeShiftRecord());
           }
         }),
         finalize(() => {
           this.loadingService.stopLoading();
-        }),
+        })
       );
   }
 
@@ -149,15 +191,17 @@ export class AttendanceService {
       .get<ApiResponse<AttendanceRecord[]>>(`${this.apiUrl}/history`, { params: httpParams })
       .pipe(
         tap((response) => {
-          if (response.isSuccess) {
-            console.log('Attendance history:', response.data);
+          if (response.isSuccess && response.data) {
+            // Populate #currentMonth signal when month history is fetched
+            this.#currentMonth.set(response.data as unknown as DailyAttendance[]);
           }
         }),
         finalize(() => {
           this.loadingService.stopLoading();
-        }),
+        })
       );
   }
+
 
   getCurrentMonth(): Observable<ApiResponse<DailyAttendance[]>> {
     const today = new Date();

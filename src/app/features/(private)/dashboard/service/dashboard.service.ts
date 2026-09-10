@@ -24,12 +24,21 @@ export class DashboardService {
     (this.authService.currentUser()?.employeeInfo?.roles ?? []).includes('Admin'),
   );
 
+  // Backend's /api/Dashboard/admin endpoint is "Admin / HR Cross-Departmental Dashboard" -
+  // [Authorize(Roles = "Admin,HR")] - so HR must hit it too, or they only ever get the
+  // personal /employee payload (whose PendingApprovalsTeamMembers is scoped to direct
+  // reports, which HR normally has none of).
+  isAdminOrHr = computed(() => {
+    const roles = this.authService.currentUser()?.employeeInfo?.roles ?? [];
+    return roles.includes('Admin') || roles.includes('HR');
+  });
+
   /** True once the dashboard payload has loaded and the employee has at least one direct report. */
   isManager = computed(() => (this.data()?.teamMembers.length ?? 0) > 0);
 
   load(): Observable<DashboardData | null> {
-    const isAdmin = this.isAdmin();
-    const url = isAdmin ? `${this.apiUrl}/admin` : `${this.apiUrl}/employee`;
+    const isAdminOrHr = this.isAdminOrHr();
+    const url = isAdminOrHr ? `${this.apiUrl}/admin` : `${this.apiUrl}/employee`;
 
     this.loadingService.showLoading();
     return this.http
@@ -41,7 +50,7 @@ export class DashboardService {
             return null;
           }
 
-          const normalized = isAdmin
+          const normalized = isAdminOrHr
             ? this.normalizeAdmin(response.data as AdminDashboardResponse)
             : this.normalizeEmployee(response.data as EmployeeDashboardResponse);
 

@@ -310,6 +310,11 @@ protected onSubmit(): void {
           ...item,
           requestedClockIn: this.formatTime(item.requestedClockIn),
           requestedClockOut: this.formatTime(item.requestedClockOut),
+          // requestedBreakIn/Out come from the same tuiInputTime widget (a TuiTime object once
+          // touched), not a plain string - sending it unformatted fails backend JSON binding
+          // (the DTO field is a plain string).
+          requestedBreakIn: item.requestedBreakIn ? this.formatTime(item.requestedBreakIn) : null,
+          requestedBreakOut: item.requestedBreakOut ? this.formatTime(item.requestedBreakOut) : null,
           halfDayType: item.halfDayType === 'First Half' ? 'first_half' : item.halfDayType === 'Second Half' ? 'second_half' : null,
         })),
       }
@@ -330,7 +335,12 @@ protected onSubmit(): void {
       next: (response) => {
         if (response.isSuccess) {
           this.toast.success('Request sent for approval.', 'Created Successfully!');
-          this.router.navigate(['/leave-requests/my']);
+          this.router.navigate(['/requests/my']);
+        } else {
+          // The backend can report a business-rule failure (e.g. an overlapping leave) with a
+          // 200 OK and isSuccess:false rather than an HTTP error - without this branch that
+          // message never reached the user at all.
+          this.toast.error(response.message || 'Request creation failed. Please try again.', 'Creation Unsuccessful!');
         }
       },
       error: (error) => {

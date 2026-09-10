@@ -54,7 +54,15 @@
         </div>
     </div>
 
-    <div class="flex justify-end">
+    <div class="flex justify-between items-center gap-3 flex-wrap">
+        <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
+            class="bg-(--secondary) text-(--primary) text-sm rounded-lg border border-(--primary)/20 px-3 py-2 cursor-pointer">
+            <option value="All">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+        </select>
+
         <button tuiButton type="button" iconStart="@tui.plus" size="s" routerLink="/requests/new"
             class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!">
             Create Request
@@ -77,9 +85,13 @@
 
     <div tuiCardLarge class="bg-(--secondary)/15 flex! justify-center! items-center! gap-2! p-10! text-(--primary)">
         <tui-icon icon="@tui.circle-alert" style="font-size: 4rem;" />
-        <p class="text-sm font-medium m-0">
-        <p class="text-base font-medium  m-0">No requests yet</p>
+        @if (statusFilter() === 'All') {
+        <p class="text-base font-medium m-0">No requests yet</p>
         <p class="text-sm mt-1 m-0">Requests you submit will show up here, grouped by month.</p>
+        } @else {
+        <p class="text-base font-medium m-0">No {{ statusFilter() }} requests</p>
+        <p class="text-sm mt-1 m-0">Try a different status filter.</p>
+        }
     </div>
     } @else {
 
@@ -119,6 +131,9 @@
                                         <p class="text-base font-semibold text-xl m-0 capitalize">
                                             {{ req.requestType }}
                                         </p>
+                                        @if (req.leaveTypeName) {
+                                        <span tuiBadge appearance="neutral" size="s">{{ req.leaveTypeName }}</span>
+                                        }
                                     </div>
                                     <p class="text-sm text-(--primary)/60 mt-0.5 m-0 flex items-center gap-1">
                                         <mat-icon class="!text-sm !w-4 !h-4">date_range</mat-icon>

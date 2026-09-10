@@ -27,6 +27,20 @@
 
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-4">
             <div>
+                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Requester</p>
+                <p class="text-base text-(--primary) m-0">{{ r.requesterName || '—' }}</p>
+            </div>
+            <div>
+                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Department</p>
+                <p class="text-base text-(--primary) m-0">{{ r.departmentName || '—' }}</p>
+            </div>
+            @if (r.leaveTypeName) {
+            <div>
+                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Leave Type</p>
+                <p class="text-base text-(--primary) m-0">{{ r.leaveTypeName }}</p>
+            </div>
+            }
+            <div>
                 <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Overall Status</p>
                 <p class="text-base m-0 mt-1">
                     <span class="text-xs px-3 py-1 rounded-full font-medium" [ngClass]="statusClass(r.overallStatus)">
@@ -39,7 +53,7 @@
                 <p class="text-base text-(--primary) m-0">Step {{ r.currentStepOrder }} of {{ r.totalSteps }}</p>
             </div>
 
-            @if (r.details && r.details.length > 0) {
+            @if (r.details && r.details.length > 0 && !isEditing()) {
             <div>
                 <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Period / Duration</p>
                 <p class="text-base text-(--primary) m-0">
@@ -63,46 +77,146 @@
             </div>
         </div>
 
-        @if (r.requestReason) {
-        <div class="p-3 text-sm rounded-lg bg-(--accent)/10 border border-(--accent)/30 text-(--primary)">
-            <span class="font-semibold uppercase tracking-wide text-xs text-(--theme2) block mb-1">Request Reason</span>
-            {{ r.requestReason || '—' }}
-        </div>
-        }
-
-        @if (canCancel() || canApproveOrReject()) {
-        <div class="pt-2 border-t border-(--primary)/10 flex flex-col gap-3">
-            @if (canApproveOrReject()) {
-            <tui-textfield tuiTextfieldSize="m">
-                <label tuiLabel>Remarks</label>
-                <textarea [ngModel]="remarks()" (ngModelChange)="remarks.set($event)" tuiTextarea
-                    placeholder="Optional for approve, required for reject"></textarea>
-            </tui-textfield>
+        @if (!isEditing()) {
+            @if (r.requestReason) {
+            <div class="p-3 text-sm rounded-lg bg-(--accent)/10 border border-(--accent)/30 text-(--primary)">
+                <span class="font-semibold uppercase tracking-wide text-xs text-(--theme2) block mb-1">Request Reason</span>
+                {{ r.requestReason || '—' }}
+            </div>
             }
 
-            <div class="flex gap-3">
+            @if (canCancel() || canApproveOrReject() || canEdit()) {
+            <div class="pt-2 border-t border-(--primary)/10 flex flex-col gap-3">
                 @if (canApproveOrReject()) {
-                <button tuiButton type="button" size="m" [disabled]="isSubmittingAction()" (click)="approve()"
-                    class="bg-emerald-500! text-white cursor-pointer">
-                    Approve
-                </button>
-                <button tuiButton type="button" size="m" appearance="outline" [disabled]="isSubmittingAction()"
-                    (click)="reject()" class="text-red-500! border-red-500! cursor-pointer">
-                    Reject
-                </button>
+                <tui-textfield tuiTextfieldSize="m">
+                    <label tuiLabel>Remarks</label>
+                    <textarea [ngModel]="remarks()" (ngModelChange)="remarks.set($event)" tuiTextarea
+                        placeholder="Optional for approve, required for reject"></textarea>
+                </tui-textfield>
                 }
-                @if (canCancel()) {
-                <button tuiButton type="button" size="m" appearance="outline" [disabled]="isSubmittingAction()"
-                    (click)="cancel()" class="cursor-pointer">
-                    Cancel Request
-                </button>
-                }
+
+                <div class="flex gap-3">
+                    @if (canApproveOrReject()) {
+                    <button tuiButton type="button" size="m" [disabled]="isSubmittingAction()" (click)="approve()"
+                        class="bg-emerald-500! text-white cursor-pointer">
+                        Approve
+                    </button>
+                    <button tuiButton type="button" size="m" appearance="outline" [disabled]="isSubmittingAction()"
+                        (click)="reject()" class="text-red-500! border-red-500! cursor-pointer">
+                        Reject
+                    </button>
+                    }
+                    @if (canEdit()) {
+                    <button tuiButton type="button" size="m" appearance="outline" [disabled]="isSubmittingAction()"
+                        (click)="startEdit()" class="cursor-pointer">
+                        Update Request
+                    </button>
+                    }
+                    @if (canCancel()) {
+                    <button tuiButton type="button" size="m" appearance="outline" [disabled]="isSubmittingAction()"
+                        (click)="cancel()" class="cursor-pointer">
+                        Cancel Request
+                    </button>
+                    }
+                </div>
             </div>
-        </div>
+            }
+        } @else {
+            <!-- Edit mode: header-level fields (Leave/WFH). Regularization edits its line items below instead. -->
+            <div class="pt-2 border-t border-(--primary)/10 flex flex-col gap-4">
+                @if (r.requestType !== 'AttendanceRegularization') {
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <tui-textfield tuiTextfieldSize="m">
+                        <label tuiLabel>Start Date</label>
+                        <input type="date" [ngModel]="editStartDate()" (ngModelChange)="editStartDate.set($event)" tuiTextfield />
+                    </tui-textfield>
+                    <tui-textfield tuiTextfieldSize="m">
+                        <label tuiLabel>End Date</label>
+                        <input type="date" [ngModel]="editEndDate()" (ngModelChange)="editEndDate.set($event)" tuiTextfield />
+                    </tui-textfield>
+                </div>
+                }
+
+                @if (r.requestType === 'Leave') {
+                <tui-textfield tuiTextfieldSize="m">
+                    <label tuiLabel>Leave Type</label>
+                    <select [ngModel]="editLeaveTypeId()" (ngModelChange)="editLeaveTypeId.set($event)"
+                        class="w-full bg-transparent p-2 rounded-lg border border-(--primary)/20">
+                        @for (lt of leaveTypeOptions(); track lt.id) {
+                        <option [value]="lt.id">{{ lt.name }}</option>
+                        }
+                    </select>
+                </tui-textfield>
+                }
+
+                <tui-textfield tuiTextfieldSize="m">
+                    <label tuiLabel>Reason</label>
+                    <textarea [ngModel]="editReason()" (ngModelChange)="editReason.set($event)" tuiTextarea
+                        placeholder="Reason for this request"></textarea>
+                </tui-textfield>
+
+                @if (r.requestType === 'AttendanceRegularization') {
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-semibold uppercase tracking-wide text-(--theme2)">Line Items</span>
+                        <button tuiButton type="button" size="s" appearance="outline" (click)="addLineItem()" class="cursor-pointer">
+                            + Add Day
+                        </button>
+                    </div>
+
+                    @for (item of editLineItems(); track $index) {
+                    <div class="rounded-lg border border-(--primary)/10 p-3 flex flex-col gap-3">
+                        <div class="flex items-center justify-between gap-2">
+                            <tui-textfield tuiTextfieldSize="m" class="flex-1">
+                                <label tuiLabel>Date</label>
+                                <input type="date" [ngModel]="item.date" (ngModelChange)="updateLineItem($index, 'date', $event)" tuiTextfield />
+                            </tui-textfield>
+                            <button tuiButton type="button" size="s" appearance="outline" iconStart="@tui.trash-2"
+                                (click)="removeLineItem($index)" class="text-red-500! border-red-500! cursor-pointer shrink-0"></button>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <tui-textfield tuiTextfieldSize="m">
+                                <label tuiLabel>Clock In</label>
+                                <input type="time" [ngModel]="item.requestedClockIn" (ngModelChange)="updateLineItem($index, 'requestedClockIn', $event)" tuiTextfield />
+                            </tui-textfield>
+                            <tui-textfield tuiTextfieldSize="m">
+                                <label tuiLabel>Clock Out</label>
+                                <input type="time" [ngModel]="item.requestedClockOut" (ngModelChange)="updateLineItem($index, 'requestedClockOut', $event)" tuiTextfield />
+                            </tui-textfield>
+                            <tui-textfield tuiTextfieldSize="m">
+                                <label tuiLabel>Break In</label>
+                                <input type="time" [ngModel]="item.requestedBreakIn" (ngModelChange)="updateLineItem($index, 'requestedBreakIn', $event)" tuiTextfield />
+                            </tui-textfield>
+                            <tui-textfield tuiTextfieldSize="m">
+                                <label tuiLabel>Break Out</label>
+                                <input type="time" [ngModel]="item.requestedBreakOut" (ngModelChange)="updateLineItem($index, 'requestedBreakOut', $event)" tuiTextfield />
+                            </tui-textfield>
+                        </div>
+                        <tui-textfield tuiTextfieldSize="m">
+                            <label tuiLabel>Remarks</label>
+                            <input [ngModel]="item.remarks" (ngModelChange)="updateLineItem($index, 'remarks', $event)" tuiTextfield />
+                        </tui-textfield>
+                    </div>
+                    }
+                </div>
+                }
+
+                <div class="flex gap-3">
+                    <button tuiButton type="button" size="m" [disabled]="isSubmittingAction()" (click)="saveEdit()"
+                        class="bg-(--theme1)! cursor-pointer">
+                        Save Changes
+                    </button>
+                    <button tuiButton type="button" size="m" appearance="outline" [disabled]="isSubmittingAction()"
+                        (click)="cancelEditMode()" class="cursor-pointer">
+                        Discard
+                    </button>
+                </div>
+            </div>
         }
     </div>
 
     <!-- Request Line Items (Detailed Breakdown) -->
+    @if (!isEditing()) {
     <div class="flex flex-col gap-4">
         <h3 class="text-md uppercase font-semibold text-(--theme2) tracking-wide m-0">Detailed Breakdown</h3>
 
@@ -165,5 +279,6 @@
         </div>
         }
     </div>
+    }
     }
 </div>

@@ -10,16 +10,27 @@ import { MainHeading } from '../../../../../shared/components/main-heading/main-
 import { RequestsService } from '../../service/request.service';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { ToastService } from '../../../../../core/services/toast.service';
+import { LeaveRequestsService } from '../../../leave-management/service/leave-requests.service';
 import {
   isAttendanceRegularizationDetail,
   isLeaveDetail,
   isWorkFromHomeDetail,
+  RegularizationLineItem,
   RequestData,
   RequestDetail,
   LeaveDetail,
   WorkFromHomeDetail,
   toRequestType,
 } from '../../model/request.model';
+
+interface EditableLineItem {
+  date: string;
+  requestedClockIn: string;
+  requestedClockOut: string;
+  requestedBreakIn: string;
+  requestedBreakOut: string;
+  remarks: string;
+}
 
 @Component({
   selector: 'app-view-request',
@@ -34,12 +45,22 @@ export class ViewRequest {
   private readonly requestService = inject(RequestsService);
   private readonly authService = inject(AuthService);
   private readonly toast = inject(ToastService);
+  private readonly leaveService = inject(LeaveRequestsService);
 
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly request = signal<RequestData<RequestDetail> | null>(null);
   protected readonly isSubmittingAction = signal(false);
   protected readonly remarks = signal('');
+
+  protected readonly leaveTypeOptions = this.leaveService.leaveTypes;
+
+  protected readonly isEditing = signal(false);
+  protected readonly editStartDate = signal('');
+  protected readonly editEndDate = signal('');
+  protected readonly editLeaveTypeId = signal('');
+  protected readonly editReason = signal('');
+  protected readonly editLineItems = signal<EditableLineItem[]>([]);
 
   protected readonly currentEmployeeId = this.authService.currentUser()?.employeeInfo?.id ?? null;
 
@@ -52,6 +73,9 @@ export class ViewRequest {
   protected readonly canCancel = computed(
     () => this.isOwnRequest() && this.isPending() && this.request()?.currentStepOrder === 1,
   );
+
+  // Same rule as cancel: only the requester, and only before any approver has acted on it.
+  protected readonly canEdit = this.canCancel;
 
   protected readonly canApproveOrReject = computed(() => !this.isOwnRequest() && this.isPending());
  
@@ -81,6 +105,8 @@ export class ViewRequest {
   private currentId: string | null = null;
 
   constructor() {
+    this.leaveService.getAllLeaveTypes().subscribe();
+
     this.route.paramMap
       .pipe(
         switchMap((params) => {
@@ -137,8 +163,7 @@ export class ViewRequest {
         next: (res) => {
           if (res.isSuccess) {
             this.toast.success('Request approved.', 'Approved');
-            this.remarks.set('');
-            this.reload();
+            this.router.navigate(['/requests/approvals']);
           } else {
             this.toast.error(res.message || 'Could not approve this request.', 'Approve Failed');
           }
@@ -166,8 +191,7 @@ export class ViewRequest {
         next: (res) => {
           if (res.isSuccess) {
             this.toast.success('Request rejected.', 'Rejected');
-            this.remarks.set('');
-            this.reload();
+            this.router.navigate(['/requests/approvals']);
           } else {
             this.toast.error(res.message || 'Could not reject this request.', 'Reject Failed');
           }
@@ -198,7 +222,109 @@ export class ViewRequest {
         error: (err) => this.toast.error(err?.error?.message || 'Could not cancel this request.', 'Cancel Failed'),
       });
   }
- 
+
+  private toTimeInputValue(value: string | null | undefined): string {
+    return value ? value.slice(0, 5) : '';
+  }
+
+  private fromTimeInputValue(value: string): string | null {
+    return value ? `${value}:00` : null;
+  }
+
+  protected startEdit(): void {
+    const r = this.request();
+    if (!r) return;
+
+    this.editStartDate.set(r.startDate.slice(0, 10));
+    this.editEndDate.set(r.endDate.slice(0, 10));
+    this.editLeaveTypeId.set(r.leaveTypeId ?? '');
+    this.editReason.set(r.requestReason ?? '');
+
+    if (r.requestType === 'AttendanceRegularization') {
+      this.editLineItems.set(
+        r.details.filter(isAttendanceRegularizationDetail).map((d) => ({
+          date: d.date ? d.date.slice(0, 10) : '',
+          requestedClockIn: this.toTimeInputValue(d.requestedClockIn),
+          requestedClockOut: this.toTimeInputValue(d.requestedClockOut),
+          requestedBreakIn: this.toTimeInputValue(d.requestedBreakIn),
+          requestedBreakOut: this.toTimeInputValue(d.requestedBreakOut),
+          remarks: d.remarks ?? '',
+        })),
+      );
+    }
+
+    this.isEditing.set(true);
+  }
+
+  protected cancelEditMode(): void {
+    this.isEditing.set(false);
+  }
+
+  protected addLineItem(): void {
+    this.editLineItems.update((items) => [
+      ...items,
+      { date: '', requestedClockIn: '', requestedClockOut: '', requestedBreakIn: '', requestedBreakOut: '', remarks: '' },
+    ]);
+  }
+
+  protected removeLineItem(index: number): void {
+    this.editLineItems.update((items) => items.filter((_, i) => i !== index));
+  }
+
+  protected updateLineItem<K extends keyof EditableLineItem>(index: number, field: K, value: EditableLineItem[K]): void {
+    this.editLineItems.update((items) =>
+      items.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
+    );
+  }
+
+  protected saveEdit(): void {
+    const r = this.request();
+    if (!r || !this.currentId) return;
+
+    this.isSubmittingAction.set(true);
+
+    const request$ =
+      r.requestType === 'Leave'
+        ? this.requestService.updateLeave(this.currentId, {
+            leaveTypeId: this.editLeaveTypeId(),
+            startDate: this.editStartDate(),
+            endDate: this.editEndDate(),
+            reason: this.editReason() || null,
+          })
+        : r.requestType === 'WorkFromHome'
+          ? this.requestService.updateWorkFromHome(this.currentId, {
+              startDate: this.editStartDate(),
+              endDate: this.editEndDate(),
+              reason: this.editReason() || null,
+            })
+          : this.requestService.updateAttendanceRegularization(this.currentId, {
+              lineItems: this.editLineItems().map(
+                (item): RegularizationLineItem => ({
+                  date: item.date,
+                  requestedClockIn: this.fromTimeInputValue(item.requestedClockIn),
+                  requestedClockOut: this.fromTimeInputValue(item.requestedClockOut),
+                  requestedBreakIn: this.fromTimeInputValue(item.requestedBreakIn),
+                  requestedBreakOut: this.fromTimeInputValue(item.requestedBreakOut),
+                  remarks: item.remarks,
+                }),
+              ),
+              reason: this.editReason() || null,
+            });
+
+    request$.pipe(finalize(() => this.isSubmittingAction.set(false))).subscribe({
+      next: (res) => {
+        if (res.isSuccess) {
+          this.toast.success('Request updated.', 'Updated');
+          this.isEditing.set(false);
+          this.reload();
+        } else {
+          this.toast.error(res.message || 'Could not update this request.', 'Update Failed');
+        }
+      },
+      error: (err) => this.toast.error(err?.error?.message || 'Could not update this request.', 'Update Failed'),
+    });
+  }
+
   protected statusLabel(status: number): string {
     const map: Record<number, string> = {
       0: 'Draft',

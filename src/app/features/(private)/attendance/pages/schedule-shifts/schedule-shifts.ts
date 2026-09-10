@@ -1,11 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TuiButton, TuiDialogService, TuiIcon, TuiTextfield } from '@taiga-ui/core';
+import { TuiButton, TuiIcon, TuiTextfield } from '@taiga-ui/core';
 import { TuiDataListWrapper, TuiSelect, TuiChevron, TuiInputDate } from '@taiga-ui/kit';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
-import { AddShiftModal, ShiftFormValue } from '../../components/add-shift-modal/add-shift-modal';
 import { AttendanceService } from '../../service/attendance.service';
 import { EmployeeService } from '../../../employees/services/employee.service';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
@@ -38,7 +36,6 @@ export class ScheduleShift implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly authService = inject(AuthService);
   private readonly dashboardService = inject(DashboardService);
-  private readonly dialogs = inject(TuiDialogService);
   private readonly toast = inject(ToastService);
 
   protected activeTabIndex = signal<number>(0);
@@ -94,45 +91,6 @@ export class ScheduleShift implements OnInit {
       },
       error: () => this.isLoadingShifts.set(false),
     });
-  }
-
-  protected openAddShiftModal(): void {
-    this.dialogs
-      .open<ShiftFormValue | null>(new PolymorpheusComponent(AddShiftModal), {
-        label: 'Add Shift',
-        size: 'm',
-      })
-      .subscribe((result) => {
-        if (!result) return;
-
-        this.attendanceService
-          .createShift({
-            code: result.code,
-            name: result.name,
-            startTime: this.toTimeOnlyString(result.startTime),
-            endTime: this.toTimeOnlyString(result.endTime),
-            gracePeriodLateMinutes: result.gracePeriodLateMinutes ?? 0,
-            gracePeriodEarlyExitMinutes: result.gracePeriodEarlyExitMinutes ?? 0,
-            isDefault: result.isDefault,
-          })
-          .subscribe({
-            next: (response) => {
-              if (response.isSuccess) {
-                this.toast.success('Shift created successfully.', 'Saved');
-                this.loadShifts();
-              } else {
-                this.toast.error(response.message || 'Could not create shift.', 'Save Failed');
-              }
-            },
-            error: (err) => this.toast.error(err?.error?.message || 'Could not create shift.', 'Save Failed'),
-          });
-      });
-  }
-
-  /** ShiftFormValue.startTime/endTime come from TuiTime.toString(), typically "HH:mm" - pad to "HH:mm:ss". */
-  private toTimeOnlyString(value: string): string {
-    if (!value) return '00:00:00';
-    return value.length === 5 ? `${value}:00` : value;
   }
 
   protected onEffectiveFromChange(value: string): void {

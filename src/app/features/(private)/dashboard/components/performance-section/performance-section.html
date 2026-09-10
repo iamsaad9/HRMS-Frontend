@@ -213,16 +213,17 @@
             }
             }
 
-            <!-- Toggle: Start Break vs End Break, based on whether a break is currently open -->
-            @if (!isOnBreak()) {
-            <button (click)="onBreakStart()"
-              class="col-span-2 flex items-center justify-center p-1 rounded-lg bg-(--theme3) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
-              <span class="uppercase font-bold text-md text-white">Start Break</span>
-            </button>
-            } @else {
+            <!-- Toggle: Start Break vs End Break, based on whether a break is currently open.
+                 Only one break per shift - once used (started and ended), neither button shows again. -->
+            @if (isOnBreak()) {
             <button (click)="onBreakEnd()"
               class="col-span-1 flex items-center justify-center p-3 rounded-xl bg-blue-500 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
               <span class="uppercase font-bold text-md text-white">End Break</span>
+            </button>
+            } @else if (!hasUsedBreak()) {
+            <button (click)="onBreakStart()"
+              class="col-span-2 flex items-center justify-center p-1 rounded-lg bg-(--theme3) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
+              <span class="uppercase font-bold text-md text-white">Start Break</span>
             </button>
             }
             } @else {

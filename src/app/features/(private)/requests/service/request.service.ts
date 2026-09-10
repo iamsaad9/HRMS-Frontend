@@ -4,7 +4,15 @@ import { LoadingService } from "../../../../core/services/loading.service";
 import { AuthService } from "../../../(public)/auth/services/auth.service";
 import { Observable, tap } from "rxjs";
 import { ApiResponse } from "../../../../core/models/api-response.model";
-import { GetRequestByIdResponse, NewRequestPayload, RequestResponse, RequestType } from "../model/request.model";
+import {
+  GetRequestByIdResponse,
+  NewRequestPayload,
+  RequestResponse,
+  RequestType,
+  UpdateAttendanceRegularizationPayload,
+  UpdateLeavePayload,
+  UpdateWorkFromHomePayload,
+} from "../model/request.model";
 
 export interface ApproveRejectPayload {
   approvedByEmployeeId?: string;
@@ -24,7 +32,15 @@ export class RequestsService {
     private http = inject(HttpClient);
     private loadingService = inject(LoadingService);
     private authService = inject(AuthService);
-    currentUserId = this.authService.currentUser()?.employeeInfo.id
+
+    // A getter, not a captured field - this.authService.currentUser() must be read fresh on every
+    // call. Capturing it once at construction time froze it to whatever the signal held at that
+    // instant (often nothing yet, since RequestsService is a root singleton that can be built
+    // before the session finishes loading), so cancel/approve/reject silently carried a stale or
+    // empty employee id for the rest of the app's lifetime.
+    private get currentUserId(): string | undefined {
+      return this.authService.currentUser()?.employeeInfo.id;
+    }
 
     // #leaveTypes = signal<LeaveTypeResponse[]>([]);
     // leaveTypes = this.#leaveTypes.asReadonly();
@@ -69,17 +85,17 @@ export class RequestsService {
     }
 
 
-//     updateLeave(id:string,command:UpdateLeaveRequestPayload):Observable<ApiResponse<any>>{
-//         return this.http
-//            .put<ApiResponse<any>>(`${this.apiUrl}/leaves/${id}`, command)
-//            .pipe(
-//              tap((response) => {
-//                if (response.isSuccess && response.data) {
-//                  console.log(`✅ Leave Updated:`, response.data);
-//                }
-//              })
-//            ); 
-//     }
+    updateLeave(id: string, command: UpdateLeavePayload): Observable<ApiResponse<boolean>> {
+      return this.http.put<ApiResponse<boolean>>(`${this.apiUrl}/leaves/${id}`, command);
+    }
+
+    updateWorkFromHome(id: string, command: UpdateWorkFromHomePayload): Observable<ApiResponse<boolean>> {
+      return this.http.put<ApiResponse<boolean>>(`${this.apiUrl}/work-from-home/${id}`, command);
+    }
+
+    updateAttendanceRegularization(id: string, command: UpdateAttendanceRegularizationPayload): Observable<ApiResponse<boolean>> {
+      return this.http.put<ApiResponse<boolean>>(`${this.apiUrl}/attendance-regularization/${id}`, command);
+    }
 
 //     getAllLeaveTypes():Observable<ApiResponse<LeaveTypeResponse[]>>{
 //         return this.http

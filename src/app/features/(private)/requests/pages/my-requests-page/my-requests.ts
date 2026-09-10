@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { TuiButton, TuiExpand, TuiTitle, TuiIcon } from '@taiga-ui/core';
 import { TuiCardLarge, TuiElasticContainer } from '@taiga-ui/layout';
@@ -17,6 +18,8 @@ interface MonthGroup {
   requests: RequestResponse[];
 }
 
+type StatusFilter = 'All' | 'Pending' | 'Approved' | 'Rejected';
+
 @Component({
   selector: 'app-all-my-requests',
   standalone: true,
@@ -32,6 +35,7 @@ interface MonthGroup {
     MainHeading,
     TuiIcon,
     RouterLink,
+    FormsModule,
   ],
   templateUrl: './my-requests.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,6 +51,7 @@ export class AllMyRequestsComponent implements OnInit {
   protected isLoading = signal(false);
   protected loadError = signal<string | null>(null);
   protected expandedMonths = signal<Record<string, boolean>>({});
+  protected statusFilter = signal<StatusFilter>('All');
 
   protected requestStats = computed(() => {
     const all = this.requests();
@@ -58,10 +63,16 @@ export class AllMyRequestsComponent implements OnInit {
     };
   });
 
+  private readonly filteredRequests = computed(() => {
+    const status = this.statusFilter();
+    const all = this.requests();
+    return status === 'All' ? all : all.filter((r) => r.overallStatus === status);
+  });
+
   protected monthGroups = computed<MonthGroup[]>(() => {
     const groups = new Map<string, RequestResponse[]>();
 
-    for (const req of this.requests()) {
+    for (const req of this.filteredRequests()) {
       const key = req.startDate.slice(0, 7); // 'YYYY-MM'
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(req);
@@ -72,7 +83,7 @@ export class AllMyRequestsComponent implements OnInit {
       .map(([key, reqs]) => ({
         key,
         label: this.formatMonthLabel(key),
-        requests: [...reqs].sort((a, b) => b.startDate.localeCompare(a.startDate)),
+        requests: [...reqs].sort((a, b) => b.createdAtUtc.localeCompare(a.createdAtUtc)),
       }));
   });
 

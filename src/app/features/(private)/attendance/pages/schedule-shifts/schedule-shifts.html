@@ -22,12 +22,6 @@
                 <span class="text-lg font-semibold">All Shifts</span>
                 <span tuiSubtitle class="text-(--primary)/50 text-sm">View all working shifts.</span>
             </div>
-            @if (isPrivileged()) {
-            <button type="button" tuiButton size="s" iconStart="@tui.plus" (click)="openAddShiftModal()"
-                class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!">
-                Add Shift
-            </button>
-            }
         </header>
 
         <div class="flex flex-col gap-3">

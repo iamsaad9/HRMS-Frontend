@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TuiBadge } from '@taiga-ui/kit';
 import { TuiButton, TuiIcon } from '@taiga-ui/core';
@@ -10,11 +11,12 @@ import { RequestsService } from '../../service/request.service';
 import { RequestResponse } from '../../model/request.model';
 
 type ApproverScope = 'admin' | 'hr' | 'manager' | 'none';
+type TypeFilter = 'All' | 'leave' | 'workfromhome' | 'attendanceregularization';
 
 @Component({
   selector: 'app-request-approvals',
   standalone: true,
-  imports: [DatePipe, RouterLink, TuiBadge, TuiButton, TuiIcon, TuiCardLarge, MainHeading],
+  imports: [DatePipe, RouterLink, TuiBadge, TuiButton, TuiIcon, TuiCardLarge, MainHeading, FormsModule],
   templateUrl: './request-approvals.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -47,6 +49,31 @@ export class RequestApprovals implements OnInit {
   protected requests = signal<RequestResponse[]>([]);
   protected isLoading = signal(true);
   protected loadError = signal<string | null>(null);
+  protected typeFilter = signal<TypeFilter>('All');
+
+  // This page only ever fetches the PENDING queue (there's nothing to approve otherwise), so a
+  // Total/Approved/Pending/Rejected breakdown (like "All My Requests") doesn't fit - a by-type
+  // breakdown of the pending queue is the relevant equivalent here.
+  protected readonly requestStats = computed(() => {
+    const list = this.requests();
+    const typeOf = (r: RequestResponse) => r.requestType.toLowerCase();
+    return {
+      total: list.length,
+      leave: list.filter((r) => typeOf(r) === 'leave').length,
+      wfh: list.filter((r) => typeOf(r) === 'workfromhome').length,
+      regularization: list.filter((r) => typeOf(r) === 'attendanceregularization').length,
+    };
+  });
+
+  // Newest-submitted first. The backend endpoints already order this way, but sort again here
+  // defensively so the page's order never silently depends on the API's own ordering.
+  protected readonly filteredRequests = computed(() => {
+    const filter = this.typeFilter();
+    const list = this.requests().filter(
+      (r) => filter === 'All' || r.requestType.toLowerCase() === filter,
+    );
+    return [...list].sort((a, b) => b.createdAtUtc.localeCompare(a.createdAtUtc));
+  });
 
   ngOnInit(): void {
     this.load();

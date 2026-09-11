@@ -30,7 +30,7 @@
     }
     <app-performance-section></app-performance-section>
     <app-user-cards></app-user-cards>
-    @if(currentUser?.employeeInfo?.roles?.includes("Admin")){
+    @if(currentUser?.employeeInfo?.roles?.includes("Admin") || currentUser?.employeeInfo?.roles?.includes("HR") || currentUser?.isManager){
     <app-operations-section />
     }
 

@@ -21,6 +21,8 @@ export interface DropDownItem {
   childItems?: DropDownItem[];
   tags?: string[];
   permission?: string | string[];
+  /** Visible to Admin/HR or a manager (has direct reports), regardless of `permission`. */
+  requireManager?: boolean;
 }
 
 @Component({

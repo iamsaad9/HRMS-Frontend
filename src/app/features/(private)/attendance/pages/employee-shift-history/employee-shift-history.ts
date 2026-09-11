@@ -11,6 +11,8 @@ import { EmployeeService } from '../../../employees/services/employee.service';
 import { ShiftHistoryEntry } from '../../model/attendance.model';
 import { ToastService } from '../../../../../core/services/toast.service';
 import { Employee } from '../../../employees/model/employee.model';
+import { AuthService } from '../../../../(public)/auth/services/auth.service';
+import { DashboardService } from '../../../dashboard/service/dashboard.service';
 
 @Component({
   selector: 'app-employee-shift-history',
@@ -37,14 +39,25 @@ import { Employee } from '../../../employees/model/employee.model';
 export class EmployeeShiftHistory implements OnInit {
   private readonly attendanceService = inject(AttendanceService);
   protected readonly employeeService = inject(EmployeeService);
+  private readonly authService = inject(AuthService);
+  private readonly dashboardService = inject(DashboardService);
   private readonly toast = inject(ToastService);
 
-  // Return full Employee objects instead of string names
-  protected employees = computed(() => this.employeeService.allEmployees() ?? []);
-  
+  // Admin/HR can look up anyone; a manager can only pick from their own direct reports
+  // (the backend already enforces this - scoping the picker itself avoids presenting choices
+  // that would just fail).
+  protected isPrivileged = computed(() => this.authService.hasRole(['Admin', 'HR']));
+
+  protected employees = computed(() => {
+    const all = this.employeeService.allEmployees() ?? [];
+    if (this.isPrivileged()) return all;
+    const teamIds = new Set((this.dashboardService.data()?.teamMembers ?? []).map((m) => m.employeeId));
+    return all.filter((e) => teamIds.has(e.id));
+  });
+
   // Stores the selected Employee object
   protected selectedEmployee = signal<Employee | null>(null);
-  
+
   protected history = signal<ShiftHistoryEntry[]>([]);
   protected isLoading = signal(false);
   protected hasSearched = signal(false);
@@ -55,14 +68,17 @@ export class EmployeeShiftHistory implements OnInit {
 
   ngOnInit(): void {
     this.employeeService.getAllEmployees().subscribe();
+    if (!this.isPrivileged()) {
+      this.dashboardService.load().subscribe();
+    }
   }
 
-  protected employeeOptions = computed(() => 
-  this.employeeService.allEmployees()?.map(emp => ({
-    id: emp.id,
-    toString: () => `${emp.fullName} (${emp.staffNo})`
-  })) ?? []
-);
+  protected employeeOptions = computed(() =>
+    this.employees().map((emp) => ({
+      id: emp.id,
+      toString: () => `${emp.fullName} (${emp.staffNo})`,
+    })),
+  );
 
   protected search(): void {
     // Extract employeeId from the selected object

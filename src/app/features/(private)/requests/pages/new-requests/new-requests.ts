@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import {
   AbstractControl,
   FormArray,
@@ -28,6 +29,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LeaveRequestsService } from '../../../leave-management/service/leave-requests.service';
 import { HalfDayType, NewRequestPayload, RequestType } from '../../model/request.model';
 import { RequestsService } from '../../service/request.service';
+import { AttendanceService } from '../../../attendance/service/attendance.service';
+
+interface ActualDayAttendance {
+  clockIn: string | null;
+  clockOut: string | null;
+  breakIn: string | null;
+  breakOut: string | null;
+}
 
 @Component({
   selector: 'app-new-request',
@@ -36,7 +45,7 @@ import { RequestsService } from '../../service/request.service';
     ReactiveFormsModule, TuiCardLarge, TuiBlock, TuiButton, TuiCalendar,
     TuiChevron, TuiDataListWrapper, TuiError, TuiGroup, TuiInputDate,
     TuiInputTime, TuiLabel, TuiRadio, TuiSelect, TuiTextarea, TuiTextfield,
-    TuiTitle, TuiIcon,TuiInput, TuiCheckbox, MainHeading,
+    TuiTitle, TuiIcon,TuiInput, TuiCheckbox, MainHeading, DatePipe,
   ],
   templateUrl: './new-requests.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,12 +58,10 @@ export class NewRequest implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly attendanceService = inject(AttendanceService);
 
-  protected readonly minDate = TuiDay.currentLocal();
-  protected get minEndDate(): TuiDay {
-    const start = this.form.get('startDate')?.value;
-    return start instanceof TuiDay ? start : this.minDate;
-  }
+  /** Actual clock in/out + break times for each regularization date, keyed by yyyy-MM-dd. */
+  protected actualAttendanceByDate = signal<Map<string, ActualDayAttendance>>(new Map());
 
   currentUser = this.authService.currentUser;
   isSubmitting = signal(false);
@@ -144,6 +151,28 @@ protected leaveTypesOptions = computed(() =>
     this.form.get('endDate')!.valueChanges.subscribe(() => this.regenerateLineItems());
   }
 
+  /**
+   * Native `type="reset"` only resets the underlying DOM form controls - the Taiga UI inputs
+   * are ControlValueAccessors bound to a reactive FormGroup, so a native reset never goes
+   * through Angular's form APIs and leaves selectedType/manualBreakdown/lineItems (and their
+   * signals) exactly as they were. Reset the FormGroup itself instead.
+   */
+  protected onReset(): void {
+    this.lineItems.clear();
+    this.actualAttendanceByDate.set(new Map());
+    this.form.reset({
+      requestType: 'leave',
+      leaveType: '',
+      startDate: '',
+      endDate: '',
+      manualBreakdown: false,
+      reason: '',
+      lineItems: [],
+    });
+    this.selectedType.set('leave');
+    this.manualBreakdown.set(false);
+  }
+
   /** Rebuilds the per-date line items whenever type / range / toggle changes */
   private regenerateLineItems(): void {
     const type = this.selectedType();
@@ -162,6 +191,43 @@ protected leaveTypesOptions = computed(() =>
         type === 'regularization' ? this.buildRegularizationRow(date) : this.buildHalfDayRow(date),
       );
     });
+
+    if (type === 'regularization') {
+      dates.forEach((date) => this.loadActualAttendance(date));
+    }
+  }
+
+  private toDateStr(date: TuiDay): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${date.year}-${pad(date.month + 1)}-${pad(date.day)}`;
+  }
+
+  /** Fetches that day's real punches so the requester can see what actually happened before adjusting it. */
+  private loadActualAttendance(date: TuiDay): void {
+    const employeeId = this.currentUser()?.employeeInfo.id;
+    const dateStr = this.toDateStr(date);
+    if (!employeeId || this.actualAttendanceByDate().has(dateStr)) return;
+
+    this.attendanceService.getDailyAttendance(employeeId, dateStr).subscribe({
+      next: (response) => {
+        if (!response.isSuccess || !response.data) return;
+        const punches = response.data.punches ?? [];
+        const findTime = (type: string) => punches.find((p) => p.punchType === type)?.punchTime ?? null;
+
+        const actual: ActualDayAttendance = {
+          clockIn: response.data.firstIn,
+          clockOut: response.data.lastOut,
+          breakIn: findTime('BreakStart'),
+          breakOut: findTime('BreakEnd'),
+        };
+        this.actualAttendanceByDate.update((map) => new Map(map).set(dateStr, actual));
+      },
+    });
+  }
+
+  /** Actual attendance for a line item's date, for the read-only reference display. */
+  protected actualFor(date: TuiDay): ActualDayAttendance | null {
+    return this.actualAttendanceByDate().get(this.toDateStr(date)) ?? null;
   }
 
   private buildHalfDayRow(date: TuiDay): FormGroup {
@@ -244,6 +310,11 @@ protected onSubmit(): void {
           ...item,
           requestedClockIn: this.formatTime(item.requestedClockIn),
           requestedClockOut: this.formatTime(item.requestedClockOut),
+          // requestedBreakIn/Out come from the same tuiInputTime widget (a TuiTime object once
+          // touched), not a plain string - sending it unformatted fails backend JSON binding
+          // (the DTO field is a plain string).
+          requestedBreakIn: item.requestedBreakIn ? this.formatTime(item.requestedBreakIn) : null,
+          requestedBreakOut: item.requestedBreakOut ? this.formatTime(item.requestedBreakOut) : null,
           halfDayType: item.halfDayType === 'First Half' ? 'first_half' : item.halfDayType === 'Second Half' ? 'second_half' : null,
         })),
       }
@@ -264,7 +335,12 @@ protected onSubmit(): void {
       next: (response) => {
         if (response.isSuccess) {
           this.toast.success('Request sent for approval.', 'Created Successfully!');
-          this.router.navigate(['/leave-requests/my']);
+          this.router.navigate(['/requests/my']);
+        } else {
+          // The backend can report a business-rule failure (e.g. an overlapping leave) with a
+          // 200 OK and isSuccess:false rather than an HTTP error - without this branch that
+          // message never reached the user at all.
+          this.toast.error(response.message || 'Request creation failed. Please try again.', 'Creation Unsuccessful!');
         }
       },
       error: (error) => {

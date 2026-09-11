@@ -26,7 +26,7 @@
             <!-- Toggle More Filters Button -->
 
 
-            <button type="button" tuiButton iconStart="@tui.filter" size="s"
+            <button type="button" tuiButton iconStart="@tui.filter" size="s" (click)="onSearch()"
                 class="cursor-pointer bg-(--theme3)! hover:bg-(--theme3)/80! disabled:opacity-40! disabled:cursor-not-allowed!">
                 Search
             </button>
@@ -42,6 +42,10 @@
         </div>
     </div>
 
+    @if (rangeError()) {
+    <p class="text-red-500 text-xs -mt-2">{{ rangeError() }}</p>
+    }
+
     <!-- COLLAPSIBLE SECTION: ADDITIONAL FILTERS -->
     <tui-elastic-container>
         <tui-expand [expanded]="showMoreFilters" class="flex flex-col gap-3">
@@ -53,8 +57,9 @@
                     <label class="text-xs font-medium text-(--theme1)">Leave Type</label>
                     <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg">
                         <input placeholder="Any leave type" tuiSelect class="text-(--primary)!"
-                            [ngModel]="draft().leaveType" (ngModelChange)="onLeaveTypeChange($event)" />
-                        <tui-data-list-wrapper *tuiDropdown [items]="leaveTypeOptions" />
+                            [ngModel]="leaveTypeOptions().find(t => t.id === draft().leaveTypeId)?.name ?? null"
+                            (ngModelChange)="onLeaveTypeChange(leaveTypeOptions().find(t => t.name === $event)?.id ?? null)" />
+                        <tui-data-list-wrapper *tuiDropdown [items]="leaveTypeNames()" />
                     </tui-textfield>
                 </div>
 
@@ -68,7 +73,7 @@
                     @for (flag of exceptionFlagOptions; track flag) {
                     @let isFlagSelected = draft().exceptionFlags.includes(flag);
                     <label class="flex items-center gap-2 text-sm text-(--primary)! cursor-pointer">
-                        <input tuiCheckbox type="checkbox" class="cursor-pointer" [checked]="isFlagSelected" (change)="onExceptionFlagsChange(
+                        <input type="checkbox" class="cursor-pointer" [checked]="isFlagSelected" (change)="onExceptionFlagsChange(
                     isFlagSelected 
                         ? draft().exceptionFlags.filter(f => f !== flag) 
                         : [...draft().exceptionFlags, flag]

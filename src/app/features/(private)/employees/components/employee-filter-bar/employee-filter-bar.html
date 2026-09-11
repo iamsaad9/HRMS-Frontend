@@ -1,31 +1,25 @@
 <div tuiCardLarge
   class="flex flex-col gap-3! rounded-xl  bg-(--secondary)! glass-card text-(--primary)! p-4  shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-  <!-- TOP ROW: Search Bar & Actions (Apply / Reset) -->
+  <!-- TOP ROW: Search Bar & Reset -->
   <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <!-- Search Bar -->
+    <!-- Search Bar - auto-applies after a short pause, or immediately on Enter -->
     <tui-textfield iconStart="@tui.search" tuiTextfieldSize="m"
       class="w-full bg-(--background_light)/40! items-center! rounded-lg text-(--theme1)!">
       <input placeholder="Search by name, email..." class="text-(--primary)! placeholder:text-(--primary)/60!" tuiInput
-        [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" (keyup.enter)="applyFilter()" />
+        [ngModel]="searchQuery()" (ngModelChange)="onSearchChange($event)" (keyup.enter)="applyFilter()" />
     </tui-textfield>
 
-    <!-- Action Buttons -->
+    @if (hasActiveFilters) {
     <div class="flex items-center gap-2 self-end sm:self-auto">
-      <button type="button" tuiButton iconStart="@tui.filter" size="s"
-        class="cursor-pointer bg-(--theme3)! hover:bg-(--theme3)/80!" (click)="applyFilter()">
-        Apply Filters
-      </button>
-
-      @if (hasActiveFilters) {
       <button type="button" tuiButton appearance="flat" size="s"
         class="cursor-pointer! hover:text-slate-900 bg-(--secondary)! text-white!" (click)="clear()">
         Reset
       </button>
-      }
     </div>
+    }
   </div>
 
-  <!-- BOTTOM ROW: Dropdown Filters Grid -->
+  <!-- BOTTOM ROW: Dropdown Filters Grid - each one applies immediately on selection -->
   <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-5">
     <!-- Department Filter -->
     <div class="flex flex-col gap-1">
@@ -33,8 +27,8 @@
       <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
         [tuiTextfieldCleaner]="true">
         <input placeholder="All Departments" tuiSelect [ngModel]="selectedDepartment()"
-          (ngModelChange)="selectedDepartment.set($event)" />
-        <tui-data-list-wrapper *tuiDropdown [items]="departments" class="bg-(--background_light)/40!" />
+          (ngModelChange)="onDepartmentChange($event)" />
+        <tui-data-list-wrapper *tuiDropdown [items]="departments()" class="bg-(--background_light)/40!" />
       </tui-textfield>
     </div>
 
@@ -43,8 +37,8 @@
       <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
         [tuiTextfieldCleaner]="true">
         <input placeholder="All Branches" tuiSelect [ngModel]="selectedBranch()"
-          (ngModelChange)="selectedBranch.set($event)" />
-        <tui-data-list-wrapper *tuiDropdown [items]="branches" class="bg-(--background_light)/40!" />
+          (ngModelChange)="onBranchChange($event)" />
+        <tui-data-list-wrapper *tuiDropdown [items]="branches()" class="bg-(--background_light)/40!" />
       </tui-textfield>
     </div>
 
@@ -53,8 +47,8 @@
       <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
         [tuiTextfieldCleaner]="true">
         <input placeholder="All Managers" tuiSelect [ngModel]="selectedManager()"
-          (ngModelChange)="selectedManager.set($event)" />
-        <tui-data-list-wrapper *tuiDropdown [items]="managers" class="bg-(--background_light)/40!" />
+          (ngModelChange)="onManagerChange($event)" />
+        <tui-data-list-wrapper *tuiDropdown [items]="managers()" class="bg-(--background_light)/40!" />
       </tui-textfield>
     </div>
 
@@ -64,8 +58,8 @@
       <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
         [tuiTextfieldCleaner]="true">
         <input placeholder="All Designations" tuiSelect [ngModel]="selectedRole()"
-          (ngModelChange)="selectedRole.set($event)" />
-        <tui-data-list-wrapper *tuiDropdown [items]="roles" class="bg-(--background_light)/40!" />
+          (ngModelChange)="onRoleChange($event)" />
+        <tui-data-list-wrapper *tuiDropdown [items]="roles()" class="bg-(--background_light)/40!" />
       </tui-textfield>
     </div>
 
@@ -75,7 +69,7 @@
       <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
         [tuiTextfieldCleaner]="true">
         <input placeholder="All Statuses" tuiSelect [ngModel]="selectedStatus()"
-          (ngModelChange)="selectedStatus.set($event)" />
+          (ngModelChange)="onStatusChange($event)" />
         <tui-data-list-wrapper *tuiDropdown [items]="statuses" class="bg-(--background_light)/40!" />
       </tui-textfield>
     </div>

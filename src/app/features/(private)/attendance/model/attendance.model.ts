@@ -88,16 +88,6 @@ export type EmploymentType =
   | 'Contractor'
   | 'Intern';
 
-export type LeaveType =
-  | 'annual'
-  | 'sick'
-  | 'wfh'
-  | 'unpaid'
-  | 'maternity'
-  | 'paternity'
-  | 'casual'
-  | 'others';
-
 
 /* ==========================================================================
    2. DOMAIN MODELS & DTOs (Read / Response Shapes)
@@ -145,6 +135,8 @@ export interface AttendanceRecord {
   punches: PunchResponseDto[];
   adjustmentStatus: string | null;
   adjustmentId: string | null;
+  leaveTypeId?: string | null;
+  leaveTypeName?: string | null;
 }
 
 export interface TeamAttendanceRecord {
@@ -175,6 +167,8 @@ export interface Shift {
   endTime: string;
   gracePeriodLateMinutes: number;
   gracePeriodEarlyExitMinutes: number;
+  isActive: boolean;
+  isDefault: boolean;
 }
 
 // --- Regularization / Adjustment Models ---
@@ -223,6 +217,14 @@ export interface CreateShiftCommand {
   endTime: string;
   gracePeriodLateMinutes: number;
   gracePeriodEarlyExitMinutes: number;
+  isDefault?: boolean;
+}
+
+export interface AssignShiftCommand {
+  employeeId: string;
+  shiftId: string;
+  effectiveFrom: string; // yyyy-MM-dd
+  effectiveTo: string | null;
 }
 
 export interface AdjustmentActionCommand {
@@ -276,7 +278,7 @@ export interface AttendanceHistoryFilter {
   endDate: string;   // yyyy-MM-dd
   statuses: AttendanceStatus[];
   workLocation: WorkLocation | null;
-  leaveType: LeaveType | null;
+  leaveTypeId: string | null;
   shiftType: ShiftType | null;
   exceptionFlags: ExceptionFlag[];
   department: Department | null;
@@ -294,7 +296,7 @@ export const EMPTY_ATTENDANCE_HISTORY_FILTER: AttendanceHistoryFilter = {
   endDate: '',
   statuses: [],
   workLocation: null,
-  leaveType: null,
+  leaveTypeId: null,
   shiftType: null,
   exceptionFlags: [],
   department: null,

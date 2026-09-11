@@ -1,10 +1,12 @@
 <div class="flex flex-col w-full mx-auto max-w-7xl gap-5">
   <app-main-heading title="Employee Profile" description="View employee details and employment information.">
+    @if (canEdit()) {
     <button type="button" tuiButton iconStart="@tui.pencil" size="s"
       class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
       [routerLink]="['/employee', employee()?.id, 'edit']">
       Edit
     </button>
+    }
   </app-main-heading>
 
   @if (isLoading()) {

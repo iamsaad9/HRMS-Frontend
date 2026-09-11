@@ -43,6 +43,27 @@ export interface NewRequestPayload {
   lineItems?: LeaveWfhLineItem[] | RegularizationLineItem[];
 }
 
+// Backend's Update* endpoints only accept a header-level re-shape (Leave/WFH: a new date range;
+// Regularization: a fresh set of line items) - they regenerate day-by-day details server-side
+// rather than accepting per-day edits for Leave/WFH.
+export interface UpdateLeavePayload {
+  leaveTypeId: string;
+  startDate: string;
+  endDate: string;
+  reason: string | null;
+}
+
+export interface UpdateWorkFromHomePayload {
+  startDate: string;
+  endDate: string;
+  reason: string | null;
+}
+
+export interface UpdateAttendanceRegularizationPayload {
+  lineItems: RegularizationLineItem[];
+  reason: string | null;
+}
+
 // General Request Response
 export interface RequestResponse {
   id: string;
@@ -53,6 +74,10 @@ export interface RequestResponse {
   overallStatus: 'Pending' | 'Approved' | 'Rejected';
   currentStepOrder: number;
   createdAtUtc: string;
+  requesterEmployeeId: string;
+  requesterName: string;
+  departmentName: string;
+  leaveTypeName: string | null;
 }
  
 // Top-level API Response wrapper
@@ -68,6 +93,11 @@ export interface RequestData<T extends RequestDetail> {
   moduleEntityId: string;
   requestType: 'WorkFromHome' | 'Leave' | 'AttendanceRegularization';
   requesterEmployeeId: string;
+  requesterName: string;
+  departmentName: string;
+  designationTitle: string;
+  leaveTypeId: string | null;
+  leaveTypeName: string | null;
   startDate: string;
   endDate: string;
   totalDays: number;

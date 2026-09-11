@@ -46,62 +46,51 @@
         </div>
     </div>
 
-    <!-- Audit log: history cards -->
+    <!-- Audit log: history table -->
     <div class="flex flex-col gap-3">
         <span class="text-sm font-semibold text-(--primary)/70 uppercase tracking-wide">Adjustment Audit Log</span>
 
         <div tuiCardLarge
-            class="flex flex-col sm:flex-row sm:items-center  gap-4 shadow-[0_0_5px_rgba(0,0,0,0.2)]!  glass-card bg-(--secondary)/20!">
-            @for (entry of auditLog(); track entry.id) {
-            <div tuiCardLarge
-                class="flex flex-col gap-4 shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
+            class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20! overflow-hidden rounded-xl!">
 
-                <!-- Row 1: Date & Adjusted By -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div class="flex flex-col">
-                        <span class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Date</span>
-                        <span class="text-lg font-semibold text-(--theme1) m-0">{{ entry.createdAtUtc | date: 'medium'
-                            }}</span>
-                    </div>
-
-                    <div class="flex flex-col sm:text-right">
-                        <span class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Adjusted By</span>
-                        <span class="text-sm font-medium text-(--primary) m-0">{{ entry.approvedByName }}</span>
-                    </div>
-                </div>
-
-                <hr class="border-t border-(--secondary)/40 m-0" />
-
-                <!-- Row 2: Leave Type & Adjustment -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col">
-                        <span class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Leave Type</span>
-                        <span class="text-base font-medium text-(--primary) m-0">{{ entry.leaveTypeName }}</span>
-                    </div>
-
-                    <div class="flex flex-col">
-                        <span class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Adjustment</span>
-                        <span class="text-base font-semibold m-0" [class.text-emerald-500]="entry.adjustmentDays > 0"
-                            [class.text-rose-500]="entry.adjustmentDays < 0">
-                            {{ entry.adjustmentDays > 0 ? '+' : '' }}{{ entry.adjustmentDays }} {{ entry.adjustmentDays
-                            === 1 || entry.adjustmentDays === -1 ? 'day' : 'days' }}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Row 3: Reason -->
-                <div class="flex flex-col pt-1">
-                    <span class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Reason</span>
-                    <span class="text-sm text-(--primary) m-0" [title]="entry.reason">{{ entry.reason }}</span>
-                </div>
+            <!-- Custom header row -->
+            <div class="grid grid-cols-[1fr_1fr_1fr_1.5fr_1fr] gap-4 px-5 py-3
+                    bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Date</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Leave Type</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Adjustment</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Reason</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white text-right">Adjusted By</span>
             </div>
-            } @empty {
-            @if (!isLoading()) {
-            <div tuiCardLarge class="text-center py-6 text-(--primary)/60 glass-card bg-(--secondary)/20!">
-                No adjustments recorded yet.
+
+            <!-- Custom rows -->
+            <div class="flex flex-col divide-y divide-(--primary)/10">
+                @for (entry of auditLog(); track entry.id) {
+                <div class="grid grid-cols-[1fr_1fr_1fr_1.5fr_1fr] gap-4 px-5 py-3 items-center transition-colors">
+
+                    <span class="text-sm text-(--primary)/70">{{ entry.createdAtUtc | date: 'medium' }}</span>
+
+                    <span class="text-sm text-(--primary)">{{ entry.leaveTypeName }}</span>
+
+                    <span class="text-sm font-semibold" [class.text-emerald-500]="entry.adjustmentDays > 0"
+                        [class.text-rose-500]="entry.adjustmentDays < 0">
+                        {{ entry.adjustmentDays > 0 ? '+' : '' }}{{ entry.adjustmentDays }} {{ entry.adjustmentDays ===
+                        1
+                        || entry.adjustmentDays === -1 ? 'day' : 'days' }}
+                    </span>
+
+                    <span class="text-sm text-(--primary)/70 truncate" [title]="entry.reason">{{ entry.reason }}</span>
+
+                    <span class="text-sm text-(--primary) text-right">{{ entry.approvedByName }}</span>
+                </div>
+                } @empty {
+                @if (!isLoading()) {
+                <div class="text-center py-8 text-(--primary)/60 text-sm">
+                    No adjustments recorded yet.
+                </div>
+                }
+                }
             </div>
-            }
-            }
         </div>
     </div>
 </div>

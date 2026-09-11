@@ -195,7 +195,8 @@ export class PerformanceSection {
 
   isOnBreak = computed(() => this.breakSessions().some((s) => s.end === null));
 
-  canStartBreak = computed(() => this.breakSessions().length === 0);
+  /** Only one break per shift - once a break has been started (whether or not it's ended), no more. */
+  hasUsedBreak = computed(() => this.breakSessions().length > 0);
 
   canClockOut = computed(
     () =>
@@ -224,7 +225,7 @@ export class PerformanceSection {
         if (response.isSuccess) {
           this.toast.success('Clocked in successfully!', 'Attendance Updated');
         } else {
-          this.toast.error('Clock in failed!', 'Attendance Updated');
+          this.toast.error(response.message || 'Clock in failed!', 'Attendance Updated');
         }
       },
       error: () => {
@@ -240,10 +241,10 @@ export class PerformanceSection {
       return;
     }
 
-    if (!this.canStartBreak()) {
-      this.toast.error('Only one break session is allowed per shift', 'Break Unavailable');
-      return;
-    }
+    // if (!this.canStartBreak()) {
+    //   this.toast.error('Only one break session is allowed per shift', 'Break Unavailable');
+    //   return;
+    // }
 
     const command: PunchCommand = {
       employeeId: this.employeeId,
@@ -259,7 +260,7 @@ export class PerformanceSection {
         if (response.isSuccess) {
           this.toast.success('Break Started!', 'Attendance Updated');
         } else {
-          this.toast.error('Break start failed!', 'Attendance Updated');
+          this.toast.error(response.message || 'Break start failed!', 'Attendance Updated');
         }
       },
       error: () => {
@@ -288,7 +289,7 @@ export class PerformanceSection {
         if (response.isSuccess) {
           this.toast.success('Break Ended!', 'Attendance Updated');
         } else {
-          this.toast.error('Break end failed!', 'Attendance Updated');
+          this.toast.error(response.message || 'Break end failed!', 'Attendance Updated');
         }
       },
       error: () => {
@@ -319,7 +320,7 @@ export class PerformanceSection {
         if (response.isSuccess) {
           this.toast.success('Clocked out successfully!', 'Attendance Updated');
         } else {
-          this.toast.error('Clock out failed!', 'Attendance Updated');
+          this.toast.error(response.message || 'Clock out failed!', 'Attendance Updated');
         }
       },
       error: () => {

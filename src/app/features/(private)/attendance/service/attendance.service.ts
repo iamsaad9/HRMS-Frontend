@@ -7,6 +7,7 @@ import { LoadingService } from '../../../../core/services/loading.service';
 import {
   AdjustmentActionCommand,
   AdjustmentListParams,
+  AssignShiftCommand,
   AttendanceAdjustmentForm,
   AttendanceAdjustmentResponseDto,
   AttendanceExportParams,
@@ -66,18 +67,18 @@ export class AttendanceService {
   const todayStr = new Date().toISOString().split('T')[0];
   console.log(`[activeShiftRecord] Evaluating active shift. Today: ${todayStr}, Total Records: ${records.length}`);
 
-  // 1. Open shift priority (has punches, but last punch isn't 'Out')
-  const openShift = records
-    .filter((r) => r.date <= todayStr && r.punches && r.punches.length > 0)
-    .find((r) => {
-      const lastPunch = r.punches[r.punches.length - 1];
-      return lastPunch.punchType !== 'Out';
-    });
+  // // 1. Open shift priority (has punches, but last punch isn't 'Out')
+  // const openShift = records
+  //   .filter((r) => r.date <= todayStr && r.punches && r.punches.length > 0)
+  //   .find((r) => {
+  //     const lastPunch = r.punches[r.punches.length - 1];
+  //     return lastPunch.punchType !== 'Out';
+  //   });
 
-  if (openShift) {
-    console.log('[activeShiftRecord] Strategy 1 Hit -> Selected Open Shift:', openShift);
-    return openShift;
-  }
+  // if (openShift) {
+  //   console.log('[activeShiftRecord] Strategy 1 Hit -> Selected Open Shift:', openShift);
+  //   return openShift;
+  // }
 
   // 2. Exact current date match
   const todayRecord = records.find((r) => r.date === todayStr);
@@ -242,9 +243,37 @@ private upsertDailyAttendance(todayRecord: DailyAttendance): void {
     });
   }
 
+  getDepartmentDailyLogRange(
+    departmentId: string,
+    startDate: string,
+    endDate: string,
+  ): Observable<ApiResponse<DepartmentDailyLogEntry[]>> {
+    const httpParams = new HttpParams()
+      .set('departmentId', departmentId)
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+    return this.http.get<ApiResponse<DepartmentDailyLogEntry[]>>(`${this.apiUrl}/department-daily-log/range`, {
+      params: httpParams,
+    });
+  }
+
   getTeamDailyLog(managerId: string, date: string): Observable<ApiResponse<DepartmentDailyLogEntry[]>> {
     const httpParams = new HttpParams().set('managerId', managerId).set('date', date);
     return this.http.get<ApiResponse<DepartmentDailyLogEntry[]>>(`${this.apiUrl}/team-daily-log`, {
+      params: httpParams,
+    });
+  }
+
+  getTeamDailyLogRange(
+    managerId: string,
+    startDate: string,
+    endDate: string,
+  ): Observable<ApiResponse<DepartmentDailyLogEntry[]>> {
+    const httpParams = new HttpParams()
+      .set('managerId', managerId)
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+    return this.http.get<ApiResponse<DepartmentDailyLogEntry[]>>(`${this.apiUrl}/team-daily-log/range`, {
       params: httpParams,
     });
   }
@@ -273,14 +302,22 @@ private upsertDailyAttendance(todayRecord: DailyAttendance): void {
   // ---------------------------------------------------------------
   // Shifts
   // ---------------------------------------------------------------
-  createShift(command: CreateShiftCommand): Observable<ApiResponse<Shift>> {
-    return this.http.post<ApiResponse<Shift>>(`${this.apiUrl}/shifts`, command).pipe(
+  createShift(command: CreateShiftCommand): Observable<ApiResponse<string>> {
+    return this.http.post<ApiResponse<string>>(`${this.apiUrl}/shifts`, command).pipe(
       tap((response) => {
         if (response.isSuccess && response.data) {
           console.log('✅ Shift created:', response.data);
         }
       }),
     );
+  }
+
+  getShifts(): Observable<ApiResponse<Shift[]>> {
+    return this.http.get<ApiResponse<Shift[]>>(`${this.apiUrl}/shifts`);
+  }
+
+  assignShift(command: AssignShiftCommand): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/shift-assignments`, command);
   }
 
   // ---------------------------------------------------------------

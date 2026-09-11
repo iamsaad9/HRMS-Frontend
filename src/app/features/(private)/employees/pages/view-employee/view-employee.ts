@@ -60,6 +60,11 @@ export class EmployeeView {
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder).nonNullable;;
 
+  // Editing (even your own record) goes through Admin/HR - this page is otherwise self-servable
+  // (any employee can view their own profile), but the Edit button should only ever show for
+  // whoever the /employee/:id/edit route actually lets in.
+  protected canEdit = computed(() => this.authSerivce.hasRole(['Admin', 'HR']));
+
   protected employee = signal<Employee | null>(null);
   protected isLoading = signal(true);
   protected errorMessage = signal<string | null>(null);

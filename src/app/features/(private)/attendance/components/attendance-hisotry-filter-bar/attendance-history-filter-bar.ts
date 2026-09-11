@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, Output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, computed, inject, OnInit, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TuiButton, TuiCheckbox, TuiExpand, TuiTextfield, TuiTextfieldComponent } from '@taiga-ui/core';
+import { TuiButton, TuiExpand, TuiTextfield, TuiTextfieldComponent } from '@taiga-ui/core';
 import { TuiMultiSelect, TuiSelect, TuiDataListWrapperComponent, TuiInputDate, TuiDataListWrapper, TuiChevron, TuiChip } from '@taiga-ui/kit';
 
 import {
@@ -14,7 +14,6 @@ import {
   EMPLOYMENT_TYPE_OPTIONS,
   AttendanceStatus,
   WorkLocation,
-  LeaveType,
   ShiftType,
   ExceptionFlag,
   Department,
@@ -23,7 +22,10 @@ import {
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { TuiCardLarge, TuiElasticContainer, TuiItemGroup } from '@taiga-ui/layout';
 import { LeaveRequestsService } from '../../../leave-management/service/leave-requests.service';
-// import { LEAVE_TYPE_OPTIONS } from '../../../leave-management/model/leave-request.model';
+import { parseDisplayDate, toIsoDate } from '../../../../../shared/utils/date-format.util';
+
+/** Max span the date range can cover, so a filtered fetch can't turn into an unbounded scan. */
+export const MAX_HISTORY_RANGE_DAYS = 92;
 
 @Component({
   selector: 'app-attendance-history-filter-bar',
@@ -35,7 +37,6 @@ import { LeaveRequestsService } from '../../../leave-management/service/leave-re
     TuiTextfield,
     TuiSelect,
     TuiMultiSelect,
-    TuiCheckbox,
     TuiDataListWrapper,
     TuiDataListWrapperComponent,
     TuiCardLarge,
@@ -49,7 +50,7 @@ import { LeaveRequestsService } from '../../../leave-management/service/leave-re
   templateUrl: './attendance-history-filter-bar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AttendanceHistoryFilterBar {
+export class AttendanceHistoryFilterBar implements OnInit {
   @Output()
   readonly filterChange = new EventEmitter<AttendanceHistoryFilter>();
   protected readonly authService = inject(AuthService);
@@ -60,17 +61,28 @@ export class AttendanceHistoryFilterBar {
   showMoreFilters = false;
   // Option lists exposed to the template
   protected readonly statusOptions = ATTENDANCE_STATUS_OPTIONS;
-  protected readonly leaveTypeOptions = this.leaveService.leaveTypes();
+  // computed(), not a plain snapshot - leaveTypes() is empty until getAllLeaveTypes() resolves,
+  // so a plain `= this.leaveService.leaveTypes()` would freeze on that empty array forever.
+  protected readonly leaveTypeOptions = computed(() => this.leaveService.leaveTypes());
+  protected readonly leaveTypeNames = computed(() => this.leaveTypeOptions().map((t) => t.name));
   protected readonly exceptionFlagOptions = EXCEPTION_FLAG_OPTIONS;
+  protected readonly maxRangeDays = MAX_HISTORY_RANGE_DAYS;
 
   protected draft = signal<AttendanceHistoryFilter>({ ...EMPTY_ATTENDANCE_HISTORY_FILTER });
+  protected rangeError = signal<string | null>(null);
+
+  ngOnInit(): void {
+    this.leaveService.getAllLeaveTypes().subscribe();
+  }
 
   protected onStartDateChange(value: string): void {
     this.draft.update((f) => ({ ...f, startDate: value }));
+    this.validateRange();
   }
 
   protected onEndDateChange(value: string): void {
     this.draft.update((f) => ({ ...f, endDate: value }));
+    this.validateRange();
   }
 
   protected onStatusesChange(value: AttendanceStatus[]): void {
@@ -78,23 +90,53 @@ export class AttendanceHistoryFilterBar {
   }
 
 
-  protected onLeaveTypeChange(value: LeaveType | null): void {
-    this.draft.update((f) => ({ ...f, leaveType: value }));
+  protected onLeaveTypeChange(value: string | null): void {
+    this.draft.update((f) => ({ ...f, leaveTypeId: value }));
   }
 
   protected onExceptionFlagsChange(value: ExceptionFlag[]): void {
     this.draft.update((f) => ({ ...f, exceptionFlags: value }));
   }
 
-
+  private validateRange(): boolean {
+    const { startDate, endDate } = this.draft();
+    if (!startDate || !endDate) {
+      this.rangeError.set(null);
+      return true;
+    }
+    const start = parseDisplayDate(startDate);
+    const end = parseDisplayDate(endDate);
+    if (!start || !end) {
+      // Still mid-typing an incomplete date - nothing to validate yet.
+      this.rangeError.set(null);
+      return true;
+    }
+    const days = (end.getTime() - start.getTime()) / 86_400_000;
+    if (days < 0) {
+      this.rangeError.set('End date cannot be before start date.');
+      return false;
+    }
+    if (days > this.maxRangeDays) {
+      this.rangeError.set(`Date range cannot exceed ${this.maxRangeDays} days (~3 months).`);
+      return false;
+    }
+    this.rangeError.set(null);
+    return true;
+  }
 
   protected onSearch(): void {
-   
-    this.filterChange.emit({ ...this.draft() });
+    if (!this.validateRange()) return;
+    const draft = this.draft();
+    this.filterChange.emit({
+      ...draft,
+      startDate: draft.startDate ? toIsoDate(draft.startDate) : draft.startDate,
+      endDate: draft.endDate ? toIsoDate(draft.endDate) : draft.endDate,
+    });
   }
 
   protected onReset(): void {
     this.draft.set({ ...EMPTY_ATTENDANCE_HISTORY_FILTER });
+    this.rangeError.set(null);
     this.filterChange.emit({ ...EMPTY_ATTENDANCE_HISTORY_FILTER });
   }
 }

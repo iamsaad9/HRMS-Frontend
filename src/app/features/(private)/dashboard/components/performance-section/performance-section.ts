@@ -193,13 +193,6 @@ export class PerformanceSection {
     return sessions;
   });
 
-  isOnBreak = computed(() => this.breakSessions().some((s) => s.end === null));
-
-  /** Only one break per shift - once a break has been started (whether or not it's ended), no more. */
-  hasUsedBreak = computed(() => this.breakSessions().length > 0);
-
-  canClockOut = computed(() => this.attendanceService.hasOpenSession() && !this.isOnBreak());
-
   protected onClockIn(): void {
     if (!this.employeeId) {
       this.toast.error('Employee ID not found', 'Attendance Updated');

@@ -12,7 +12,6 @@
     <div class="grid grid-cols-2 gap-5">
         <div tuiCardLarge
             class="flex flex-1 flex-col rounded-xl bg-(--secondary)! p-6 drop-shadow-sm lg:col-span-1 gap-2!">
-
             <!-- Header -->
             <div class="flex items-center justify-between border-b border-(--primary)/20 pb-4">
                 <div>
@@ -41,7 +40,7 @@
                 <p class="text-xs m-0">No pending requests</p>
             </div>
             } @else {
-            <div class="flex flex-col divide-y divide-(--secondary)">
+            <div class="flex flex-col mt-0! divide-y divide-(--secondary)">
                 @for (record of pendingRequests(); track record.approvalRequestId) {
                 <div class="flex items-center justify-between py-3 gap-3">
 

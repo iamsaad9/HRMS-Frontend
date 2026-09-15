@@ -8,7 +8,7 @@
 
     <!-- Search bar: single line -->
     <div tuiCardLarge
-        class="flex flex-row! flex-nowrap items-end gap-3 overflow-x-auto shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
+        class="flex flex-row! flex-nowrap items-end gap-3 overflow-x-auto shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card">
         <tui-textfield tuiTextfieldSize="m" class="flex-1 shrink-0 bg-(--background_light)/40! rounded-lg">
             <label tuiLabel>Start Date</label>
             <input tuiInputDate class="text-(--primary)!" [ngModel]="displayStartDate()"
@@ -39,7 +39,7 @@
 
         <!-- Left: team member list -->
         <div tuiCardLarge
-            class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20! overflow-hidden lg:w-72 shrink-0">
+            class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card overflow-hidden lg:w-72 shrink-0">
             <div class="px-4 py-3 text-sm font-semibold text-(--primary) border-b border-(--primary)/10">
                 Team Members
             </div>
@@ -65,7 +65,7 @@
 
         <!-- Right: selected employee's attendance -->
         <div tuiCardLarge
-            class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20! overflow-hidden flex-1 min-w-0 rounded-xl!">
+            class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card overflow-hidden flex-1 min-w-0 rounded-xl!">
 
 
             <div class="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr] gap-4 px-5 py-3
@@ -81,7 +81,7 @@
             <div class="flex flex-col divide-y divide-(--primary)/10 max-h-[32rem] overflow-y-auto">
                 @for (record of selectedEmployeeRecords(); track record.id) {
                 <div class="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr] gap-4 px-5 py-3 items-center">
-                    <span class="text-sm text-(--primary)">{{ record.date | date: 'EEE, MMM d' }}</span>
+                    <span class="text-sm text-(--primary) font-medium">{{ record.date | date: 'EEE, MMM d' }}</span>
                     <span class="text-sm text-(--primary)/70">
                         {{ record.firstIn ? (record.firstIn | date: 'shortTime') : 'N/A' }}
                     </span>

@@ -124,21 +124,21 @@
         </div>
 
         <!-- Today's Attendance Status -->
-        <div class="mt-6">
+        <div class="mt-3">
           <div class="flex items-center justify-between mb-4">
             <span class="text-sm font-semibold text-(--primary)/80 uppercase tracking-wider">
               Today's Shift
             </span>
             <span [class]="
-                'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ' +
-                (attendanceService.hasOpenSession()
-                  ? 'bg-emerald-100 text-emerald-600'
-                  : 'bg-red-100 text-red-600')
-              ">
+        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ' +
+        (attendanceService.hasOpenSession()
+          ? 'bg-emerald-100 text-emerald-600'
+          : 'bg-red-100 text-red-600')
+      ">
               <span [class]="
-                  'w-2 h-2 rounded-full ' +
-                  (attendanceService.hasOpenSession() ? 'bg-green-600 animate-pulse' : 'bg-red-500')
-                "></span>
+          'w-2 h-2 rounded-full ' +
+          (attendanceService.hasOpenSession() ? 'bg-green-600 animate-pulse' : 'bg-red-500')
+        "></span>
 
               {{
               attendanceService.isClockedIn() && attendanceService.isClockedOut()
@@ -150,31 +150,29 @@
             </span>
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
-            <!-- Informational summary of the current/last session, if any. Punch actions below are
-                 always shown regardless of this - the backend is the source of truth for whether a
-                 given action is actually valid right now, and returns a clear error if not. -->
-            @if (attendanceService.todayStatus()?.punches?.length) {
+          <!-- Status Info Cards Container (Always Displayed) -->
+          <div class="grid grid-cols-2 gap-3 mb-4">
             <div class="p-3.5 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
               <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
               <span class="text-lg font-bold text-(--primary) mt-0.5 block">
                 {{
-                attendanceService.todayStatus()?.punches?.find((p) => p.punchType == 'In')
-                ?.punchTime | date: 'hh:mm a'
+                (attendanceService.todayStatus()?.punches?.find((p) => p.punchType == 'In')?.punchTime | date: 'hh:mm
+                a') || '--:--'
                 }}
               </span>
             </div>
 
-            <div class="p-3.5 rounded-xl bg-(--secondary)/50">
+            <div class="p-3.5 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
               <span class="text-xs text-(--primary)/80 block font-medium">End Time</span>
               <span class="text-lg font-bold text-(--primary) mt-0.5 block">
                 {{
-                attendanceService.todayStatus()?.punches?.find((p) => p.punchType == 'Out')
-                ?.punchTime | date: 'hh:mm a'
+                (attendanceService.todayStatus()?.punches?.find((p) => p.punchType == 'Out')?.punchTime | date: 'hh:mm
+                a') || '--:--'
                 }}
               </span>
             </div>
 
+            <!-- Break Sessions -->
             @for (session of breakSessions(); track session.start) {
             <div class="p-2 rounded-xl bg-(--theme1)/20 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
               <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
@@ -191,30 +189,38 @@
               </span>
             </div>
             }
+            } @empty {
+            <div class="p-2 rounded-xl bg-(--theme1)/20 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+              <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
+              <span class="text-sm font-bold text-(--primary) mt-0.5 block">--:--</span>
+            </div>
+            <div class="p-2 rounded-xl bg-(--theme1)/20 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+              <span class="text-xs text-(--primary)/80 block font-medium">Break End</span>
+              <span class="text-sm font-bold text-(--primary) mt-0.5 block">--:--</span>
+            </div>
             }
-            }
+          </div>
 
-            <!-- All four punch actions, always visible - invalid triggers are rejected by the
-                 backend with a specific error message (shown as a toast), rather than the button
-                 being hidden or disabled based on guessed client-side state. -->
+          <!-- Action Buttons in a Single Row -->
+          <div class="grid grid-cols-2 gap-2">
             <button (click)="onClockIn()" [disabled]="isPunchingIn()"
               class="flex items-center justify-center p-3 rounded-xl bg-emerald-400 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
-              <span class="uppercase font-bold text-md text-(--background_light)">Clock In</span>
+              <span class="uppercase font-bold text-xs sm:text-sm text-(--background_light) text-center">Clock In</span>
             </button>
 
             <button (click)="onClockOut()" [disabled]="isPunchingIn()"
               class="flex items-center justify-center p-3 rounded-xl bg-(--error) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md shadow-[0_0_5px_rgba(0,0,0,0.2)]! disabled:opacity-50 disabled:cursor-not-allowed">
-              <span class="uppercase font-bold text-md text-White">Clock Out</span>
+              <span class="uppercase font-bold text-xs sm:text-sm text-white text-center">Clock Out</span>
             </button>
 
             <button (click)="onBreakStart()" [disabled]="isPunchingIn()"
-              class="flex items-center justify-center p-3 rounded-xl bg-(--theme3) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
-              <span class="uppercase font-bold text-md text-white">Start Break</span>
+              class="flex items-center justify-center p-2 rounded-xl bg-(--theme3) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+              <span class="uppercase font-bold text-xs sm:text-sm text-white text-center">Start Break</span>
             </button>
 
             <button (click)="onBreakEnd()" [disabled]="isPunchingIn()"
-              class="flex items-center justify-center p-3 rounded-xl bg-blue-500 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
-              <span class="uppercase font-bold text-md text-white">End Break</span>
+              class="flex items-center justify-center p-2 rounded-xl bg-blue-500 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+              <span class="uppercase font-bold text-xs sm:text-sm text-white text-center">End Break</span>
             </button>
           </div>
         </div>
@@ -222,7 +228,7 @@
 
       <!-- Quick Status Note -->
       <div
-        class="mt-6 pt-4 border-t border-(--primary)/20 text-xs text-(--primary)/80 flex items-center justify-between">
+        class="mt-3 pt-4 border-t border-(--primary)/20 text-xs text-(--primary)/80 flex items-center justify-between">
         <span>
           {{ currentShift() ? currentShift()!.shiftName + ': ' + formatShiftTime(currentShift()!.startTime) + ' - ' +
           formatShiftTime(currentShift()!.endTime) : 'No shift assigned' }}

@@ -10,10 +10,10 @@
     <div class="flex flex-col gap-3">
         <span class="text-sm font-semibold text-(--primary)/70 uppercase tracking-wide">Balances Breakdown</span>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
             @for (row of balances(); track row.id) {
             <div tuiCardLarge
-                class="flex flex-col gap-2! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20!">
+                class="flex flex-col gap-2! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card">
                 <div class="flex items-center justify-between">
                     <span class="text-lg font-semibold text-(--theme1)">{{ row.leaveTypeName }}</span>
                     <span class="text-2xl font-bold text-(--primary)">{{ row.remainingBalance }}</span>
@@ -22,15 +22,15 @@
                 <p class="text-xs text-(--primary)/50 m-0">Days remaining</p>
                 <div class="grid grid-cols-3 gap-2 pt-2 border-t border-(--primary)/10">
                     <div class="flex flex-col">
-                        <span class="text-xs uppercase tracking-wide text-(--success)/40">Allocated</span>
+                        <span class="text-xs font-semibold uppercase tracking-wide text-(--success)/40">Allocated</span>
                         <span class="text-sm text-(--primary)">{{ row.allocatedDays }}</span>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-xs uppercase tracking-wide text-(--accent)/40">Adjusted</span>
+                        <span class="text-xs font-semibold uppercase tracking-wide text-(--accent)/40">Adjusted</span>
                         <span class="text-sm text-(--primary)">{{ row.adjustedDays }}</span>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-xs uppercase tracking-wide text-(--primary)/40">Used</span>
+                        <span class="text-xs font-semibold uppercase tracking-wide text-(--primary)/40">Used</span>
                         <span class="text-sm text-(--primary)">{{ row.usedDays }}</span>
                     </div>
                 </div>

@@ -20,7 +20,7 @@
 
 
     <!-- Table Container -->
-    <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)/20!">
+    <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card">
         <table tuiTable class="attendance-table w-full " size="m">
             <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
                 <tr>
@@ -91,7 +91,7 @@
     @if (isRangeSearchActive()) {
     <!-- Search Results Pagination -->
     <div tuiCardLarge
-        class="flex flex-row! items-center! justify-between  shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
+        class="flex flex-row! items-center! justify-between  shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card">
         <span class="text-sm font-semibold text-(--primary)">
             @if (isSearchingRange()) {
             Searching...
@@ -104,7 +104,7 @@
     } @else {
     <!-- Week Navigation Bar -->
     <div tuiCardLarge
-        class="flex flex-row! items-center! justify-between  shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
+        class="flex flex-row! items-center! justify-between  shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card">
         <div class="flex items-center gap-3">
             <span class="text-sm font-semibold text-(--primary)">
                 Week Range: <span class="font-normal">{{ dateRangeLabel() }}</span>

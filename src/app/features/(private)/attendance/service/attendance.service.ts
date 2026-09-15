@@ -109,6 +109,16 @@ todayStatus = computed(() => {
   isClockedIn = computed(() => !!this.todayStatus()?.punches.find((p) => p.punchType == 'In'));
   isClockedOut = computed(() => !!this.todayStatus()?.punches.find((p) => p.punchType == 'Out'));
 
+  // Whether there's a session open RIGHT NOW - i.e. the most recent punch isn't a Clock Out -
+  // matching the backend's own gate for accepting a new Clock In (RecordPunchAsync only blocks
+  // In when the last punch is still open). isClockedIn/isClockedOut above just ask "did an In /
+  // Out happen at all", which both stay true forever once a full shift (In...Out) has completed,
+  // so they can't tell "shift finished, ready for a new one" apart from "still on shift".
+  hasOpenSession = computed(() => {
+    const punches = this.todayStatus()?.punches ?? [];
+    return punches.length > 0 && punches[punches.length - 1].punchType !== 'Out';
+  });
+
   isOnBreak = computed(() => this.todayStatus()?.lastOut ?? false);
 
 private upsertDailyAttendance(todayRecord: DailyAttendance): void {

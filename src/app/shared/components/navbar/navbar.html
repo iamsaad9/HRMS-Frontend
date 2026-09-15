@@ -63,13 +63,13 @@
 
       <span [class]="
                 'inline-flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-semibold border text-white ' +
-                (attendanceService.isClockedIn()
+                (attendanceService.hasOpenSession()
                   ? 'bg-emerald-900/50 border-emerald-500 '
                   : 'bg-red-900/50 border-red-700 ')
               ">
         <span [class]="
                   'w-2 h-2 rounded-full ' +
-                  (attendanceService.isClockedIn() ? 'bg-green-600 animate-pulse' :  'bg-red-500 animate-pulse')
+                  (attendanceService.hasOpenSession() ? 'bg-green-600 animate-pulse' :  'bg-red-500 animate-pulse')
                 "></span>
 
         {{ attendanceService.isClockedIn() &&

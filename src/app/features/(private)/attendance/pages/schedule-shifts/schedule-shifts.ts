@@ -9,7 +9,6 @@ import { EmployeeService } from '../../../employees/services/employee.service';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { DashboardService } from '../../../dashboard/service/dashboard.service';
 import { ToastService } from '../../../../../core/services/toast.service';
-import { Employee } from '../../../employees/model/employee.model';
 import { Shift } from '../../model/attendance.model';
 import { toIsoDate } from '../../../../../shared/utils/date-format.util';
 
@@ -43,14 +42,20 @@ export class ScheduleShift implements OnInit {
   protected shifts = signal<Shift[]>([]);
   protected isLoadingShifts = signal(false);
 
-  // Admin/HR can assign to any employee; a manager can only assign within their own team.
+  // Admin/HR can assign to any employee via the full directory (GET /api/Employees, gated by
+  // the "users:read" permission neither Manager nor plain User roles have). A manager only ever
+  // needs their own direct reports, which are already fetched - correctly scoped server-side -
+  // for the dashboard's "Team Members" card, so reuse that instead of calling the Admin/HR-only
+  // endpoint (which would 403 for them and leave this picker empty).
   protected isPrivileged = computed(() => this.authService.hasRole(['Admin', 'HR']));
 
   protected assignableEmployees = computed(() => {
-    const all = this.employeeService.allEmployees() ?? [];
-    if (this.isPrivileged()) return all;
-    const teamIds = new Set((this.dashboardService.data()?.teamMembers ?? []).map((m) => m.employeeId));
-    return all.filter((e) => teamIds.has(e.id));
+    if (this.isPrivileged()) return this.employeeService.allEmployees() ?? [];
+    return (this.dashboardService.data()?.teamMembers ?? []).map((m) => ({
+      id: m.employeeId,
+      fullName: m.fullName,
+      staffNo: m.staffNo,
+    }));
   });
 
   protected employeeOptions = computed(() =>
@@ -76,8 +81,9 @@ export class ScheduleShift implements OnInit {
 
   ngOnInit(): void {
     this.loadShifts();
-    this.employeeService.getAllEmployees().subscribe();
-    if (!this.isPrivileged()) {
+    if (this.isPrivileged()) {
+      this.employeeService.getAllEmployees().subscribe();
+    } else {
       this.dashboardService.load().subscribe();
     }
   }

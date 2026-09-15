@@ -10,9 +10,17 @@ import { AttendanceService } from '../../service/attendance.service';
 import { EmployeeService } from '../../../employees/services/employee.service';
 import { ShiftHistoryEntry } from '../../model/attendance.model';
 import { ToastService } from '../../../../../core/services/toast.service';
-import { Employee } from '../../../employees/model/employee.model';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { DashboardService } from '../../../dashboard/service/dashboard.service';
+
+/** Only what the picker/search actually need - lets a manager's team come straight from the
+ * already-loaded, correctly-scoped dashboard team list instead of the Admin/HR-only full
+ * employee directory (see the ngOnInit/employees comments below). */
+interface ShiftHistoryPickerEmployee {
+  id: string;
+  fullName: string;
+  staffNo: string;
+}
 
 @Component({
   selector: 'app-employee-shift-history',
@@ -43,32 +51,43 @@ export class EmployeeShiftHistory implements OnInit {
   private readonly dashboardService = inject(DashboardService);
   private readonly toast = inject(ToastService);
 
-  // Admin/HR can look up anyone; a manager can only pick from their own direct reports
-  // (the backend already enforces this - scoping the picker itself avoids presenting choices
-  // that would just fail).
+  // Admin/HR can look up anyone via the full employee directory (GET /api/Employees, gated by
+  // the "users:read" permission neither Manager nor plain User roles have). A manager only ever
+  // needs their own direct reports, which are already fetched - correctly scoped server-side -
+  // for the dashboard's "Team Members" card, so reuse that instead of calling the Admin/HR-only
+  // endpoint (which would 403 for them and leave the picker empty).
   protected isPrivileged = computed(() => this.authService.hasRole(['Admin', 'HR']));
 
-  protected employees = computed(() => {
-    const all = this.employeeService.allEmployees() ?? [];
-    if (this.isPrivileged()) return all;
-    const teamIds = new Set((this.dashboardService.data()?.teamMembers ?? []).map((m) => m.employeeId));
-    return all.filter((e) => teamIds.has(e.id));
+  protected employees = computed<ShiftHistoryPickerEmployee[]>(() => {
+    if (this.isPrivileged()) {
+      return (this.employeeService.allEmployees() ?? []).map((e) => ({
+        id: e.id,
+        fullName: e.fullName,
+        staffNo: e.staffNo,
+      }));
+    }
+    return (this.dashboardService.data()?.teamMembers ?? []).map((m) => ({
+      id: m.employeeId,
+      fullName: m.fullName,
+      staffNo: m.staffNo,
+    }));
   });
 
-  // Stores the selected Employee object
-  protected selectedEmployee = signal<Employee | null>(null);
+  // Stores the selected employee
+  protected selectedEmployee = signal<ShiftHistoryPickerEmployee | null>(null);
 
   protected history = signal<ShiftHistoryEntry[]>([]);
   protected isLoading = signal(false);
   protected hasSearched = signal(false);
 
   // Taiga UI Helper to format employee option labels in the dropdown
-  readonly stringifyEmployee = (emp: Employee): string =>
+  readonly stringifyEmployee = (emp: ShiftHistoryPickerEmployee): string =>
     emp ? `${emp.fullName} (${emp.staffNo})` : '';
 
   ngOnInit(): void {
-    this.employeeService.getAllEmployees().subscribe();
-    if (!this.isPrivileged()) {
+    if (this.isPrivileged()) {
+      this.employeeService.getAllEmployees().subscribe();
+    } else {
       this.dashboardService.load().subscribe();
     }
   }

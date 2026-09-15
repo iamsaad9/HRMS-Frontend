@@ -198,12 +198,7 @@ export class PerformanceSection {
   /** Only one break per shift - once a break has been started (whether or not it's ended), no more. */
   hasUsedBreak = computed(() => this.breakSessions().length > 0);
 
-  canClockOut = computed(
-    () =>
-      this.attendanceService.isClockedIn() &&
-      !this.attendanceService.isClockedOut() &&
-      !this.isOnBreak(),
-  );
+  canClockOut = computed(() => this.attendanceService.hasOpenSession() && !this.isOnBreak());
 
   protected onClockIn(): void {
     if (!this.employeeId) {

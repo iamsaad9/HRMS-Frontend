@@ -175,6 +175,10 @@
         background: var(--overtime-color);
     }
 
+    &.leave {
+        background: var(--leave-color);
+    }
+
     &.incomplete {
         background: repeating-linear-gradient(45deg,
                 var(--incomplete-color),

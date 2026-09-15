@@ -5,6 +5,7 @@ export interface AttendancePunch {
   date: string;          // 'YYYY-MM-DD'
   checkIn: string | null;    // 'HH:mm', null if missing
   checkOut: string | null;   // 'HH:mm', null if missing
+  status?: string;           // 'OnLeave', 'Present', etc.
 }
 
 interface DaySegment {
@@ -16,7 +17,7 @@ interface DaySegment {
   workHours: number;
   overtimeHours: number;
   totalHours: number;
-  status: 'complete' | 'incomplete' | 'empty';
+  status: 'complete' | 'incomplete' | 'empty' | 'leave';
   tooltip: string;
 }
 
@@ -111,6 +112,22 @@ export class AttendanceBarChartComponent {
           totalHours: 0,
           status: 'empty',
           tooltip: `${dateStr} — No attendance data recorded`,
+        });
+        continue;
+      }
+
+      if (punch.status === 'OnLeave') {
+        fullMonthSegments.push({
+          date: dateStr,
+          dayNum,
+          weekdayShort,
+          isWeekend,
+          lateHours: 0,
+          workHours: 0,
+          overtimeHours: 0,
+          totalHours: 0,
+          status: 'leave',
+          tooltip: `${dateStr} — On Leave`,
         });
         continue;
       }

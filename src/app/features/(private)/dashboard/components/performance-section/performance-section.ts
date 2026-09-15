@@ -150,6 +150,7 @@ export class PerformanceSection {
       date: d.date,
       checkIn: this.toHm(d.firstIn),
       checkOut: this.toHm(d.lastOut),
+      status: d.status,
     })),
   );
 

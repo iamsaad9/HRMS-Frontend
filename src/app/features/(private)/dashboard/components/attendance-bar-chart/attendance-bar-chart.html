@@ -22,7 +22,9 @@
             <div class="bar-col" [class.weekend]="day.isWeekend" [class.active]="selectedDay()?.date === day.date"
                 [class.today]="day.date === todayDateStr" (click)="toggleDayPopover(day, $event)">
                 <div class="bar-track" [attr.aria-label]="day.tooltip">
-                    @if (day.status === 'incomplete') {
+                    @if (day.status === 'leave') {
+                    <div class="segment leave" style="height: 100%"></div>
+                    } @else if (day.status === 'incomplete') {
                     <div class="segment incomplete" style="height: 100%"></div>
                     } @else if (day.status === 'complete') {
                     <div class="segment overtime" [style.height.%]="segmentHeightPct(day.overtimeHours)"></div>

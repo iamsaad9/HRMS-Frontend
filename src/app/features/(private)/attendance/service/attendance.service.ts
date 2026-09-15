@@ -67,18 +67,18 @@ export class AttendanceService {
   const todayStr = new Date().toISOString().split('T')[0];
   console.log(`[activeShiftRecord] Evaluating active shift. Today: ${todayStr}, Total Records: ${records.length}`);
 
-  // 1. Open shift priority (has punches, but last punch isn't 'Out')
-  const openShift = records
-    .filter((r) => r.date <= todayStr && r.punches && r.punches.length > 0)
-    .find((r) => {
-      const lastPunch = r.punches[r.punches.length - 1];
-      return lastPunch.punchType !== 'Out';
-    });
+  // // 1. Open shift priority (has punches, but last punch isn't 'Out')
+  // const openShift = records
+  //   .filter((r) => r.date <= todayStr && r.punches && r.punches.length > 0)
+  //   .find((r) => {
+  //     const lastPunch = r.punches[r.punches.length - 1];
+  //     return lastPunch.punchType !== 'Out';
+  //   });
 
-  if (openShift) {
-    console.log('[activeShiftRecord] Strategy 1 Hit -> Selected Open Shift:', openShift);
-    return openShift;
-  }
+  // if (openShift) {
+  //   console.log('[activeShiftRecord] Strategy 1 Hit -> Selected Open Shift:', openShift);
+  //   return openShift;
+  // }
 
   // 2. Exact current date match
   const todayRecord = records.find((r) => r.date === todayStr);

@@ -17,8 +17,6 @@ import {
 import { ApiResponse } from '../../../../core/models/api-response.model';
 import { catchError, finalize, map, Observable, of, switchMap, tap } from 'rxjs';
 import { LoadingService } from '../../../../core/services/loading.service';
-import { Departments } from '../../departments/departments';
-import { Department } from '../../attendance/model/attendance.model';
 
 @Injectable({ providedIn: 'root' })
 export class EmployeeService {

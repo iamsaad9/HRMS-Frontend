@@ -45,6 +45,38 @@ export class TeamAttendanceLog implements OnInit {
   protected hasSearched = signal(false);
   protected rangeError = signal<string | null>(null);
   protected readonly maxRangeDays = 92;
+  protected selectedEmployeeId = signal<string | null>(null);
+
+  // One row per employee, deduped from allRecords(), for the left-hand list.
+  protected employees = computed(() => {
+    const map = new Map<string, { id: string; name: string; recordCount: number }>();
+    for (const r of this.allRecords()) {
+      const existing = map.get(r.employeeId);
+      if (existing) {
+        existing.recordCount++;
+      } else {
+        map.set(r.employeeId, { id: r.employeeId, name: r.employeeName, recordCount: 1 });
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+  });
+
+  // The selected employee's records across the searched range, newest first.
+  protected selectedEmployeeRecords = computed(() => {
+    const id = this.selectedEmployeeId();
+    if (!id) return [];
+    return this.allRecords()
+      .filter((r) => r.employeeId === id)
+      .sort((a, b) => b.date.localeCompare(a.date));
+  });
+
+  protected selectedEmployeeName = computed(
+  () => this.employees().find((e) => e.id === this.selectedEmployeeId())?.name ?? '',
+  );
+
+  protected selectEmployee(id: string): void {
+    this.selectedEmployeeId.set(id);
+  }
 
   protected byDate = computed(() => {
     const map = new Map<string, DepartmentAttendanceRecord[]>();
@@ -74,33 +106,34 @@ export class TeamAttendanceLog implements OnInit {
   }
 
   protected search(): void {
-    const { startDate, endDate } = this.filter();
-    if (!this.managerId || !startDate || !endDate) return;
+  const { startDate, endDate } = this.filter();
+  if (!this.managerId || !startDate || !endDate) return;
 
-    const days = (new Date(endDate).getTime() - new Date(startDate).getTime()) / 86_400_000;
-    if (days < 0) {
-      this.rangeError.set('End date cannot be before start date.');
-      return;
-    }
-    if (days > this.maxRangeDays) {
-      this.rangeError.set(`Date range cannot exceed ${this.maxRangeDays} days (~3 months).`);
-      return;
-    }
-    this.rangeError.set(null);
-
-    this.isLoading.set(true);
-    this.teamAttendanceLogService.getTeamAttendanceLog(this.managerId, startDate, endDate).subscribe({
-      next: (records) => {
-        this.allRecords.set(records);
-        this.hasSearched.set(true);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.hasSearched.set(true);
-        this.isLoading.set(false);
-      },
-    });
+  const days = (new Date(endDate).getTime() - new Date(startDate).getTime()) / 86_400_000;
+  if (days < 0) {
+    this.rangeError.set('End date cannot be before start date.');
+    return;
   }
+  if (days > this.maxRangeDays) {
+    this.rangeError.set(`Date range cannot exceed ${this.maxRangeDays} days (~3 months).`);
+    return;
+  }
+  this.rangeError.set(null);
+
+  this.isLoading.set(true);
+  this.teamAttendanceLogService.getTeamAttendanceLog(this.managerId, startDate, endDate).subscribe({
+    next: (records) => {
+      this.allRecords.set(records);
+      this.hasSearched.set(true);
+      this.isLoading.set(false);
+      this.selectedEmployeeId.set(records[0]?.employeeId ?? null);
+    },
+    error: () => {
+      this.hasSearched.set(true);
+      this.isLoading.set(false);
+    },
+  });
+}
 
   protected statusAppearance(status: string | undefined): string {
     switch (status) {

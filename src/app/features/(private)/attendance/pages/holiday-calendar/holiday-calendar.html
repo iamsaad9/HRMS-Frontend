@@ -4,12 +4,11 @@
     </app-main-heading>
 
 
-    <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+    <div tuiCardLarge class="drop-shadow-sm shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card">
         <header class="flex flex-row items-center justify-between">
             <div class="flex flex-col">
                 <div class="flex items-center gap-1.5">
                     <span class="text-lg font-semibold">Holiday Calendar</span>
-                    <tui-icon icon="@tui.info" class="text-base! text-(--primary)/40" />
                 </div>
                 <span tuiSubtitle class="text-(--primary)/50 text-sm">
                     Manage holiday calendar entries by employee category.
@@ -44,19 +43,7 @@
                 </button>
                 }
 
-                @if (selectedCategory() === CategoryType.Academic) {
 
-
-
-
-                <tui-textfield tuiTextfieldSize="m" tuiChevron [tuiTextfieldCleaner]="false">
-                    <label tuiLabel>Academic Year <span class="text-red-500">*</span></label>
-                    <input type="text" placeholder="e.g. 2026-2027" tuiInput [ngModel]="academicYear()"
-                        (ngModelChange)="onAcademicYearChange($event)"
-                        class="rounded-md border border-(--secondary)/40 bg-transparent px-2 py-1.5" />
-
-                </tui-textfield>
-                }
             </div>
 
             <!-- Calendar grid (center) -->
@@ -71,7 +58,7 @@
 
                 <!-- Toolbar -->
                 <div class="flex flex-wrap items-center justify-between gap-2">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 text-(--theme1)">
                         <button tuiIconButton type="button" appearance="outline" size="s" (click)="prevMonth()">
                             <tui-icon icon="@tui.chevron-left" /></button>
                         <button tuiIconButton type="button" appearance="outline" size="s"
@@ -91,11 +78,6 @@
                                 [appearance]="viewMode() === 'month' ? 'primary' : 'outline'"
                                 (click)="setViewMode('month')">
                                 Month
-                            </button>
-                            <button tuiButton type="button" size="s"
-                                [appearance]="viewMode() === 'week' ? 'primary' : 'outline'"
-                                (click)="setViewMode('week')">
-                                Week
                             </button>
                             <button tuiButton type="button" size="s"
                                 [appearance]="viewMode() === 'list' ? 'primary' : 'outline'"
@@ -147,12 +129,6 @@
                 </div>
                 }
 
-                @if (viewMode() === 'week') {
-                <div
-                    class="flex items-center justify-center h-64 text-(--primary)/40 text-sm border border-dashed border-(--background_dark)/15 rounded-lg">
-                    Week view coming soon.
-                </div>
-                }
 
                 @if (viewMode() === 'list') {
                 <div tuiCardLarge class="table-scroll p-0! shadow-none! glass-card bg-(--secondary)/10!">

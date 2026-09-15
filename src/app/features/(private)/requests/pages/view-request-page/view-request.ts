@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { TuiButton, TuiIcon, TuiTextfield } from '@taiga-ui/core';
+import { TuiButton, TuiIcon, TuiInput, TuiLabel, TuiTextfield } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { TuiTextarea } from '@taiga-ui/kit';
+import { TuiInputDate, TuiInputTime, TuiTextarea } from '@taiga-ui/kit';
 import { FormsModule } from '@angular/forms';
 import { catchError, finalize, of, switchMap, tap } from 'rxjs';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
@@ -35,7 +35,7 @@ interface EditableLineItem {
 @Component({
   selector: 'app-view-request',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TuiButton, TuiCardLarge, MainHeading, TuiIcon, TuiTextarea, TuiTextfield],
+  imports: [CommonModule, FormsModule,TuiInputTime,TuiInputDate, RouterLink, TuiButton, TuiCardLarge, MainHeading, TuiIcon, TuiTextarea, TuiTextfield,TuiLabel],
   templateUrl: './view-request.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

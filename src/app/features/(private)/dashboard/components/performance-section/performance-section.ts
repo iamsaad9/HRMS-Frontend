@@ -229,6 +229,11 @@ export class PerformanceSection {
       return;
     }
 
+    // if (!this.canStartBreak()) {
+    //   this.toast.error('Only one break session is allowed per shift', 'Break Unavailable');
+    //   return;
+    // }
+
     const command: PunchCommand = {
       employeeId: this.employeeId,
       punchType: PunchType.BreakStart,

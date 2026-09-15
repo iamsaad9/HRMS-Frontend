@@ -23,57 +23,55 @@
 
 
         @if (hasSearched()) {
-        <div class="flex flex-col gap-3">
-            @for (entry of history(); track entry.shiftAssignmentId) {
-            <div tuiCardLarge
-                class="flex flex-col sm:flex-row sm:items-center gap-4 shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card"
-                [class]="entry.isCurrent ? 'bg-(--success)/5! border-(--success)/50!' : 'bg-(--secondary)/20!'">
+        <div tuiCardLarge
+            class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card overflow-hidden rounded-xl!">
 
-                <div class="flex flex-col sm:flex-row sm:items-center gap-4 w-full">
-                    <!-- Shift identity -->
-                    <div class="flex flex-col sm:w-52 shrink-0">
-                        <span class="text-lg font-semibold text-(--theme1)">{{ entry.shiftName }}</span>
+            <!-- Custom header row -->
+            <div class="grid grid-cols-[1.5fr_1fr_1fr_auto] gap-4 px-5 py-3
+                bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Shift</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Timing</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Effective</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white text-right">Status</span>
+            </div>
+
+            <!-- Custom rows -->
+            <div class="flex flex-col divide-y divide-(--primary)/10">
+                @for (entry of history(); track entry.shiftAssignmentId) {
+                <div class="grid grid-cols-[1.5fr_1fr_1fr_auto] gap-4 px-5 py-3 items-center transition-colors"
+                    [class]="entry.isCurrent ? 'bg-(--success)/5!' : ''">
+
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-sm font-medium text-(--primary) truncate">{{ entry.shiftName }}</span>
                         <span class="text-xs text-(--primary)/60">{{ entry.shiftCode }}</span>
                     </div>
-                    <!-- Status -->
-                    <div class="sm:ml-auto">
+
+                    <span class="text-sm text-(--primary)/70">
+                        {{ formatTime(entry.startTime) }} – {{ formatTime(entry.endTime) }}
+                    </span>
+
+                    <span class="text-sm text-(--primary)/70">
+                        {{ entry.effectiveFrom | date: 'mediumDate' }}
+                        →
+                        {{ entry.effectiveTo ? (entry.effectiveTo | date: 'mediumDate') : 'Ongoing' }}
+                    </span>
+
+                    <div class="text-right">
                         <span tuiBadge [appearance]="entry.isCurrent ? 'positive' : 'neutral'">
                             {{ entry.isCurrent ? 'Current' : 'Past' }}
                         </span>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-2">
-                    <!-- Time range -->
-                    <div class="flex flex-col">
-                        <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Timing</p>
-                        <p class="text-sm text-(--primary) m-0">{{ formatTime(entry.startTime) }} – {{
-                            formatTime(entry.endTime)
-                            }}</p>
-                    </div>
-
-                    <!-- Effective range -->
-                    <div class="flex flex-col">
-                        <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Effective</p>
-                        <p class="text-sm text-(--primary) m-0">
-                            {{ entry.effectiveFrom | date: 'mediumDate' }}
-                            →
-                            {{ entry.effectiveTo ? (entry.effectiveTo | date: 'mediumDate') : 'Ongoing' }}
-                        </p>
-                    </div>
+                } @empty {
+                <div class="text-center py-8 text-(--primary)/60 text-sm">
+                    No shift history found.
                 </div>
-
-
-
+                }
             </div>
-            } @empty {
-            <div tuiCardLarge class="text-center py-6 text-(--primary)/60 glass-card bg-(--secondary)/20!">
-                No shift history found.
-            </div>
-            }
         </div>
         } @else {
-        <div tuiCardLarge class="text-center py-10 text-(--primary)/60 bg-(--secondary)/20! glass-card">
+        <div tuiCardLarge
+            class="text-center py-10 shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card rounded-xl!">
             Select an employee to view their shift history.
         </div>
         }

@@ -20,12 +20,8 @@
       <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
         <tr>
           <th tuiTh class="text-white!">Actions</th>
-          <th tuiTh class="col-checkbox">
-            <div [tuiCell]="size" class="text-white!">
-              <input tuiCheckbox tuiCheckboxTable type="checkbox" [size]="size === 'l' ? 'm' : 's'" />
-              <span tuiTitle>StaffNo</span>
-            </div>
-          </th>
+
+          <th tuiTh class="text-white!">StaffNo</th>
           <th tuiTh class="text-white!">Title</th>
           <th tuiTh class="text-white!">First Name</th>
           <th tuiTh class="text-white!">Last Name</th>
@@ -67,8 +63,7 @@
           <!--  (with Avatar & Checkbox) -->
           <td tuiTd class="col-checkbox">
             <div [tuiCell]="size">
-              <input tuiCheckbox class="border border-(--theme1)!" type="checkbox" [size]="size === 'l' ? 'm' : 's'"
-                [tuiCheckboxRow]="employee" />
+
               <span tuiTitle> {{ employee.staffNo || 'N/A' }}</span>
             </div>
           </td>

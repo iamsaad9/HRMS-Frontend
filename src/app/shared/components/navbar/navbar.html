@@ -35,31 +35,6 @@
 
     <!-- Right Side -->
     <div class="flex flex-1 gap-2 xl:gap-5 justify-end items-center">
-      <!-- <tui-textfield iconStart="@tui.search" tuiTextfieldSize="s"
-          class="flex flex-1 max-w-120 bg-(--secondary)/20! text-white/50!">
-          <input placeholder="Search" class="text-white! placeholder:text-white/50!" tuiInput [(ngModel)]="searchQuery" />
-
-          @if (searchResults().length > 0) {
-          <tui-data-list *tuiDropdown class="z-10 w-full  bg-white! dark:bg-(--background_light)!">
-            @for (item of searchResults(); track item.id) {
-            <button tuiOption type="button" (click)="handleItemClick(item)"
-              class="flex flex-col items-start gap-0! p-2 hover:bg-(--primary)/10! rounded-md transition-colors text-(--background_light)!">
-              <div class="flex items-center justify-between w-full">
-                <span class="font-semibold text-sm text-(--primary)!">{{ item.title }}</span>
-                <span
-                  class="text-[10px] px-2 py-0.5 bg-(--secondary) text-(--theme2) dark:text-(--theme1) rounded-full font-medium">
-                  {{ item.category }}
-                </span>
-              </div>
-
-              <p class="text-xs text-left text-(--primary)/50 line-clamp-1 w-full">
-                {{ item.description }}
-              </p>
-            </button>
-            }
-          </tui-data-list>
-          }
-        </tui-textfield> -->
 
       <span [class]="
                 'inline-flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-semibold border text-white ' +
@@ -87,31 +62,7 @@
       </button>
 
       <div class="flex shrink-0 items-center gap-1 lg:gap-2">
-        <!-- Actions -->
-        <button class="xl:flex items-center text-sm font-medium transition-opacity hover:opacity-90 cursor-pointer"
-          tuiChevron type="button" [attr.aria-expanded]="quickActionsOpen()" [tuiDropdown]="quickActionsContent"
-          [tuiDropdownManual]="quickActionsOpen()" [tuiObscuredEnabled]="quickActionsOpen()"
-          (click)="openQuickAddOpen()" (tuiActiveZoneChange)="onActiveZone($event)" (tuiObscured)="onObscured($event)">
-          <mat-icon>add</mat-icon>
-          <ng-template #quickActionsContent>
-            <tui-data-list class="bg-(--background_light)!">
-              @for (action of actions; track action.title) {
-              <button tuiOption type="button" class="hover:bg-(--primary)/10!" (click)="onSelect(action)"
-                [routerLink]="action.route">
-                <div class="flex items-center justify-center gap-2 text-(--background_dark)!">
-                  <mat-icon class="scale-80">{{ action.icon }}</mat-icon>
-                  <span tuiTitle class="text-sm! gap-0!">
-                    {{ action.title }}
-                    <span tuiSubtitle class="text-xs! text-(--primary)/50!">{{
-                      action.description
-                      }}</span>
-                  </span>
-                </div>
-              </button>
-              }
-            </tui-data-list>
-          </ng-template>
-        </button>
+
 
 
         <button type="button"

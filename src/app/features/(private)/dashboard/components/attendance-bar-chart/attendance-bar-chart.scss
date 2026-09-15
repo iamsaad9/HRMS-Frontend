@@ -4,6 +4,7 @@
     --work-color: #f59e0b;
     --overtime-color: #22c55e;
     --incomplete-color: #cbd5e1;
+    --leave-color: #3b82f6;
     --track-bg: var(--secondary);
     --bar-gap: 6px;
     --chart-height: 150px;
@@ -61,6 +62,10 @@
 
     &.incomplete {
         background: var(--incomplete-color);
+    }
+
+    &.leave {
+        background: var(--leave-color);
     }
 }
 

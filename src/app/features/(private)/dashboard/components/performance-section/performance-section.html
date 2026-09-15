@@ -82,6 +82,11 @@
                   class="inline-flex items-center gap-1 rounded-full bg-indigo-500/20 text-indigo-600 px-2 py-0.5 text-xs font-semibold">
                   Work From Home
                 </span>
+                } @else if (day.record?.status === 'OnLeave') {
+                <span
+                  class="inline-flex items-center gap-1 rounded-full bg-blue-500/20 text-blue-600 px-2 py-0.5 text-xs font-semibold">
+                  On Leave
+                </span>
                 } @else if (day.record?.status) {
                 <span class="text-xs text-(--primary)/60">{{ day.record?.status }}</span>
                 }

@@ -77,25 +77,42 @@ export class AttendanceHistoryFilterBar implements OnInit {
 
   protected onStartDateChange(value: string): void {
     this.draft.update((f) => ({ ...f, startDate: value }));
-    this.validateRange();
+    this.validateRangeAndEmit();
   }
 
   protected onEndDateChange(value: string): void {
     this.draft.update((f) => ({ ...f, endDate: value }));
-    this.validateRange();
+    this.validateRangeAndEmit();
   }
 
   protected onStatusesChange(value: AttendanceStatus[]): void {
     this.draft.update((f) => ({ ...f, statuses: value }));
+    this.emitFilterChange();
   }
 
 
   protected onLeaveTypeChange(value: string | null): void {
     this.draft.update((f) => ({ ...f, leaveTypeId: value }));
+    this.emitFilterChange();
   }
 
   protected onExceptionFlagsChange(value: ExceptionFlag[]): void {
     this.draft.update((f) => ({ ...f, exceptionFlags: value }));
+    this.emitFilterChange();
+  }
+
+  private validateRangeAndEmit(): void {
+    if (!this.validateRange()) return;
+    this.emitFilterChange();
+  }
+
+  private emitFilterChange(): void {
+    const draft = this.draft();
+    this.filterChange.emit({
+      ...draft,
+      startDate: draft.startDate ? toIsoDate(draft.startDate) : draft.startDate,
+      endDate: draft.endDate ? toIsoDate(draft.endDate) : draft.endDate,
+    });
   }
 
   private validateRange(): boolean {

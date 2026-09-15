@@ -195,7 +195,7 @@ export class PerformanceSection {
 
   protected onClockIn(): void {
     if (!this.employeeId) {
-      this.toast.error('Employee ID not found', 'Attendance Updated');
+      this.toast.error('Employee ID not found', 'Error');
       return;
     }
     this.isPunchingIn.set(true);
@@ -213,11 +213,11 @@ export class PerformanceSection {
         if (response.isSuccess) {
           this.toast.success('Clocked in successfully!', 'Attendance Updated');
         } else {
-          this.toast.error(response.message || 'Clock in failed!', 'Attendance Updated');
+          this.toast.error(response.message || 'Clock in failed!', 'Validation Error');
         }
       },
       error: () => {
-        this.toast.error('Clock in failed!', 'Attendance Updated');
+        this.toast.error('Clock in failed!', 'Validation Error');
       },
     });
     this.isPunchingIn.set(false);
@@ -243,11 +243,11 @@ export class PerformanceSection {
         if (response.isSuccess) {
           this.toast.success('Break Started!', 'Attendance Updated');
         } else {
-          this.toast.error(response.message || 'Break start failed!', 'Attendance Updated');
+          this.toast.error(response.message || 'Break start failed!', 'Validation Error');
         }
       },
       error: () => {
-        this.toast.error('Break start failed!', 'Attendance Updated');
+        this.toast.error('Break start failed!', 'Validation Error');
       },
     });
   }
@@ -272,11 +272,11 @@ export class PerformanceSection {
         if (response.isSuccess) {
           this.toast.success('Break Ended!', 'Attendance Updated');
         } else {
-          this.toast.error(response.message || 'Break end failed!', 'Attendance Updated');
+          this.toast.error(response.message || 'Break end failed!', 'Validation Error');
         }
       },
       error: () => {
-        this.toast.error('Break end failed!', 'Attendance Updated');
+        this.toast.error('Break end failed!', 'Validation Error');
       },
     });
   }
@@ -285,7 +285,7 @@ export class PerformanceSection {
     const employeeId = this.currentUser?.employeeInfo?.id;
 
     if (!employeeId) {
-      this.toast.error('Employee ID not found', 'Attendance Updated');
+      this.toast.error('Employee ID not found', 'Error');
       return;
     }
 
@@ -303,11 +303,11 @@ export class PerformanceSection {
         if (response.isSuccess) {
           this.toast.success('Clocked out successfully!', 'Attendance Updated');
         } else {
-          this.toast.error(response.message || 'Clock out failed!', 'Attendance Updated');
+          this.toast.error(response.message || 'Clock out failed!', 'Validation Error');
         }
       },
       error: () => {
-        this.toast.error('Clock out failed!', 'Attendance Updated');
+        this.toast.error('Clock out failed!', 'Validation Error');
       },
     });
     this.isPunchingIn.set(false);

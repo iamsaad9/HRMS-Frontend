@@ -55,13 +55,40 @@
     </div>
 
     <div class="flex justify-between items-center gap-3 flex-wrap">
-        <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
-            class="bg-(--secondary) text-(--primary) text-sm rounded-lg border border-(--primary)/20 px-3 py-2 cursor-pointer">
-            <option value="All">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="Approved">Approved</option>
-            <option value="Rejected">Rejected</option>
-        </select>
+        <div class="flex gap-2 flex-wrap">
+            <button (click)="statusFilter.set('All')" type="button"
+                [class.bg-(--theme1)]="statusFilter() === 'All'"
+                [class.text-white]="statusFilter() === 'All'"
+                [class.bg-(--secondary)]="statusFilter() !== 'All'"
+                [class.text-(--primary)]="statusFilter() !== 'All'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border border-(--primary)/20">
+                All
+            </button>
+            <button (click)="statusFilter.set('Pending')" type="button"
+                [class.bg-amber-500]="statusFilter() === 'Pending'"
+                [class.text-white]="statusFilter() === 'Pending'"
+                [class.bg-(--secondary)]="statusFilter() !== 'Pending'"
+                [class.text-(--primary)]="statusFilter() !== 'Pending'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border border-(--primary)/20">
+                Pending
+            </button>
+            <button (click)="statusFilter.set('Approved')" type="button"
+                [class.bg-emerald-500]="statusFilter() === 'Approved'"
+                [class.text-white]="statusFilter() === 'Approved'"
+                [class.bg-(--secondary)]="statusFilter() !== 'Approved'"
+                [class.text-(--primary)]="statusFilter() !== 'Approved'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border border-(--primary)/20">
+                Approved
+            </button>
+            <button (click)="statusFilter.set('Rejected')" type="button"
+                [class.bg-red-500]="statusFilter() === 'Rejected'"
+                [class.text-white]="statusFilter() === 'Rejected'"
+                [class.bg-(--secondary)]="statusFilter() !== 'Rejected'"
+                [class.text-(--primary)]="statusFilter() !== 'Rejected'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer border border-(--primary)/20">
+                Rejected
+            </button>
+        </div>
 
         <button tuiButton type="button" iconStart="@tui.plus" size="s" routerLink="/requests/new"
             class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!">

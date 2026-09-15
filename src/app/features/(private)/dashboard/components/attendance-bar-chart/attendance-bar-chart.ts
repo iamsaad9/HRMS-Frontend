@@ -85,7 +85,8 @@ export class AttendanceBarChartComponent {
     }
 
     const fullMonthSegments: DaySegment[] = [];
-    const TOTAL_DAYS = 30;
+    // Get actual number of days in the month
+    const TOTAL_DAYS = new Date(baseYear, baseMonth, 0).getDate();
 
     for (let dayNum = 1; dayNum <= TOTAL_DAYS; dayNum++) {
       const monthStr = String(baseMonth).padStart(2, '0');

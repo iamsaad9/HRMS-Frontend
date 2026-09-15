@@ -151,14 +151,11 @@
           </div>
 
           <div class="grid grid-cols-2 gap-3">
-            @if (!attendanceService.hasOpenSession()) {
-            <!-- STATE 1: No open session - either never punched today, or a previous session
-                 already completed (In...Out). Either way a new Clock In is allowed (matches the
-                 backend's own gate: it only blocks Clock In while a session is still open), so
-                 show the last completed session's summary (if any) plus a fresh Clock In button
-                 rather than dead-ending with no action. -->
+            <!-- Informational summary of the current/last session, if any. Punch actions below are
+                 always shown regardless of this - the backend is the source of truth for whether a
+                 given action is actually valid right now, and returns a clear error if not. -->
             @if (attendanceService.todayStatus()?.punches?.length) {
-            <div class="p-3.5 rounded-xl bg-(--secondary)/50">
+            <div class="p-3.5 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
               <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
               <span class="text-lg font-bold text-(--primary) mt-0.5 block">
                 {{
@@ -168,7 +165,7 @@
               </span>
             </div>
 
-            <div class="p-3.5 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+            <div class="p-3.5 rounded-xl bg-(--secondary)/50">
               <span class="text-xs text-(--primary)/80 block font-medium">End Time</span>
               <span class="text-lg font-bold text-(--primary) mt-0.5 block">
                 {{
@@ -179,15 +176,15 @@
             </div>
 
             @for (session of breakSessions(); track session.start) {
-            <div class="p-2 rounded-xl bg-(--theme2)/40">
+            <div class="p-2 rounded-xl bg-(--theme1)/20 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
               <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
-              <span class="text-sm font-semibold text-(--primary) mt-0.5 block">
+              <span class="text-sm font-bold text-(--primary) mt-0.5 block">
                 {{ session.start | date: 'hh:mm a' }}
               </span>
             </div>
 
             @if (session.end) {
-            <div class="p-2 rounded-xl bg-(--theme1)/50">
+            <div class="p-2 rounded-xl bg-(--theme1)/20 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
               <span class="text-xs text-(--primary)/80 block font-medium">Break End</span>
               <span class="text-sm font-bold text-(--primary) mt-0.5 block">
                 {{ session.end | date: 'hh:mm a' }}
@@ -197,80 +194,28 @@
             }
             }
 
-            <button (click)="onClockIn()"
-              class="col-span-2 flex items-center justify-center p-3 rounded-xl bg-emerald-400 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
-              @if (isPunchingIn()) {
-              <div class="flex items-center justify-center gap-2">
-                <span
-                  class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"></span>
-                <span class="uppercase font-bold text-md text-(--background_light)">Clocking In..</span>
-              </div>
-              } @else {
+            <!-- All four punch actions, always visible - invalid triggers are rejected by the
+                 backend with a specific error message (shown as a toast), rather than the button
+                 being hidden or disabled based on guessed client-side state. -->
+            <button (click)="onClockIn()" [disabled]="isPunchingIn()"
+              class="flex items-center justify-center p-3 rounded-xl bg-emerald-400 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
               <span class="uppercase font-bold text-md text-(--background_light)">Clock In</span>
-              }
             </button>
-            } @else {
-            <!-- STATE 2: Open session active -->
 
-            <div class="p-3.5 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-              <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
-              <span class="text-lg font-bold text-(--primary) mt-0.5 block">
-                {{
-                attendanceService.todayStatus()?.punches?.find((p) => p.punchType == 'In')
-                ?.punchTime | date: 'hh:mm a'
-                }}
-              </span>
-            </div>
-
-            <!-- Clock Out disabled while ANY break is still open -->
-
-            <button (click)="onClockOut()" [disabled]="!canClockOut()" [class.opacity-50]="!canClockOut()"
-              [class.cursor-not-allowed]="!canClockOut()" [class.cursor-pointer]="canClockOut()"
-              class="flex items-center justify-center p-3 rounded-xl bg-(--error) active:scale-95 transition-all duration-300 drop-shadow-md shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-              @if (isPunchingIn()) {
-              <div class="flex items-center justify-center gap-2">
-                <span
-                  class="animate-spin rounded-full h-4 w-4 border-2 border-(--background_light) border-t-transparent"></span>
-                <span class="uppercase font-bold text-md text-(--background_light)">Clocking Out..</span>
-              </div>
-              } @else {
+            <button (click)="onClockOut()" [disabled]="isPunchingIn()"
+              class="flex items-center justify-center p-3 rounded-xl bg-(--error) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md shadow-[0_0_5px_rgba(0,0,0,0.2)]! disabled:opacity-50 disabled:cursor-not-allowed">
               <span class="uppercase font-bold text-md text-White">Clock Out</span>
-              }
             </button>
 
-            <!-- List every break session so far -->
-            @for (session of breakSessions(); track session.start) {
-            <div class="p-2 rounded-xl bg-(--theme1)/20 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-              <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
-              <span class="text-sm font-bold text-(--primary) mt-0.5 block">
-                {{ session.start | date: 'hh:mm a' }}
-              </span>
-            </div>
-
-            @if (session.end) {
-            <div class="p-2 rounded-xl bg-(--theme1)/20 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-              <span class="text-xs text-(--primary)/80 block font-medium">Break End</span>
-              <span class="text-sm font-bold text-(--primary) mt-0.5 block">
-                {{ session.end | date: 'hh:mm a' }}
-              </span>
-            </div>
-            }
-            }
-
-            <!-- Toggle: Start Break vs End Break, based on whether a break is currently open.
-                 Only one break per shift - once used (started and ended), neither button shows again. -->
-            @if (isOnBreak()) {
-            <button (click)="onBreakEnd()"
-              class="col-span-1 flex items-center justify-center p-3 rounded-xl bg-blue-500 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
-              <span class="uppercase font-bold text-md text-white">End Break</span>
-            </button>
-            } @else if (!hasUsedBreak()) {
-            <button (click)="onBreakStart()"
-              class="col-span-2 flex items-center justify-center p-1 rounded-lg bg-(--theme3) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md">
+            <button (click)="onBreakStart()" [disabled]="isPunchingIn()"
+              class="flex items-center justify-center p-3 rounded-xl bg-(--theme3) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
               <span class="uppercase font-bold text-md text-white">Start Break</span>
             </button>
-            }
-            }
+
+            <button (click)="onBreakEnd()" [disabled]="isPunchingIn()"
+              class="flex items-center justify-center p-3 rounded-xl bg-blue-500 active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+              <span class="uppercase font-bold text-md text-white">End Break</span>
+            </button>
           </div>
         </div>
       </div>

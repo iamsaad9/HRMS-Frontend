@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 export interface ChangePasswordPayload {
   newPassword: string;
+  confirmPassword: string;
 }
 
 @Component({
@@ -57,7 +58,8 @@ export class ChangePasswordModal {
 
     console.log('Form submitted with values:', this.form.value);
     const newPassword = this.form.get('newPassword')?.value;
-    this.context.completeWith({ newPassword });
+    const confirmPassword = this.form.get('confirmPassword')?.value;
+    this.context.completeWith({ newPassword,confirmPassword });
   }
 
   protected cancel(): void {

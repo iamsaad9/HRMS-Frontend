@@ -205,7 +205,7 @@ getErrorMessage(controlName: string, groupName?: 'employeeDetails' | 'employment
         if (payload) {
           this.isLoading.set(true);
           this.authService
-            .changePassword({ currentPassword: '', newPassword: payload.newPassword })
+            .changePassword({ newPassword: payload.newPassword, confirmPassword: payload.confirmPassword })
             .pipe(finalize(() => this.isLoading.set(false)))
             .subscribe({
               next: () => {

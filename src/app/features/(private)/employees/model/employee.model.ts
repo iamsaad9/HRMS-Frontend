@@ -133,6 +133,7 @@ export interface Employee {
   userId: string;
   staffNo: string;
   title: string;
+  category?:string;
   firstName: string;
   lastName: string;
   fullName: string;

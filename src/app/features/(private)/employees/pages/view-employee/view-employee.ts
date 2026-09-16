@@ -67,6 +67,11 @@ export class EmployeeView {
   // whoever the /employee/:id/edit route actually lets in.
   protected canEdit = computed(() => this.authSerivce.hasRole(['Admin', 'HR']));
 
+  /** Any employee may upload/replace their own profile picture; Admin/HR may do it for anyone. */
+  protected canEditPicture = computed(
+    () => this.canEdit() || this.employee()?.id === this.authSerivce.currentUser()?.employeeInfo?.id,
+  );
+
   protected employee = signal<Employee | null>(null);
   protected isLoading = signal(true);
   protected errorMessage = signal<string | null>(null);
@@ -151,8 +156,9 @@ export class EmployeeView {
         this.passwordForm.reset();
         this.isSubmittingPassword.set(false);
       },
-      error: () => {
-        this.passwordErrorMessage.set('Could not update password. Please try again.');
+      error: (err) => {
+        const msg = err?.error?.message || 'Could not update password. Please try again.';
+        this.passwordErrorMessage.set(msg);
         this.isSubmittingPassword.set(false);
       },
     });

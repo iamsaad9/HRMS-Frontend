@@ -2,7 +2,6 @@ import { Component, inject, Input, Output, EventEmitter, signal, WritableSignal 
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
-import { TuiButton } from '@taiga-ui/core';
 import { ToastService } from '../../../../../core/services/toast.service';
 
 interface UploadResponse {
@@ -16,42 +15,32 @@ interface UploadResponse {
 @Component({
   selector: 'app-profile-picture-upload',
   standalone: true,
-  imports: [CommonModule, MatIconModule, TuiButton],
+  imports: [CommonModule, MatIconModule],
   template: `
-    <div class="flex flex-col gap-3 p-4 rounded-lg bg-(--background_light)/50 border border-(--secondary)/20">
-      <div class="flex items-center gap-3">
-        <!-- Current Picture or Initials -->
-        <div class="relative">
-          @if (_currentPictureUrl()) {
-          <img [src]="_currentPictureUrl()" alt="Profile"
-            class="size-20 rounded-full object-cover border-2 border-(--theme1)">
-          } @else {
-          <div class="size-20 rounded-full bg-(--theme1)/20 border-2 border-(--theme1)/50 flex items-center justify-center text-2xl font-semibold text-(--theme1)">
-            {{ initials }}
-          </div>
-          }
-
-          <!-- Upload overlay button -->
-          <label class="absolute bottom-0 right-0 bg-(--theme1) hover:bg-(--theme1)/80 text-white rounded-full p-2 cursor-pointer transition">
-            <mat-icon class="text-sm">camera_alt</mat-icon>
-            <input type="file" #fileInput (change)="onFileSelected($event)"
-              accept="image/jpeg,image/png" hidden />
-          </label>
-        </div>
-
-        <!-- Upload Info -->
-        <div class="flex-1">
-          <p class="text-sm font-medium text-(--primary) m-0">Upload Profile Picture</p>
-          <p class="text-xs text-(--primary)/60 m-0">JPG or PNG • Max 2MB</p>
-          <p class="text-xs text-(--primary)/50 m-0 mt-1">{{ uploadStatus() }}</p>
-        </div>
+    <div class="relative size-16 shrink-0">
+      @if (_currentPictureUrl()) {
+      <img [src]="_currentPictureUrl()" alt="Profile"
+        class="size-16 rounded-full object-cover border border-(--theme1)/50">
+      } @else {
+      <div
+        class="size-16 rounded-full bg-(--theme1)/15 border border-(--theme1)/25 flex items-center justify-center text-xl font-semibold text-(--theme1)">
+        {{ initials }}
       </div>
+      }
 
-      <!-- Upload Progress -->
       @if (isUploading()) {
-      <div class="w-full bg-(--primary)/10 rounded h-1">
-        <div class="bg-(--theme1) h-full rounded animate-pulse w-1/2"></div>
+      <div class="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+        <span class="size-5 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
       </div>
+      }
+
+      @if (canEdit) {
+      <label
+        class="absolute -bottom-1 -right-1 bg-(--theme1) hover:bg-(--theme1)/80 text-white rounded-full p-1.5 cursor-pointer transition shadow"
+        title="Change profile picture">
+        <mat-icon class="text-sm!" style="font-size: 14px; width: 14px; height: 14px;">camera_alt</mat-icon>
+        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/jpeg,image/png" hidden />
+      </label>
       }
     </div>
   `,
@@ -67,6 +56,8 @@ export class ProfilePictureUploadComponent {
     }
   }
   @Input() initials: string = '';
+  /** Whether the camera overlay (upload control) should render at all. */
+  @Input() canEdit: boolean = true;
   @Output() pictureUploaded = new EventEmitter<string>();
 
   private http = inject(HttpClient);
@@ -74,11 +65,11 @@ export class ProfilePictureUploadComponent {
 
   _currentPictureUrl = signal<string | null>(null);
   isUploading = signal(false);
-  uploadStatus = signal('Click camera icon to upload');
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
+    input.value = '';
 
     if (!file) return;
 
@@ -97,7 +88,6 @@ export class ProfilePictureUploadComponent {
 
   private uploadFile(file: File): void {
     this.isUploading.set(true);
-    this.uploadStatus.set('Uploading...');
 
     const formData = new FormData();
     formData.append('file', file);
@@ -107,27 +97,18 @@ export class ProfilePictureUploadComponent {
       .subscribe({
         next: (response: UploadResponse) => {
           if (response.isSuccess) {
-            const fullUrl = this.getFullImageUrl(response.data.pictureUrl);
-            this._currentPictureUrl.set(fullUrl);
+            this._currentPictureUrl.set(response.data.pictureUrl);
             this.pictureUploaded.emit(response.data.pictureUrl);
-            this.uploadStatus.set('Uploaded successfully');
             this.toast.success('Profile picture uploaded successfully', 'Success');
           } else {
-            this.uploadStatus.set('Upload failed');
             this.toast.error(response.message || 'Upload failed', 'Error');
           }
           this.isUploading.set(false);
         },
         error: (err: any) => {
-          this.uploadStatus.set('Upload failed');
           this.isUploading.set(false);
           this.toast.error(err.error?.message || 'Failed to upload image', 'Error');
         }
       });
-  }
-
-  private getFullImageUrl(relativePath: string): string {
-    const baseUrl = window.location.origin;
-    return `${baseUrl}/${relativePath}`;
   }
 }

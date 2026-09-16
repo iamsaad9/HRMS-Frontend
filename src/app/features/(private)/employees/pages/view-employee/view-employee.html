@@ -24,10 +24,13 @@
     <!-- Identity summary strip -->
     <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
       <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-        <div
-          class="size-16 rounded-full bg-(--theme1)/15 border border-(--theme1)/25 flex items-center justify-center text-xl font-semibold text-(--theme1) shrink-0">
-          {{ initials() }}
-        </div>
+        <app-profile-picture-upload
+          [employeeId]="emp.id"
+          [currentPictureUrl]="emp.profilePictureUrl ?? null"
+          [initials]="initials()"
+          [canEdit]="canEditPicture()"
+          (pictureUploaded)="onPictureUploaded($event)">
+        </app-profile-picture-upload>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
             <h1 class="text-2xl font-semibold text-(--theme2) m-0 uppercase">{{ emp.fullName }}</h1>
@@ -43,16 +46,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Profile Picture Upload (Admin Only) -->
-    @if (canEdit()) {
-    <app-profile-picture-upload
-      [employeeId]="emp.id"
-      [currentPictureUrl]="emp.profilePictureUrl ?? null"
-      [initials]="initials()"
-      (pictureUploaded)="onPictureUploaded($event)">
-    </app-profile-picture-upload>
-    }
 
     <!-- Personal Details -->
     <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">

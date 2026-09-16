@@ -68,6 +68,7 @@ export interface DashboardTeamMember {
   departmentId: string | null;
   workEmail: string;
   staffNo: string;
+  profilePictureUrl?: string | null;
 }
 
 // Mirrors backend PendingApprovalDto

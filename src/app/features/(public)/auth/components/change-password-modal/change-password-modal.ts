@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
-import { TuiDialogContext } from '@taiga-ui/core';
+import { TuiDialogContext, TuiInput } from '@taiga-ui/core';
 import { TuiButton, TuiError, TuiLabel, TuiTextfieldComponent, TuiIcon } from '@taiga-ui/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,7 +13,7 @@ export interface ChangePasswordPayload {
 @Component({
   selector: 'app-change-password-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TuiButton, TuiError, TuiLabel, TuiTextfieldComponent, TuiIcon, MatIconModule],
+  imports: [CommonModule, ReactiveFormsModule, TuiButton, TuiError, TuiLabel,TuiInput, TuiTextfieldComponent, TuiIcon, MatIconModule],
   templateUrl: './change-password-modal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

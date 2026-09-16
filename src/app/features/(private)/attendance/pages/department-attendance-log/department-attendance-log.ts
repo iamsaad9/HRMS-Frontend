@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { TuiButton, TuiCell, TuiTitle, TuiIcon, TuiTextfield } from '@taiga-ui/core';
-import { TuiBadge, TuiInputDate, TuiStatus } from '@taiga-ui/kit';
+import { TuiButton, TuiCell, TuiTitle, TuiIcon, TuiTextfield, TuiLabel } from '@taiga-ui/core';
+import { TuiBadge, TuiInputDate, TuiStatus, TuiDataListWrapperComponent, TuiSelect } from '@taiga-ui/kit';
 import { TuiTable } from '@taiga-ui/addon-table';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { Router } from '@angular/router';
@@ -34,7 +34,9 @@ import { isoToDisplayDate, toIsoDate } from '../../../../../shared/utils/date-fo
     TuiCardLarge,
     TuiIcon,
     MainHeading,
-  ],
+    TuiLabel,
+    TuiDataListWrapperComponent
+],
   templateUrl: './department-attendance-log.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -52,8 +54,13 @@ export class DepartmentAttendanceLog implements OnInit {
   protected rangeError = signal<string | null>(null);
   protected readonly maxRangeDays = 92;
   protected selectedEmployeeId = signal<string | null>(null);
-
-  // One row per employee, deduped from allRecords(), for the left-hand list.
+readonly stringifyDept = (item: any): string => {
+  if (!item) return '';
+  // Handles if item is already an object or an ID lookup
+  if (typeof item === 'object') return item.name || '';
+  const match = this.departments().find(d => d.id === item);
+  return match ? match.name : String(item);
+};  // One row per employee, deduped from allRecords(), for the left-hand list.
   protected employees = computed(() => {
     const map = new Map<string, { id: string; name: string; recordCount: number }>();
     for (const r of this.allRecords()) {

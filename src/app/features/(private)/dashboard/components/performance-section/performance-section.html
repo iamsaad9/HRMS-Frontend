@@ -156,54 +156,54 @@
           </div>
 
           <!-- Status Info Cards Container (Always Displayed) -->
-          <div class="grid grid-cols-2 gap-3 mb-4">
-            <div class="p-3.5 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-              <span class="text-xs text-(--primary)/80 block font-medium">Start Time</span>
-              <span class="text-lg font-bold text-(--primary) mt-0.5 block">
-                {{
-                (attendanceService.todayStatus()?.punches?.find((p) => p.punchType == 'In')?.punchTime | date: 'hh:mm
-                a') || '--:--'
-                }}
-              </span>
-            </div>
+          <div class="p-4 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]! mb-4">
+            <div class="grid grid-cols-2">
+              <!-- Top-Left: Clock In -->
+              <div class="pb-3 pr-4 border-b border-r border-(--primary)/15">
+                <span class="text-xs text-(--primary)/80 block font-medium">Clock In</span>
+                <span class="text-lg font-bold text-(--primary) mt-0.5 block">
+                  {{
+                  (attendanceService.todayStatus()?.punches?.find((p) => p.punchType == 'In')?.punchTime | date: 'hh:mm
+                  a') || '--:--'
+                  }}
+                </span>
+              </div>
 
-            <div class="p-3.5 rounded-xl bg-(--background_light) shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-              <span class="text-xs text-(--primary)/80 block font-medium">End Time</span>
-              <span class="text-lg font-bold text-(--primary) mt-0.5 block">
-                {{
-                (attendanceService.todayStatus()?.punches?.find((p) => p.punchType == 'Out')?.punchTime | date: 'hh:mm
-                a') || '--:--'
-                }}
-              </span>
-            </div>
+              <!-- Top-Right: Clock Out -->
+              <div class="pb-3 pl-4 border-b border-(--primary)/15">
+                <span class="text-xs text-(--primary)/80 block font-medium">Clock Out</span>
+                <span class="text-lg font-bold text-(--primary) mt-0.5 block">
+                  {{
+                  (attendanceService.todayStatus()?.punches?.find((p) => p.punchType == 'Out')?.punchTime | date: 'hh:mm
+                  a') || '--:--'
+                  }}
+                </span>
+              </div>
 
-            <!-- Break Sessions -->
-            @for (session of breakSessions(); track session.start) {
-            <div class="p-2 rounded-xl bg-(--theme1)/20 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-              <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
-              <span class="text-sm font-bold text-(--primary) mt-0.5 block">
-                {{ session.start | date: 'hh:mm a' }}
-              </span>
-            </div>
+              <!-- Bottom-Left: Break In -->
+              <div class="pt-3 pr-4 border-r border-(--primary)/15 ">
+                <span class="text-xs text-(--primary)/80 block font-medium">Break In</span>
+                <span class="text-sm font-bold text-(--primary) mt-0.5 block">
+                  @if (breakSessions().length > 0) {
+                  {{ breakSessions()[breakSessions().length - 1].start | date: 'hh:mm a' }}
+                  } @else {
+                  --:--
+                  }
+                </span>
+              </div>
 
-            @if (session.end) {
-            <div class="p-2 rounded-xl bg-(--theme1)/20 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-              <span class="text-xs text-(--primary)/80 block font-medium">Break End</span>
-              <span class="text-sm font-bold text-(--primary) mt-0.5 block">
-                {{ session.end | date: 'hh:mm a' }}
-              </span>
+              <!-- Bottom-Right: Break Out -->
+              <div class="pt-3 pl-4">
+                <span class="text-xs text-(--primary)/80 block font-medium">Break Out</span>
+                <span class="text-sm font-bold text-(--primary) mt-0.5 block">
+                  @if (breakSessions().length > 0 && breakSessions()[breakSessions().length - 1].end) {
+                  {{ breakSessions()[breakSessions().length - 1].end | date: 'hh:mm a' }}
+                  } @else {
+                  --:--
+                  }
+                </span>
+              </div>
             </div>
-            }
-            } @empty {
-            <div class="p-2 rounded-xl bg-(--theme1)/20 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-              <span class="text-xs text-(--primary)/80 block font-medium">Break Start</span>
-              <span class="text-sm font-bold text-(--primary) mt-0.5 block">--:--</span>
-            </div>
-            <div class="p-2 rounded-xl bg-(--theme1)/20 shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-              <span class="text-xs text-(--primary)/80 block font-medium">Break End</span>
-              <span class="text-sm font-bold text-(--primary) mt-0.5 block">--:--</span>
-            </div>
-            }
           </div>
 
           <!-- Action Buttons in a Single Row -->

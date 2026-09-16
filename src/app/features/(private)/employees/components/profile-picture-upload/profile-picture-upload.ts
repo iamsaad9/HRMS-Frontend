@@ -1,9 +1,17 @@
-import { Component, inject, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, inject, Input, Output, EventEmitter, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { TuiButton } from '@taiga-ui/core';
-import { ToastService } from '../../../../../../core/services/toast.service';
+import { ToastService } from '../../../../../core/services/toast.service';
+
+interface UploadResponse {
+  isSuccess: boolean;
+  message?: string;
+  data: {
+    pictureUrl: string;
+  };
+}
 
 @Component({
   selector: 'app-profile-picture-upload',
@@ -14,8 +22,8 @@ import { ToastService } from '../../../../../../core/services/toast.service';
       <div class="flex items-center gap-3">
         <!-- Current Picture or Initials -->
         <div class="relative">
-          @if (currentPictureUrl()) {
-          <img [src]="currentPictureUrl()" alt="Profile"
+          @if (_currentPictureUrl()) {
+          <img [src]="_currentPictureUrl()" alt="Profile"
             class="size-20 rounded-full object-cover border-2 border-(--theme1)">
           } @else {
           <div class="size-20 rounded-full bg-(--theme1)/20 border-2 border-(--theme1)/50 flex items-center justify-center text-2xl font-semibold text-(--theme1)">
@@ -51,13 +59,20 @@ import { ToastService } from '../../../../../../core/services/toast.service';
 })
 export class ProfilePictureUploadComponent {
   @Input() employeeId!: string;
-  @Input() currentPictureUrl = signal<string | null>(null);
+  @Input() set currentPictureUrl(value: string | null | WritableSignal<string | null>) {
+    if (typeof value === 'string' || value === null) {
+      this._currentPictureUrl.set(value);
+    } else {
+      this._currentPictureUrl.set(value());
+    }
+  }
   @Input() initials: string = '';
   @Output() pictureUploaded = new EventEmitter<string>();
 
   private http = inject(HttpClient);
   private toast = inject(ToastService);
 
+  _currentPictureUrl = signal<string | null>(null);
   isUploading = signal(false);
   uploadStatus = signal('Click camera icon to upload');
 
@@ -88,12 +103,12 @@ export class ProfilePictureUploadComponent {
     formData.append('file', file);
 
     this.http
-      .post<any>(`/api/FileUpload/upload-profile-picture/${this.employeeId}`, formData)
+      .post<UploadResponse>(`/api/FileUpload/upload-profile-picture/${this.employeeId}`, formData)
       .subscribe({
-        next: (response) => {
+        next: (response: UploadResponse) => {
           if (response.isSuccess) {
             const fullUrl = this.getFullImageUrl(response.data.pictureUrl);
-            this.currentPictureUrl.set(fullUrl);
+            this._currentPictureUrl.set(fullUrl);
             this.pictureUploaded.emit(response.data.pictureUrl);
             this.uploadStatus.set('Uploaded successfully');
             this.toast.success('Profile picture uploaded successfully', 'Success');
@@ -103,7 +118,7 @@ export class ProfilePictureUploadComponent {
           }
           this.isUploading.set(false);
         },
-        error: (err) => {
+        error: (err: any) => {
           this.uploadStatus.set('Upload failed');
           this.isUploading.set(false);
           this.toast.error(err.error?.message || 'Failed to upload image', 'Error');

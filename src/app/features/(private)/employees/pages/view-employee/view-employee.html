@@ -48,7 +48,7 @@
     @if (canEdit()) {
     <app-profile-picture-upload
       [employeeId]="emp.id"
-      [currentPictureUrl]="emp.profilePictureUrl || null"
+      [currentPictureUrl]="emp.profilePictureUrl ?? null"
       [initials]="initials()"
       (pictureUploaded)="onPictureUploaded($event)">
     </app-profile-picture-upload>

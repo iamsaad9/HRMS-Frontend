@@ -9,9 +9,6 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import {  FormGroup, AbstractControl } from '@angular/forms';
-import { TuiDialogService } from '@taiga-ui/core';
-import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
-import { ChangePasswordModal, ChangePasswordPayload } from '../components/change-password-modal/change-password-modal';
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -24,7 +21,6 @@ export class Login {
   private authService = inject(AuthService);
   private router = inject(Router);
   private readonly toast = inject(ToastService);
-  private readonly dialogs = inject(TuiDialogService);
 
   isSignUp = signal<boolean>(false);
   isLoading = signal<boolean>(false);
@@ -178,13 +174,9 @@ getErrorMessage(controlName: string, groupName?: 'employeeDetails' | 'employment
           next: () => {
             this.toast.success('Login Successful!');
             this.loginForm.reset();
-
-            const currentUser = this.authService.currentUser();
-            if (currentUser?.isDefaultPassword) {
-              this.showChangePasswordModal();
-            } else {
-              this.router.navigate(['/dashboard']);
-            }
+            // The forced default-password change modal (if needed) is shown from MainLayout once
+            // the user is actually inside the app, not here on top of the login page.
+            this.router.navigate(['/dashboard']);
           },
           error: () => {
             const msg = 'Invalid email or password';
@@ -193,31 +185,5 @@ getErrorMessage(controlName: string, groupName?: 'employeeDetails' | 'employment
           },
         });
     }
-  }
-
-  private showChangePasswordModal(): void {
-    this.dialogs
-      .open<ChangePasswordPayload | null>(new PolymorpheusComponent(ChangePasswordModal), {
-        closable: false,
-        dismissible: false,
-      })
-      .subscribe((payload) => {
-        if (payload) {
-          this.isLoading.set(true);
-          this.authService
-            .changePassword({ currentPassword: '', newPassword: payload.newPassword })
-            .pipe(finalize(() => this.isLoading.set(false)))
-            .subscribe({
-              next: () => {
-                this.toast.success('Password changed successfully. Please login again.', 'Password Updated');
-                this.router.navigate(['/login']);
-              },
-              error: (err) => {
-                const msg = err?.error?.message || 'Failed to change password';
-                this.toast.error(msg, 'Update Failed');
-              },
-            });
-        }
-      });
   }
 }

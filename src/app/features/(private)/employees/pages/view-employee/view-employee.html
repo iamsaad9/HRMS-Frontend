@@ -26,7 +26,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-4">
         <app-profile-picture-upload
           [employeeId]="emp.id"
-          [currentPictureUrl]="emp.profilePictureUrl ?? null"
+          [confirmPictureUrl]="emp.profilePictureUrl ?? null"
           [initials]="initials()"
           [canEdit]="canEditPicture()"
           (pictureUploaded)="onPictureUploaded($event)">
@@ -174,19 +174,18 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>Current Password <span class="text-red-500">*</span></label>
-              <input formControlName="currentPassword" type="password" placeholder="Enter new password" tuiInput />
-            </tui-textfield>
-            <tui-error formControlName="currentPassword" />
-          </div>
-
-          <div>
-            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
               <label tuiLabel>New Password <span class="text-red-500">*</span></label>
               <input formControlName="newPassword" type="password" placeholder="Re-enter new password" tuiInput />
             </tui-textfield>
             <tui-error formControlName="newPassword" />
           </div>
+           <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+              <label tuiLabel>Confirm Password <span class="text-red-500">*</span></label>
+              <input formControlName="confirmPassword" type="password" placeholder="Enter new password" tuiInput />
+            </tui-textfield>
+            <tui-error formControlName="confirmPassword" />
+          </div>  
         </div>
 
         @if (passwordSuccessMessage()) {

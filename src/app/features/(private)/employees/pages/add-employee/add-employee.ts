@@ -131,12 +131,28 @@ export class AddEmployee implements OnInit {
   protected departmentsOptions = computed(
     () => this.employeeService.allDepartments()?.map((item) => item.name) ?? [],
   );
-  protected designationsOptions = computed(
-    () => this.employeeService.allDesignations()?.map((item) => item.title) ?? [],
+
+  /** Set from the departmentId control's valueChanges - kept as a signal (rather than read
+   * imperatively) so designationsOptions/managersOptions below recompute correctly regardless of
+   * whether the department list or the designation/manager lists finish loading first. */
+  private selectedDepartmentName = signal<string>('');
+  protected selectedDepartmentId = computed(
+    () => this.employeeService.allDepartments()?.find((d) => d.name === this.selectedDepartmentName())?.id ?? null,
   );
-  protected managersOptions = computed(
-    () => this.employeeService.allManagers()?.map((item) => item.fullName) ?? [],
-  );
+
+  // Designation and Reporting Manager both belong to a Department in this schema, so both cascade
+  // from it; Branch has no such relationship in the data model, so it stays independent.
+  protected designationsOptions = computed(() => {
+    const deptId = this.selectedDepartmentId();
+    const all = this.employeeService.allDesignations() ?? [];
+    return (deptId ? all.filter((d) => d.departmentId === deptId) : all).map((d) => d.title);
+  });
+  protected managersOptions = computed(() => {
+    const deptId = this.selectedDepartmentId();
+    const all = this.employeeService.allManagers() ?? [];
+    return (deptId ? all.filter((m) => m.departmentId === deptId) : all).map((m) => m.fullName);
+  });
+
   protected rolesOptions = computed(
     () => this.employeeService.allRoles()?.map((item) => item.name) ?? [],
   );
@@ -144,10 +160,20 @@ export class AddEmployee implements OnInit {
     () => this.employeeService.allBranches()?.map((item) => item.name) ?? [],
   );
 
+  protected showPassword = signal<boolean>(false);
+
   ngOnInit(): void {
     this.buildForm();
     this.checkRouteMode();
     this.loadDropdownData();
+
+    this.form.get('departmentId')!.valueChanges.subscribe((name) => {
+      this.selectedDepartmentName.set(name ?? '');
+      // A previously selected designation/manager may not belong to the new department -
+      // patchForm() re-sets these to the correct values right after this fires during an edit-mode
+      // load, so this only has a lasting effect on a genuine user-driven department change.
+      this.form.patchValue({ designationId: '', managerId: null });
+    });
   }
 
   private loadDropdownData(): void {
@@ -253,6 +279,7 @@ export class AddEmployee implements OnInit {
         passwordControl?.setValue('Default@123'); // Set default password value
       } else {
         passwordControl?.enable();
+        passwordControl?.setValue('');
       }
     });
   }

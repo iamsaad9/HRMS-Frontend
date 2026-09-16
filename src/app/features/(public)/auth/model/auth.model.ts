@@ -37,6 +37,7 @@ export interface RegisterResponse {
 }
 
 export interface changePasswordCommand{
-  currentPassword: string;
+  confirmPassword: string;
   newPassword:string;
+
 }

@@ -31,6 +31,7 @@ import {
   FormGroup,
 } from '@angular/forms';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
+import { ProfilePictureUploadComponent } from '../../components/profile-picture-upload/profile-picture-upload';
 
 @Component({
   selector: 'app-employee-view',
@@ -48,6 +49,7 @@ import { AuthService } from '../../../../(public)/auth/services/auth.service';
     TuiLabel,
     TuiError,
     TuiInput,
+    ProfilePictureUploadComponent,
   ],
   templateUrl: './view-employee.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,6 +66,11 @@ export class EmployeeView {
   // (any employee can view their own profile), but the Edit button should only ever show for
   // whoever the /employee/:id/edit route actually lets in.
   protected canEdit = computed(() => this.authSerivce.hasRole(['Admin', 'HR']));
+
+  /** Any employee may upload/replace their own profile picture; Admin/HR may do it for anyone. */
+  protected canEditPicture = computed(
+    () => this.canEdit() || this.employee()?.id === this.authSerivce.currentUser()?.employeeInfo?.id,
+  );
 
   protected employee = signal<Employee | null>(null);
   protected isLoading = signal(true);
@@ -149,10 +156,19 @@ export class EmployeeView {
         this.passwordForm.reset();
         this.isSubmittingPassword.set(false);
       },
-      error: () => {
-        this.passwordErrorMessage.set('Could not update password. Please try again.');
+      error: (err) => {
+        const msg = err?.error?.message || 'Could not update password. Please try again.';
+        this.passwordErrorMessage.set(msg);
         this.isSubmittingPassword.set(false);
       },
     });
+  }
+
+  protected onPictureUploaded(relativePath: string): void {
+    const emp = this.employee();
+    if (emp) {
+      emp.profilePictureUrl = relativePath;
+      this.employee.set({ ...emp });
+    }
   }
 }

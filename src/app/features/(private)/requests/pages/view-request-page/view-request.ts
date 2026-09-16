@@ -158,13 +158,26 @@ export class ViewRequest {
     this.isSubmittingAction.set(true);
     this.requestService
       .approve(type, this.currentId, { remarks: this.remarks() || null })
-      .pipe(finalize(() => this.isSubmittingAction.set(false)))
+      .pipe(
+        tap((res) => {
+          if (res.isSuccess) {
+            this.requestService.sendApprovalEmail(r.requesterEmployeeId, r.requestType, this.remarks() || undefined).subscribe({
+              next: () => {
+                this.toast.success('Request approved and email sent.', 'Approved');
+                this.router.navigate(['/requests/approvals']);
+              },
+              error: () => {
+                this.toast.success('Request approved (email notification failed).', 'Approved');
+                this.router.navigate(['/requests/approvals']);
+              },
+            });
+          }
+        }),
+        finalize(() => this.isSubmittingAction.set(false))
+      )
       .subscribe({
         next: (res) => {
-          if (res.isSuccess) {
-            this.toast.success('Request approved.', 'Approved');
-            this.router.navigate(['/requests/approvals']);
-          } else {
+          if (!res.isSuccess) {
             this.toast.error(res.message || 'Could not approve this request.', 'Approve Failed');
           }
         },
@@ -186,13 +199,26 @@ export class ViewRequest {
     this.isSubmittingAction.set(true);
     this.requestService
       .reject(type, this.currentId, { remarks: this.remarks() })
-      .pipe(finalize(() => this.isSubmittingAction.set(false)))
+      .pipe(
+        tap((res) => {
+          if (res.isSuccess) {
+            this.requestService.sendRejectionEmail(r.requesterEmployeeId, r.requestType, this.remarks()).subscribe({
+              next: () => {
+                this.toast.success('Request rejected and email sent.', 'Rejected');
+                this.router.navigate(['/requests/approvals']);
+              },
+              error: () => {
+                this.toast.success('Request rejected (email notification failed).', 'Rejected');
+                this.router.navigate(['/requests/approvals']);
+              },
+            });
+          }
+        }),
+        finalize(() => this.isSubmittingAction.set(false))
+      )
       .subscribe({
         next: (res) => {
-          if (res.isSuccess) {
-            this.toast.success('Request rejected.', 'Rejected');
-            this.router.navigate(['/requests/approvals']);
-          } else {
+          if (!res.isSuccess) {
             this.toast.error(res.message || 'Could not reject this request.', 'Reject Failed');
           }
         },

@@ -156,6 +156,7 @@ export interface Employee {
   managerEmail?: string;
   shiftCode?: string;
   roles?:string[]
+  profilePictureUrl?: string | null;
 }
 
 export interface EmployeeFilter {

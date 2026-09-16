@@ -13,6 +13,8 @@ export interface User {
   employeeInfo: Employee;
   /** True if this employee has direct reports - "Manager" is structural, not an Identity role. */
   isManager?: boolean;
+  /** True if user is still using the default password and should be prompted to change it. */
+  isDefaultPassword?: boolean;
 }
 
 export interface LoginCommand {

@@ -250,7 +250,7 @@ export class AddEmployee implements OnInit {
 
       if (useDefault) {
         passwordControl?.disable();
-        passwordControl?.setValue('Welcome@123'); // Set default password value
+        passwordControl?.setValue('Default@123'); // Set default password value
       } else {
         passwordControl?.enable();
       }
@@ -363,7 +363,7 @@ export class AddEmployee implements OnInit {
         designationId: designationId ?? null,
         managerId,
         newPassword: rawValue.useDefaultPassword
-          ? 'Welcome@123'
+          ? 'Default@123'
           : rawValue.password
             ? rawValue.password
             : null,

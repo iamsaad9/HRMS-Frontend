@@ -16,10 +16,15 @@
       <div class="flex items-center justify-between gap-4 pb-5 border-b border-(--primary)/20">
         <!-- Left Side: Avatar + Details -->
         <div class="flex items-center gap-4 min-w-0">
+          @if (currentUser && currentUser.employeeInfo?.profilePictureUrl) {
+          <img [src]="currentUser.employeeInfo.profilePictureUrl" alt="Profile Picture"
+            class="size-16 rounded-full object-cover border border-(--theme1)/50 shrink-0">
+          } @else {
           <div
             class="size-16 rounded-full bg-(--theme1)/25 border border-(--theme1)/50 flex items-center justify-center text-xl font-semibold text-(--theme1) shrink-0">
             {{ initials() }}
           </div>
+          }
 
           <div class="min-w-0">
             <h3 class="text-xl font-bold text-(--theme2) truncate">

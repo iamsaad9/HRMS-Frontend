@@ -5,10 +5,15 @@
       'ring-2 ring-amber-400': isMatch(),
       'opacity-40': searchTerm && !subtreeHasMatch()
     }">
+        @if (node.employee.profilePictureUrl) {
+        <img [src]="node.employee.profilePictureUrl" alt="{{ node.employee.fullName }}"
+            class="size-11 rounded-full object-cover border border-(--theme1)/25 shrink-0">
+        } @else {
         <div
             class="size-11 rounded-full bg-(--theme1)/15 border border-(--theme1)/25 flex items-center justify-center text-sm font-semibold text-(--theme1) shrink-0">
             {{ initials(node.employee.fullName) }}
         </div>
+        }
 
         <div class="text-center min-w-0 w-full">
             <p class="text-sm font-semibold text-(--primary) leading-tight m-0 truncate"

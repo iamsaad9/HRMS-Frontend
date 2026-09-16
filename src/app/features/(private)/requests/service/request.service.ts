@@ -154,6 +154,22 @@ getRequestById(id?: string): Observable<ApiResponse<GetRequestByIdResponse>> {
       );
     }
 
+    sendApprovalEmail(requesterEmployeeId: string, requestType: string, remarks?: string): Observable<ApiResponse<boolean>> {
+      return this.http.post<ApiResponse<boolean>>('/api/Email/send-approval', {
+        requesterEmployeeId,
+        requestType,
+        remarks,
+      });
+    }
+
+    sendRejectionEmail(requesterEmployeeId: string, requestType: string, remarks?: string): Observable<ApiResponse<boolean>> {
+      return this.http.post<ApiResponse<boolean>>('/api/Email/send-rejection', {
+        requesterEmployeeId,
+        requestType,
+        remarks,
+      });
+    }
+
     cancel(type: RequestType, id: string): Observable<ApiResponse<boolean>> {
       const params = new HttpParams().set('employeeId', this.currentUserId ?? '');
       return this.http.delete<ApiResponse<boolean>>(

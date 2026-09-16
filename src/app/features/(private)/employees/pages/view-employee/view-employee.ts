@@ -31,6 +31,7 @@ import {
   FormGroup,
 } from '@angular/forms';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
+import { ProfilePictureUploadComponent } from '../../components/profile-picture-upload/profile-picture-upload';
 
 @Component({
   selector: 'app-employee-view',
@@ -48,6 +49,7 @@ import { AuthService } from '../../../../(public)/auth/services/auth.service';
     TuiLabel,
     TuiError,
     TuiInput,
+    ProfilePictureUploadComponent,
   ],
   templateUrl: './view-employee.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -154,5 +156,13 @@ export class EmployeeView {
         this.isSubmittingPassword.set(false);
       },
     });
+  }
+
+  protected onPictureUploaded(relativePath: string): void {
+    const emp = this.employee();
+    if (emp) {
+      emp.profilePictureUrl = relativePath;
+      this.employee.set({ ...emp });
+    }
   }
 }

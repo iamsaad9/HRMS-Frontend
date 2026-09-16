@@ -44,6 +44,16 @@
       </div>
     </div>
 
+    <!-- Profile Picture Upload (Admin Only) -->
+    @if (canEdit()) {
+    <app-profile-picture-upload
+      [employeeId]="emp.id"
+      [currentPictureUrl]="emp.profilePictureUrl || null"
+      [initials]="initials()"
+      (pictureUploaded)="onPictureUploaded($event)">
+    </app-profile-picture-upload>
+    }
+
     <!-- Personal Details -->
     <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
       <header class="flex flex-row gap-2 items-center">

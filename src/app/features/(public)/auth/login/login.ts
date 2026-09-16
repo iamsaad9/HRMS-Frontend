@@ -198,7 +198,6 @@ getErrorMessage(controlName: string, groupName?: 'employeeDetails' | 'employment
   private showChangePasswordModal(): void {
     this.dialogs
       .open<ChangePasswordPayload | null>(new PolymorpheusComponent(ChangePasswordModal), {
-        size: 'l',
         closable: false,
         dismissible: false,
       })

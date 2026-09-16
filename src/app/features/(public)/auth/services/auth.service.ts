@@ -182,7 +182,7 @@ checkSession(): Observable<boolean> {
   }
 
   changePassword(command:changePasswordCommand):Observable<ApiResponse<any>>{
-    return this.http.post<any>(`${this.apiUrl}/change-password`,command).pipe(
+    return this.http.post<any>(`${this.apiUrl}/change-password-first-login`,command).pipe(
       tap((response)=>{
         if(response.isSuccess){
           this.logout().subscribe();

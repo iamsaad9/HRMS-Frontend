@@ -20,13 +20,15 @@ export interface ChangePasswordPayload {
 export class ChangePasswordModal {
   protected readonly context = inject<TuiDialogContext<ChangePasswordPayload | null, void>>(POLYMORPHEUS_CONTEXT);
   private readonly fb = inject(FormBuilder);
-
+  
   protected form = this.fb.group({
     newPassword: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', [Validators.required]],
   }, { validators: this.passwordMatchValidator });
 
-  protected showPassword = false;
+  showPassword = false;
+  showConfirmPassword = false;
+
 
   private passwordMatchValidator(form: any): any {
     const password = form.get('newPassword');
@@ -38,8 +40,12 @@ export class ChangePasswordModal {
     return null;
   }
 
-  protected togglePasswordVisibility(): void {
+  togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   protected submit(): void {
@@ -49,6 +55,7 @@ export class ChangePasswordModal {
       return;
     }
 
+    console.log('Form submitted with values:', this.form.value);
     const newPassword = this.form.get('newPassword')?.value;
     this.context.completeWith({ newPassword });
   }

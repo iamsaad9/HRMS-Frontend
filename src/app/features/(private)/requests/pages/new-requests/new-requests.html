@@ -30,11 +30,13 @@
             </header>
 
             <div tuiGroup [collapsed]="true" class="w-full">
+                @if (!isAcademic()) {
                 <label tuiBlock>
                     Leave Application
                     <input type="radio" formControlName="requestType" value="leave" tuiRadio
                         [style.margin-inline-start]="'auto'" />
                 </label>
+                }
                 <label tuiBlock>
                     Work From Home
                     <input type="radio" formControlName="requestType" value="wfh" tuiRadio

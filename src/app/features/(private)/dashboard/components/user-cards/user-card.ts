@@ -40,9 +40,13 @@ protected readonly customChartColors = {
   };
 
  protected initials = computed(() => {
-    if (!this.currentUser) return '';
-    return `${this.currentUser.employeeInfo.firstName[0]?.[0] ?? ''}${this.currentUser.employeeInfo.lastName[0]?.[0] ?? ''}`.toUpperCase();
+    const user = this.currentUser;
+    if (!user) return '';
+    return `${user.employeeInfo.firstName[0]?.[0] ?? ''}${user.employeeInfo.lastName[0]?.[0] ?? ''}`.toUpperCase();
   });
+
+  /** Academic staff can't apply for leave, so a leave balance is meaningless for them. */
+  protected isAcademic = computed(() => this.currentUser?.employeeInfo?.category === 'Academic');
 
   protected activeItemIndex = Number.NaN;
 

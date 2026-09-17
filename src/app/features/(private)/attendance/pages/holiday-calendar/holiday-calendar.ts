@@ -1,33 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { TuiButton, TuiIcon, TuiDialogService, TuiGroup, TuiInput } from '@taiga-ui/core';
+import { TuiButton, TuiIcon, TuiDialogService, TuiGroup, TuiInput, TuiCheckbox } from '@taiga-ui/core';
 import { TuiBadge } from '@taiga-ui/kit';
 import { TuiTable } from '@taiga-ui/addon-table';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { ToastService } from '../../../../../core/services/toast.service';
 import { CategoryType } from '../../../employees/model/employee.model';
-import { Holiday, HolidayService } from '../../service/holiday.service';
-import { AddCalendarEventModal, CalendarEventFormValue } from '../../components/add-calendar-event-modal/add-calendar-event-modal';
+import { Holiday, HolidayService, CreateHolidayCommand } from '../../service/holiday.service';
+import { AddCalendarEventModal, HolidayFormValue } from '../../components/add-calendar-event-modal/add-calendar-event-modal';
 import { MainHeading } from "../../../../../shared/components/main-heading/main-heading";
 
-type EventType = 'work-day' | 'weekend' | 'holiday' | 'optional-holiday' | 'training-day' | 'custom-event';
-
-const EVENT_TYPE_TO_HOLIDAY_TYPE = {
-  'work-day': 'WorkDay',
-  weekend: 'Weekend',
-  holiday: 'BankHoliday',
-  'optional-holiday': 'BankHoliday',
-  'training-day': 'TrainingDay',
-  'custom-event': 'Other',
-} as const satisfies Record<EventType, string>;
-
-const HOLIDAY_TYPE_TO_EVENT_TYPE: Record<string, EventType> = {
-  TermBreak: 'holiday',
-  HalfTerm: 'holiday',
-  BankHoliday: 'holiday',
-};
+// The 4 real HolidayType values (see HolidayService's HolidayType enum).
+type LegendKey = 'PublicHoliday' | 'BankHoliday' | 'TermBreak' | 'HalfTerm';
 
 interface SidebarCategoryItem {
   category: CategoryType;
@@ -51,7 +37,7 @@ function currentAcademicYear(): string {
 
 @Component({
   selector: 'app-holiday-calendar',
-  imports: [FormsModule, DatePipe, TuiButton, TuiIcon, TuiBadge, TuiTable, TuiCardLarge, TuiGroup, TuiInput, MainHeading],
+  imports: [FormsModule, DatePipe, TuiButton, TuiIcon, TuiBadge, TuiTable, TuiCardLarge, TuiGroup, TuiInput, TuiCheckbox, MainHeading],
   templateUrl: './holiday-calendar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -62,21 +48,19 @@ export class HolidayCalendar {
 
   protected readonly CategoryType = CategoryType;
 
-  protected readonly eventTypeMeta: Record<EventType, { label: string; color: string }> = {
-    'work-day': { label: 'Work Day', color: '#22C55E' },
-    weekend: { label: 'Weekend', color: '#9CA3AF' },
-    holiday: { label: 'Holiday', color: '#A78BFA' },
-    'optional-holiday': { label: 'Optional Holiday', color: '#93C5FD' },
-    'training-day': { label: 'Training Day', color: '#FBBF24' },
-    'custom-event': { label: 'Custom Event', color: '#22D3EE' },
+  protected readonly legendMeta: Record<LegendKey, { label: string; color: string }> = {
+    PublicHoliday: { label: 'Public Holiday', color: '#A78BFA' },
+    BankHoliday: { label: 'Bank Holiday', color: '#818CF8' },
+    TermBreak: { label: 'Term Break', color: '#22D3EE' },
+    HalfTerm: { label: 'Half Term', color: '#FBBF24' },
   };
 
-  protected readonly legendEntries = Object.entries(this.eventTypeMeta) as [
-    EventType,
+  protected readonly legendEntries = Object.entries(this.legendMeta) as [
+    LegendKey,
     { label: string; color: string },
   ][];
 
-  // ---- SIDEBAR: employee categories replace the old generic "custom calendars" list ----
+  // ---- SIDEBAR: employee categories ----
   protected readonly sidebarCategories: SidebarCategoryItem[] = [
     {
       category: CategoryType.Administrative,
@@ -97,6 +81,7 @@ export class HolidayCalendar {
   protected isLoading = signal(false);
   protected hasSearched = signal(false);
   protected holidays = signal<Holiday[]>([]);
+  protected showInactive = signal(false);
 
   protected canLoad(): boolean {
     const category = this.selectedCategory();
@@ -122,6 +107,11 @@ export class HolidayCalendar {
     }
   }
 
+  protected onShowInactiveChange(value: boolean): void {
+    this.showInactive.set(value);
+    this.loadHolidays();
+  }
+
   protected loadHolidays(): void {
     const category = this.selectedCategory();
     if (category === null) return;
@@ -129,7 +119,7 @@ export class HolidayCalendar {
     this.isLoading.set(true);
     const academicYear = category === CategoryType.Academic ? this.academicYear().trim() : null;
 
-    this.holidayService.getHolidays(category, academicYear).subscribe({
+    this.holidayService.getHolidays(category, academicYear, this.showInactive()).subscribe({
       next: (response) => {
         this.holidays.set(response.isSuccess && response.data ? response.data : []);
         this.hasSearched.set(true);
@@ -143,7 +133,7 @@ export class HolidayCalendar {
     });
   }
 
-  // ---- CALENDAR STATE (unchanged from the original custom-calendar) ----
+  // ---- CALENDAR STATE ----
   protected viewMode = signal<'month' | 'week' | 'list'>('month');
   protected showLegend = signal<boolean>(true);
   protected cursorDate = signal<Date>(new Date());
@@ -189,12 +179,18 @@ export class HolidayCalendar {
   }
 
   protected eventColor(holiday: Holiday): string {
-    const eventType = HOLIDAY_TYPE_TO_EVENT_TYPE[holiday.type] ?? (holiday.isOptional ? 'optional-holiday' : 'holiday');
-    return this.eventTypeMeta[eventType].color;
+    const key = holiday.type as LegendKey;
+    return this.legendMeta[key]?.color ?? this.legendMeta.BankHoliday.color;
   }
 
+  /** yyyy-MM-dd from LOCAL date parts. `date.toISOString()` converts to UTC first, which shifts
+   * the date by a day in any timezone ahead of UTC (midnight local -> the previous day in UTC) -
+   * that was the cause of every holiday appearing one day later than stored on this calendar. */
   private toIso(date: Date): string {
-    return date.toISOString().slice(0, 10);
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 
   private isSameDay(a: Date, b: Date): boolean {
@@ -229,7 +225,8 @@ export class HolidayCalendar {
     this.showLegend.update((v) => !v);
   }
 
-  // ---- ADD / EDIT / DELETE HOLIDAY (kept using the existing generic event modal) ----
+  // ---- ADD HOLIDAY (always creates a new entry - there's no update-in-place endpoint, only
+  // create + activate/deactivate, so a day already holding a holiday just adds another one) ----
   protected addHolidayToday(): void {
     const today = new Date();
     this.onDayClick({ date: today, inCurrentMonth: true, isToday: true, events: [] });
@@ -242,67 +239,62 @@ export class HolidayCalendar {
       return;
     }
 
-    const existing = cell.events[0];
-
     this.dialogs
-      .open<CalendarEventFormValue | null>(new PolymorpheusComponent(AddCalendarEventModal), {
-        label: existing ? 'Edit Holiday' : 'Add Holiday',
+      .open<HolidayFormValue | null>(new PolymorpheusComponent(AddCalendarEventModal), {
+        label: 'Add Holiday',
         size: 's',
-        data: {
-          date: this.toIso(cell.date),
-          title: existing?.title ?? '',
-          // NOTE: existing.type comes from the Holiday API's type union; we map it
-          // down to the modal's simpler EventType just so the form has something
-          // sensible pre-selected.
-          type: existing ? HOLIDAY_TYPE_TO_EVENT_TYPE[existing.type] ?? 'holiday' : 'holiday',
-        },
+        data: { startDate: this.toIso(cell.date), category },
       })
       .subscribe((result) => {
         if (!result) return;
-        this.saveHoliday(result, category, existing);
+        this.saveHoliday(result, category);
       });
   }
 
-  private saveHoliday(result: CalendarEventFormValue, category: CategoryType, existing?: Holiday): void {
-  
-    // const payload = {
-    //   title: result.title,
-    //   startDate: result.date,
-    //   endDate: result.date,
-    //   type: (EVENT_TYPE_TO_HOLIDAY_TYPE[result.type as EventType] ?? 'BankHoliday') as Holiday['type'],
-    //   applicableCategory: category,
-    //   isOptional: result.type === 'optional-holiday',
-    //   academicYear: category === CategoryType.Academic ? this.academicYear().trim() : currentAcademicYear(),
-    // };
+  private saveHoliday(result: HolidayFormValue, category: CategoryType): void {
+    const command: CreateHolidayCommand = {
+      title: result.title,
+      startDate: result.startDate,
+      endDate: result.endDate,
+      type: result.type,
+      applicableCategory: category,
+      isOptional: false,
+      academicYear: category === CategoryType.Academic ? this.academicYear().trim() : currentAcademicYear(),
+    };
 
-    // if (existing) {
-    
-    //   this.holidayService.deleteHoliday(existing.id).subscribe();
-    // }
-
-    // this.holidayService.createHoliday(payload).subscribe({
-    //   next: (response) => {
-    //     if (response.isSuccess) {
-    //       this.toast.success('Holiday saved.', 'Saved');
-    //       this.loadHolidays();
-    //     } else {
-    //       this.toast.error(response.message || 'Could not save holiday.', 'Save Failed');
-    //     }
-    //   },
-    //   error: (err) => this.toast.error(err?.error?.message || 'Could not save holiday.', 'Save Failed'),
-    // });
-  }
-
-  protected deleteHoliday(holiday: Holiday, event: MouseEvent): void {
-    event.stopPropagation();
-    this.holidayService.deleteHoliday(holiday.id).subscribe({
+    this.holidayService.createHoliday(command).subscribe({
       next: (response) => {
         if (response.isSuccess) {
-          this.toast.success('Holiday deleted.', 'Deleted');
-          this.holidays.update((list) => list.filter((h) => h.id !== holiday.id));
+          this.toast.success('Holiday saved.', 'Saved');
+          this.loadHolidays();
+        } else {
+          this.toast.error(response.message || 'Could not save holiday.', 'Save Failed');
         }
       },
-      error: () => this.toast.error('Could not delete this holiday.', 'Delete Failed'),
+      error: (err) => this.toast.error(err?.error?.message || 'Could not save holiday.', 'Save Failed'),
+    });
+  }
+
+  /** Soft-delete/restore - never a hard delete, since historical attendance/payroll records may
+   * already reference the date a holiday applied to. */
+  protected toggleHolidayStatus(holiday: Holiday, event: MouseEvent): void {
+    event.stopPropagation();
+    const nextActive = !holiday.isActive;
+
+    this.holidayService.setHolidayStatus(holiday.id, nextActive).subscribe({
+      next: (response) => {
+        if (response.isSuccess) {
+          this.toast.success(nextActive ? 'Holiday reactivated.' : 'Holiday deactivated.', 'Saved');
+          if (!nextActive && !this.showInactive()) {
+            this.holidays.update((list) => list.filter((h) => h.id !== holiday.id));
+          } else {
+            this.holidays.update((list) =>
+              list.map((h) => (h.id === holiday.id ? { ...h, isActive: nextActive } : h)),
+            );
+          }
+        }
+      },
+      error: () => this.toast.error('Could not update this holiday.', 'Update Failed'),
     });
   }
 }

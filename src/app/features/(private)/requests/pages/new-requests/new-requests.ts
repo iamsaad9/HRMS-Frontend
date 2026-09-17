@@ -66,9 +66,12 @@ export class NewRequest implements OnInit {
   currentUser = this.authService.currentUser;
   isSubmitting = signal(false);
 
-protected leaveTypesOptions = computed(() => 
+protected leaveTypesOptions = computed(() =>
     this.leaveService.leaveTypes()?.map((t) => t.name) ?? []
   );
+
+  /** Academic staff can't apply for leave (enforced server-side too), so that request type isn't offered to them. */
+  protected isAcademic = computed(() => this.currentUser()?.employeeInfo?.category === 'Academic');
 
   protected selectedType = signal<RequestType>('leave');
   protected manualBreakdown = signal(false);
@@ -96,7 +99,7 @@ protected leaveTypesOptions = computed(() =>
               ? 'leave'
               : null;
 
-      if (normalized) {
+      if (normalized && !(normalized === 'leave' && this.isAcademic())) {
         this.form.get('requestType')?.setValue(normalized);
       }
     }
@@ -116,9 +119,12 @@ protected leaveTypesOptions = computed(() =>
   }
 
   private buildForm(): void {
+    const defaultType: RequestType = this.isAcademic() ? 'wfh' : 'leave';
+    this.selectedType.set(defaultType);
+
     this.form = this.fb.group(
       {
-        requestType: this.fb.control<RequestType>('leave', Validators.required),
+        requestType: this.fb.control<RequestType>(defaultType, Validators.required),
         leaveType: this.fb.control(''),
         startDate: this.fb.control('', Validators.required),
         endDate: this.fb.control('', Validators.required),
@@ -158,10 +164,11 @@ protected leaveTypesOptions = computed(() =>
    * signals) exactly as they were. Reset the FormGroup itself instead.
    */
   protected onReset(): void {
+    const defaultType: RequestType = this.isAcademic() ? 'wfh' : 'leave';
     this.lineItems.clear();
     this.actualAttendanceByDate.set(new Map());
     this.form.reset({
-      requestType: 'leave',
+      requestType: defaultType,
       leaveType: '',
       startDate: '',
       endDate: '',
@@ -169,7 +176,7 @@ protected leaveTypesOptions = computed(() =>
       reason: '',
       lineItems: [],
     });
-    this.selectedType.set('leave');
+    this.selectedType.set(defaultType);
     this.manualBreakdown.set(false);
   }
 

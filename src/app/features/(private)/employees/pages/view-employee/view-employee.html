@@ -24,9 +24,9 @@
     <!-- Identity summary strip -->
     <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
       <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-        <!-- <app-profile-picture-upload [employeeId]="emp.id" [confirmPictureUrl]="emp.profilePictureUrl ?? null"
+        <app-profile-picture-upload [employeeId]="emp.id" [currentPictureUrl]="emp.profilePictureUrl ?? null"
           [initials]="initials()" [canEdit]="canEditPicture()" (pictureUploaded)="onPictureUploaded($event)">
-        </app-profile-picture-upload> -->
+        </app-profile-picture-upload>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
             <h1 class="text-2xl font-semibold text-(--theme2) m-0 uppercase">{{ emp.fullName }}</h1>

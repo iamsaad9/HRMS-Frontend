@@ -32,7 +32,12 @@ export class UserCardsComponent {
   private readonly dashboardService = inject(DashboardService);
   protected router = inject(Router);
   readonly currentUser = this.authService.currentUser();
-
+protected readonly customChartColors = {
+    '--tui-chart-categorical-00': '#f7a833',
+    '--tui-chart-categorical-01': '#A3192D',
+    '--tui-chart-categorical-02': '#19528e',
+    '--tui-chart-categorical-03': '#689fed'
+  };
 
  protected initials = computed(() => {
     if (!this.currentUser) return '';

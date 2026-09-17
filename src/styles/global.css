@@ -2,12 +2,27 @@
 
 @import 'tailwindcss';
 
+:host {
+  --tui-chart-categorical-00: #ff5722;
+  /* First segment */
+  --tui-chart-categorical-01: #4caf50;
+  /* Second segment */
+  --tui-chart-categorical-02: #2196f3;
+  /* Third segment */
+}
+
 :root {
   --theme1: #f7a833;
   --theme2: #A3192D;
   --theme3: #19528e;
   --accent: #689fed;
 
+
+
+  --chart-categorical-0: var(--theme1) !important;
+  --chart-categorical-1: var(--theme2) !important;
+  --chart-categorical-2: var(--theme3) !important;
+  --chart-categorical-3: var(--accent) !important;
   /* Glassmorphism Defaults */
   --glass-blur: 12px;
   --glass-border-width: 1px;
@@ -16,7 +31,7 @@
 [tuiTheme="light"] {
   --theme_primary: #811323;
   --primary: #3f3d41;
-  --secondary: white;
+  --secondary: #ffffff;
   --background_light: #f6f6f6;
   --background_dark: #1d1d1d;
   --error: #ffc9c9;

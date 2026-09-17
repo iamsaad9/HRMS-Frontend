@@ -5,11 +5,13 @@
     --overtime-color: #22c55e;
     --incomplete-color: #cbd5e1;
     --leave-color: #3b82f6;
-    --track-bg: var(--secondary);
+    /* Light Mode track background */
+    --track-bg: var(--background_light);
     --bar-gap: 6px;
     --chart-height: 150px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
+
 
 
 .chart-header {
@@ -92,15 +94,12 @@
     white-space: nowrap;
 }
 
-
-
 .bars {
     display: flex;
     align-items: flex-end;
     gap: var(--bar-gap);
     flex: 1;
     min-width: 0;
-
 }
 
 .bar-col {
@@ -117,7 +116,7 @@
     }
 
     &.weekend .bar-track {
-        background: repeating-linear-gradient(45deg, var(--track-bg), var(--track-bg) 4px, var(--background_light) 4px, var(--background_light) 8px);
+        background: repeating-linear-gradient(45deg, var(--track-bg), var(--track-bg) 4px, var(--secondary) 4px, var(--secondary) 8px);
     }
 }
 
@@ -125,7 +124,6 @@
     outline: 2px solid var(--accent);
     outline-offset: 1px;
     border-radius: 4px 4px 0px 0px;
-
 }
 
 .week-label {
@@ -136,10 +134,8 @@
     font-size: 10px;
     font-weight: 600;
     color: var(--primary);
-
     white-space: nowrap;
 }
-
 
 .bar-track {
     position: relative;
@@ -152,7 +148,7 @@
     border-radius: 3px 3px 0 0;
     overflow: hidden;
     cursor: default;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.15s ease, background-color 0.2s ease;
 
     &:hover {
         opacity: 0.85;
@@ -179,15 +175,8 @@
         background: var(--leave-color);
     }
 
-    &.incomplete {
-        background: repeating-linear-gradient(45deg,
-                var(--incomplete-color),
-                var(--incomplete-color) 3px,
-                #fff 3px,
-                var(--secondary) 6px);
-    }
-}
 
+}
 
 .popover-card {
     position: absolute;
@@ -204,7 +193,6 @@
     cursor: default;
     animation: popIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 
-    /* Arrow pointing down to the bar */
     &::after {
         content: '';
         position: absolute;
@@ -283,7 +271,6 @@
     }
 }
 
-// Responsive: shrink bars/height on small screens, keep horizontal scroll for 30 days
 @media (max-width: 640px) {
     :host {
         --bar-gap: 3px;
@@ -298,18 +285,14 @@
         padding: 14px;
     }
 
-    /* Hide daily numbers on mobile */
     .day-label {
         display: none;
     }
 
-    /* Position and show week labels on mobile */
     .bar-col {
         position: relative;
     }
 
-
-    /* Reserve space under the chart for the absolute week labels */
     .bars {
         margin-bottom: 20px;
     }

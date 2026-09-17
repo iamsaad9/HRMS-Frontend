@@ -119,6 +119,7 @@
       </div>
     </div>
 
+    @if (!isAcademic()) {
     <div class="w-sm flex flex-col justify-between gap-6">
       <div tuiCardLarge
         class="flex-1  bg-(--secondary)! rounded-2xl drop-shadow-sm flex flex-col justify-between gap-3! border! border-(--secondary)/20!">
@@ -150,6 +151,7 @@
         </div>
       </div>
     </div>
+    }
 
     <app-leave-calendar-card />
   </div>

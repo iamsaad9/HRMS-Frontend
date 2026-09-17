@@ -31,13 +31,20 @@ export class UserCardsComponent {
   private readonly authService = inject(AuthService);
   private readonly dashboardService = inject(DashboardService);
   protected router = inject(Router);
-  readonly currentUser = this.authService.currentUser();
-
+  // Getter, not a snapshot - so a later profile update (e.g. picture upload) or the initial /me
+  // resolving after this component is constructed is still reflected.
+  protected get currentUser() {
+    return this.authService.currentUser();
+  }
 
  protected initials = computed(() => {
-    if (!this.currentUser) return '';
-    return `${this.currentUser.employeeInfo.firstName[0]?.[0] ?? ''}${this.currentUser.employeeInfo.lastName[0]?.[0] ?? ''}`.toUpperCase();
+    const user = this.currentUser;
+    if (!user) return '';
+    return `${user.employeeInfo.firstName[0]?.[0] ?? ''}${user.employeeInfo.lastName[0]?.[0] ?? ''}`.toUpperCase();
   });
+
+  /** Academic staff can't apply for leave, so a leave balance is meaningless for them. */
+  protected isAcademic = computed(() => this.currentUser?.employeeInfo?.category === 'Academic');
 
   protected activeItemIndex = Number.NaN;
 

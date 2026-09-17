@@ -133,6 +133,7 @@ export interface CreateEmployeeResponse {
 export interface Employee {
   id: string;
   userId: string;
+  category?: 'Academic' | 'Administrative' | null;
   staffNo: string;
   title: string;
   firstName: string;

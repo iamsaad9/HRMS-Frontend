@@ -72,7 +72,12 @@
                         }
                     </div>
 
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-3">
+                        <label class="flex items-center gap-1.5 text-xs cursor-pointer select-none">
+                            <input tuiCheckbox type="checkbox" class="h-4 w-4 cursor-pointer"
+                                [ngModel]="showInactive()" (ngModelChange)="onShowInactiveChange($event)" />
+                            Show inactive
+                        </label>
                         <div tuiGroup [collapsed]="true">
                             <button tuiButton type="button" size="s"
                                 [appearance]="viewMode() === 'month' ? 'primary' : 'outline'"
@@ -118,10 +123,13 @@
                         @for (holiday of cell.events; track holiday.id) {
                         <span
                             class="flex items-center gap-1 text-[10px] leading-tight px-1.5 py-0.5 rounded-full truncate w-full group"
+                            [class.opacity-40]="!holiday.isActive"
                             [style.background]="eventColor(holiday) + '22'" [style.color]="eventColor(holiday)">
-                            <span class="truncate flex-1">{{ holiday.title }}</span>
-                            <tui-icon icon="@tui.x" class="text-[10px]! opacity-0 group-hover:opacity-100 shrink-0"
-                                (click)="deleteHoliday(holiday, $event)" />
+                            <span class="truncate flex-1">{{ holiday.title }}{{ !holiday.isActive ? ' (inactive)' : '' }}</span>
+                            <tui-icon [icon]="holiday.isActive ? '@tui.x' : '@tui.rotate-ccw'"
+                                class="text-[10px]! opacity-0 group-hover:opacity-100 shrink-0"
+                                [title]="holiday.isActive ? 'Deactivate' : 'Reactivate'"
+                                (click)="toggleHolidayStatus(holiday, $event)" />
                         </span>
                         }
                     </button>
@@ -139,13 +147,13 @@
                                 <th tuiTh>Start Date</th>
                                 <th tuiTh>End Date</th>
                                 <th tuiTh>Type</th>
-                                <th tuiTh>Optional</th>
+                                <th tuiTh>Status</th>
                                 <th tuiTh>Actions</th>
                             </tr>
                         </thead>
                         <tbody tuiTbody>
                             @for (holiday of holidays(); track holiday.id) {
-                            <tr class="text-(--primary)">
+                            <tr class="text-(--primary)" [class.opacity-50]="!holiday.isActive">
                                 <td tuiTd class="font-medium">{{ holiday.title }}</td>
                                 <td tuiTd>{{ holiday.startDate | date: 'mediumDate' }}</td>
                                 <td tuiTd>{{ holiday.endDate | date: 'mediumDate' }}</td>
@@ -153,12 +161,28 @@
                                     <span tuiBadge [style.background]="eventColor(holiday) + '22'"
                                         [style.color]="eventColor(holiday)">{{ holiday.type }}</span>
                                 </td>
-                                <td tuiTd>{{ holiday.isOptional ? 'Yes' : 'No' }}</td>
                                 <td tuiTd>
+                                    @if (holiday.isActive) {
+                                    <span tuiBadge class="bg-emerald-500/10! text-emerald-500!">Active</span>
+                                    } @else {
+                                    <span tuiBadge class="bg-red-500/10! text-red-500!"
+                                        [title]="holiday.updatedBy ? ('Deactivated by ' + holiday.updatedBy + (holiday.updatedAtUtc ? (' on ' + (holiday.updatedAtUtc | date: 'medium')) : '')) : ''">
+                                        Inactive
+                                    </span>
+                                    }
+                                </td>
+                                <td tuiTd>
+                                    @if (holiday.isActive) {
                                     <button type="button" tuiIconButton appearance="action" iconStart="@tui.trash-2"
-                                        size="xs" (click)="deleteHoliday(holiday, $event)" class="text-red-500!">
-                                        Delete
+                                        size="xs" (click)="toggleHolidayStatus(holiday, $event)" class="text-red-500!">
+                                        Deactivate
                                     </button>
+                                    } @else {
+                                    <button type="button" tuiIconButton appearance="action" iconStart="@tui.rotate-ccw"
+                                        size="xs" (click)="toggleHolidayStatus(holiday, $event)" class="text-emerald-500!">
+                                        Reactivate
+                                    </button>
+                                    }
                                 </td>
                             </tr>
                             } @empty {

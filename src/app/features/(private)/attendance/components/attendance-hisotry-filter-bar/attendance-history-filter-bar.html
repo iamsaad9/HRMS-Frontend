@@ -19,25 +19,20 @@
                     (ngModelChange)="onEndDateChange($event)" />
                 <tui-calendar *tuiDropdown />
             </tui-textfield>
+
+            <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg">
+                <input placeholder="Any leave type" tuiSelect class="text-(--primary)!"
+                    [ngModel]="leaveTypeOptions().find(t => t.id === draft().leaveTypeId)?.name ?? null"
+                    (ngModelChange)="onLeaveTypeChange(leaveTypeOptions().find(t => t.name === $event)?.id ?? null)" />
+                <tui-data-list-wrapper *tuiDropdown [items]="leaveTypeNames()" />
+            </tui-textfield>
         </div>
 
         <!-- Action Buttons -->
         <div class="flex items-center gap-2 self-end sm:self-auto">
-            <!-- Toggle More Filters Button -->
-
-
-            <button type="button" tuiButton iconStart="@tui.filter" size="s" (click)="onSearch()"
-                class="cursor-pointer bg-(--theme3)! hover:bg-(--theme3)/80! disabled:opacity-40! disabled:cursor-not-allowed!">
-                Search
-            </button>
-
-            <button type="button" tuiButton appearance="flat" size="s"
-                class="cursor-pointer! hover:text-slate-900 bg-(--secondary)! text-white!" (click)="onReset()">
+            <button type="button" tuiButton appearance="primary" size="s" class="cursor-pointer! hover:text-slate-900  "
+                (click)="onReset()">
                 Reset
-            </button>
-
-            <button type="button" tuiButton tuiChevron appearance="secondary" size="s" [tuiChevron]="showMoreFilters"
-                (click)="showMoreFilters = !showMoreFilters">
             </button>
         </div>
     </div>
@@ -46,63 +41,40 @@
     <p class="text-red-500 text-xs -mt-2">{{ rangeError() }}</p>
     }
 
-    <!-- COLLAPSIBLE SECTION: ADDITIONAL FILTERS -->
-    <tui-elastic-container>
-        <tui-expand [expanded]="showMoreFilters" class="flex flex-col gap-3">
-            <!-- ATTENDANCE / LEAVE / LOCATION ROW -->
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-1">
-
-                <!-- Leave Type -->
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-medium text-(--theme1)">Leave Type</label>
-                    <tui-textfield tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg">
-                        <input placeholder="Any leave type" tuiSelect class="text-(--primary)!"
-                            [ngModel]="leaveTypeOptions().find(t => t.id === draft().leaveTypeId)?.name ?? null"
-                            (ngModelChange)="onLeaveTypeChange(leaveTypeOptions().find(t => t.name === $event)?.id ?? null)" />
-                        <tui-data-list-wrapper *tuiDropdown [items]="leaveTypeNames()" />
-                    </tui-textfield>
-                </div>
-
-            </div>
 
 
-            <!-- OVERTIME / EXCEPTION FLAGS ROW -->
-            <div class="flex flex-col gap-2">
-                <label class="text-xs font-medium text-(--theme1)">Overtime / Exception Flags</label>
-                <div class="flex flex-wrap gap-x-4 gap-y-2">
-                    @for (flag of exceptionFlagOptions; track flag) {
-                    @let isFlagSelected = draft().exceptionFlags.includes(flag);
-                    <label class="flex items-center gap-2 text-sm text-(--primary)! cursor-pointer">
-                        <input type="checkbox" class="cursor-pointer" [checked]="isFlagSelected" (change)="onExceptionFlagsChange(
+    <!-- OVERTIME / EXCEPTION FLAGS ROW -->
+    <div class="flex flex-col gap-2">
+        <div class="flex flex-wrap gap-x-4 gap-y-2">
+            @for (flag of exceptionFlagOptions; track flag) {
+            @let isFlagSelected = draft().exceptionFlags.includes(flag);
+            <label class="flex items-center gap-2 text-sm text-(--primary)! cursor-pointer">
+                <input type="checkbox" class="cursor-pointer" [checked]="isFlagSelected" (change)="onExceptionFlagsChange(
                     isFlagSelected 
                         ? draft().exceptionFlags.filter(f => f !== flag) 
                         : [...draft().exceptionFlags, flag]
                 )" />
-                        {{ flag }}
-                    </label>
-                    }
-                </div>
-            </div>
+                {{ flag }}
+            </label>
+            }
+        </div>
+    </div>
 
-            <!-- STATUS FILTER CHIPS -->
-            <div class="flex flex-col gap-2">
-                <label class="text-xs font-medium text-(--theme1)">Attendance Status</label>
-                <div tuiItemGroup [horizontal]="true" class="flex flex-wrap gap-2">
-                    @for (status of statusOptions; track status) {
-                    @let isStatusSelected = draft().statuses.includes(status);
-                    <label tuiChip [appearance]="isStatusSelected ? 'primary' : 'flat'" class="cursor-pointer">
-                        {{ status }}
-                        <input type="checkbox" tuiChip appearance="" class="sr-only" [checked]="isStatusSelected"
-                            (change)="onStatusesChange(
+    <!-- STATUS FILTER CHIPS -->
+    <div class="flex flex-col gap-2">
+        <div tuiItemGroup [horizontal]="true" class="flex flex-wrap gap-2">
+            @for (status of statusOptions; track status) {
+            @let isStatusSelected = draft().statuses.includes(status);
+            <label tuiChip [appearance]="isStatusSelected ? 'primary' : 'secondary'" class="cursor-pointer">
+                {{ status }}
+                <input type="checkbox" tuiChip class="sr-only" [checked]="isStatusSelected" (change)="onStatusesChange(
                     isStatusSelected 
                         ? draft().statuses.filter(s => s !== status) 
                         : [...draft().statuses, status]
                 )" />
-                    </label>
-                    }
-                </div>
-            </div>
+            </label>
+            }
+        </div>
+    </div>
 
-        </tui-expand>
-    </tui-elastic-container>
 </div>

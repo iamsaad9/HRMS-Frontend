@@ -2,14 +2,6 @@
 
 @import 'tailwindcss';
 
-:host {
-  --tui-chart-categorical-00: #ff5722;
-  /* First segment */
-  --tui-chart-categorical-01: #4caf50;
-  /* Second segment */
-  --tui-chart-categorical-02: #2196f3;
-  /* Third segment */
-}
 
 :root {
   --theme1: #f7a833;

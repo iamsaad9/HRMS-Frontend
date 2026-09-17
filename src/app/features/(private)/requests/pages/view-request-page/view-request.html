@@ -16,47 +16,48 @@
 
     <!-- Overview Card (Header Details Bar with Period & Total Days) -->
     <div tuiCardLarge
-        class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! flex flex-col gap-5">
-        <header class="flex flex-row gap-2 items-center">
-            <tui-icon icon="@tui.file-text" class="text-3xl! text-(--theme2)" />
-            <div class="flex flex-col">
-                <span class="uppercase text-lg font-semibold text-(--theme2)">Request Overview</span>
-                <span tuiSubtitle class="text-(--primary)/50 text-sm">{{ r.requestType }} Details & Progress</span>
+        class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! flex flex-col gap-2! p-4 rounded-xl">
+        <!-- Header with Status & Created At -->
+        <header class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-(--primary)/10">
+            <div class="flex items-center gap-2">
+                <tui-icon icon="@tui.file-text" class="text-xl! text-(--theme2)" />
+                <div class="flex flex-col">
+                    <span class="uppercase text-sm font-semibold text-(--theme2)">Request Overview</span>
+                    <span tuiSubtitle class="text-(--primary)/50 text-xs">{{ r.requestType }} Details & Progress</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-(--primary)/60">
+                    {{ r.createdAtUtc | date: 'shortDate' }}
+                </span>
+                <span class="text-xs px-2.5 py-0.5 rounded-full font-medium" [ngClass]="statusClass(r.overallStatus)">
+                    {{ statusLabel(r.overallStatus) }}
+                </span>
             </div>
         </header>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-4">
+        <!-- Details Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2!">
             <div>
-                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Requester</p>
-                <p class="text-base text-(--primary) m-0">{{ r.requesterName || '—' }}</p>
+                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Requester</p>
+                <p class="text-sm font-medium text-(--primary) m-0">{{ r.requesterName || '—' }}</p>
             </div>
             <div>
-                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Department</p>
-                <p class="text-base text-(--primary) m-0">{{ r.departmentName || '—' }}</p>
+                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Department</p>
+                <p class="text-sm font-medium text-(--primary) m-0">{{ r.departmentName || '—' }}</p>
             </div>
             @if (r.leaveTypeName) {
             <div>
-                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Leave Type</p>
-                <p class="text-base text-(--primary) m-0">{{ r.leaveTypeName }}</p>
+                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Leave Type</p>
+                <p class="text-sm font-medium text-(--primary) m-0">{{ r.leaveTypeName }}</p>
             </div>
             }
-            <div>
-                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Overall Status</p>
-                <p class="text-base m-0 mt-1">
-                    <span class="text-xs px-3 py-1 rounded-full font-medium" [ngClass]="statusClass(r.overallStatus)">
-                        {{ statusLabel(r.overallStatus) }}
-                    </span>
-                </p>
-            </div>
-            <div>
-                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Progress Step</p>
-                <p class="text-base text-(--primary) m-0">Step {{ r.currentStepOrder }} of {{ r.totalSteps }}</p>
-            </div>
 
             @if (r.details && r.details.length > 0 && !isEditing()) {
             <div>
-                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Period / Duration</p>
-                <p class="text-base text-(--primary) m-0">
+                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Period / Duration</p>
+                <p class="text-sm font-medium text-(--primary) m-0">
                     {{ r.startDate | date: 'mediumDate' }}
                     @if (r.totalDays > 1) {
                     – {{ r.endDate | date: 'mediumDate' }}
@@ -64,56 +65,48 @@
                 </p>
             </div>
             <div>
-                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Total Days</p>
-                <p class="text-base text-(--primary) m-0">{{ r.totalDays }}</p>
+                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Total Days</p>
+                <p class="text-sm font-medium text-(--primary) m-0">{{ r.totalDays }}</p>
             </div>
             }
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 pt-2 border-t border-(--primary)/10">
-            <div>
-                <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Requested On</p>
-                <p class="text-base text-(--primary) m-0">{{ r.createdAtUtc | date: 'medium' }}</p>
-            </div>
-        </div>
-
         @if (!isEditing()) {
-        @if (r.requestReason) {
-        <div class="p-3 text-sm rounded-lg bg-(--accent)/10 border border-(--accent)/30 text-(--primary)">
-            <span class="font-semibold uppercase tracking-wide text-xs text-(--theme2) block mb-1">Request Reason</span>
+        <div class="p-2 text-xs rounded-lg bg-(--accent)/10 border border-(--accent)/30 text-(--primary)">
+            <span class="font-semibold uppercase tracking-wide text-[10px] text-(--theme2) block mb-0.5">Request
+                Reason</span>
             {{ r.requestReason || '—' }}
         </div>
-        }
 
         @if (canCancel() || canApproveOrReject() || canEdit()) {
-        <div class="pt-2 border-t border-(--primary)/10 flex flex-col gap-3">
+        <div class="pt-2 border-t border-(--primary)/10 flex gap-2 items-center">
             @if (canApproveOrReject()) {
-            <tui-textfield tuiTextfieldSize="m">
-                <label tuiLabel>Remarks</label>
+            <label tuiLabel class="font-medium! text-xs!">Remarks</label>
+            <tui-textfield tuiTextfieldSize="s" class="flex-1">
                 <textarea [ngModel]="remarks()" (ngModelChange)="remarks.set($event)" tuiTextarea
                     placeholder="Optional for approve, required for reject"></textarea>
             </tui-textfield>
             }
 
-            <div class="flex gap-3">
+            <div class="flex justify-end gap-2">
                 @if (canApproveOrReject()) {
-                <button tuiButton type="button" size="m" [disabled]="isSubmittingAction()" (click)="approve()"
+                <button tuiButton type="button" size="s" [disabled]="isSubmittingAction()" (click)="approve()"
                     class="bg-emerald-500! text-white cursor-pointer">
                     Approve
                 </button>
-                <button tuiButton type="button" size="m" appearance="outline" [disabled]="isSubmittingAction()"
+                <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
                     (click)="reject()" class="text-red-500! border-red-500! cursor-pointer">
                     Reject
                 </button>
                 }
                 @if (canEdit()) {
-                <button tuiButton type="button" size="m" appearance="outline" [disabled]="isSubmittingAction()"
+                <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
                     (click)="startEdit()" class="cursor-pointer">
                     Update Request
                 </button>
                 }
                 @if (canCancel()) {
-                <button tuiButton type="button" size="m" appearance="outline" [disabled]="isSubmittingAction()"
+                <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
                     (click)="cancel()" class="cursor-pointer">
                     Cancel Request
                 </button>
@@ -122,16 +115,16 @@
         </div>
         }
         } @else {
-        <!-- Edit mode: header-level fields (Leave/WFH). Regularization edits its line items below instead. -->
-        <div class="pt-2 border-t border-(--primary)/10 flex flex-col gap-4">
+        <!-- Edit mode -->
+        <div class="pt-2 border-t border-(--primary)/10 flex flex-col gap-3">
             @if (r.requestType !== 'AttendanceRegularization') {
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <tui-textfield tuiTextfieldSize="m">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <tui-textfield tuiTextfieldSize="s">
                     <label tuiLabel>Start Date</label>
                     <input type="date" [ngModel]="editStartDate()" (ngModelChange)="editStartDate.set($event)"
                         tuiTextfield />
                 </tui-textfield>
-                <tui-textfield tuiTextfieldSize="m">
+                <tui-textfield tuiTextfieldSize="s">
                     <label tuiLabel>End Date</label>
                     <input type="date" [ngModel]="editEndDate()" (ngModelChange)="editEndDate.set($event)"
                         tuiTextfield />
@@ -140,10 +133,10 @@
             }
 
             @if (r.requestType === 'Leave') {
-            <tui-textfield tuiTextfieldSize="m">
+            <tui-textfield tuiTextfieldSize="s">
                 <label tuiLabel>Leave Type</label>
                 <select [ngModel]="editLeaveTypeId()" (ngModelChange)="editLeaveTypeId.set($event)"
-                    class="w-full bg-transparent p-2 rounded-lg border border-(--primary)/20">
+                    class="w-full bg-transparent p-1.5 text-xs rounded-lg border border-(--primary)/20">
                     @for (lt of leaveTypeOptions(); track lt.id) {
                     <option [value]="lt.id">{{ lt.name }}</option>
                     }
@@ -151,16 +144,16 @@
             </tui-textfield>
             }
 
-            <tui-textfield tuiTextfieldSize="m">
+            <tui-textfield tuiTextfieldSize="s">
                 <label tuiLabel>Reason</label>
                 <textarea [ngModel]="editReason()" (ngModelChange)="editReason.set($event)" tuiTextarea
                     placeholder="Reason for this request"></textarea>
             </tui-textfield>
 
             @if (r.requestType === 'AttendanceRegularization') {
-            <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-2">
                 <div class="flex items-center justify-between">
-                    <span class="text-sm font-semibold uppercase tracking-wide text-(--theme2)">Line Items</span>
+                    <span class="text-xs font-semibold uppercase tracking-wide text-(--theme2)">Line Items</span>
                     <button tuiButton type="button" size="s" appearance="outline" (click)="addLineItem()"
                         class="cursor-pointer">
                         + Add Day
@@ -168,18 +161,18 @@
                 </div>
 
                 @for (item of editLineItems(); track $index) {
-                <div class="rounded-lg border border-(--primary)/10 p-3 flex flex-col gap-3">
+                <div class="rounded-lg border border-(--primary)/10 p-2 flex flex-col gap-2">
                     <div class="flex items-center justify-between gap-2">
                         <tui-textfield tuiTextfieldSize="m" class="flex-1">
                             <label tuiLabel>Date</label>
                             <input tuiInputDate [ngModel]="item.date"
                                 (ngModelChange)="updateLineItem($index, 'date', $event)" tuiTextfield />
                         </tui-textfield>
-                        <button tuiButton type="button" size="s" appearance="outline" iconStart="@tui.trash-2"
+                        <button tuiButton type="button" size="m" appearance="outline" iconStart="@tui.trash-2"
                             (click)="removeLineItem($index)"
                             class="text-red-500! border-red-500! cursor-pointer shrink-0"></button>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <tui-textfield tuiTextfieldSize="m">
                             <label tuiLabel>Clock In</label>
                             <input tuiInputTime [ngModel]="item.requestedClockIn"
@@ -211,12 +204,12 @@
             </div>
             }
 
-            <div class="flex gap-3">
-                <button tuiButton type="button" size="m" [disabled]="isSubmittingAction()" (click)="saveEdit()"
+            <div class="flex gap-2 pt-1">
+                <button tuiButton type="button" size="s" [disabled]="isSubmittingAction()" (click)="saveEdit()"
                     class="bg-(--theme1)! cursor-pointer">
                     Save Changes
                 </button>
-                <button tuiButton type="button" size="m" appearance="outline" [disabled]="isSubmittingAction()"
+                <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
                     (click)="cancelEditMode()" class="cursor-pointer">
                     Discard
                 </button>
@@ -227,67 +220,74 @@
 
     <!-- Request Line Items (Detailed Breakdown) -->
     @if (!isEditing()) {
-    <div class="flex flex-col gap-4">
-        <h3 class="text-md uppercase font-semibold text-(--theme2) tracking-wide m-0">Detailed Breakdown</h3>
+    <div tuiCardLarge
+        class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! p-3.5 rounded-xl flex flex-col gap-2!">
+        <h3
+            class="text-xs uppercase font-semibold text-(--theme2) tracking-wide m-0 pb-1 border-b border-(--primary)/10">
+            Detailed Breakdown
+        </h3>
 
-        @for (detail of r.details; track detail.detailId) {
-        <div tuiCardLarge
-            class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! flex flex-col gap-4">
+        <div class="flex flex-col">
+            @for (detail of r.details; track detail.detailId; let first = $first) {
+            <div class="flex flex-col gap-2 py-2" [class.border-t]="!first" [class.border-(--primary)/10]="!first">
 
-            <!-- Line Item Header: Date -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-(--primary)/10 pb-3">
-                <span class="text-base font-semibold text-(--primary) flex items-center gap-2">
-                    <tui-icon icon="@tui.calendar-clock" class="text-(--theme2)" />
-                    {{ detail.date | date: 'mediumDate' }}
-                </span>
-            </div>
-
-            <!-- Line Item Body: Specific Details per Type -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">
-                @if (isLeaveDetail(detail) || isWorkFromHomeDetail(detail)) {
-                <div>
-                    <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Is Half Day</p>
-                    <p class="text-base text-(--primary) m-0">
-                        {{ detail.isHalfDay ? 'Yes' : 'No' }}
-                    </p>
+                <!-- Date Row -->
+                <div class="flex items-center gap-1.5">
+                    <tui-icon icon="@tui.calendar-clock" class="text-sm! text-(--theme2)" />
+                    <span class="text-sm font-semibold text-(--primary)">
+                        {{ detail.date | date: 'mediumDate' }}
+                    </span>
                 </div>
-                <div>
-                    <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Half Day Type</p>
-                    <p class="text-base text-(--primary) m-0">
-                        {{ detail.isHalfDay ? halfDayLabel(detail.halfDayType) : '—' }}
-                    </p>
-                </div>
-                }
 
+                <!-- Detail Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-2">
+                    @if (isLeaveDetail(detail) || isWorkFromHomeDetail(detail)) {
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Is Half Day</p>
+                        <p class="text-xs font-medium text-(--primary) m-0">
+                            {{ detail.isHalfDay ? 'Yes' : 'No' }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Half Day Type</p>
+                        <p class="text-xs font-medium text-(--primary) m-0">
+                            {{ detail.isHalfDay ? halfDayLabel(detail.halfDayType) : '—' }}
+                        </p>
+                    </div>
+                    }
+
+                    @if (isAttendanceRegularizationDetail(detail)) {
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">Clock In</p>
+                        <p class="text-xs font-medium text-(--primary) m-0">{{ detail.requestedClockIn ?? '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">Clock Out</p>
+                        <p class="text-xs font-medium text-(--primary) m-0">{{ detail.requestedClockOut ?? '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">Break In</p>
+                        <p class="text-xs font-medium text-(--primary) m-0">{{ detail.requestedBreakIn ?? '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">Break Out</p>
+                        <p class="text-xs font-medium text-(--primary) m-0">{{ detail.requestedBreakOut ?? '—' }}</p>
+                    </div>
+                    }
+                </div>
+
+                <!-- Remarks -->
                 @if (isAttendanceRegularizationDetail(detail)) {
-                <div>
-                    <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Clock In</p>
-                    <p class="text-base text-(--primary) m-0">{{ detail.requestedClockIn ?? '—' }}</p>
-                </div>
-                <div>
-                    <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Clock Out</p>
-                    <p class="text-base text-(--primary) m-0">{{ detail.requestedClockOut ?? '—' }}</p>
-                </div>
-                <div>
-                    <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Break In</p>
-                    <p class="text-base text-(--primary) m-0">{{ detail.requestedBreakIn ?? '—' }}</p>
-                </div>
-                <div>
-                    <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Break Out</p>
-                    <p class="text-base text-(--primary) m-0">{{ detail.requestedBreakOut ?? '—' }}</p>
+                <div
+                    class="p-1.5 text-xs rounded-md bg-(--theme1)/10 border border-(--theme1)/30 text-(--primary) mt-0.5">
+                    <span
+                        class="font-semibold uppercase tracking-wide text-[9px] text-(--theme2) block leading-tight">Reason</span>
+                    <span class="text-xs">{{ detail.remarks || '—' }}</span>
                 </div>
                 }
-
-            </div>
-
-            @if (isAttendanceRegularizationDetail(detail)) {
-            <div class="p-3 text-sm rounded-lg bg-(--theme1)/10 border border-(--theme1)/30 text-(--primary)">
-                <span class="font-semibold uppercase tracking-wide text-xs text-(--theme2) block mb-1">Reason</span>
-                {{ detail.remarks || '—' }}
             </div>
             }
         </div>
-        }
     </div>
     }
     }

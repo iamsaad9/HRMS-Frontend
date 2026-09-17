@@ -1,42 +1,65 @@
 <div class="flex flex-col gap-5 max-w-6xl mx-auto">
     <app-main-heading title="Employee Shift History" description="Look up a team member's assigned shift history" />
 
+    <!-- Employee search/filter (optional — narrows the left list) -->
     <div tuiCardLarge
-        class="flex flex-wrap items-end gap-3 shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)/20! glass-card">
+        class="flex flex-row! flex-nowrap items-center gap-3 overflow-x-auto shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card">
+        <tui-textfield tuiTextfieldSize="m" class="flex-1 bg-(--background_light)/40! rounded-lg"
+            iconStart="@tui.search" [tuiTextfieldCleaner]="true">
+            <label tuiLabel>Search Employee</label>
+            <input tuiInput placeholder="Name or staff no." [ngModel]="employeeSearch()"
+                (ngModelChange)="employeeSearch.set($event)" />
+        </tui-textfield>
 
-        <div class="flex justify-between items-center gap-5">
-            <div class="flex-1">
-                <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
-                    [tuiTextfieldCleaner]="false">
-                    <label tuiLabel>Employee</label>
-                    <input tuiSelect placeholder="Select employee" [ngModel]="selectedEmployee()"
-                        (ngModelChange)="selectedEmployee.set($event)" />
-                    <tui-data-list-wrapper *tuiDropdown [items]="employeeOptions()" /> </tui-textfield>
+
+    </div>
+    @if (filteredEmployees().length) {
+    <div class="flex flex-col lg:flex-row gap-5 max-h-96">
+
+        <!-- Left: employee list -->
+        <div tuiCardLarge
+            class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card overflow-hidden lg:w-72 shrink-0">
+            <div class="px-4 py-3 text-sm font-semibold text-(--primary) border-b border-(--primary)/10">
+                Employees
             </div>
-
-            <button type="button" tuiButton size="m" [disabled]="!selectedEmployee() || isLoading()" (click)="search()"
-                class="cursor-pointer bg-(--theme1)! text-white hover:bg-(--theme1)/80! disabled:opacity-40!">
-                {{ isLoading() ? 'Loading...' : 'View History' }}
-            </button>
-
+            <div class="flex flex-col divide-y divide-(--primary)/10 h-full overflow-y-auto">
+                @for (emp of filteredEmployees(); track emp.id) {
+                <button type="button" (click)="selectEmployee(emp.id)"
+                    class="flex items-center justify-between gap-3 px-4 py-3 text-left cursor-pointer transition-colors border-0"
+                    [class]="emp.id === selectedEmployeeId()
+                        ? 'bg-(--theme1)/10! border-l-4! border-l-(--theme1)!'
+                        : 'bg-transparent hover:bg-(--theme1)/5!'">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="size-8 rounded-full bg-(--theme1)/15 border border-(--theme1)/25 flex items-center
+                                    justify-center text-xs font-semibold text-(--theme1) shrink-0">
+                            {{ emp.fullName.charAt(0) }}
+                        </div>
+                        <span class="text-sm font-medium text-(--primary) truncate">{{ emp.fullName }}</span>
+                    </div>
+                    <span class="text-xs text-(--primary)/50 shrink-0">{{ emp.staffNo }}</span>
+                </button>
+                }
+            </div>
         </div>
 
-
-        @if (hasSearched()) {
+        <!-- Right: selected employee's shift history -->
         <div tuiCardLarge
-            class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card overflow-hidden rounded-xl!">
+            class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card overflow-hidden flex-1 min-w-0 rounded-xl!">
 
-            <!-- Custom header row -->
+            @if (isLoading()) {
+            <div class="text-center py-10 text-(--primary)/60 text-sm">
+                Loading shift history…
+            </div>
+            } @else if (hasSearched()) {
             <div class="grid grid-cols-[1.5fr_1fr_1fr_auto] gap-4 px-5 py-3
-                bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
+                        bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Shift</span>
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Timing</span>
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Effective</span>
                 <span class="text-xs font-semibold uppercase tracking-wide text-white text-right">Status</span>
             </div>
 
-            <!-- Custom rows -->
-            <div class="flex flex-col divide-y divide-(--primary)/10">
+            <div class="flex flex-col divide-y divide-(--primary)/10 h-full overflow-y-auto">
                 @for (entry of history(); track entry.shiftAssignmentId) {
                 <div class="grid grid-cols-[1.5fr_1fr_1fr_auto] gap-4 px-5 py-3 items-center transition-colors"
                     [class]="entry.isCurrent ? 'bg-(--success)/5!' : ''">
@@ -63,19 +86,21 @@
                     </div>
                 </div>
                 } @empty {
-                <div class="text-center py-8 text-(--primary)/60 text-sm">
-                    No shift history found.
+                <div class="text-center py-8 text-(--primary)/60 text-sm h-full">
+                    No shift history found for this employee.
                 </div>
                 }
             </div>
+            } @else {
+            <div class="text-center py-10 text-(--primary)/60 text-sm h-full">
+                Select an employee to view their shift history.
+            </div>
+            }
         </div>
-        } @else {
-        <div tuiCardLarge
-            class="text-center py-10 shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card rounded-xl!">
-            Select an employee to view their shift history.
-        </div>
-        }
     </div>
-
-
+    } @else {
+    <div tuiCardLarge class="text-center py-10 text-(--primary)/60 bg-(--secondary)/20! glass-card">
+        No employees found.
+    </div>
+    }
 </div>

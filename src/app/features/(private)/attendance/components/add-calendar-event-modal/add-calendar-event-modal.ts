@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
-import { TuiDialogContext, TuiButton, TuiError, TuiLabel, TuiTextfieldComponent, TuiCalendar } from '@taiga-ui/core';
+import { TuiDialogContext, TuiButton, TuiError, TuiLabel, TuiTextfieldComponent, TuiCalendar, TuiInput } from '@taiga-ui/core';
 import { TuiDataListWrapper, TuiSelect, TuiChevron, TuiInputDate } from '@taiga-ui/kit';
 import { TuiDay } from '@taiga-ui/cdk';
 import { HolidayType, HOLIDAY_TYPE_OPTIONS, HOLIDAY_TYPES_BY_CATEGORY } from '../../service/holiday.service';
@@ -34,6 +34,7 @@ export interface HolidayFormData {
     TuiChevron,
     TuiInputDate,
     TuiCalendar,
+    TuiInput
   ],
   templateUrl: './add-calendar-event-modal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -71,8 +71,8 @@
     } @else {
     <div class="flex flex-col gap-3">
         @for (req of filteredRequests(); track req.id) {
-        <div tuiCardLarge
-            class="relative overflow-hidden rounded-lg p-4 bg-(--secondary)! shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+        <div tuiCardLarge [routerLink]="['/requests', req.id]"
+            class="relative overflow-hidden rounded-lg p-4 bg-(--secondary)! shadow-[0_0_5px_rgba(0,0,0,0.2)]! hover:scale-101 transition-all! duration-200! cursor-pointer">
             <span class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></span>
 
             <div class="pl-2 flex items-start justify-between gap-3 text-(--primary)">
@@ -97,10 +97,7 @@
                 </div>
                 <div class="flex gap-2 items-center shrink-0">
                     <span tuiBadge appearance="warning">{{ req.overallStatus }}</span>
-                    <button tuiButton type="button" size="s" [routerLink]="['/requests', req.id]"
-                        class="bg-(--theme2)! cursor-pointer">
-                        Review
-                    </button>
+
                 </div>
             </div>
         </div>

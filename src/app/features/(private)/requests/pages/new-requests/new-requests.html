@@ -177,10 +177,14 @@
                     @let actual = actualFor(row.get('date')?.value);
                     @if (actual) {
                     <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-(--primary)/70 -mt-1">
-                        <span>Actual Clock In: <b class="text-(--primary)">{{ actual.clockIn ? (actual.clockIn | date: 'shortTime') : '—' }}</b></span>
-                        <span>Actual Clock Out: <b class="text-(--primary)">{{ actual.clockOut ? (actual.clockOut | date: 'shortTime') : '—' }}</b></span>
-                        <span>Actual Break In: <b class="text-(--primary)">{{ actual.breakIn ? (actual.breakIn | date: 'shortTime') : '—' }}</b></span>
-                        <span>Actual Break Out: <b class="text-(--primary)">{{ actual.breakOut ? (actual.breakOut | date: 'shortTime') : '—' }}</b></span>
+                        <span>Actual Clock In: <b class="text-(--primary)">{{ actual.clockIn ? (actual.clockIn | date:
+                                'shortTime') : '—' }}</b></span>
+                        <span>Actual Clock Out: <b class="text-(--primary)">{{ actual.clockOut ? (actual.clockOut |
+                                date: 'shortTime') : '—' }}</b></span>
+                        <span>Actual Break In: <b class="text-(--primary)">{{ actual.breakIn ? (actual.breakIn | date:
+                                'shortTime') : '—' }}</b></span>
+                        <span>Actual Break Out: <b class="text-(--primary)">{{ actual.breakOut ? (actual.breakOut |
+                                date: 'shortTime') : '—' }}</b></span>
                     </div>
                     }
 
@@ -226,10 +230,7 @@
 
             <div>
                 <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-                    <label tuiLabel>
-                        Reason
-                        @if (isRequired(form.get('reason'))) { <span class="text-red-500">*</span> }
-                    </label>
+
                     <textarea formControlName="reason" tuiTextarea [limit]="100" [max]="6" [min]="3"
                         placeholder="Briefly explain the reason for your request"></textarea>
                 </tui-textfield>
@@ -238,7 +239,8 @@
         </div>
 
         <footer class="flex justify-end gap-3 pt-4 border-t border-(--background_dark)/10">
-            <button tuiButton type="button" class="bt-secondary" iconStart="@tui.rotate-ccw" size="m" (click)="onReset()">Reset</button>
+            <button tuiButton type="button" class="bt-secondary" iconStart="@tui.rotate-ccw" size="m"
+                (click)="onReset()">Reset</button>
             <button tuiButton type="submit" size="m" class="btn-lift" [disabled]="isSubmitting()">
                 @if (isSubmitting()) {
                 <div class="flex items-center justify-center gap-2">

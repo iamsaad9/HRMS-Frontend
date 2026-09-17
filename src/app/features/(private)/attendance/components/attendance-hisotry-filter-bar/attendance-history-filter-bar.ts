@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, computed, inject, OnInit, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TuiButton, TuiExpand, TuiTextfield, TuiTextfieldComponent } from '@taiga-ui/core';
+import { TuiButton, TuiCheckbox, TuiExpand, TuiTextfield, TuiTextfieldComponent } from '@taiga-ui/core';
 import { TuiMultiSelect, TuiSelect, TuiDataListWrapperComponent, TuiInputDate, TuiDataListWrapper, TuiChevron, TuiChip } from '@taiga-ui/kit';
 
 import {
@@ -45,7 +45,8 @@ export const MAX_HISTORY_RANGE_DAYS = 92;
     TuiChevron,
     TuiChip,
     TuiInputDate,
-    TuiItemGroup
+    TuiItemGroup,
+    TuiCheckbox,
 ],
   templateUrl: './attendance-history-filter-bar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,11 +59,7 @@ export class AttendanceHistoryFilterBar implements OnInit {
 
 
   isAdmin = this.authService.currentUser()?.employeeInfo?.roles?.includes("Admin") || false;
-  showMoreFilters = false;
-  // Option lists exposed to the template
   protected readonly statusOptions = ATTENDANCE_STATUS_OPTIONS;
-  // computed(), not a plain snapshot - leaveTypes() is empty until getAllLeaveTypes() resolves,
-  // so a plain `= this.leaveService.leaveTypes()` would freeze on that empty array forever.
   protected readonly leaveTypeOptions = computed(() => this.leaveService.leaveTypes());
   protected readonly leaveTypeNames = computed(() => this.leaveTypeOptions().map((t) => t.name));
   protected readonly exceptionFlagOptions = EXCEPTION_FLAG_OPTIONS;
@@ -139,16 +136,6 @@ export class AttendanceHistoryFilterBar implements OnInit {
     }
     this.rangeError.set(null);
     return true;
-  }
-
-  protected onSearch(): void {
-    if (!this.validateRange()) return;
-    const draft = this.draft();
-    this.filterChange.emit({
-      ...draft,
-      startDate: draft.startDate ? toIsoDate(draft.startDate) : draft.startDate,
-      endDate: draft.endDate ? toIsoDate(draft.endDate) : draft.endDate,
-    });
   }
 
   protected onReset(): void {

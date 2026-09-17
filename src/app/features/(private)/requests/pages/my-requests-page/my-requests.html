@@ -114,8 +114,8 @@
             <tui-expand [expanded]="isExpanded(group.key)">
                 <div class="flex flex-col gap-3 p-4">
                     @for (req of group.requests; track req.id) {
-                    <div tuiCardLarge
-                        class="relative overflow-hidden rounded-lg  p-4 bg-(--secondary)! shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+                    <div tuiCardLarge [routerLink]="['/requests', req.id]"
+                        class="relative overflow-hidden rounded-lg  p-4 bg-(--secondary)! shadow-[0_0_5px_rgba(0,0,0,0.2)]! hover:scale-101 transition-all! duration-200! cursor-pointer">
 
                         <span class="absolute left-0 top-0 bottom-0 w-1"
                             [class.bg-amber-400]="req.overallStatus === 'Pending'"
@@ -144,8 +144,7 @@
                                     <span tuiBadge [appearance]="statusAppearance(req.overallStatus)" class="shrink-0">
                                         {{ req.overallStatus }}
                                     </span>
-                                    <button tuiButton type="button" size="s" iconStart="@tui.eye"
-                                        [routerLink]="['/requests', req.id]" class="bg-(--theme2)!"></button>
+
                                 </div>
                             </div>
 

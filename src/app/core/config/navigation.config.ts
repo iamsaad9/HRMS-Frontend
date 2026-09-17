@@ -171,145 +171,21 @@ export const DropdownItems: DropDownItem[] = [
   },
 
   // Reports Tab (Admin Only)
-  {
-    id: '5',
-    icon: 'assessment',
-    title: 'Reports',
-    description: 'Data generation and report formatting',
-    category: 'Reports Tab',
-    childItems: [
-       {
-      id: '5.1', icon: 'download', title: 'Compliance Extraction',
-      description: 'Data generation and report formatting',
-      routeTo: '/reports/compliance', category: 'Reports Tab',
-      permission: 'reports:read',
-    },
-    ],
-  },
+  // {
+  //   id: '5',
+  //   icon: 'assessment',
+  //   title: 'Reports',
+  //   description: 'Data generation and report formatting',
+  //   category: 'Reports Tab',
+  //   childItems: [
+  //      {
+  //     id: '5.1', icon: 'download', title: 'Compliance Extraction',
+  //     description: 'Data generation and report formatting',
+  //     routeTo: '/reports/compliance', category: 'Reports Tab',
+  //     permission: 'reports:read',
+  //   },
+  //   ],
+  // },
 
 ];
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Additional Context: These are recently edited files. Do not suggest code that has been deleted.
-export const AdminDashboardData = [
-  {
-   "cards": {
-      "totalActiveEmployees": 30,
-      "totalPresentToday": 0,
-      "onLeaveOrWfhToday": 0,
-      "pendingApprovalsCount": 1
-    },
-    "employeeProfile": {
-      "id": "4aaa62db-d5bf-44ca-bf32-ab639ae69ad4",
-      "userId": "2f22c64e-8c45-4ed4-9ddc-40370c527de7",
-      "category": 1,
-      "staffNo": "EMP-0178",
-      "title": "",
-      "firstName": "Mir Taha",
-      "lastName": "Ali",
-      "fullName": "Mir Taha Ali",
-      "dateOfBirth": null,
-      "gender": null,
-      "workEmail": "admin@user.com",
-      "mobile": null,
-      "niNumber": null,
-      "startDate": null,
-      "employmentType": null,
-      "isActive": true,
-      "createdAtUtc": "2026-08-21T17:54:25.826829Z",
-      "departmentId": "602de3c9-5599-4914-9a2f-4ecbbfe0dd3e",
-      "departmentName": "Relief",
-      "branchId": "9985c683-a074-4701-9cbf-00c825bd99d5",
-      "branchName": "As-Suffa HQ",
-      "designationId": "ee6eb1ad-cf7d-4050-ae44-809bb320b322",
-      "designationTitle": "CEO of Relief ",
-      "managerId": null,
-      "managerName": null,
-      "managerEmail": null,
-      "shiftCode": "N/A",
-      "roles": [
-        "Admin"
-      ]
-    },
-    "shiftHistory": [
-      {
-        "shiftAssignmentId": "05749026-477c-4702-b19a-443611ab9ee6",
-        "shiftId": "7c3c3299-feb8-495e-b51f-45c2b991bc71",
-        "shiftCode": "GENERAL",
-        "shiftName": "General Shift",
-        "startTime": "09:00:00",
-        "endTime": "17:00:00",
-        "effectiveFrom": "2026-01-01",
-        "effectiveTo": null,
-        "isCurrent": true
-      }
-    ],
-    "remainingLeaves": [
-      {
-        "leaveTypeId": "2a70d68f-103a-4a37-af48-50a1e01ef195",
-        "leaveTypeName": "Annual Leave",
-        "allocatedDays": 25,
-        "adjustmentDays": 0,
-        "totalEntitlement": 25,
-        "usedDays": 0,
-        "pendingDays": 0,
-        "remainingDays": 25
-      },
-      {
-        "leaveTypeId": "b44e25ae-5067-4a4b-9759-2467e9c29530",
-        "leaveTypeName": "Sick Leave",
-        "allocatedDays": 10,
-        "adjustmentDays": 0,
-        "totalEntitlement": 10,
-        "usedDays": 0,
-        "pendingDays": 0,
-        "remainingDays": 10
-      },
-      {
-        "leaveTypeId": "19b11c7f-def6-422d-86cf-f0281febefa8",
-        "leaveTypeName": "Compassionate Leave",
-        "allocatedDays": 5,
-        "adjustmentDays": 0,
-        "totalEntitlement": 5,
-        "usedDays": 0,
-        "pendingDays": 0,
-        "remainingDays": 5
-      },
-      {
-        "leaveTypeId": "d560134c-6732-4048-a1ca-1938efba3e62",
-        "leaveTypeName": "Unpaid Leave (LWP)",
-        "allocatedDays": 0,
-        "adjustmentDays": 0,
-        "totalEntitlement": 0,
-        "usedDays": 0,
-        "pendingDays": 0,
-        "remainingDays": 0
-      }
-    ],
-    "holidayCalendar": [],
-    "pendingApprovalsTeamMembers": [
-      {
-        "approvalRequestId": "8d32c4d1-1192-4df2-bbaf-5f1ea18a3353",
-        "entityId": "80411154-af4a-4c62-b28d-b70f7e8a3db7",
-        "requestType": "Leave",
-        "requesterName": "Ahmed Siddique Siddique",
-        "departmentName": "Relief",
-        "currentStepOrder": 1,
-        "submittedDate": "2026-09-01T18:13:15.759686Z",
-        "summary": "Leave · 4.0 day(s) (8/15/2026 - 8/20/2026)"
-      }
-    ]
-  },
-]

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { TuiButton, TuiDropdown, TuiLabel, TuiTextfield, TuiTextfieldComponent } from '@taiga-ui/core';
+import { TuiButton, TuiDropdown, TuiInput, TuiLabel, TuiTextfield, TuiTextfieldComponent } from '@taiga-ui/core';
 import { TuiTable } from '@taiga-ui/addon-table';
 import { TuiBadge, TuiChevron, TuiDataListWrapperComponent, TuiSelect } from '@taiga-ui/kit';
 import { TuiCardLarge } from '@taiga-ui/layout';
@@ -28,6 +28,7 @@ interface ShiftHistoryPickerEmployee {
   imports: [
     FormsModule, 
     DatePipe, 
+    TuiInput,
     TuiButton, 
     TuiTable, 
     TuiBadge, 
@@ -51,11 +52,6 @@ export class EmployeeShiftHistory implements OnInit {
   private readonly dashboardService = inject(DashboardService);
   private readonly toast = inject(ToastService);
 
-  // Admin/HR can look up anyone via the full employee directory (GET /api/Employees, gated by
-  // the "users:read" permission neither Manager nor plain User roles have). A manager only ever
-  // needs their own direct reports, which are already fetched - correctly scoped server-side -
-  // for the dashboard's "Team Members" card, so reuse that instead of calling the Admin/HR-only
-  // endpoint (which would 403 for them and leave the picker empty).
   protected isPrivileged = computed(() => this.authService.hasRole(['Admin', 'HR']));
 
   protected employees = computed<ShiftHistoryPickerEmployee[]>(() => {
@@ -73,14 +69,24 @@ export class EmployeeShiftHistory implements OnInit {
     }));
   });
 
+  // Filters the left-hand list by name or staff no.
+  protected employeeSearch = signal('');
+  protected filteredEmployees = computed(() => {
+    const q = this.employeeSearch().trim().toLowerCase();
+    if (!q) return this.employees();
+    return this.employees().filter(
+      (e) => e.fullName.toLowerCase().includes(q) || e.staffNo.toLowerCase().includes(q),
+    );
+  });
+
   // Stores the selected employee
   protected selectedEmployee = signal<ShiftHistoryPickerEmployee | null>(null);
+  protected selectedEmployeeId = computed(() => this.selectedEmployee()?.id ?? null);
 
   protected history = signal<ShiftHistoryEntry[]>([]);
   protected isLoading = signal(false);
   protected hasSearched = signal(false);
 
-  // Taiga UI Helper to format employee option labels in the dropdown
   readonly stringifyEmployee = (emp: ShiftHistoryPickerEmployee): string =>
     emp ? `${emp.fullName} (${emp.staffNo})` : '';
 
@@ -99,8 +105,14 @@ export class EmployeeShiftHistory implements OnInit {
     })),
   );
 
+  // Called when a row in the left list is clicked. Selects the employee and fetches immediately.
+  protected selectEmployee(id: string): void {
+    const emp = this.employees().find((e) => e.id === id) ?? null;
+    this.selectedEmployee.set(emp);
+    this.search();
+  }
+
   protected search(): void {
-    // Extract employeeId from the selected object
     const employeeId = this.selectedEmployee()?.id;
     if (!employeeId) return;
 

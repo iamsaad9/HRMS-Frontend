@@ -70,7 +70,7 @@ export class AttendanceHistory implements OnInit {
   protected filteredRecords = signal<AttendanceRecord[] | null>(null);
   protected isSearchingRange = signal(false);
   protected page = signal(0);
-  protected readonly pageSize = 15;
+  protected readonly pageSize = 10;
 
   protected weekOffset = signal<number>(0);
 

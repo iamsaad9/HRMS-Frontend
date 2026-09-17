@@ -4,6 +4,7 @@ export interface DesignationItem {
   id: string;
   title: string;
   isActive: boolean;
+  departmentId: string;
 }
 
 export interface DepartmentItem {
@@ -22,6 +23,7 @@ export interface ManagerItem {
   id: string;
   fullName: string;
   workEmail: string;
+  departmentId: string;
 }
 
 export interface BrancheItem {

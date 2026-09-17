@@ -130,7 +130,7 @@ export class EmployeeView {
 
   protected passwordForm = this.fb.group(
     {
-      currentPassword: ['', [Validators.required]],
+      confirmPassword: ['', [Validators.required]],
       newPassword: ['', [Validators.required,Validators.minLength(8)]],
     },
   );

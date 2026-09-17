@@ -77,6 +77,7 @@ export interface DashboardPendingApproval {
   entityId: string;
   requestType: string;
   requesterName: string;
+  requesterProfilePictureUrl?: string | null;
   departmentName: string;
   currentStepOrder: number;
   submittedDate: string;

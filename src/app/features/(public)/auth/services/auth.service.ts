@@ -181,8 +181,9 @@ checkSession(): Observable<boolean> {
     }
   }
 
+  /** Routine self-service change - verifies currentPassword server-side before applying newPassword. */
   changePassword(command:changePasswordCommand):Observable<ApiResponse<any>>{
-    return this.http.post<any>(`${this.apiUrl}/change-password-first-login`,command).pipe(
+    return this.http.post<any>(`${this.apiUrl}/change-password`,command).pipe(
       tap((response)=>{
         if(response.isSuccess){
           this.logout().subscribe();
@@ -192,6 +193,30 @@ checkSession(): Observable<boolean> {
         return throwError(()=>err);
       })
     )
+  }
+
+  /** Forced first-login reset - no currentPassword needed/known by the caller, since the only thing being proven is that the user holds a valid session (they just logged in with the default password). */
+  changePasswordFirstLogin(command:changePasswordCommand): Observable<ApiResponse<any>> {
+    return this.http.post<any>(`${this.apiUrl}/change-password-first-login`,  command ).pipe(
+      tap((response) => {
+        if (response.isSuccess) {
+          this.logout().subscribe();
+        }
+      }),
+      catchError((err) => {
+        return throwError(() => err);
+      }),
+    );
+  }
+
+  /** Keeps the navbar / dashboard "My Profile" card in sync immediately after the signed-in user uploads their own picture, without waiting on a full /me refetch. */
+  updateOwnProfilePicture(pictureUrl: string): void {
+    const user = this.#currentUser();
+    if (!user?.employeeInfo) return;
+    this.#currentUser.set({
+      ...user,
+      employeeInfo: { ...user.employeeInfo, profilePictureUrl: pictureUrl },
+    });
   }
 
   hasRole(allowedRoles: string[]): boolean {

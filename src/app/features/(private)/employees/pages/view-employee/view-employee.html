@@ -24,9 +24,9 @@
     <!-- Identity summary strip -->
     <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
       <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-        <app-profile-picture-upload [employeeId]="emp.id" [currentPictureUrl]="emp.profilePictureUrl ?? null"
+        <!-- <app-profile-picture-upload [employeeId]="emp.id" [confirmPictureUrl]="emp.profilePictureUrl ?? null"
           [initials]="initials()" [canEdit]="canEditPicture()" (pictureUploaded)="onPictureUploaded($event)">
-        </app-profile-picture-upload>
+        </app-profile-picture-upload> -->
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
             <h1 class="text-2xl font-semibold text-(--theme2) m-0 uppercase">{{ emp.fullName }}</h1>
@@ -172,18 +172,17 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>Current Password <span class="text-red-500">*</span></label>
-              <input formControlName="currentPassword" type="password" placeholder="Enter new password" tuiInput />
-            </tui-textfield>
-            <tui-error formControlName="currentPassword" />
-          </div>
-
-          <div>
-            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
               <label tuiLabel>New Password <span class="text-red-500">*</span></label>
               <input formControlName="newPassword" type="password" placeholder="Re-enter new password" tuiInput />
             </tui-textfield>
             <tui-error formControlName="newPassword" />
+          </div>
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+              <label tuiLabel>Confirm Password <span class="text-red-500">*</span></label>
+              <input formControlName="confirmPassword" type="password" placeholder="Enter new password" tuiInput />
+            </tui-textfield>
+            <tui-error formControlName="confirmPassword" />
           </div>
         </div>
 

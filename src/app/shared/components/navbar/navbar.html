@@ -70,9 +70,13 @@
           [attr.aria-expanded]="userDropdownOpen()" [tuiDropdown]="userDropdownContent"
           [tuiDropdownManual]="userDropdownOpen()" [tuiObscuredEnabled]="userDropdownOpen()"
           (click)="openUserDropDown()" (tuiActiveZoneChange)="onActiveZone($event)" (tuiObscured)="onObscured($event)">
+          @if (currentUser?.employeeInfo?.profilePictureUrl) {
+          <img [src]="currentUser?.employeeInfo?.profilePictureUrl" alt="Profile"
+            class="size-9 rounded-full object-cover border border-(--theme1)/50" />
+          } @else {
           <div size="m" tuiAvatar="@tui.user" tuiAvatarOutline="var(--theme1)" class="text-white! bg-black/20!">
-            <img alt="Alex Inkin" src="" />
           </div>
+          }
           <ng-template #userDropdownContent>
             <tui-data-list class="bg-(--background_light)!">
               <button tuiOption type="button" class="hover:bg-(--primary)/10! border! border-(--accent)! border-dashed"

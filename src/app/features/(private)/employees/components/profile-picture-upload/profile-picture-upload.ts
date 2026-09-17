@@ -1,16 +1,9 @@
 import { Component, inject, Input, Output, EventEmitter, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastService } from '../../../../../core/services/toast.service';
-
-interface UploadResponse {
-  isSuccess: boolean;
-  message?: string;
-  data: {
-    pictureUrl: string;
-  };
-}
+import { EmployeeService } from '../../services/employee.service';
+import { AuthService } from '../../../../(public)/auth/services/auth.service';
 
 @Component({
   selector: 'app-profile-picture-upload',
@@ -60,7 +53,8 @@ export class ProfilePictureUploadComponent {
   @Input() canEdit: boolean = true;
   @Output() pictureUploaded = new EventEmitter<string>();
 
-  private http = inject(HttpClient);
+  private employeeService = inject(EmployeeService);
+  private authService = inject(AuthService);
   private toast = inject(ToastService);
 
   _currentPictureUrl = signal<string | null>(null);
@@ -89,26 +83,27 @@ export class ProfilePictureUploadComponent {
   private uploadFile(file: File): void {
     this.isUploading.set(true);
 
-    const formData = new FormData();
-    formData.append('file', file);
+    this.employeeService.uploadProfilePicture(this.employeeId, file).subscribe({
+      next: (response) => {
+        if (response.isSuccess && response.data) {
+          this._currentPictureUrl.set(response.data.pictureUrl);
+          this.pictureUploaded.emit(response.data.pictureUrl);
+          this.toast.success('Profile picture uploaded successfully', 'Success');
 
-    this.http
-      .post<UploadResponse>(`/api/FileUpload/upload-profile-picture/${this.employeeId}`, formData)
-      .subscribe({
-        next: (response: UploadResponse) => {
-          if (response.isSuccess) {
-            this._currentPictureUrl.set(response.data.pictureUrl);
-            this.pictureUploaded.emit(response.data.pictureUrl);
-            this.toast.success('Profile picture uploaded successfully', 'Success');
-          } else {
-            this.toast.error(response.message || 'Upload failed', 'Error');
+          // If uploading our own picture, refresh the navbar/dashboard immediately instead of
+          // waiting on a full /me refetch (login/refresh) to pick up the change.
+          if (this.employeeId === this.authService.currentUser()?.employeeInfo?.id) {
+            this.authService.updateOwnProfilePicture(response.data.pictureUrl);
           }
-          this.isUploading.set(false);
-        },
-        error: (err: any) => {
-          this.isUploading.set(false);
-          this.toast.error(err.error?.message || 'Failed to upload image', 'Error');
+        } else {
+          this.toast.error(response.message || 'Upload failed', 'Error');
         }
-      });
+        this.isUploading.set(false);
+      },
+      error: (err: any) => {
+        this.isUploading.set(false);
+        this.toast.error(err.error?.message || 'Failed to upload image', 'Error');
+      },
+    });
   }
 }

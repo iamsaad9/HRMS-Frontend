@@ -197,37 +197,7 @@
           </div>
         </div>
 
-        <!-- Department / Designation -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
-              [tuiTextfieldCleaner]="false">
-              <label tuiLabel>Department
-                @if (isRequired('departmentId')) {
-                <span class="text-red-500">*</span>
-                }
-              </label>
-              <input formControlName="departmentId" tuiSelect />
-              <tui-data-list-wrapper *tuiDropdown [items]="departmentsOptions()" />
-            </tui-textfield>
-            <tui-error formControlName="departmentId" />
-          </div>
-
-          <div>
-            <tui-textfield tuiChevron tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>Designation
-                @if (isRequired('designationId')) {
-                <span class="text-red-500">*</span>
-                }
-              </label>
-              <input formControlName="designationId" tuiSelect />
-              <tui-data-list-wrapper *tuiDropdown [items]="designationsOptions()" />
-            </tui-textfield>
-            <tui-error formControlName="designationId" />
-          </div>
-        </div>
-
-        <!-- Branch / Manager -->
+        <!-- Branch / Department -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
@@ -241,6 +211,36 @@
               <tui-data-list-wrapper *tuiDropdown [items]="branchesOptions()" />
             </tui-textfield>
             <tui-error formControlName="branchId" />
+          </div>
+
+          <div>
+            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
+              [tuiTextfieldCleaner]="false">
+              <label tuiLabel>Department
+                @if (isRequired('departmentId')) {
+                <span class="text-red-500">*</span>
+                }
+              </label>
+              <input formControlName="departmentId" tuiSelect />
+              <tui-data-list-wrapper *tuiDropdown [items]="departmentsOptions()" />
+            </tui-textfield>
+            <tui-error formControlName="departmentId" />
+          </div>
+        </div>
+
+        <!-- Designation / Reporting Manager - both filtered by the Department picked above -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <tui-textfield tuiChevron tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+              <label tuiLabel>Designation
+                @if (isRequired('designationId')) {
+                <span class="text-red-500">*</span>
+                }
+              </label>
+              <input formControlName="designationId" tuiSelect />
+              <tui-data-list-wrapper *tuiDropdown [items]="designationsOptions()" />
+            </tui-textfield>
+            <tui-error formControlName="designationId" />
           </div>
 
           <div>
@@ -292,7 +292,7 @@
           <label class="flex items-center gap-2 text-sm cursor-pointer">
             <input tuiCheckbox type="checkbox" formControlName="isActive"
               class="checked:bg-(--theme2)! cursor-pointer" />
-            <span class="text-white!">Is Active?</span>
+            <span class="text-(--primary)!">Is Active?</span>
           </label>
         </div>
       </div>
@@ -319,10 +319,16 @@
               </label>
 
               <!-- Removed the empty [disabled] attribute, Angular will manage it via the TS file -->
-              <input #pwd formControlName="password" type="password" placeholder="Abc@123" tuiInput
-                [type]="form.get('useDefaultPassword')?.value ? 'text' : 'password'" (focus)="showValidator.set(true)"
-                (blur)="showValidator.set(false)" />
+              <input #pwd formControlName="password" placeholder="Abc@123" tuiInput
+                [type]="(form.get('useDefaultPassword')?.value || showPassword()) ? 'text' : 'password'"
+                (focus)="showValidator.set(true)" (blur)="showValidator.set(false)" />
             </tui-textfield>
+
+            <button type="button" (click)="showPassword.set(!showPassword())"
+              class="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-(--primary)/60 hover:text-(--primary)"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+              <tui-icon [icon]="showPassword() ? '@tui.eye-off' : '@tui.eye'" class="text-lg!" />
+            </button>
 
             <tui-error formControlName="password" />
 

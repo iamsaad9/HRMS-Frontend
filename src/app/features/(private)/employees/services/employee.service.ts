@@ -86,6 +86,29 @@ export class EmployeeService {
       );
   }
 
+  uploadProfilePicture(
+    employeeId: string,
+    file: File,
+  ): Observable<ApiResponse<{ pictureUrl: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http
+      .post<ApiResponse<{ pictureUrl: string }>>(
+        `/api/FileUpload/upload-profile-picture/${employeeId}`,
+        formData,
+      )
+      .pipe(
+        tap((response) => {
+          // Invalidate the cached list - org chart, employee list and dashboard team-member
+          // widgets all read from it, and would otherwise keep showing the pre-upload picture.
+          if (response.isSuccess) {
+            this.#allEmployees.set(null);
+          }
+        }),
+      );
+  }
+
   downloadTemplate(): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/download-template`, {
       responseType: 'blob', // Essential for receiving files/CSVs correctly

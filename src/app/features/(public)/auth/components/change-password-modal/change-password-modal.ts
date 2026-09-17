@@ -50,9 +50,11 @@ export class ChangePasswordModal {
   }
 
   protected submit(): void {
+    console.log('payload check', this.form.value)
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.form.updateValueAndValidity();
+      
       return;
     }
 
@@ -60,10 +62,6 @@ export class ChangePasswordModal {
     const newPassword = this.form.get('newPassword')?.value;
     const confirmPassword = this.form.get('confirmPassword')?.value;
     this.context.completeWith({ newPassword,confirmPassword });
-  }
-
-  protected cancel(): void {
-    this.context.completeWith(null);
   }
 
   protected hasError(controlName: string, errorType: string): boolean {

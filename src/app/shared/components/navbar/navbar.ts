@@ -97,7 +97,16 @@ export class NavbarComponent {
   protected readonly selected = signal<ExampleAction | null>(null);
   protected readonly buttonLabel = computed(() => this.selected()?.title ?? 'Choose');
   protected readonly themeService = inject(ThemeService);
-  protected readonly currentUser = this.authService.currentUser();
+  // Getter (not a snapshot) so it re-reads the signal on every check - this component is created
+  // once for the whole private area, so a plain snapshot would freeze at whatever currentUser()
+  // resolved to at construction time and never reflect a later profile picture upload, /me refresh, etc.
+  protected get currentUser() {
+    return this.authService.currentUser();
+  }
+
+  protected initials(firstName?: string, lastName?: string): string {
+    return `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
+  }
   private readonly userPermissions = computed(
     () => this.authService.currentUser()?.permissions ?? [],
   );

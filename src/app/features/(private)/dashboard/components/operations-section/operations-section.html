@@ -45,7 +45,12 @@
                 <div class="flex items-center justify-between py-3 gap-3">
 
                     <div class="flex items-center gap-x-3 min-w-0">
+                        @if (record.requesterProfilePictureUrl) {
+                        <img [src]="record.requesterProfilePictureUrl" alt="{{ record.requesterName }}"
+                            class="size-8 rounded-full object-cover border border-(--theme1)/25 shrink-0">
+                        } @else {
                         <div tuiAvatar="@tui.user" class="shrink-0"></div>
+                        }
                         <div class="min-w-0">
                             <p class="text-sm font-semibold text-(--primary) leading-none truncate">
                                 {{ record.requesterName }}

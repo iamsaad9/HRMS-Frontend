@@ -53,6 +53,18 @@
                 <p class="text-sm font-medium text-(--primary) m-0">{{ r.leaveTypeName }}</p>
             </div>
             }
+            @if (r.approvedByName) {
+            <div>
+                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Approved By</p>
+                <p class="text-sm font-medium text-emerald-500 m-0">{{ r.approvedByName }}</p>
+            </div>
+            }
+            @if (r.rejectedByName) {
+            <div>
+                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Rejected By</p>
+                <p class="text-sm font-medium text-red-500 m-0">{{ r.rejectedByName }}</p>
+            </div>
+            }
 
             @if (r.details && r.details.length > 0 && !isEditing()) {
             <div>
@@ -92,11 +104,17 @@
                 @if (canApproveOrReject()) {
                 <button tuiButton type="button" size="s" [disabled]="isSubmittingAction()" (click)="approve()"
                     class="bg-emerald-500! text-white cursor-pointer">
-                    Approve
+                    @if (isSubmittingAction()) {
+                    <span class="inline-block size-3 rounded-full border-2 border-white/40 border-t-white animate-spin mr-1"></span>
+                    }
+                    {{ isSubmittingAction() ? 'Approving…' : 'Approve' }}
                 </button>
                 <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
                     (click)="reject()" class="text-red-500! border-red-500! cursor-pointer">
-                    Reject
+                    @if (isSubmittingAction()) {
+                    <span class="inline-block size-3 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin mr-1"></span>
+                    }
+                    {{ isSubmittingAction() ? 'Rejecting…' : 'Reject' }}
                 </button>
                 }
                 @if (canEdit()) {
@@ -108,7 +126,10 @@
                 @if (canCancel()) {
                 <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
                     (click)="cancel()" class="cursor-pointer">
-                    Cancel Request
+                    @if (isSubmittingAction()) {
+                    <span class="inline-block size-3 rounded-full border-2 border-(--primary)/30 border-t-(--primary) animate-spin mr-1"></span>
+                    }
+                    {{ isSubmittingAction() ? 'Cancelling…' : 'Cancel Request' }}
                 </button>
                 }
             </div>
@@ -217,6 +238,40 @@
         </div>
         }
     </div>
+
+    <!-- Approval Trail -->
+    @if (!isEditing() && r.approvals && r.approvals.length > 0) {
+    <div tuiCardLarge
+        class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! p-3.5 rounded-xl flex flex-col gap-2!">
+        <h3
+            class="text-xs uppercase font-semibold text-(--theme2) tracking-wide m-0 pb-1 border-b border-(--primary)/10">
+            Approval Trail
+        </h3>
+        <div class="flex flex-col">
+            @for (step of r.approvals; track step.stepOrder; let first = $first) {
+            <div class="flex items-center justify-between gap-2 py-1.5" [class.border-t]="!first"
+                [class.border-(--primary)/10]="!first">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-medium text-(--primary)">Step {{ step.stepOrder }}</span>
+                    <span class="text-sm text-(--primary)">{{ step.approverName || '—' }}</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full font-medium"
+                        [class.bg-emerald-500]="step.stepAction === 'Approved'"
+                        [class.text-white]="step.stepAction === 'Approved'"
+                        [class.bg-red-500]="step.stepAction === 'Rejected'"
+                        [class.bg-(--primary)]="step.stepAction !== 'Approved' && step.stepAction !== 'Rejected'"
+                        [class.bg-opacity-10]="step.stepAction !== 'Approved' && step.stepAction !== 'Rejected'">
+                        {{ step.stepAction }}
+                    </span>
+                </div>
+                <span class="text-xs text-(--primary)/50">{{ step.actionAtUtc | date: 'short' }}</span>
+            </div>
+            @if (step.comments) {
+            <p class="text-xs text-(--primary)/60 m-0 pl-1">"{{ step.comments }}"</p>
+            }
+            }
+        </div>
+    </div>
+    }
 
     <!-- Request Line Items (Detailed Breakdown) -->
     @if (!isEditing()) {

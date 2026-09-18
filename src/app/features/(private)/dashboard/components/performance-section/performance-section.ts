@@ -13,6 +13,16 @@ import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { ToastService } from '../../../../../core/services/toast.service';
 import { DashboardService } from '../../service/dashboard.service';
 
+function extractErrorMessage(error: any, fallback: string): string {
+  return (
+    error?.error?.message ??
+    error?.error?.title ??
+    error?.error?.errors?.[0] ??
+    (typeof error?.error === 'string' ? error.error : null) ??
+    fallback
+  );
+}
+
 function toIsoDate(d: Date): string {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -61,7 +71,15 @@ export class PerformanceSection {
     year: 'numeric',
   };
 
-  formattedDate = signal(this.today.toLocaleDateString('en-US', this.options));
+  // Shows the ATTENDANCE date (whichever slot attendanceService.activeShiftRecord() resolved -
+  // an overnight shift still shows its origin date even after the real calendar day has rolled
+  // over), not necessarily the literal "today" - see activeShiftRecord()'s own comment.
+  formattedDate = computed(() => {
+    const activeDate = this.attendanceService.activeShiftRecord()?.date;
+    if (!activeDate) return this.today.toLocaleDateString('en-US', this.options);
+    const [y, m, d] = activeDate.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('en-US', this.options);
+  });
 
   isToday(dateStr: string): boolean {
     const d = new Date(dateStr);
@@ -144,14 +162,34 @@ export class PerformanceSection {
     [29, 98],
   ];
 
-  /** Real work-hour-overview data: this employee's actual clock in/out per day. */
+  /**
+   * Real work-hour-overview data: this employee's actual clock in/out per day. Regular/Late/
+   * Overtime hours are taken directly from the backend's own calculation (totalHoursWorked/
+   * lateMinutes/overtimeMinutes - the DailyAttendance TS model's field names are stale, so these
+   * are read off the raw response) rather than re-derived on the frontend from HH:mm strings,
+   * so the bar chart always matches the backend to the second instead of approximating it.
+   */
   protected readonly barChartPunches = computed<AttendancePunch[]>(() =>
-    (this.attendanceService.currentMonth() ?? []).map((d) => ({
-      date: d.date,
-      checkIn: this.toHm(d.firstIn),
-      checkOut: this.toHm(d.lastOut),
-      status: d.status,
-    })),
+    (this.attendanceService.currentMonth() ?? []).map((d) => {
+      const raw = d as unknown as {
+        totalHoursWorked?: number;
+        lateMinutes?: number;
+        overtimeMinutes?: number;
+      };
+      const overtimeHours = (raw.overtimeMinutes ?? 0) / 60;
+      const lateHours = (raw.lateMinutes ?? 0) / 60;
+      const workHours = Math.max(0, (raw.totalHoursWorked ?? 0) - overtimeHours);
+
+      return {
+        date: d.date,
+        checkIn: this.toHm(d.firstIn),
+        checkOut: this.toHm(d.lastOut),
+        status: d.status,
+        lateHours,
+        workHours,
+        overtimeHours,
+      };
+    }),
   );
 
   /** The employee's current shift, used as the expected start/end reference on the bar chart. */
@@ -167,11 +205,22 @@ export class PerformanceSection {
     return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
   }
 
+  // Shifts are defined in UK time (see backend ToUkTime()/ToUkDate()), so the punch's clock
+  // face must be read in the UK timezone too - not the browser's local timezone, which for a
+  // viewer outside the UK produces an hours-off mismatch against shiftStart/shiftEnd.
   private toHm(iso: string | null): string | null {
     if (!iso) return null;
     const date = new Date(iso);
     if (isNaN(date.getTime())) return null;
-    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/London',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).formatToParts(date);
+    const hour = parts.find((p) => p.type === 'hour')?.value ?? '00';
+    const minute = parts.find((p) => p.type === 'minute')?.value ?? '00';
+    return `${hour}:${minute}`;
   }
 
   // <-------------- PUNCHES LOGIC -------------->
@@ -217,8 +266,8 @@ export class PerformanceSection {
           this.toast.error(response.message || 'Clock in failed!', 'Validation Error');
         }
       },
-      error: () => {
-        this.toast.error('Clock in failed!', 'Validation Error');
+      error: (error) => {
+        this.toast.error(extractErrorMessage(error, 'Clock in failed!'), 'Clock In Failed');
       },
     });
     this.isPunchingIn.set(false);
@@ -252,8 +301,8 @@ export class PerformanceSection {
           this.toast.error(response.message || 'Break start failed!', 'Validation Error');
         }
       },
-      error: () => {
-        this.toast.error('Break start failed!', 'Validation Error');
+      error: (error) => {
+        this.toast.error(extractErrorMessage(error, 'Break start failed!'), 'Break Start Failed');
       },
     });
   }
@@ -281,8 +330,8 @@ export class PerformanceSection {
           this.toast.error(response.message || 'Break end failed!', 'Validation Error');
         }
       },
-      error: () => {
-        this.toast.error('Break end failed!', 'Validation Error');
+      error: (error) => {
+        this.toast.error(extractErrorMessage(error, 'Break end failed!'), 'Break End Failed');
       },
     });
   }
@@ -312,8 +361,8 @@ export class PerformanceSection {
           this.toast.error(response.message || 'Clock out failed!', 'Validation Error');
         }
       },
-      error: () => {
-        this.toast.error('Clock out failed!', 'Validation Error');
+      error: (error) => {
+        this.toast.error(extractErrorMessage(error, 'Clock out failed!'), 'Clock Out Failed');
       },
     });
     this.isPunchingIn.set(false);

@@ -6,6 +6,15 @@ export interface AttendancePunch {
   checkIn: string | null;    // 'HH:mm', null if missing
   checkOut: string | null;   // 'HH:mm', null if missing
   status?: string;           // 'OnLeave', 'Present', etc.
+  /**
+   * Backend-computed hours (from totalHoursWorked/lateMinutes/overtimeMinutes). When supplied,
+   * these are used as-is instead of re-deriving late/work/overtime from checkIn/checkOut - the
+   * caller's own timezone/overnight-shift handling is skipped entirely, so the numbers always
+   * match the backend to the second.
+   */
+  lateHours?: number;
+  workHours?: number;
+  overtimeHours?: number;
 }
 
 interface DaySegment {
@@ -69,7 +78,13 @@ export class AttendanceBarChartComponent {
 
   protected readonly days = computed<DaySegment[]>(() => {
     const shiftStartMin = toMinutes(this.shiftStart());
-    const shiftEndMin = toMinutes(this.shiftEnd());
+    const rawShiftEndMin = toMinutes(this.shiftEnd());
+    // Overnight shift (e.g. 18:30 - 02:30): the end time-of-day is numerically smaller than the
+    // start, but it actually falls on the NEXT calendar day - shift it 24h forward so duration
+    // math below stays on one continuous timeline instead of comparing against an "earlier"
+    // clock time and producing a huge bogus overtime figure.
+    const isOvernightShift = rawShiftEndMin <= shiftStartMin;
+    const shiftEndMin = isOvernightShift ? rawShiftEndMin + 24 * 60 : rawShiftEndMin;
     const inputPunches = this.punches();
 
     const punchMap = new Map<string, AttendancePunch>(
@@ -148,17 +163,36 @@ export class AttendanceBarChartComponent {
         continue;
       }
 
-      const inMin = toMinutes(punch.checkIn);
-      const outMin = toMinutes(punch.checkOut);
+      let lateHours: number;
+      let workHours: number;
+      let overtimeHours: number;
 
-      const lateMin = Math.max(0, inMin - shiftStartMin);
-      const overtimeMin = Math.max(0, outMin - shiftEndMin);
-      const workedMin = Math.max(0, outMin - inMin);
-      const workMin = Math.max(0, workedMin - overtimeMin);
+      if (punch.lateHours !== undefined && punch.workHours !== undefined && punch.overtimeHours !== undefined) {
+        // Backend-computed, second-precise figures - use them as-is instead of re-deriving from
+        // HH:mm strings (which loses seconds and can't account for the backend's own shift/
+        // timezone handling).
+        lateHours = punch.lateHours;
+        workHours = punch.workHours;
+        overtimeHours = punch.overtimeHours;
+      } else {
+        const inMin = toMinutes(punch.checkIn);
+        let outMin = toMinutes(punch.checkOut);
+        // On an overnight shift, a check-out clock time earlier than check-in means it happened
+        // after midnight (the next calendar day) - shift it forward to match shiftEndMin's scale.
+        if (isOvernightShift && outMin < inMin) {
+          outMin += 24 * 60;
+        }
 
-      const lateHours = lateMin / 60;
-      const workHours = workMin / 60;
-      const overtimeHours = overtimeMin / 60;
+        const lateMin = Math.max(0, inMin - shiftStartMin);
+        const overtimeMin = Math.max(0, outMin - shiftEndMin);
+        const workedMin = Math.max(0, outMin - inMin);
+        const workMin = Math.max(0, workedMin - overtimeMin);
+
+        lateHours = lateMin / 60;
+        workHours = workMin / 60;
+        overtimeHours = overtimeMin / 60;
+      }
+
       const totalHours = lateHours + workHours + overtimeHours;
 
       const tooltipParts = [

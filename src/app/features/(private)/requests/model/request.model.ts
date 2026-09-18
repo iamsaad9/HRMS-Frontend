@@ -89,6 +89,16 @@ export interface ApiResponse<T extends RequestDetail = RequestDetail> {
 
 export type GetRequestByIdResponse<T extends RequestDetail = RequestDetail> = RequestData<T>;
 
+export interface RequestApprovalStep {
+  stepOrder: number;
+  approverType: string;
+  stepAction: string;
+  approverEmployeeId: string | null;
+  approverName: string | null;
+  comments: string | null;
+  actionAtUtc: string | null;
+}
+
 export interface RequestData<T extends RequestDetail> {
   moduleEntityId: string;
   requestType: 'WorkFromHome' | 'Leave' | 'AttendanceRegularization';
@@ -106,6 +116,9 @@ export interface RequestData<T extends RequestDetail> {
   totalSteps: number;
   requestReason: string;
   createdAtUtc: string;
+  approvedByName: string | null;
+  rejectedByName: string | null;
+  approvals: RequestApprovalStep[];
   details: T[];
 }
 

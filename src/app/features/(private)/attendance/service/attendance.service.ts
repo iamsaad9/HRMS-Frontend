@@ -57,6 +57,13 @@ export class AttendanceService {
   // ---------------------------------------------------------------
   // Robust Active Shift Selector
   // ---------------------------------------------------------------
+ // Matches the backend's own "slot" concept (RecordPunchAsync's openSlot/bump logic): an
+ // overnight shift's DailyAttendance row is dated by when it STARTED, and stays the current
+ // slot - even once the real calendar day has rolled over - until a genuinely new slot exists
+ // (a fresh clock-in for today, or a bumped-forward slot once the previous shift's window has
+ // passed). So "today's calendar date" is the wrong thing to match on; the latest REAL record
+ // (virtual/placeholder days like a future "Absent" placeholder have id = Guid.Empty) is what's
+ // actually current, whatever date it's dated.
  activeShiftRecord = computed(() => {
   const records = this.#currentMonth() ?? [];
   if (records.length === 0) {
@@ -64,37 +71,26 @@ export class AttendanceService {
     return null;
   }
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  // Local calendar date, not UTC (`toISOString()` would roll over to "tomorrow" hours before
+  // local midnight for any viewer east of UTC), so this matches the same local "today" the
+  // history request itself was fetched with (see toLocalDateStr() above).
+  const todayStr = toLocalDateStr(new Date());
   console.log(`[activeShiftRecord] Evaluating active shift. Today: ${todayStr}, Total Records: ${records.length}`);
 
-  // // 1. Open shift priority (has punches, but last punch isn't 'Out')
-  // const openShift = records
-  //   .filter((r) => r.date <= todayStr && r.punches && r.punches.length > 0)
-  //   .find((r) => {
-  //     const lastPunch = r.punches[r.punches.length - 1];
-  //     return lastPunch.punchType !== 'Out';
-  //   });
+  const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
+  const realRecords = records.filter((r) => r.id && r.id !== EMPTY_GUID && r.date <= todayStr);
 
-  // if (openShift) {
-  //   console.log('[activeShiftRecord] Strategy 1 Hit -> Selected Open Shift:', openShift);
-  //   return openShift;
-  // }
-
-  // 2. Exact current date match
-  const todayRecord = records.find((r) => r.date === todayStr);
-  if (todayRecord) {
-    console.log('[activeShiftRecord] Strategy 2 Hit -> Selected Exact Today Record:', todayRecord);
-    return todayRecord;
+  if (realRecords.length > 0) {
+    const latestReal = realRecords.reduce((latest, r) => (r.date > latest.date ? r : latest));
+    console.log('[activeShiftRecord] Latest real slot Hit -> Selected:', latestReal);
+    return latestReal;
   }
 
-  // 3. Fallback to latest non-future date
-  const pastOrPresentRecords = records
-    .filter((r) => r.date <= todayStr)
-    .sort((a, b) => b.date.localeCompare(a.date));
-
-  const fallbackRecord = pastOrPresentRecords[0] ?? null;
-  console.log('[activeShiftRecord] Strategy 3 Hit -> Selected Fallback Record:', fallbackRecord);
-  return fallbackRecord;
+  // No real attendance data at all yet this month - show today's (virtual) placeholder so the
+  // card still has something sensible (e.g. "Absent"/"Weekly Off") instead of nothing.
+  const todayRecord = records.find((r) => r.date === todayStr) ?? null;
+  console.log('[activeShiftRecord] No real slot -> Falling back to today placeholder:', todayRecord);
+  return todayRecord;
 });
 
 // Legacy replacement mapping to active shift

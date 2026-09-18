@@ -45,7 +45,7 @@ interface ActualDayAttendance {
     ReactiveFormsModule, TuiCardLarge, TuiBlock, TuiButton, TuiCalendar,
     TuiChevron, TuiDataListWrapper, TuiError, TuiGroup, TuiInputDate,
     TuiInputTime, TuiLabel, TuiRadio, TuiSelect, TuiTextarea, TuiTextfield,
-    TuiTitle, TuiIcon,TuiInput, TuiCheckbox, MainHeading, DatePipe,
+    TuiTitle, TuiIcon,TuiInput, TuiCheckbox, MainHeading, DatePipe
   ],
   templateUrl: './new-requests.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

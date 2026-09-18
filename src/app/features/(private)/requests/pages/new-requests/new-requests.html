@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-5 w-full p-4 md:p-5 text-(--theme2) max-w-7xl mx-auto">
+<div class="flex flex-col gap-3 w-full p-3 md:p-4 text-(--theme2) max-w-7xl mx-auto">
 
     <app-main-heading [title]="'New Request'"
         [description]="'Submit a leave, WFH, or attendance adjustment request for approval'">
@@ -16,135 +16,161 @@
         }
     </app-main-heading>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4 w-full  text-(--theme2)">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-3 w-full text-(--theme2)">
 
-        <!-- Request Type -->
-        <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+        <!-- Combined: Request Type / Leave Type / Date Range / Reason -->
+        <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]! gap-0!">
 
-            <header class="flex flex-row gap-2 items-center">
-                <tui-icon icon="@tui.list-checks" class="text-2xl!" />
-                <div class="flex flex-col">
-                    <span class="uppercase text-lg font-semibold">Request Type</span>
-                    <span tuiSubtitle class="text-(--primary)/80 text-sm">Your new request type.</span>
-                </div>
-            </header>
+            <!-- Request Type -->
+            <section class="flex flex-col gap-2 py-3 first:pt-0">
+                <header class="flex flex-row gap-2 items-center">
+                    <tui-icon icon="@tui.list-checks" class="text-2xl!" />
+                    <div class="flex flex-col">
+                        <span class="uppercase text-lg font-semibold">Request Type</span>
+                        <span tuiSubtitle class="text-(--primary)/80 text-sm">Your new request type.</span>
+                    </div>
+                </header>
 
-            <div tuiGroup [collapsed]="true" class="w-full">
-                @if (!isAcademic()) {
-                <label tuiBlock>
-                    Leave Application
-                    <input type="radio" formControlName="requestType" value="leave" tuiRadio
-                        [style.margin-inline-start]="'auto'" />
-                </label>
-                }
-                <label tuiBlock>
-                    Work From Home
-                    <input type="radio" formControlName="requestType" value="wfh" tuiRadio
-                        [style.margin-inline-start]="'auto'" />
-                </label>
-                <label tuiBlock>
-                    Attendance Adjustment
-                    <input type="radio" formControlName="requestType" value="regularization" tuiRadio
-                        [style.margin-inline-start]="'auto'" />
-                </label>
-            </div>
-        </div>
-
-        <!-- Leave Type (leave only) -->
-        @if (selectedType() === 'leave') {
-        <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-
-
-            <header class="flex flex-row gap-2 items-center">
-                <tui-icon icon="@tui.tag" class="text-2xl!" />
-                <div class="flex flex-col">
-                    <span class="uppercase text-lg font-semibold">Leave Type</span>
-                    <span tuiSubtitle class="text-(--primary)/80 text-sm">Your leave type.</span>
-                </div>
-            </header>
-
-            <div class="flex flex-col gap-2">
-                <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
-                    [tuiTextfieldCleaner]="false">
-                    <input formControlName="leaveType" placeholder="Select Leave Type" tuiSelect />
-                    <tui-data-list-wrapper *tuiDropdown [items]="leaveTypesOptions()"
-                        class="bg-(--background_light)/40!" />
-                </tui-textfield>
-                <tui-error formControlName="leaveType" />
-            </div>
-        </div>
-        }
-
-        <!-- Date Range (common) -->
-        <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-
-
-            <header class="flex flex-row gap-2 items-center">
-                <tui-icon icon="@tui.calendar-clock" class="text-2xl!" />
-                <div class="flex flex-col">
-                    <span class="uppercase text-lg font-semibold">Date Range</span>
-                    <span tuiSubtitle class="text-(--primary)/80 text-sm">Request date range.</span>
-                </div>
-            </header>
-
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-                        <label tuiLabel>
-                            Start Date
-                            @if (isRequired(form.get('startDate'))) { <span class="text-red-500">*</span> }
-                        </label>
-                        <input formControlName="startDate" placeholder="DD.MM.YYYY" tuiInputDate />
-                        <tui-calendar *tuiDropdown />
-                    </tui-textfield>
-                    <tui-error formControlName="startDate" />
-                </div>
-                <div>
-                    <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-                        <label tuiLabel>
-                            End Date
-                            @if (isRequired(form.get('endDate'))) { <span class="text-red-500">*</span> }
-                        </label>
-                        <input formControlName="endDate" placeholder="DD.MM.YYYY" tuiInputDate />
-                        <tui-calendar *tuiDropdown />
-                    </tui-textfield>
-                    <tui-error formControlName="endDate" />
-                    @if (form.hasError('dateRange') && form.get('endDate')?.touched) {
-                    <p class="text-red-500 text-xs mt-1">End date cannot be before start date</p>
-                    }
-                </div>
-            </div>
-
-            <!-- Full/Manual toggle (leave & wfh only) -->
-            @if (selectedType() !== 'regularization') {
-
-            <label tuiBlock class="mt-2! border! border-(--accent)/50! bg-(--accent)/10!">
-                <input type="checkbox" class="checked:bg-(--accent)!" formControlName="manualBreakdown" tuiCheckbox />
-                Manually set half days for individual dates
-
-            </label>
-            }
-        </div>
-
-        <!-- Line items: half-day breakdown (leave & wfh, when manual) -->
-        @if (selectedType() !== 'regularization' && manualBreakdown() && lineItems.length) {
-        <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-            <div class="flex gap-2 items-center">
-                <tui-icon icon="@tui.calendar-days" class="scale-80" />
-                <h1 class="uppercase font-base text-(--primary) font-semibold">Daily Breakdown</h1>
-            </div>
-            <div formArrayName="lineItems" class="flex flex-col gap-2">
-                @for (row of lineItems.controls; track row; let i = $index) {
-                <div [formGroupName]="i"
-                    class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-3 p-2 rounded-2xl bg-(--background_light)! shadow-[0_0_5px_rgba(0,0,0,0.25)]!">
-                    <span class="font-medium text-(--primary)">{{ formatDate(row.get('date')?.value) }}</span>
-                    <label tuiBlock>
-                        Half Day
-                        <input type="checkbox" formControlName="isHalfDay" tuiCheckbox
+                <div tuiGroup [collapsed]="true" class="w-full">
+                    @if (!isAcademic()) {
+                    <label tuiBlock size="s">
+                        Leave Application
+                        <input type="radio" formControlName="requestType" value="leave" tuiRadio
                             [style.margin-inline-start]="'auto'" />
                     </label>
+                    }
+                    <label tuiBlock size="s">
+                        Work From Home
+                        <input type="radio" formControlName="requestType" value="wfh" tuiRadio
+                            [style.margin-inline-start]="'auto'" />
+                    </label>
+                    <label tuiBlock size="s">
+                        Attendance Adjustment
+                        <input type="radio" formControlName="requestType" value="regularization" tuiRadio
+                            [style.margin-inline-start]="'auto'" />
+                    </label>
+                </div>
+            </section>
+
+            <!-- Leave Type (leave only) -->
+            @if (selectedType() === 'leave') {
+            <hr class="border-t border-(--primary)/10 m-0" />
+            <section class="flex flex-col gap-3 py-4">
+                <header class="flex flex-row gap-2 items-center">
+                    <tui-icon icon="@tui.tag" class="text-2xl!" />
+                    <div class="flex flex-col">
+                        <span class="uppercase text-lg font-semibold">Leave Type</span>
+                        <span tuiSubtitle class="text-(--primary)/80 text-sm">Your leave type.</span>
+                    </div>
+                </header>
+
+                <div class="flex flex-col gap-2">
                     <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
+                        [tuiTextfieldCleaner]="false">
+                        <input formControlName="leaveType" placeholder="Select Leave Type" tuiSelect />
+                        <tui-data-list-wrapper *tuiDropdown [items]="leaveTypesOptions()"
+                            class="bg-(--background_light)/40!" />
+                    </tui-textfield>
+                    <tui-error formControlName="leaveType" />
+                </div>
+            </section>
+            }
+
+            <!-- Date Range -->
+            <hr class="border-t border-(--primary)/10 m-0" />
+            <section class="flex flex-col gap-3 py-4">
+                <header class="flex flex-row gap-2 items-center">
+                    <tui-icon icon="@tui.calendar-clock" class="text-2xl!" />
+                    <div class="flex flex-col">
+                        <span class="uppercase text-lg font-semibold">Date Range</span>
+                        <span tuiSubtitle class="text-(--primary)/80 text-sm">Request date range.</span>
+                    </div>
+                </header>
+
+                <div class="flex flex-row gap-3 w-full items-center">
+                    <div class=" flex-1">
+                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+                            <label tuiLabel>
+                                Start Date
+                                @if (isRequired(form.get('startDate'))) { <span class="text-red-500">*</span> }
+                            </label>
+                            <input formControlName="startDate" placeholder="DD.MM.YYYY" tuiInputDate />
+                            <tui-calendar *tuiDropdown />
+                        </tui-textfield>
+                        <tui-error formControlName="startDate" />
+                    </div>
+                    <div class=" flex-1">
+                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40! flex-1">
+                            <label tuiLabel>
+                                End Date
+                                @if (isRequired(form.get('endDate'))) { <span class="text-red-500">*</span> }
+                            </label>
+                            <input formControlName="endDate" placeholder="DD.MM.YYYY" tuiInputDate />
+                            <tui-calendar *tuiDropdown />
+                        </tui-textfield>
+                        <tui-error formControlName="endDate" />
+                        @if (form.hasError('dateRange') && form.get('endDate')?.touched) {
+                        <p class="text-red-500 text-xs mt-1">End date cannot be before start date</p>
+                        }
+                    </div>
+
+                    <!-- Full/Manual toggle (leave & wfh only) -->
+                    @if (selectedType() !== 'regularization') {
+                    <input type="checkbox" class="checked:bg-(--accent)! " formControlName="manualBreakdown"
+                        tuiCheckbox />
+                    <span class="text-(--primary)">
+                        Manually set half days for individual dates
+                    </span>
+                    }
+                </div>
+
+
+            </section>
+
+            <!-- Reason -->
+            <hr class="border-t border-(--primary)/10 m-0" />
+            <section class="flex flex-col gap-2 py-3 last:pb-0">
+                <header class="flex flex-row gap-2 items-center">
+                    <tui-icon icon="@tui.message-circle-more" class="text-2xl!" />
+                    <div class="flex flex-col">
+                        <span class="uppercase text-lg font-semibold">Reason</span>
+                        <span tuiSubtitle class="text-(--primary)/80 text-sm">Reason for your request.</span>
+                    </div>
+                </header>
+
+                <div>
+                    <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+                        <textarea formControlName="reason" tuiTextarea [limit]="100" [max]="6" [min]="3"
+                            placeholder="Briefly explain the reason for your request"></textarea>
+                    </tui-textfield>
+                    <tui-error formControlName="reason" />
+                </div>
+            </section>
+        </div>
+
+        <!-- Line items: half-day breakdown (leave & wfh, when manual) — compact table -->
+        @if (selectedType() !== 'regularization' && manualBreakdown() && lineItems.length) {
+        <div tuiCardLarge
+            class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)! overflow-hidden ">
+
+            <div class="grid grid-cols-[1.5fr_1fr_1fr] gap-3 px-4 py-2.5
+                        bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Date</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Half Day</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Half Type</span>
+            </div>
+
+            <div formArrayName="lineItems" class="flex flex-col divide-y divide-(--primary)/10">
+                @for (row of lineItems.controls; track row; let i = $index) {
+                <div [formGroupName]="i" class="grid grid-cols-[1.5fr_1fr_1fr] gap-3 px-4 py-2.5 items-center">
+                    <span class="text-sm font-medium text-(--primary)">{{ formatDate(row.get('date')?.value) }}</span>
+
+                    <label class="flex items-center gap-2 text-sm text-(--primary)">
+                        <input type="checkbox" formControlName="isHalfDay" tuiCheckbox />
+                        Half Day
+                    </label>
+
+                    <tui-textfield tuiTextfieldSize="s" class="bg-(--background_light)/40!" tuiChevron
                         [tuiTextfieldCleaner]="false" [class.opacity-40]="!row.get('isHalfDay')?.value">
                         <input formControlName="halfDayType" placeholder="Select Half" tuiSelect
                             [readOnly]="!row.get('isHalfDay')?.value" />
@@ -157,11 +183,12 @@
         </div>
         }
 
-        <!-- Line items: regularization -->
+        <!-- Line items: regularization — compact table -->
         @if (selectedType() === 'regularization' && lineItems.length) {
-        <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+        <div tuiCardLarge
+            class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)! overflow-hidden ">
 
-            <header class="flex flex-row gap-2 items-center">
+            <header class="flex flex-row gap-2 items-center px-4 pt-3 pb-1">
                 <tui-icon icon="@tui.clock" class="text-2xl!" />
                 <div class="flex flex-col">
                     <span class="uppercase text-lg font-semibold">Adjustment Details</span>
@@ -169,46 +196,47 @@
                 </div>
             </header>
 
-            <div formArrayName="lineItems" class="flex flex-col gap-3">
+            <div class="grid grid-cols-[1.2fr_1fr_1fr_1fr_1fr_1.3fr] gap-2 px-4 py-2 mt-2
+                        bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Date</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Clock In</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Clock Out</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Break In</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Break Out</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Remarks</span>
+            </div>
+
+            <div formArrayName="lineItems" class="flex flex-col divide-y divide-(--primary)/10">
                 @for (row of lineItems.controls; track row; let i = $index) {
-                <div [formGroupName]="i" class="flex flex-col gap-2 p-3 rounded-2xl bg-(--background_light)!">
-                    <span class="font-medium text-(--primary)">{{ formatDate(row.get('date')?.value) }}</span>
+                <div [formGroupName]="i"
+                    class="grid grid-cols-[1.2fr_1fr_1fr_1fr_1fr_1.3fr] gap-2 px-4 py-2 items-start">
 
-                    @let actual = actualFor(row.get('date')?.value);
-                    @if (actual) {
-                    <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-(--primary)/70 -mt-1">
-                        <span>Actual Clock In: <b class="text-(--primary)">{{ actual.clockIn ? (actual.clockIn | date:
-                                'shortTime') : '—' }}</b></span>
-                        <span>Actual Clock Out: <b class="text-(--primary)">{{ actual.clockOut ? (actual.clockOut |
-                                date: 'shortTime') : '—' }}</b></span>
-                        <span>Actual Break In: <b class="text-(--primary)">{{ actual.breakIn ? (actual.breakIn | date:
-                                'shortTime') : '—' }}</b></span>
-                        <span>Actual Break Out: <b class="text-(--primary)">{{ actual.breakOut ? (actual.breakOut |
-                                date: 'shortTime') : '—' }}</b></span>
+                    <div class="flex flex-col gap-1">
+                        <span class="text-sm font-medium text-(--primary)">{{ formatDate(row.get('date')?.value)
+                            }}</span>
+                        @let actual = actualFor(row.get('date')?.value);
+                        @if (actual) {
+                        <div class="flex flex-col text-[11px] leading-tight text-(--primary)/60">
+                            <span>In: {{ actual.clockIn ? (actual.clockIn | date: 'shortTime') : '—' }}</span>
+                            <span>Out: {{ actual.clockOut ? (actual.clockOut | date: 'shortTime') : '—' }}</span>
+                        </div>
+                        }
                     </div>
-                    }
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-                            <label tuiLabel>Clock In *</label>
-                            <input formControlName="requestedClockIn" tuiInputTime />
-                        </tui-textfield>
-                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-                            <label tuiLabel>Clock Out *</label>
-                            <input formControlName="requestedClockOut" tuiInputTime />
-                        </tui-textfield>
-                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-                            <label tuiLabel>Break In</label>
-                            <input formControlName="requestedBreakIn" tuiInputTime />
-                        </tui-textfield>
-                        <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-                            <label tuiLabel>Break Out</label>
-                            <input formControlName="requestedBreakOut" tuiInputTime />
-                        </tui-textfield>
-                    </div>
-                    <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-                        <label tuiLabel>Remarks</label>
-                        <input tuiInput formControlName="remarks" placeholder="Optional note for this date" />
+                    <tui-textfield tuiTextfieldSize="s" class="bg-(--background_light)/40!">
+                        <input formControlName="requestedClockIn" tuiInputTime />
+                    </tui-textfield>
+                    <tui-textfield tuiTextfieldSize="s" class="bg-(--background_light)/40!">
+                        <input formControlName="requestedClockOut" tuiInputTime />
+                    </tui-textfield>
+                    <tui-textfield tuiTextfieldSize="s" class="bg-(--background_light)/40!">
+                        <input formControlName="requestedBreakIn" tuiInputTime />
+                    </tui-textfield>
+                    <tui-textfield tuiTextfieldSize="s" class="bg-(--background_light)/40!">
+                        <input formControlName="requestedBreakOut" tuiInputTime />
+                    </tui-textfield>
+                    <tui-textfield tuiTextfieldSize="s" class="bg-(--background_light)/40!">
+                        <input tuiInput formControlName="remarks" placeholder="Optional note" />
                     </tui-textfield>
                 </div>
                 }
@@ -216,29 +244,7 @@
         </div>
         }
 
-        <!-- Reason (common) -->
-        <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
-
-            <header class="flex flex-row gap-2 items-center">
-                <tui-icon icon="@tui.message-circle-more" class="text-2xl!" />
-                <div class="flex flex-col">
-                    <span class="uppercase text-lg font-semibold">Reason</span>
-                    <span tuiSubtitle class="text-(--primary)/80 text-sm">Reason for your request.</span>
-                </div>
-            </header>
-
-
-            <div>
-                <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-
-                    <textarea formControlName="reason" tuiTextarea [limit]="100" [max]="6" [min]="3"
-                        placeholder="Briefly explain the reason for your request"></textarea>
-                </tui-textfield>
-                <tui-error formControlName="reason" />
-            </div>
-        </div>
-
-        <footer class="flex justify-end gap-3 pt-4 border-t border-(--background_dark)/10">
+        <footer class="flex justify-end gap-2 pt-3 border-t border-(--background_dark)/10">
             <button tuiButton type="button" class="bt-secondary" iconStart="@tui.rotate-ccw" size="m"
                 (click)="onReset()">Reset</button>
             <button tuiButton type="submit" size="m" class="btn-lift" [disabled]="isSubmitting()">

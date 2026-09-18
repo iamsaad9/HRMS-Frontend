@@ -112,7 +112,7 @@
             </button>
 
             <button (click)="onClockOut()" [disabled]="isPunchingIn()"
-              class="flex items-center justify-center p-2 rounded-xl bg-(--error) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md shadow-[0_0_5px_rgba(0,0,0,0.2)]! disabled:opacity-50 disabled:cursor-not-allowed">
+              class="flex items-center justify-center p-2 rounded-xl bg-(--theme2) active:scale-95 transition-all duration-300 cursor-pointer drop-shadow-md shadow-[0_0_5px_rgba(0,0,0,0.2)]! disabled:opacity-50 disabled:cursor-not-allowed">
               <span class="uppercase font-bold text-xs sm:text-sm text-white text-center">Clock Out</span>
             </button>
 
@@ -173,34 +173,42 @@
     <!-- 7 Days Clock-in / Clock-out History Card -->
     <div tuiCardLarge
       class="bg-(--secondary)! min-w-md rounded-2xl border! border-(--secondary)/20! drop-shadow-sm flex flex-col gap-1! shadow-[0_0_5px_rgba(0,0,0,0.2)]!">
+
+      <!-- Card Header -->
       <div class="flex items-center justify-between border-b border-(--primary)/20 pb-3">
         <div>
           <h3 class="text-xl font-bold text-(--theme2) uppercase">Shift History</h3>
           <p class="text-sm text-(--primary)/80">Last 7 days attendance record</p>
         </div>
         <button type="button" tuiButton size="s" (click)="router.navigate(['attendance/history'])"
-          class="btn-lift text-sm text-white  bg-(--theme2)! border! border-(--theme2)!">
+          class="btn-lift text-sm text-white bg-(--theme2)! border! border-(--theme2)!">
           View All <tui-icon icon="@tui.chevron-right" class="separator ml-2" />
         </button>
       </div>
 
+
+      <!-- Table -->
       <div class="overflow-x-auto flex-1">
         <table class="w-full text-left text-sm border-collapse">
           <thead>
             <tr class="border-b border-(--primary)/20 text-(--primary)/80! uppercase text-xs tracking-wider">
-              <th class="py-3 px-2 font-semibold">Date</th>
-              <th class="py-3 px-2 font-semibold">Clock In</th>
-              <th class="py-3 px-2 font-semibold">Clock Out</th>
-              <th class="py-3 px-2 font-semibold">Status</th>
+              <th class="py-2 px-2 font-semibold">Date</th>
+              <th class="py-2 px-2 font-semibold">Clock In</th>
+              <th class="py-2 px-2 font-semibold">Clock Out</th>
+              <th class="py-2 px-2  font-semibold">Status</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-(--primary)/20">
             @for (day of fullWeekAttendance(); track day.dateStr) {
             <tr
               (click)="router.navigate(['requests/new'], { queryParams: { type: requestTypeForRow(day), date: day.dateStr } })"
-              [class.bg-(--success)/10]="isToday(day.dateStr)" [class.bg-amber-500/20]="isPendingRegularization(day)"
-              [class.bg-indigo-500/20]="isWfhRow(day)"
+              [class.bg-amber-500/20]="isPendingRegularization(day)"
+              [class.bg-red-500/15]="!isPendingRegularization(day) && day.record?.status === 'Absent'"
+              [class.bg-blue-500/15]="!isPendingRegularization(day) && day.record?.status === 'OnLeave'"
+              [class.bg-slate-500/10]="!isPendingRegularization(day) && day.record?.status === 'WeeklyOff'"
+              [class.bg-(--success)/10]="!isPendingRegularization(day) && isToday(day.dateStr)"
               class="hover:bg-(--background_light)! transition-colors cursor-pointer">
+
               <td [class.border-l-2!]="isToday(day.dateStr)" [class.border-(--success)/70!]="isToday(day.dateStr)"
                 class="py-2 px-2 font-semibold text-(--primary)">
                 {{ day.dateStr | date: 'EEE, MMM d' }}
@@ -230,25 +238,38 @@
                 </span>
               </td>
 
-              <td class="py-2 px-2">
+              <td class="py-2 text-center">
                 @if (isPendingRegularization(day)) {
-                <span
-                  class="inline-flex items-center gap-1 rounded-full bg-amber-500/20 text-amber-600 px-2 py-0.5 text-xs font-semibold">
-                  <tui-icon icon="@tui.circle-alert" style="font-size: 13px" />
-                  Pending Regularization
+                <span class="inline-flex items-center justify-center p-1 rounded-full bg-amber-500/20 text-amber-600"
+                  tuiHint="Pending Regularization" tuiHintDirection="top" tuiHintAppearance="floating">
+                  <tui-icon icon="@tui.circle-alert" class="text-base" />
                 </span>
-                } @else if (isWfhRow(day)) {
-                <span
-                  class="inline-flex items-center gap-1 rounded-full bg-indigo-500/20 text-indigo-600 px-2 py-0.5 text-xs font-semibold">
-                  Work From Home
+                } @else if (day.record?.status === 'Absent') {
+                <span class="inline-flex items-center justify-center p-1 rounded-full bg-red-500/20 text-red-600"
+                  tuiHint="Absent" tuiHintDirection="top" tuiHintAppearance="floating">
+                  <tui-icon icon="@tui.info" class="text-base!" />
                 </span>
                 } @else if (day.record?.status === 'OnLeave') {
-                <span
-                  class="inline-flex items-center gap-1 rounded-full bg-blue-500/20 text-blue-600 px-2 py-0.5 text-xs font-semibold">
-                  On Leave
+                <span class="inline-flex items-center justify-center p-1 rounded-full bg-blue-500/20 text-blue-600"
+                  tuiHint="On Leave" tuiHintDirection="top" tuiHintAppearance="floating">
+                  <tui-icon icon="@tui.info" class="text-base!" />
+                </span>
+                } @else if (day.record?.status === 'WeeklyOff') {
+                <span class="inline-flex items-center justify-center p-1 rounded-full bg-slate-500/20 text-slate-600"
+                  tuiHint="Weekly Off" tuiHintDirection="top" tuiHintAppearance="floating">
+                  <tui-icon icon="@tui.info" class="text-base!" />
+                </span>
+                } @else if (isWfhRow(day)) {
+                <span class="inline-flex items-center justify-center p-1 rounded-full bg-indigo-500/20 text-indigo-600"
+                  tuiHint="Work From Home" tuiHintDirection="top" tuiHintAppearance="floating">
+                  <tui-icon icon="@tui.info" class="text-base!" />
                 </span>
                 } @else if (day.record?.status) {
-                <span class="text-xs text-(--primary)/60">{{ day.record?.status }}</span>
+                <span
+                  class="inline-flex items-center justify-center p-1 rounded-full bg-(--primary)/10 text-(--primary)/70"
+                  [tuiHint]="day.record?.status" tuiHintDirection="top" tuiHintAppearance="floating">
+                  <tui-icon icon="@tui.info" class="text-base!" />
+                </span>
                 }
               </td>
             </tr>
@@ -256,6 +277,27 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Inline Color Legend -->
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 py-2 border-b border-(--primary)/20 text-xs">
+        <span class="inline-flex items-center gap-1.5 text-red-600 dark:text-red-400 font-medium">
+          <span class="w-2.5 h-2.5 rounded bg-red-500/20 border border-red-500/40"></span>
+          Absent
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-medium">
+          <span class="w-2.5 h-2.5 rounded bg-blue-500/20 border border-blue-500/40"></span>
+          On Leave
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-medium">
+          <span class="w-2.5 h-2.5 rounded bg-amber-500/20 border border-amber-500/40"></span>
+          Needs Regularization
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium">
+          <span class="w-2.5 h-2.5 rounded bg-slate-500/10 border border-slate-500/30"></span>
+          Weekly Off
+        </span>
+      </div>
+
     </div>
 
 

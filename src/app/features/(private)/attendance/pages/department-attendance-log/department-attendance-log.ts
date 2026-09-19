@@ -17,6 +17,7 @@ import { DepartmentAttendanceLogService } from '../../pages/department-attendanc
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { EmployeeService } from '../../../employees/services/employee.service';
 import { isoToDisplayDate, toIsoDate } from '../../../../../shared/utils/date-format.util';
+import { DurationPipe } from '../../../../../shared/pipes/duration.pipe';
 
 @Component({
   selector: 'app-department-attendance-log',
@@ -35,7 +36,8 @@ import { isoToDisplayDate, toIsoDate } from '../../../../../shared/utils/date-fo
     TuiIcon,
     MainHeading,
     TuiLabel,
-    TuiDataListWrapperComponent
+    TuiDataListWrapperComponent,
+    DurationPipe
 ],
   templateUrl: './department-attendance-log.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

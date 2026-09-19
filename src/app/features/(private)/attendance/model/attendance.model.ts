@@ -11,6 +11,13 @@ export interface DepartmentDailyLogEntry {
   firstIn: string | null;
   lastOut: string | null;
   lateMinutes: number;
+  earlyExitMinutes?: number;
+  overtimeMinutes?: number;
+  earlyInMinutes?: number;
+  shiftName?: string | null;
+  remarks?: string | null;
+  breakIn?: string | null;
+  breakOut?: string | null;
 }
 
 // Mirrors backend ShiftHistoryDto (Modules.Attendance/Application/DTOs/DashboardDTOs.cs)
@@ -400,6 +407,12 @@ export interface DepartmentAttendanceRecord {
   lateMinutes: number;
   earlyExitMinutes: number;
   overtimeHours: number;
+  overtimeMinutes?: number;
+  earlyInMinutes?: number;
+  shiftName?: string | null;
+  remarks?: string | null;
+  breakIn?: string | null;
+  breakOut?: string | null;
   status: string;
 }
 

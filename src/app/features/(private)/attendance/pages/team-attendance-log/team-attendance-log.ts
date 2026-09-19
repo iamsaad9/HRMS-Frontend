@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { TuiButton, TuiTextfield } from '@taiga-ui/core';
 import { TuiBadge, TuiInputDate } from '@taiga-ui/kit';
 import { TuiTable } from '@taiga-ui/addon-table';
@@ -11,6 +11,7 @@ import { TeamAttendanceLogService } from './team-attendance-log.service';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { isoToDisplayDate, toIsoDate } from '../../../../../shared/utils/date-format.util';
+import { DurationPipe } from '../../../../../shared/pipes/duration.pipe';
 
 function toDateStr(d: Date): string {
   const year = d.getFullYear();
@@ -23,8 +24,8 @@ function toDateStr(d: Date): string {
   selector: 'app-team-attendance-log',
   standalone: true,
   imports: [
-    FormsModule, DatePipe, DecimalPipe, TuiButton, TuiBadge, TuiTable, TuiTextfield, TuiInputDate, TuiCardLarge,
-    MainHeading,
+    FormsModule, DatePipe, TuiButton, TuiBadge, TuiTable, TuiTextfield, TuiInputDate, TuiCardLarge,
+    MainHeading, DurationPipe,
   ],
   templateUrl: './team-attendance-log.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

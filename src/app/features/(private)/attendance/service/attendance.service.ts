@@ -147,8 +147,13 @@ private upsertDailyAttendance(todayRecord: DailyAttendance): void {
           return of(response);
         }
 
-        // Target the active shift's date (e.g., yesterday's date if clocking out post-midnight)
-        const targetShiftDate = this.activeShiftRecord()?.date ?? new Date().toISOString().split('T')[0];
+        // The backend already resolved exactly which attendance "slot" date this punch belongs to
+        // (RecordPunchAsync's own targetDate - e.g. yesterday's date if clocking out post-
+        // midnight) - use that authoritative value instead of re-guessing it from
+        // activeShiftRecord(), which still reflects state from BEFORE this punch and can point at
+        // an older, already-closed slot (e.g. the first Clock-In of a new day, before today has
+        // any record of its own yet), causing this upsert to silently miss today's fresh punch.
+        const targetShiftDate = response.data?.attendanceDate ?? toLocalDateStr(new Date());
 
         return this.getDailyAttendance(command.employeeId, targetShiftDate).pipe(
           tap((todayResponse) => {

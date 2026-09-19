@@ -159,26 +159,18 @@ export class ViewRequest {
     this.isSubmittingAction.set(true);
     this.requestService
       .approve(type, this.currentId, { remarks: this.remarks() || null })
-      .pipe(
-        tap((res) => {
-          if (res.isSuccess) {
-            this.requestService.sendApprovalEmail(r.requesterEmployeeId, r.requestType, this.remarks() || undefined).subscribe({
-              next: () => {
-                this.toast.success('Request approved and email sent.', 'Approved');
-                this.router.navigate(['/requests/approvals']);
-              },
-              error: () => {
-                this.toast.success('Request approved (email notification failed).', 'Approved');
-                this.router.navigate(['/requests/approvals']);
-              },
-            });
-          }
-        }),
-        finalize(() => this.isSubmittingAction.set(false))
-      )
+      .pipe(finalize(() => this.isSubmittingAction.set(false)))
       .subscribe({
         next: (res) => {
-          if (!res.isSuccess) {
+          if (res.isSuccess) {
+            this.toast.success('Request approved.', 'Approved');
+            this.router.navigate(['/requests/approvals']);
+            // Fire-and-forget: the approval itself already succeeded and the page has already
+            // moved on - a slow or failing notification email must never hold up either.
+            this.requestService
+              .sendApprovalEmail(r.requesterEmployeeId, r.requestType, this.remarks() || undefined)
+              .subscribe({ error: () => {} });
+          } else {
             this.toast.error(res.message || 'Could not approve this request.', 'Approve Failed');
           }
         },
@@ -200,26 +192,18 @@ export class ViewRequest {
     this.isSubmittingAction.set(true);
     this.requestService
       .reject(type, this.currentId, { remarks: this.remarks() })
-      .pipe(
-        tap((res) => {
-          if (res.isSuccess) {
-            this.requestService.sendRejectionEmail(r.requesterEmployeeId, r.requestType, this.remarks()).subscribe({
-              next: () => {
-                this.toast.success('Request rejected and email sent.', 'Rejected');
-                this.router.navigate(['/requests/approvals']);
-              },
-              error: () => {
-                this.toast.success('Request rejected (email notification failed).', 'Rejected');
-                this.router.navigate(['/requests/approvals']);
-              },
-            });
-          }
-        }),
-        finalize(() => this.isSubmittingAction.set(false))
-      )
+      .pipe(finalize(() => this.isSubmittingAction.set(false)))
       .subscribe({
         next: (res) => {
-          if (!res.isSuccess) {
+          if (res.isSuccess) {
+            this.toast.success('Request rejected.', 'Rejected');
+            this.router.navigate(['/requests/approvals']);
+            // Fire-and-forget: the rejection itself already succeeded and the page has already
+            // moved on - a slow or failing notification email must never hold up either.
+            this.requestService
+              .sendRejectionEmail(r.requesterEmployeeId, r.requestType, this.remarks())
+              .subscribe({ error: () => {} });
+          } else {
             this.toast.error(res.message || 'Could not reject this request.', 'Reject Failed');
           }
         },

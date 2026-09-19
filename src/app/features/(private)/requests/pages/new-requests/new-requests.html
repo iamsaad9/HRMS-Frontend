@@ -217,9 +217,10 @@
                         @let actual = actualFor(row.get('date')?.value);
                         @if (actual) {
                         <div class="flex flex-col text-[11px] leading-tight text-(--primary)/60">
-                            <span>In: {{ actual.clockIn ? (actual.clockIn | date: 'shortTime') : '—' }}</span>
-                            <span>Out: {{ actual.clockOut ? (actual.clockOut | date: 'shortTime') : '—' }}{{
-                                actualClockOutIsNextDay(row.get('date')?.value) ? ' (next day)' : '' }}</span>
+                            <span>In: {{ actual.clockIn ? (actual.clockIn | date: 'dd/MM/yy, h:mm a') : '—' }}</span>
+                            <span>Out: {{ actual.clockOut ? (actual.clockOut | date: 'dd/MM/yy, h:mm a') : '—' }}</span>
+                            <span>Break In: {{ actual.breakIn ? (actual.breakIn | date: 'dd/MM/yy, h:mm a') : '—' }}</span>
+                            <span>Break Out: {{ actual.breakOut ? (actual.breakOut | date: 'dd/MM/yy, h:mm a') : '—' }}</span>
                         </div>
                         }
                     </div>
@@ -235,6 +236,10 @@
                             <input type="checkbox" formControlName="clockOutNextDay" tuiCheckbox />
                             Next day
                         </label>
+                        @if (clockOutBeforeClockIn(row)) {
+                        <span class="text-[9px] text-red-500 leading-tight">Check "Next day" — Clock Out is before
+                            Clock In</span>
+                        }
                     </div>
                     <tui-textfield tuiTextfieldSize="s" class="bg-(--background_light)/40!">
                         <input formControlName="requestedBreakIn" tuiInputTime />

@@ -114,22 +114,6 @@ protected leaveTypesOptions = computed(() =>
     }
   }
 
-  // Shifts/attendance dates are defined in UK time (see backend ToUkTime()/ToUkDate()), so the
-  // clock-out's calendar date must be read in the UK timezone too, not the browser's local one -
-  // used to flag when the actual clock-out fell on the day after the regularization row's date.
-  private toUkDateStr(date: Date): string {
-    const parts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Europe/London',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).formatToParts(date);
-    const year = parts.find((p) => p.type === 'year')?.value ?? '1970';
-    const month = parts.find((p) => p.type === 'month')?.value ?? '01';
-    const day = parts.find((p) => p.type === 'day')?.value ?? '01';
-    return `${year}-${month}-${day}`;
-  }
-
   protected get lineItems(): FormArray {
     return this.form.get('lineItems') as FormArray;
   }
@@ -253,11 +237,20 @@ protected leaveTypesOptions = computed(() =>
     return this.actualAttendanceByDate().get(this.toDateStr(date)) ?? null;
   }
 
-  /** True when that date's actual clock-out fell on the calendar day after it (overnight shift). */
-  protected actualClockOutIsNextDay(date: TuiDay): boolean {
-    const clockOut = this.actualFor(date)?.clockOut;
-    if (!clockOut) return false;
-    return this.toUkDateStr(new Date(clockOut)) !== this.toDateStr(date);
+  /**
+   * True when Clock Out's time-of-day is at or before Clock In's and "Next day" isn't checked -
+   * that combination can only mean the shift actually ran past midnight and the checkbox was
+   * simply forgotten, so the requester is warned here rather than unknowingly submitting a
+   * regularization that (without the flag) would compute negative worked hours.
+   */
+  protected clockOutBeforeClockIn(row: AbstractControl): boolean {
+    const inVal = row.get('requestedClockIn')?.value;
+    const outVal = row.get('requestedClockOut')?.value;
+    const nextDay = row.get('clockOutNextDay')?.value;
+    if (!inVal || !outVal || nextDay) return false;
+    const inMinutes = inVal.hours * 60 + inVal.minutes;
+    const outMinutes = outVal.hours * 60 + outVal.minutes;
+    return outMinutes <= inMinutes;
   }
 
   private buildHalfDayRow(date: TuiDay): FormGroup {

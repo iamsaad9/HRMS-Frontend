@@ -37,11 +37,7 @@ import {
 import { TuiItemGroup, TuiCardLarge } from '@taiga-ui/layout';
 import { TuiTable, TuiTableControl } from '@taiga-ui/addon-table';
 
-import {
-  EmployeeFilter,
-  EMPTY_EMPLOYEE_FILTER,
-  type Employee,
-} from '../../model/employee.model';
+import { EmployeeFilter, EMPTY_EMPLOYEE_FILTER, type Employee } from '../../model/employee.model';
 import { EmployeeFilterBarComponent } from '../../components/employee-filter-bar/employee-filter-bar';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { LoadingService } from '../../../../../core/services/loading.service';
@@ -74,7 +70,8 @@ import { DatePipe } from '@angular/common';
     TuiCardLarge,
     RouterLink,
     TuiDataList,
-    DatePipe
+    DatePipe,
+    TuiIcon,
   ],
   templateUrl: './employee-list.html',
   styleUrl: './employee-list.less',
@@ -124,16 +121,15 @@ export class EmployeeList implements OnInit {
     this.edit.emit(employee);
   }
 
- 
   protected onObscured(obscured: boolean): void {
     if (obscured) {
-      this.openMoreOptions.set(false)
+      this.openMoreOptions.set(false);
     }
   }
 
   protected onActiveZone(active: boolean): void {
     if (!active) {
-     this.openMoreOptions.set(false)
+      this.openMoreOptions.set(false);
     }
   }
 
@@ -154,25 +150,25 @@ export class EmployeeList implements OnInit {
     }
 
     this.isFiltering.set(true);
-    this.employeeService
-      .getFilteredEmployees(updatedFilter)
-      .subscribe({
-        next: (response) => {
-          this.isFiltering.set(false);
-          this.serverFilteredEmployees.set(response.isSuccess && response.data ? response.data : []);
-        },
-        error: () => {
-          this.isFiltering.set(false);
-          this.serverFilteredEmployees.set([]);
-        },
-      });
+    this.employeeService.getFilteredEmployees(updatedFilter).subscribe({
+      next: (response) => {
+        this.isFiltering.set(false);
+        this.serverFilteredEmployees.set(response.isSuccess && response.data ? response.data : []);
+      },
+      error: () => {
+        this.isFiltering.set(false);
+        this.serverFilteredEmployees.set([]);
+      },
+    });
   }
 
   protected onPageChange(page: number): void {
     this.page.set(page);
   }
 
-  protected filteredEmployees = computed(() => this.serverFilteredEmployees() ?? this.employees() ?? []);
+  protected filteredEmployees = computed(
+    () => this.serverFilteredEmployees() ?? this.employees() ?? [],
+  );
 
   protected readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.filteredEmployees().length / this.pageSize)),
@@ -219,13 +215,13 @@ export class EmployeeList implements OnInit {
       columns
         .map((col) => {
           const val = emp[col.key];
-          
+
           if (val === null || val === undefined) return '""';
           if (val instanceof Date) return this.escapeCsvField(val.toISOString());
-          
+
           return this.escapeCsvField(String(val));
         })
-        .join(',')
+        .join(','),
     );
 
     // 4. Combine headers and rows with UTF-8 BOM so Excel opens special characters correctly
@@ -235,14 +231,14 @@ export class EmployeeList implements OnInit {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    
+
     const timestamp = new Date().toISOString().split('T')[0];
     link.setAttribute('href', url);
     link.setAttribute('download', `employees_${timestamp}.csv`);
-    
+
     document.body.appendChild(link);
     link.click();
-    
+
     // Clean up
     document.body.removeChild(link);
     URL.revokeObjectURL(url);

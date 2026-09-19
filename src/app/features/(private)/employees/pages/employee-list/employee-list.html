@@ -1,21 +1,42 @@
 <div class="flex flex-col gap-5 max-w-7xl mx-auto">
-  <app-main-heading title="Employee List" description="List of all the employees in the organization">
+  <app-main-heading
+    title="Employee List"
+    description="List of all the employees in the organization"
+  >
     <div class="flex gap-2">
-      <button type="button" iconStart="@tui.refresh-cw" tuiButton size="s"
-        class="cursor-pointer bg-(--theme3)! text-white hover:bg-(--theme3)/80!">
+      <button
+        type="button"
+        tuiButton
+        size="s"
+        class="btn-lift text-sm text-white hover:text-(--background_dark)! bg-(--theme1)! hover:bg-transparent! border! border-(--theme1)! group"
+      >
+        <tui-icon icon="@tui.refresh-cw" class="group-hover:animate-spin"></tui-icon>
         Refresh
       </button>
 
-      <button type="button" iconStart="@tui.download" tuiButton size="s" (click)="exportToCsv()"
-        class="cursor-pointer bg-(--primary)/20! text-(--primary)! hover:bg-(--secondary)/80!">
+      <button
+        type="button"
+        iconStart="@tui.download"
+        tuiButton
+        size="s"
+        (click)="exportToCsv()"
+        class="cursor-pointer bg-(--primary)/20! text-(--primary)! hover:bg-(--primary)/30!"
+      >
         Export
       </button>
     </div>
   </app-main-heading>
 
-  <app-employee-filter-bar [employees]="employees() ?? []" (filterChange)="onFilterChange($event)" s />
+  <app-employee-filter-bar
+    [employees]="employees() ?? []"
+    (filterChange)="onFilterChange($event)"
+    s
+  />
 
-  <div tuiCardLarge class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)! ">
+  <div
+    tuiCardLarge
+    class="table-scroll p-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! glass-card bg-(--secondary)!"
+  >
     <table tuiTable class="attendance-table w-full" size="m" [(ngModel)]="selected">
       <thead class="bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
         <tr>
@@ -39,111 +60,131 @@
           <th tuiTh class="text-white!">Designation</th>
           <th tuiTh class="text-white!">Manager Email</th>
           <th tuiTh class="text-white!">Created At</th>
-
         </tr>
       </thead>
       <tbody tuiTbody>
         @for (employee of paginatedEmployees(); track employee.id) {
-        <tr>
-          <!-- Actions -->
-          <td tuiTd class="col-actions w-10">
-            <span tuiStatus>
-              <button appearance="action" iconStart="@tui.pencil" size="xs" tuiIconButton type="button"
-                (click)="onEdit(employee)" class="text-(--theme1)!" [routerLink]="['/employee', employee.id, 'edit']">
-                Edit
-              </button>
-              <button appearance="action" iconStart="@tui.eye" size="xs" tuiIconButton type="button"
-                (click)="onEdit(employee)" class="text-(--theme1)!" [routerLink]="['/employee', employee.id, 'view']">
-                View
-              </button>
-            </span>
-          </td>
+          <tr>
+            <!-- Actions -->
+            <td tuiTd class="col-actions w-10">
+              <span tuiStatus>
+                <button
+                  appearance="action"
+                  iconStart="@tui.pencil"
+                  size="xs"
+                  tuiIconButton
+                  type="button"
+                  (click)="onEdit(employee)"
+                  class="text-(--theme1)!"
+                  [routerLink]="['/employee', employee.id, 'edit']"
+                >
+                  Edit
+                </button>
+                <button
+                  appearance="action"
+                  iconStart="@tui.eye"
+                  size="xs"
+                  tuiIconButton
+                  type="button"
+                  (click)="onEdit(employee)"
+                  class="text-(--theme1)!"
+                  [routerLink]="['/employee', employee.id, 'view']"
+                >
+                  View
+                </button>
+              </span>
+            </td>
 
+            <!--  (with Avatar & Checkbox) -->
+            <td tuiTd class="col-checkbox">
+              <div [tuiCell]="size">
+                <span tuiTitle> {{ employee.staffNo || 'N/A' }}</span>
+              </div>
+            </td>
 
-          <!--  (with Avatar & Checkbox) -->
-          <td tuiTd class="col-checkbox">
-            <div [tuiCell]="size">
+            <!-- Title -->
+            <td tuiTd>{{ employee.title || 'N/A' }}</td>
 
-              <span tuiTitle> {{ employee.staffNo || 'N/A' }}</span>
-            </div>
-          </td>
+            <!-- FirstName -->
+            <td tuiTd>
+              <div [tuiCell]="size">
+                <div
+                  [style.background]="employee.firstName | tuiAutoColor"
+                  [tuiAvatar]="employee.firstName | tuiInitials"
+                ></div>
+                <span tuiTitle>{{ employee.firstName || 'N/A' }}</span>
+              </div>
+            </td>
 
-          <!-- Title -->
-          <td tuiTd>{{ employee.title || 'N/A' }}</td>
+            <!-- LastName -->
+            <td tuiTd>{{ employee.lastName || 'N/A' }}</td>
 
-          <!-- FirstName -->
-          <td tuiTd>
-            <div [tuiCell]="size">
-              <div [style.background]="employee.firstName | tuiAutoColor"
-                [tuiAvatar]="employee.firstName | tuiInitials"></div>
-              <span tuiTitle>{{ employee.firstName || 'N/A' }}</span>
-            </div>
-          </td>
+            <!-- WorkEmail -->
+            <td tuiTd>{{ employee.workEmail || 'N/A' }}</td>
 
-          <!-- LastName -->
-          <td tuiTd>{{ employee.lastName || 'N/A' }}</td>
+            <!-- Gender -->
+            <td tuiTd>{{ employee.gender || 'N/A' }}</td>
 
-          <!-- WorkEmail -->
-          <td tuiTd>{{ employee.workEmail || 'N/A' }}</td>
+            <!-- DateOfBirth -->
+            <td tuiTd>{{ (employee.dateOfBirth | date: 'mediumDate') || 'N/A' }}</td>
 
-          <!-- Gender -->
-          <td tuiTd>{{ employee.gender || 'N/A' }}</td>
+            <!-- Mobile -->
+            <td tuiTd>{{ employee.mobile || 'N/A' }}</td>
 
-          <!-- DateOfBirth -->
-          <td tuiTd>{{ (employee.dateOfBirth | date: 'mediumDate') || 'N/A' }}</td>
+            <!-- NINumber -->
+            <td tuiTd>{{ employee.niNumber || 'N/A' }}</td>
 
-          <!-- Mobile -->
-          <td tuiTd>{{ employee.mobile || 'N/A' }}</td>
+            <!-- StartDate -->
+            <td tuiTd>{{ (employee.startDate | date: 'mediumDate') || 'N/A' }}</td>
 
-          <!-- NINumber -->
-          <td tuiTd>{{ employee.niNumber || 'N/A' }}</td>
+            <!-- EmploymentType -->
+            <td tuiTd>{{ employee.employmentType || 'N/A' }}</td>
 
-          <!-- StartDate -->
-          <td tuiTd>{{ (employee.startDate | date: 'mediumDate') || 'N/A' }}</td>
+            <!-- Status -->
+            <td tuiTd>{{ employee.isActive ? 'Active' : 'InActive' }}</td>
 
-          <!-- EmploymentType -->
-          <td tuiTd>{{ employee.employmentType || 'N/A' }}</td>
+            <!-- ShiftCode -->
+            <td tuiTd>{{ employee.shiftCode || 'N/A' }}</td>
 
-          <!-- Status -->
-          <td tuiTd>{{ employee.isActive ? 'Active' : 'InActive' }}</td>
+            <!-- DepartmentName -->
+            <td tuiTd class="col-department">{{ employee.departmentName || 'N/A' }}</td>
 
-          <!-- ShiftCode -->
-          <td tuiTd>{{ employee.shiftCode || 'N/A' }}</td>
+            <!-- BranchName -->
+            <td tuiTd>{{ employee.branchName || 'N/A' }}</td>
 
-          <!-- DepartmentName -->
-          <td tuiTd class="col-department">{{ employee.departmentName || 'N/A' }}</td>
+            <!-- DesignationName -->
+            <td tuiTd>{{ employee.designationTitle || 'N/A' }}</td>
 
-          <!-- BranchName -->
-          <td tuiTd>{{ employee.branchName || 'N/A' }}</td>
+            <!-- ManagerEmail (mapped to managerName key) -->
+            <td tuiTd>{{ employee.managerEmail || 'N/A' }}</td>
 
-          <!-- DesignationName -->
-          <td tuiTd>{{ employee.designationTitle || 'N/A' }}</td>
-
-          <!-- ManagerEmail (mapped to managerName key) -->
-          <td tuiTd>{{ employee.managerEmail || 'N/A' }}</td>
-
-          <!-- Created At -->
-          <td tuiTd>{{ (employee.createdAtUtc | date: 'mediumDate') || 'N/A' }}</td>
-        </tr>
+            <!-- Created At -->
+            <td tuiTd>{{ (employee.createdAtUtc | date: 'mediumDate') || 'N/A' }}</td>
+          </tr>
         } @empty {
-        <tr>
-          <td tuiTd [attr.colspan]="16" class="empty-state">No employees to show.</td>
-        </tr>
+          <tr>
+            <td tuiTd [attr.colspan]="16" class="empty-state">No employees to show.</td>
+          </tr>
         }
       </tbody>
     </table>
   </div>
 
   @if (filteredEmployees().length > 0) {
-  <div tuiCardLarge
-    class="flex flex-row! items-center! justify-between  shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card">
+    <div
+      tuiCardLarge
+      class="flex flex-row! items-center! justify-between shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card"
+    >
+      <span class="text-sm">
+        Showing {{ page() * pageSize + 1 }}–{{ page() * pageSize + paginatedEmployees().length }} of
+        {{ filteredEmployees().length }}
+      </span>
 
-    <span class="text-sm">
-      Showing {{ page() * pageSize + 1 }}–{{ page() * pageSize + paginatedEmployees().length }} of
-      {{ filteredEmployees().length }}
-    </span>
-
-    <tui-pagination [length]="totalPages()" [index]="page()" (indexChange)="onPageChange($event)" />
-  </div>
+      <tui-pagination
+        [length]="totalPages()"
+        [index]="page()"
+        (indexChange)="onPageChange($event)"
+      />
+    </div>
   }
 </div>

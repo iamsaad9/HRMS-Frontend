@@ -1,107 +1,176 @@
 <div class="flex flex-col gap-5 w-full p-4 md:p-5 text-(--theme2) max-w-7xl mx-auto">
-    <app-main-heading title="Request Approvals" [description]="scopeLabel()" />
+  <app-main-heading title="Request Approvals" [description]="scopeLabel()" />
 
-    <!-- Pending-queue breakdown by type -->
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-5 text-(--primary)">
-        <!-- Total Pending / All Card -->
-        <div (click)="typeFilter.set('All')" [class.ring-2]="typeFilter() === 'All'"
-            [class.ring-(--theme1)]="typeFilter() === 'All'"
-            class="flex gap-5 items-center justify-start rounded-2xl p-5 bg-(--secondary) shadow-[0_0_5px_rgba(0,0,0,0.2)]! cursor-pointer transition-all hover:scale-[1.02] select-none">
-            <tui-icon icon="@tui.hourglass" class="text-(--theme1)" />
-            <div class="flex flex-col">
-                <h1 class="text-sm font-semibold uppercase text-(--primary)/70">Total Pending</h1>
-                <span class="text-xl font-semibold">{{ requestStats().total }}</span>
-            </div>
-        </div>
-
-        <!-- Leave Requests Card -->
-        <div (click)="typeFilter.set('leave')" [class.ring-2]="typeFilter() === 'leave'"
-            [class.ring-emerald-500]="typeFilter() === 'leave'"
-            class="flex gap-5 items-center justify-start rounded-2xl p-5 bg-(--secondary) shadow-[0_0_5px_rgba(0,0,0,0.2)]! cursor-pointer transition-all hover:scale-[1.02] select-none">
-            <tui-icon icon="@tui.volleyball" class="text-emerald-500" />
-            <div class="flex flex-col">
-                <h1 class="text-sm font-semibold uppercase text-(--primary)/70">Leave Requests</h1>
-                <span class="text-xl font-semibold">{{ requestStats().leave }}</span>
-            </div>
-        </div>
-
-        <!-- Work From Home Card -->
-        <div (click)="typeFilter.set('workfromhome')" [class.ring-2]="typeFilter() === 'workfromhome'"
-            [class.ring-blue-400]="typeFilter() === 'workfromhome'"
-            class="flex gap-5 items-center justify-start rounded-2xl p-5 bg-(--secondary) shadow-[0_0_5px_rgba(0,0,0,0.2)]! cursor-pointer transition-all hover:scale-[1.02] select-none">
-            <tui-icon icon="@tui.home" class="text-blue-400" />
-            <div class="flex flex-col">
-                <h1 class="text-sm font-semibold uppercase text-(--primary)/70">Work From Home</h1>
-                <span class="text-xl font-semibold">{{ requestStats().wfh }}</span>
-            </div>
-        </div>
-
-        <!-- Regularizations Card -->
-        <div (click)="typeFilter.set('attendanceregularization')"
-            [class.ring-2]="typeFilter() === 'attendanceregularization'"
-            [class.ring-amber-500]="typeFilter() === 'attendanceregularization'"
-            class="flex gap-5 items-center justify-start rounded-2xl p-5 bg-(--secondary) shadow-[0_0_5px_rgba(0,0,0,0.2)]! cursor-pointer transition-all hover:scale-[1.02] select-none">
-            <tui-icon icon="@tui.clock" class="text-amber-500" />
-            <div class="flex flex-col">
-                <h1 class="text-sm font-semibold uppercase text-(--primary)/70">Regularizations</h1>
-                <span class="text-xl font-semibold">{{ requestStats().regularization }}</span>
-            </div>
-        </div>
+  <!-- Pending-queue breakdown by type -->
+  <div class="grid grid-cols-1 sm:grid-cols-4 gap-5 text-(--primary)">
+    <!-- Total Pending / All Card -->
+    <div
+      (click)="typeFilter.set('All')"
+      [class.ring-2]="typeFilter() === 'All'"
+      [class.ring-(--theme1)]="typeFilter() === 'All'"
+      class="flex gap-5 items-center justify-start rounded-2xl p-5 bg-(--secondary) shadow-[0_0_5px_rgba(0,0,0,0.2)]! cursor-pointer transition-all hover:scale-[1.02] select-none"
+    >
+      <tui-icon icon="@tui.hourglass" class="text-(--theme1)" />
+      <div class="flex flex-col">
+        <h1 class="text-sm font-semibold uppercase text-(--primary)/70">Total Pending</h1>
+        <span class="text-xl font-semibold">{{ requestStats().total }}</span>
+      </div>
     </div>
 
-    @if (isLoading()) {
+    <!-- Leave Requests Card -->
+    <div
+      (click)="typeFilter.set('leave')"
+      [class.ring-2]="typeFilter() === 'leave'"
+      [class.ring-emerald-500]="typeFilter() === 'leave'"
+      class="flex gap-5 items-center justify-start rounded-2xl p-5 bg-(--secondary) shadow-[0_0_5px_rgba(0,0,0,0.2)]! cursor-pointer transition-all hover:scale-[1.02] select-none"
+    >
+      <tui-icon icon="@tui.volleyball" class="text-emerald-500" />
+      <div class="flex flex-col">
+        <h1 class="text-sm font-semibold uppercase text-(--primary)/70">Leave Requests</h1>
+        <span class="text-xl font-semibold">{{ requestStats().leave }}</span>
+      </div>
+    </div>
+
+    <!-- Work From Home Card -->
+    <div
+      (click)="typeFilter.set('workfromhome')"
+      [class.ring-2]="typeFilter() === 'workfromhome'"
+      [class.ring-blue-400]="typeFilter() === 'workfromhome'"
+      class="flex gap-5 items-center justify-start rounded-2xl p-5 bg-(--secondary) shadow-[0_0_5px_rgba(0,0,0,0.2)]! cursor-pointer transition-all hover:scale-[1.02] select-none"
+    >
+      <tui-icon icon="@tui.home" class="text-blue-400" />
+      <div class="flex flex-col">
+        <h1 class="text-sm font-semibold uppercase text-(--primary)/70">Work From Home</h1>
+        <span class="text-xl font-semibold">{{ requestStats().wfh }}</span>
+      </div>
+    </div>
+
+    <!-- Regularizations Card -->
+    <div
+      (click)="typeFilter.set('attendanceregularization')"
+      [class.ring-2]="typeFilter() === 'attendanceregularization'"
+      [class.ring-amber-500]="typeFilter() === 'attendanceregularization'"
+      class="flex gap-5 items-center justify-start rounded-2xl p-5 bg-(--secondary) shadow-[0_0_5px_rgba(0,0,0,0.2)]! cursor-pointer transition-all hover:scale-[1.02] select-none"
+    >
+      <tui-icon icon="@tui.clock" class="text-amber-500" />
+      <div class="flex flex-col">
+        <h1 class="text-sm font-semibold uppercase text-(--primary)/70">Regularizations</h1>
+        <span class="text-xl font-semibold">{{ requestStats().regularization }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap gap-2">
+    <button
+      type="button"
+      tuiButton
+      size="s"
+      class="cursor-pointer"
+      [appearance]="typeFilter() === 'All' ? 'primary' : 'secondary'"
+      (click)="typeFilter.set('All')"
+    >
+      All
+    </button>
+    <button
+      type="button"
+      tuiButton
+      size="s"
+      class="cursor-pointer"
+      [appearance]="typeFilter() === 'leave' ? 'primary' : 'secondary'"
+      (click)="typeFilter.set('leave')"
+    >
+      Leaves
+    </button>
+    <button
+      type="button"
+      tuiButton
+      size="s"
+      class="cursor-pointer"
+      [appearance]="typeFilter() === 'workfromhome' ? 'primary' : 'secondary'"
+      (click)="typeFilter.set('workfromhome')"
+    >
+      Work From Home
+    </button>
+    <button
+      type="button"
+      tuiButton
+      size="s"
+      class="cursor-pointer"
+      [appearance]="typeFilter() === 'attendanceregularization' ? 'primary' : 'secondary'"
+      (click)="typeFilter.set('attendanceregularization')"
+    >
+      Attendance Adjustments
+    </button>
+  </div>
+
+  @if (isLoading()) {
     <div class="flex items-center gap-2 py-10 justify-center text-sm text-(--theme2)/50">
-        Loading pending requests…
+      Loading pending requests…
     </div>
-    } @else if (loadError()) {
-    <div tuiCardLarge
-        class="bg-(--secondary)/15 border border-dashed border-(--background_dark)/15 rounded-xl p-10 text-center">
-        <p class="text-sm font-medium text-(--theme2)/70 m-0">{{ loadError() }}</p>
+  } @else if (loadError()) {
+    <div
+      tuiCardLarge
+      class="bg-(--secondary)/15 border border-dashed border-(--background_dark)/15 rounded-xl p-10 text-center"
+    >
+      <p class="text-sm font-medium text-(--theme2)/70 m-0">{{ loadError() }}</p>
     </div>
-    } @else if (requests().length === 0) {
-    <div tuiCardLarge class="bg-(--secondary)/15 flex! justify-center! items-center! gap-2! p-10! text-(--primary)">
-        <tui-icon icon="@tui.circle-check" style="font-size: 3rem;" />
-        <p class="text-base font-medium m-0">No pending requests to approve.</p>
+  } @else if (requests().length === 0) {
+    <div
+      tuiCardLarge
+      class="bg-(--secondary)/15 flex! justify-center! items-center! gap-2! p-10! text-(--primary)"
+    >
+      <tui-icon icon="@tui.circle-check" style="font-size: 3rem" />
+      <p class="text-base font-medium m-0">No pending requests to approve.</p>
     </div>
-    } @else if (filteredRequests().length === 0) {
-    <div tuiCardLarge class="bg-(--secondary)/15 flex! justify-center! items-center! gap-2! p-10! text-(--primary)">
-        <tui-icon icon="@tui.circle-alert" style="font-size: 3rem;" />
-        <p class="text-base font-medium m-0">No pending requests of this type.</p>
+  } @else if (filteredRequests().length === 0) {
+    <div
+      tuiCardLarge
+      class="bg-(--secondary)/15 flex! justify-center! items-center! gap-2! p-10! text-(--primary)"
+    >
+      <tui-icon icon="@tui.circle-alert" style="font-size: 3rem" />
+      <p class="text-base font-medium m-0">No pending requests of this type.</p>
     </div>
-    } @else {
+  } @else {
     <div class="flex flex-col gap-3">
-        @for (req of filteredRequests(); track req.id) {
-        <div tuiCardLarge [routerLink]="['/requests', req.id]"
-            class="relative overflow-hidden rounded-lg p-4 bg-(--secondary)! shadow-[0_0_5px_rgba(0,0,0,0.2)]! hover:scale-101 transition-all! duration-200! cursor-pointer">
-            <span class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></span>
+      @for (req of filteredRequests(); track req.id) {
+        <div
+          tuiCardLarge
+          [routerLink]="['/requests', req.id]"
+          class="relative overflow-hidden rounded-lg p-4 bg-(--secondary)! shadow-[0_0_5px_rgba(0,0,0,0.2)]! hover:scale-101 transition-all! duration-200! cursor-pointer"
+        >
+          <span class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></span>
 
-            <div class="pl-2 flex items-start justify-between gap-3 text-(--primary)">
-                <div class="min-w-0">
-                    <div class="flex items-center gap-2 mb-1">
-                        <tui-icon [icon]="getRequestTypeIcon(req.requestType)" class="text-(--theme1)" />
-                        <p class="text-base font-semibold text-xl m-0 capitalize">{{ req.requestType }}</p>
-                        @if (req.leaveTypeName) {
-                        <span class="text-xs px-2 py-0.5 rounded-full bg-(--theme1)/10 text-(--theme1) font-medium">{{
-                            req.leaveTypeName }}</span>
-                        }
-                    </div>
-                    <p class="text-sm font-medium text-(--primary) m-0">{{ req.requesterName || 'Unknown employee' }}
-                        <span class="text-(--primary)/50 font-normal">· {{ req.departmentName || 'No department'
-                            }}</span>
-                    </p>
-                    <p class="text-sm text-(--primary)/60 mt-0.5 m-0">{{ dateRangeLabel(req) }} · {{ req.totalDays }}
-                        day(s)</p>
-                    <p class="text-xs text-(--primary)/40 m-0 mt-1">
-                        Submitted {{ req.createdAtUtc | date: 'medium' }} · Step {{ req.currentStepOrder }}
-                    </p>
-                </div>
-                <div class="flex gap-2 items-center shrink-0">
-                    <span tuiBadge appearance="warning">{{ req.overallStatus }}</span>
-
-                </div>
+          <div class="pl-2 flex items-start justify-between gap-3 text-(--primary)">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <tui-icon [icon]="getRequestTypeIcon(req.requestType)" class="text-(--theme1)" />
+                <p class="text-base font-semibold text-xl m-0 capitalize">{{ req.requestType }}</p>
+                @if (req.leaveTypeName) {
+                  <span
+                    class="text-xs px-2 py-0.5 rounded-full bg-(--theme1)/10 text-(--theme1) font-medium"
+                    >{{ req.leaveTypeName }}</span
+                  >
+                }
+              </div>
+              <p class="text-sm font-medium text-(--primary) m-0">
+                {{ req.requesterName || 'Unknown employee' }}
+                <span class="text-(--primary)/50 font-normal"
+                  >· {{ req.departmentName || 'No department' }}</span
+                >
+              </p>
+              <p class="text-sm text-(--primary)/60 mt-0.5 m-0">
+                {{ dateRangeLabel(req) }} · {{ req.totalDays }} day(s)
+              </p>
+              <p class="text-xs text-(--primary)/40 m-0 mt-1">
+                Submitted {{ req.createdAtUtc | date: 'medium' }} · Step {{ req.currentStepOrder }}
+              </p>
             </div>
+            <div class="flex gap-2 items-center shrink-0">
+              <span tuiBadge appearance="warning">{{ req.overallStatus }}</span>
+            </div>
+          </div>
         </div>
-        }
+      }
     </div>
-    }
+  }
 </div>

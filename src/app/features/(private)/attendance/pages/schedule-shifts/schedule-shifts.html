@@ -1,138 +1,303 @@
 <div class="flex flex-col w-full mx-auto max-w-7xl gap-5">
-    <app-main-heading title="Schedule / Shift" description="View shifts and assign them to employees.">
-    </app-main-heading>
+  <app-main-heading
+    title="Schedule / Shift"
+    description="View all shifts and manage each employee's shift assignments."
+  />
 
-    <!-- Tab toggle -->
-    <div class="flex gap-2">
-        <button type="button" tuiButton size="s" [appearance]="activeTabIndex() === 0 ? 'primary' : 'secondary'"
-            class="cursor-pointer" (click)="activeTabIndex.set(0)">
-            Shift Types
-        </button>
-        <button type="button" tuiButton size="s" [appearance]="activeTabIndex() === 1 ? 'primary' : 'secondary'"
-            class="cursor-pointer" (click)="activeTabIndex.set(1)">
-            Assign Shift
-        </button>
-    </div>
+  <!-- ============ ALL SHIFTS ============ -->
+  <div
+    tuiCardLarge
+    class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! gap-2!"
+  >
+    <header class="flex flex-col">
+      <span class="text-lg font-semibold">All Shifts</span>
+      <span tuiSubtitle class="text-(--primary)/50 text-sm">View all working shifts.</span>
+    </header>
 
-    @if (activeTabIndex() === 0) {
-    <!-- SHIFT TYPES TAB -->
-    <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
-        <header class="flex flex-row items-center justify-between">
-            <div class="flex flex-col">
-                <span class="text-lg font-semibold">All Shifts</span>
-                <span tuiSubtitle class="text-(--primary)/50 text-sm">View all working shifts.</span>
-            </div>
-        </header>
-
-        <div class="flex flex-col gap-3">
-            @for (shift of shifts(); track shift.id) {
+    <div class="flex flex-col gap-3">
+      @for (shift of shifts(); track shift.id) {
+        <div
+          class="flex flex-col gap-2 p-2.5 rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card"
+        >
+          <div class="flex items-start gap-2.5">
             <div
-                class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-lg shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card">
-
-                <div class="flex items-start gap-3 flex-1 min-w-[220px]">
-                    <div class="flex items-center justify-center w-11 h-11 rounded-lg shrink-0 bg-(--theme1)/15">
-                        <tui-icon icon="@tui.clock" class="text-xl! text-(--theme1)" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <div class="flex items-center gap-2">
-                            <span class="font-semibold">{{ shift.name }}</span>
-                            <span class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                [class]="shift.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'">
-                                {{ shift.isActive ? 'Active' : 'Inactive' }}
-                            </span>
-                            @if (shift.isDefault) {
-                            <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-(--theme1)/15 text-(--theme1)">
-                                Default
-                            </span>
-                            }
-                        </div>
-                        <div class="flex items-center gap-1.5 text-sm text-(--primary)/60">
-                            <tui-icon icon="@tui.tag" class="text-sm!" />
-                            {{ shift.code }}
-                        </div>
-                        <div class="flex items-center gap-1.5 text-sm text-(--primary)/60">
-                            <tui-icon icon="@tui.clock" class="text-sm!" />
-                            {{ shift.startTime }} - {{ shift.endTime }}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-1 text-sm min-w-[200px]">
-                    <span class="font-medium text-(--theme2)">Grace Period</span>
-                    <span class="text-(--primary)/60">
-                        Late: {{ shift.gracePeriodLateMinutes }} min · Early exit: {{ shift.gracePeriodEarlyExitMinutes
-                        }} min
+              class="flex items-center justify-center w-9 h-9 rounded-lg shrink-0 bg-(--theme1)/15"
+            >
+              <tui-icon icon="@tui.clock" class="text-lg! text-(--theme1)" />
+            </div>
+            <div class="flex flex-col gap-0.5 flex-1">
+              <div class="flex items-center justify-between gap-1.5">
+                <span class="font-semibold text-sm truncate">{{ shift.name }}</span>
+                <div class="flex items-center gap-1.5">
+                  <span
+                    class="text-xs px-1.5 py-0.5 rounded-full font-medium"
+                    [class]="
+                      shift.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                    "
+                  >
+                    {{ shift.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                  @if (shift.isDefault) {
+                    <span
+                      class="text-xs px-1.5 py-0.5 rounded-full font-medium bg-(--theme1)/15 text-(--theme1)"
+                    >
+                      Default
                     </span>
+                  }
                 </div>
+              </div>
+
+              <div class="flex justify-between">
+                <div class="flex items-center gap-1.5 text-xs text-(--primary)/60">
+                  <tui-icon icon="@tui.clock" class="text-xs!" />
+                  {{ shift.startTime }} - {{ shift.endTime }}
+                </div>
+
+                <div class="flex items-center gap-1.5 text-xs text-(--primary)/60">
+                  <tui-icon icon="@tui.tag" class="text-xs!" />
+                  {{ shift.code }}
+                </div>
+              </div>
             </div>
-            } @empty {
-            <div class="text-center py-6 text-(--primary)/60">
-                {{ isLoadingShifts() ? 'Loading shifts...' : 'No shifts configured yet.' }}
-            </div>
-            }
+          </div>
+
+          <div
+            class="flex items-center justify-between text-xs border-t border-(--primary)/10 pt-2"
+          >
+            <span class="font-medium text-(--theme2)">Grace Period</span>
+            <span class="text-(--primary)/60">Late: {{ shift.gracePeriodLateMinutes }} min</span>
+          </div>
         </div>
+      } @empty {
+        <div class="col-span-full text-center py-6 text-(--primary)/60">
+          {{ isLoadingShifts() ? 'Loading shifts...' : 'No shifts configured yet.' }}
+        </div>
+      }
     </div>
-    } @else {
-    <!-- ASSIGN SHIFT TAB -->
-    <div tuiCardLarge class="drop-shadow-sm shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card">
-        <header class="flex flex-col">
-            <span class="text-lg font-semibold">Assign Shift</span>
-            <span tuiSubtitle class="text-(--primary)/50 text-sm">
-                @if (isPrivileged()) {
-                Assign a shift to any employee.
-                } @else {
-                Assign a shift to a member of your team.
-                }
-            </span>
-        </header>
+  </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="flex flex-col gap-1">
-                <label class="text-xs font-medium text-(--theme1)">Employee</label>
-                <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
-                    [tuiTextfieldCleaner]="false">
-                    <input tuiSelect placeholder="Select employee" [ngModel]="selectedEmployeeOption()"
-                        (ngModelChange)="selectedEmployeeOption.set($event)" />
-                    <tui-data-list-wrapper *tuiDropdown [items]="employeeOptions()" />
-                </tui-textfield>
-                @if (assignableEmployees().length === 0) {
-                <p class="text-xs text-(--primary)/50 mt-1">No direct reports found.</p>
-                }
+  <!-- ============ EMPLOYEE SHIFTS ============ -->
+  <div class="flex flex-col gap-1">
+    <span class="text-lg font-semibold">Employee Shifts</span>
+    <span class="text-(--primary)/50 text-sm">
+      Select an employee to see their shift history or assign them a new shift.
+    </span>
+  </div>
+
+  <!-- Employee search -->
+  <div
+    tuiCardLarge
+    class="flex flex-row! flex-nowrap items-center gap-3 overflow-x-auto shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card"
+  >
+    <tui-textfield
+      tuiTextfieldSize="m"
+      class="flex-1 bg-(--background_light)/40! rounded-lg"
+      iconStart="@tui.search"
+      [tuiTextfieldCleaner]="true"
+    >
+      <label tuiLabel>Search Employee</label>
+      <input
+        tuiInput
+        placeholder="Name or staff no."
+        [ngModel]="employeeSearch()"
+        (ngModelChange)="employeeSearch.set($event)"
+      />
+    </tui-textfield>
+  </div>
+
+  @if (filteredEmployees().length) {
+    <div class="flex flex-col lg:flex-row gap-5 lg:h-[24rem]">
+      <!-- Left: employee list -->
+      <div
+        tuiCardLarge
+        class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card overflow-hidden lg:w-72 shrink-0 max-h-80 lg:max-h-none"
+      >
+        <div
+          class="px-4 py-3 text-sm font-semibold text-(--primary) border-b border-(--primary)/10 shrink-0"
+        >
+          Employees
+        </div>
+        <div class="flex flex-col divide-y divide-(--primary)/10 flex-1 min-h-0 overflow-y-auto">
+          @for (emp of filteredEmployees(); track emp.id) {
+            <button
+              type="button"
+              (click)="selectEmployee(emp.id)"
+              class="flex items-center justify-between gap-3 px-4 py-3 text-left cursor-pointer transition-colors border-0"
+              [class]="
+                emp.id === selectedEmployeeId()
+                  ? 'bg-(--theme1)/10! border-l-4! border-l-(--theme1)!'
+                  : 'bg-transparent hover:bg-(--theme1)/5!'
+              "
+            >
+              <div class="flex items-center gap-3 min-w-0">
+                <div
+                  class="size-8 rounded-full bg-(--theme1)/15 border border-(--theme1)/25 flex items-center justify-center text-xs font-semibold text-(--theme1) shrink-0"
+                >
+                  {{ emp.fullName.charAt(0) }}
+                </div>
+                <span class="text-sm font-medium text-(--primary) truncate">{{
+                  emp.fullName
+                }}</span>
+              </div>
+              <span class="text-xs text-(--primary)/50 shrink-0">{{ emp.staffNo }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Right: selected employee's shifts -->
+      <div
+        tuiCardLarge
+        class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card overflow-hidden flex-1 min-w-0 rounded-xl! min-h-72"
+      >
+        @if (selectedEmployee(); as emp) {
+          <!-- Selected employee header + assign toggle -->
+          <div
+            class="flex items-center justify-between gap-3 px-5 py-3 border-b border-(--primary)/10 shrink-0"
+          >
+            <div class="flex flex-col min-w-0">
+              <span class="text-sm font-semibold truncate">{{ emp.fullName }}</span>
+              <span class="text-xs text-(--primary)/50">{{ emp.staffNo }}</span>
             </div>
+            <button
+              type="button"
+              tuiButton
+              size="s"
+              class="cursor-pointer shrink-0"
+              [appearance]="showAssignForm() ? 'secondary' : 'primary'"
+              (click)="toggleAssignForm()"
+            >
+              {{ showAssignForm() ? 'Cancel' : 'Assign Shift' }}
+            </button>
+          </div>
 
-            <div class="flex flex-col gap-1">
-                <label class="text-xs font-medium text-(--theme1)">Shift</label>
-                <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
-                    [tuiTextfieldCleaner]="false">
-                    <input tuiSelect placeholder="Select shift" [ngModel]="selectedShiftOption()"
-                        (ngModelChange)="selectedShiftOption.set($event)" />
-                    <tui-data-list-wrapper *tuiDropdown [items]="shiftOptions()" />
+          <!-- Inline assign form -->
+          @if (showAssignForm()) {
+            <div
+              class="grid grid-cols-1 md:grid-cols-3 gap-4 px-5 py-4 border-b border-(--primary)/10 bg-(--theme1)/5 shrink-0"
+            >
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-medium text-(--theme1)">Shift *</label>
+                <tui-textfield
+                  tuiTextfieldSize="m"
+                  class="bg-(--background_light)/40!"
+                  tuiChevron
+                  [tuiTextfieldCleaner]="false"
+                >
+                  <input
+                    tuiSelect
+                    placeholder="Select shift"
+                    [ngModel]="selectedShiftOption()"
+                    (ngModelChange)="selectedShiftOption.set($event)"
+                  />
+                  <tui-data-list-wrapper *tuiDropdown [items]="shiftOptions()" />
                 </tui-textfield>
-            </div>
+              </div>
 
-            <div class="flex flex-col gap-1">
+              <div class="flex flex-col gap-1">
                 <label class="text-xs font-medium text-(--theme1)">Effective From *</label>
                 <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40! rounded-lg">
-                    <input tuiInputDate [ngModel]="effectiveFrom() ? effectiveFrom() : null"
-                        (ngModelChange)="onEffectiveFromChange($event)" />
-                    <tui-calendar *tuiDropdown />
+                  <input
+                    tuiInputDate
+                    [ngModel]="effectiveFrom() ? effectiveFrom() : null"
+                    (ngModelChange)="onEffectiveFromChange($event)"
+                  />
+                  <tui-calendar *tuiDropdown />
                 </tui-textfield>
-            </div>
+              </div>
 
-            <div class="flex flex-col gap-1">
+              <div class="flex flex-col gap-1">
                 <label class="text-xs font-medium text-(--theme1)">Effective To (optional)</label>
                 <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40! rounded-lg">
-                    <input tuiInputDate [ngModel]="effectiveTo() ? effectiveTo() : null"
-                        (ngModelChange)="onEffectiveToChange($event)" />
-                    <tui-calendar *tuiDropdown />
+                  <input
+                    tuiInputDate
+                    [ngModel]="effectiveTo() ? effectiveTo() : null"
+                    (ngModelChange)="onEffectiveToChange($event)"
+                  />
+                  <tui-calendar *tuiDropdown />
                 </tui-textfield>
-            </div>
-        </div>
+              </div>
 
-        <button type="button" tuiButton size="m" [disabled]="isAssigning()" (click)="assignShift()"
-            class="cursor-pointer bg-(--theme1)! text-white hover:bg-(--theme1)/80! disabled:opacity-40! self-start">
-            {{ isAssigning() ? 'Assigning...' : 'Assign Shift' }}
-        </button>
+              <div class="md:col-span-3">
+                <button
+                  type="button"
+                  tuiButton
+                  size="s"
+                  [disabled]="isAssigning()"
+                  (click)="assignShift()"
+                  class="cursor-pointer bg-(--theme1)! text-white hover:bg-(--theme1)/80! disabled:opacity-40!"
+                >
+                  {{ isAssigning() ? 'Assigning...' : 'Assign Shift' }}
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- Shift history -->
+          @if (isLoading()) {
+            <div class="text-center py-10 text-(--primary)/60 text-sm">Loading shift history…</div>
+          } @else if (hasSearched()) {
+            <div
+              class="grid grid-cols-[1.5fr_1fr_1fr_auto] gap-4 px-5 py-3 shrink-0 bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md"
+            >
+              <span class="text-xs font-semibold uppercase tracking-wide text-white">Shift</span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-white">Timing</span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-white"
+                >Effective</span
+              >
+              <span class="text-xs font-semibold uppercase tracking-wide text-white text-right"
+                >Status</span
+              >
+            </div>
+
+            <div
+              class="flex flex-col divide-y divide-(--primary)/10 flex-1 min-h-0 overflow-y-auto"
+            >
+              @for (entry of history(); track entry.shiftAssignmentId) {
+                <div
+                  class="grid grid-cols-[1.5fr_1fr_1fr_auto] gap-4 px-5 py-3 items-center transition-colors"
+                  [class]="entry.isCurrent ? 'bg-(--success)/5!' : ''"
+                >
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-sm font-medium text-(--primary) truncate">{{
+                      entry.shiftName
+                    }}</span>
+                    <span class="text-xs text-(--primary)/60">{{ entry.shiftCode }}</span>
+                  </div>
+
+                  <span class="text-sm text-(--primary)/70">
+                    {{ formatTime(entry.startTime) }} – {{ formatTime(entry.endTime) }}
+                  </span>
+
+                  <span class="text-sm text-(--primary)/70">
+                    {{ entry.effectiveFrom | date: 'mediumDate' }}
+                    →
+                    {{ entry.effectiveTo ? (entry.effectiveTo | date: 'mediumDate') : 'Ongoing' }}
+                  </span>
+
+                  <div class="text-right">
+                    <span tuiBadge [appearance]="entry.isCurrent ? 'positive' : 'neutral'">
+                      {{ entry.isCurrent ? 'Current' : 'Past' }}
+                    </span>
+                  </div>
+                </div>
+              } @empty {
+                <div class="text-center py-8 text-(--primary)/60 text-sm">
+                  No shifts assigned to this employee yet.
+                </div>
+              }
+            </div>
+          }
+        } @else {
+          <div class="text-center py-10 text-(--primary)/60 text-sm h-full">
+            Select an employee to view their shift history.
+          </div>
+        }
+      </div>
     </div>
-    }
+  } @else {
+    <div tuiCardLarge class="text-center py-10 text-(--primary)/60 bg-(--secondary)/20! glass-card">
+      No employees found.
+    </div>
+  }
 </div>

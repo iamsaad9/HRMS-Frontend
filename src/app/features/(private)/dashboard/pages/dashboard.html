@@ -3,21 +3,24 @@
     <div class="flex items-center justify-between">
       <div class="flex flex-col justify-center">
         <header class="text-3xl! text-(--primary) font-bold! text-shadow-sm">
-          Welcome Back <span class="text-(--theme1)">{{currentUser?.employeeInfo?.firstName}}</span>!
+          Welcome Back
+          <span class="text-(--theme1)">{{ currentUser?.employeeInfo?.firstName }}</span
+          >!
         </header>
 
         <span class="text-sm text-(--primary)/80">Manage your dashboard</span>
       </div>
 
       <div class="flex gap-2 items-center">
-        <button type="button" tuiButton size="s" (click)="refresh()"
-          class="btn-lift text-sm text-white hover:text-(--background_dark)!  bg-(--theme3)! hover:bg-transparent! border! border-(--theme3)! group">
+        <button
+          type="button"
+          tuiButton
+          size="s"
+          (click)="refresh()"
+          class="btn-lift text-sm text-white hover:text-(--background_dark)! bg-(--theme1)! hover:bg-transparent! border! border-(--theme1)! group"
+        >
           <tui-icon icon="@tui.refresh-cw" class="group-hover:animate-spin"></tui-icon>
           Refresh
-        </button>
-        <button type="button" tuiButton iconStart="@tui.download" size="s"
-          class="cursor-pointer bg-(--secondary)! text-(--primary)! hover:bg-(--primary)/50">
-          Export
         </button>
         <app-dashboard-clock />
       </div>
@@ -25,14 +28,17 @@
   </div>
 
   <div class="flex flex-col w-full gap-5">
-    @if(currentUser?.employeeInfo?.roles?.includes("Admin")){
-    <app-quick-cards />
+    @if (currentUser?.employeeInfo?.roles?.includes('Admin')) {
+      <app-quick-cards />
     }
     <app-performance-section></app-performance-section>
     <app-user-cards></app-user-cards>
-    @if(currentUser?.employeeInfo?.roles?.includes("Admin") || currentUser?.employeeInfo?.roles?.includes("HR") || currentUser?.isManager){
-    <app-operations-section />
+    @if (
+      currentUser?.employeeInfo?.roles?.includes('Admin') ||
+      currentUser?.employeeInfo?.roles?.includes('HR') ||
+      currentUser?.isManager
+    ) {
+      <app-operations-section />
     }
-
   </div>
 </div>

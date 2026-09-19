@@ -81,12 +81,13 @@ body {
 }
 
 [tuiAppearance][data-appearance=primary] {
-  background: var(--theme2);
+  background: var(--theme1);
+  
 }
 
 [tuiAppearance][data-appearance=secondary],
 [tuiAppearance][data-appearance=flat] {
-  color: var(--theme2);
+  color: var(--theme1);
 }
 
 [tuiAppearance][data-appearance=textfield] [tuiInput][chrome-autofilled],

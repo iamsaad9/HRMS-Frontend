@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
@@ -19,6 +26,7 @@ interface MonthGroup {
 }
 
 type StatusFilter = 'All' | 'Pending' | 'Approved' | 'Rejected';
+export type RequestTypeFilter = 'All' | 'leave' | 'workfromhome' | 'attendanceregularization';
 
 @Component({
   selector: 'app-all-my-requests',
@@ -52,6 +60,15 @@ export class AllMyRequestsComponent implements OnInit {
   protected loadError = signal<string | null>(null);
   protected expandedMonths = signal<Record<string, boolean>>({});
   protected statusFilter = signal<StatusFilter>('All');
+  protected typeFilter = signal<RequestTypeFilter>('All');
+
+  // Type-filtered list; feed this into monthGroups() and requestStats() instead of requests()
+  private readonly typeFilteredRequests = computed(() => {
+    const type = this.typeFilter();
+    const all = this.requests();
+    if (type === 'All') return all;
+    return all.filter((r) => r.requestType.toLowerCase().replace(/[\s_-]/g, '') === type);
+  });
 
   protected requestStats = computed(() => {
     const all = this.requests();

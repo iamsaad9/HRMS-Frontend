@@ -58,7 +58,11 @@ export class AttendanceBarChartComponent {
 
   readonly shiftStart = input<string>('09:00');
   readonly shiftEnd = input<string>('18:00');
-  protected readonly todayDateStr = new Date().toLocaleDateString('en-CA');
+  // The currently "active" attendance date (same resolved slot as the Attendance Date card, e.g.
+  // a bumped-to-next-day slot) - falls back to the browser's own local date only when there's no
+  // active slot to point at (e.g. nothing punched yet this month).
+  readonly attendanceDate = input<string | null>(null);
+  protected readonly todayDateStr = computed(() => this.attendanceDate() ?? new Date().toLocaleDateString('en-CA'));
   protected readonly yAxisTicks = YAXIS_TICKS;
 
   selectedDay = signal<DaySegment | null>(null);
@@ -224,16 +228,16 @@ export class AttendanceBarChartComponent {
     return Math.max(8, Math.ceil(max));
   });
 
+  // The footer tracks the same "active" day as the bar highlight (todayDateStr) - not a sum
+  // across every day shown, so it moves together with the Attendance Date card/bar highlight
+  // instead of staying pinned to whichever day happens to have data first.
   protected readonly totals = computed(() => {
-    return this.days().reduce(
-      (acc, day) => {
-        acc.regular += day.workHours;
-        acc.late += day.lateHours;
-        acc.overtime += day.overtimeHours;
-        return acc;
-      },
-      { regular: 0, late: 0, overtime: 0 }
-    );
+    const activeDay = this.days().find((d) => d.date === this.todayDateStr());
+    return {
+      regular: activeDay?.workHours ?? 0,
+      late: activeDay?.lateHours ?? 0,
+      overtime: activeDay?.overtimeHours ?? 0,
+    };
   });
 
   protected segmentHeightPct(hours: number): number {

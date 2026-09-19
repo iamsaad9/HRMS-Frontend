@@ -26,13 +26,18 @@
                 <tr>
                     <th tuiTh>Actions</th>
                     <th tuiTh>Date</th>
+                    <th tuiTh>Shift</th>
                     <th tuiTh>Clock In</th>
                     <th tuiTh>Clock Out</th>
+                    <th tuiTh>Break Start</th>
+                    <th tuiTh>Break End</th>
                     <th tuiTh>Total Hours</th>
                     <th tuiTh>Late (min)</th>
                     <th tuiTh>Early Exit (min)</th>
-                    <th tuiTh>Overtime</th>
+                    <th tuiTh>Overtime (min)</th>
+                    <th tuiTh>Early In (min)</th>
                     <th tuiTh>Status</th>
+                    <th tuiTh>Remarks</th>
                 </tr>
             </thead>
             <tbody tuiTbody>
@@ -53,9 +58,17 @@
                         {{ record.date | date: 'EEE, MMM d, y' }}
                     </td>
 
+                    <!-- Shift -->
+                    <td tuiTd>{{ record.shiftName ?? 'N/A' }}</td>
+
                     <!-- Clock In (firstIn) & Clock Out (lastOut) -->
                     <td tuiTd>{{ record.firstIn ? (record.firstIn | date: 'shortTime') : 'N/A' }}</td>
                     <td tuiTd>{{ record.lastOut ? (record.lastOut | date: 'shortTime') : 'N/A' }}</td>
+
+                    <!-- Break Start & Break End (derived from punches) -->
+                    @let breaks = breakTimes(record);
+                    <td tuiTd>{{ breaks.start ? (breaks.start | date: 'shortTime') : 'N/A' }}</td>
+                    <td tuiTd>{{ breaks.end ? (breaks.end | date: 'shortTime') : 'N/A' }}</td>
 
                     <!-- Total Hours Worked -->
                     <td tuiTd>
@@ -67,10 +80,9 @@
                     <td tuiTd>{{ record.lateMinutes ?? 0 }} min</td>
                     <td tuiTd>{{ record.earlyExitMinutes ?? 0 }} min</td>
 
-                    <!-- Overtime Hours -->
-                    <td tuiTd>
-                        {{ record.overtimeHours ? record.overtimeHours + ' hrs' : '0 hrs' }}
-                    </td>
+                    <!-- Overtime & Early In Minutes -->
+                    <td tuiTd>{{ record.overtimeMinutes ?? 0 }} min</td>
+                    <td tuiTd>{{ record.earlyInMinutes ?? 0 }} min</td>
 
                     <!-- Status -->
                     <td tuiTd>
@@ -82,6 +94,9 @@
                         N/A
                         }
                     </td>
+
+                    <!-- Remarks -->
+                    <td tuiTd>{{ record.remarks ?? 'N/A' }}</td>
                 </tr>
                 }
             </tbody>

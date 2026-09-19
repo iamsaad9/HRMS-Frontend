@@ -28,6 +28,8 @@ export interface RegularizationLineItem {
   date: string;
   requestedClockIn: string | null;
   requestedClockOut: string | null;
+  // Clock-in is always on `date`; clock-out can land on the day after for an overnight shift.
+  clockOutNextDay: boolean;
   requestedBreakIn: string | null;
   requestedBreakOut: string | null;
   remarks: string;
@@ -147,9 +149,16 @@ export interface WorkFromHomeDetail extends BaseDetail {
 export interface AttendanceRegularizationDetail extends BaseDetail {
   requestedClockIn: string | null;
   requestedClockOut: string | null;
+  clockOutNextDay: boolean;
   requestedBreakIn: string | null;
   requestedBreakOut: string | null;
   remarks: string | null;
+  // Audit trail: what the real punches actually were when this request was submitted/edited -
+  // independent of whatever approval later overwrites them to.
+  actualClockIn: string | null;
+  actualClockOut: string | null;
+  actualBreakIn: string | null;
+  actualBreakOut: string | null;
 }
 
 // Union type for details

@@ -180,9 +180,11 @@ export class AttendanceHistory implements OnInit {
     return flags.some((flag) => {
       switch (flag) {
         case 'Overtime Worked':
-          return !!r.overtimeHours && r.overtimeHours > 0;
+          return !!r.overtimeMinutes && r.overtimeMinutes > 0;
         case 'Late Arrival':
           return !!r.lateMinutes && r.lateMinutes > 0;
+        case 'Early Arrival':
+          return !!r.earlyInMinutes && r.earlyInMinutes > 0;
         case 'Early Departure':
           return !!r.earlyExitMinutes && r.earlyExitMinutes > 0;
         case 'Missing Punch / Check-out':
@@ -193,6 +195,15 @@ export class AttendanceHistory implements OnInit {
           return false;
       }
     });
+  }
+
+  /** Break Start/End for the table - derived from the day's punches (BreakStart/BreakEnd pair). */
+  protected breakTimes(record: DisplayAttendanceRecord): { start: string | null; end: string | null } {
+    const punches = record.punches ?? [];
+    return {
+      start: punches.find((p) => p.punchType === 'BreakStart')?.punchTime ?? null,
+      end: punches.find((p) => p.punchType === 'BreakEnd')?.punchTime ?? null,
+    };
   }
 
   ngOnInit(): void {

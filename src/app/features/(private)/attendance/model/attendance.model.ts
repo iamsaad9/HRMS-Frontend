@@ -71,6 +71,7 @@ export type ExceptionFlag =
   | 'Overtime Worked'
   | 'Short Hours'
   | 'Late Arrival'
+  | 'Early Arrival'
   | 'Early Departure'
   | 'Missing Punch / Check-out';
 
@@ -130,7 +131,9 @@ export interface AttendanceRecord {
   totalHoursWorked: number;
   lateMinutes: number;
   earlyExitMinutes: number;
-  overtimeHours: number;
+  overtimeMinutes: number;
+  earlyInMinutes: number;
+  shiftName: string | null;
   remarks: string;
   punches: PunchResponseDto[];
   adjustmentStatus: string | null;
@@ -338,6 +341,7 @@ export const EXCEPTION_FLAG_OPTIONS: ExceptionFlag[] = [
   'Overtime Worked',
   'Short Hours',
   'Late Arrival',
+  'Early Arrival',
   'Early Departure',
   'Missing Punch / Check-out',
 ];

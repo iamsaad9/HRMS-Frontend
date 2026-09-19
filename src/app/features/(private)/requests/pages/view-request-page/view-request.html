@@ -199,11 +199,19 @@
                             <input tuiInputTime [ngModel]="item.requestedClockIn"
                                 (ngModelChange)="updateLineItem($index, 'requestedClockIn', $event)" tuiTextfield />
                         </tui-textfield>
-                        <tui-textfield tuiTextfieldSize="m">
-                            <label tuiLabel>Clock Out</label>
-                            <input tuiInputTime [ngModel]="item.requestedClockOut"
-                                (ngModelChange)="updateLineItem($index, 'requestedClockOut', $event)" tuiTextfield />
-                        </tui-textfield>
+                        <div class="flex flex-col gap-1">
+                            <tui-textfield tuiTextfieldSize="m">
+                                <label tuiLabel>Clock Out</label>
+                                <input tuiInputTime [ngModel]="item.requestedClockOut"
+                                    (ngModelChange)="updateLineItem($index, 'requestedClockOut', $event)"
+                                    tuiTextfield />
+                            </tui-textfield>
+                            <label class="flex items-center gap-1.5 text-xs text-(--primary)/80 pl-0.5">
+                                <input type="checkbox" [ngModel]="item.clockOutNextDay"
+                                    (ngModelChange)="updateLineItem($index, 'clockOutNextDay', $event)" tuiCheckbox />
+                                Next day
+                            </label>
+                        </div>
                         <tui-textfield tuiTextfieldSize="m">
                             <label tuiLabel>Break In</label>
                             <input tuiInputTime [ngModel]="item.requestedBreakIn"
@@ -318,7 +326,8 @@
                     </div>
                     <div>
                         <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">Clock Out</p>
-                        <p class="text-xs font-medium text-(--primary) m-0">{{ detail.requestedClockOut ?? '—' }}</p>
+                        <p class="text-xs font-medium text-(--primary) m-0">{{ detail.requestedClockOut ?? '—' }}{{
+                            detail.requestedClockOut && detail.clockOutNextDay ? ' (next day)' : '' }}</p>
                     </div>
                     <div>
                         <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">Break In</p>
@@ -330,6 +339,27 @@
                     </div>
                     }
                 </div>
+
+                <!-- Actual punches at the time this was requested - audit trail reference -->
+                @if (isAttendanceRegularizationDetail(detail) && (detail.actualClockIn || detail.actualClockOut || detail.actualBreakIn || detail.actualBreakOut)) {
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-1 -mt-1">
+                    <div class="col-span-2 sm:col-span-4">
+                        <span class="text-[9px] uppercase tracking-wide text-(--primary)/40">Actual (at time of request)</span>
+                    </div>
+                    <div>
+                        <p class="text-xs text-(--primary)/70 m-0">{{ detail.actualClockIn ? (detail.actualClockIn | date: 'short') : '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-(--primary)/70 m-0">{{ detail.actualClockOut ? (detail.actualClockOut | date: 'short') : '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-(--primary)/70 m-0">{{ detail.actualBreakIn ? (detail.actualBreakIn | date: 'short') : '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-(--primary)/70 m-0">{{ detail.actualBreakOut ? (detail.actualBreakOut | date: 'short') : '—' }}</p>
+                    </div>
+                </div>
+                }
 
                 <!-- Remarks -->
                 @if (isAttendanceRegularizationDetail(detail)) {

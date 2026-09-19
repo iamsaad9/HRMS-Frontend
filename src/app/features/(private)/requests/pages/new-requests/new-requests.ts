@@ -114,6 +114,22 @@ protected leaveTypesOptions = computed(() =>
     }
   }
 
+  // Shifts/attendance dates are defined in UK time (see backend ToUkTime()/ToUkDate()), so the
+  // clock-out's calendar date must be read in the UK timezone too, not the browser's local one -
+  // used to flag when the actual clock-out fell on the day after the regularization row's date.
+  private toUkDateStr(date: Date): string {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/London',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(date);
+    const year = parts.find((p) => p.type === 'year')?.value ?? '1970';
+    const month = parts.find((p) => p.type === 'month')?.value ?? '01';
+    const day = parts.find((p) => p.type === 'day')?.value ?? '01';
+    return `${year}-${month}-${day}`;
+  }
+
   protected get lineItems(): FormArray {
     return this.form.get('lineItems') as FormArray;
   }
@@ -237,6 +253,13 @@ protected leaveTypesOptions = computed(() =>
     return this.actualAttendanceByDate().get(this.toDateStr(date)) ?? null;
   }
 
+  /** True when that date's actual clock-out fell on the calendar day after it (overnight shift). */
+  protected actualClockOutIsNextDay(date: TuiDay): boolean {
+    const clockOut = this.actualFor(date)?.clockOut;
+    if (!clockOut) return false;
+    return this.toUkDateStr(new Date(clockOut)) !== this.toDateStr(date);
+  }
+
   private buildHalfDayRow(date: TuiDay): FormGroup {
     const row = this.fb.group({
       date: [date],
@@ -261,6 +284,10 @@ protected leaveTypesOptions = computed(() =>
       date: [date],
       requestedClockIn: ['', Validators.required],
       requestedClockOut: ['', Validators.required],
+      // Clock-in is always on this row's date, but for an overnight shift the clock-out can be
+      // on the next calendar day - capped at +1 day (a checkbox, not a free date picker) so a
+      // regularization can never silently drift the record onto some distant future date.
+      clockOutNextDay: [false],
       requestedBreakIn: [''],
       requestedBreakOut: [''],
       remarks: [''],

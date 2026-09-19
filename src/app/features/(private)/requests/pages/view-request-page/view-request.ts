@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { TuiButton, TuiIcon, TuiInput, TuiLabel, TuiTextfield } from '@taiga-ui/core';
+import { TuiButton, TuiCheckbox, TuiIcon, TuiInput, TuiLabel, TuiTextfield } from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { TuiInputDate, TuiInputTime, TuiTextarea } from '@taiga-ui/kit';
 import { FormsModule } from '@angular/forms';
@@ -27,6 +27,7 @@ interface EditableLineItem {
   date: string;
   requestedClockIn: string;
   requestedClockOut: string;
+  clockOutNextDay: boolean;
   requestedBreakIn: string;
   requestedBreakOut: string;
   remarks: string;
@@ -35,7 +36,7 @@ interface EditableLineItem {
 @Component({
   selector: 'app-view-request',
   standalone: true,
-  imports: [CommonModule, FormsModule,TuiInputTime,TuiInputDate, RouterLink, TuiButton, TuiCardLarge, MainHeading, TuiIcon, TuiTextarea, TuiTextfield,TuiLabel],
+  imports: [CommonModule, FormsModule,TuiInputTime,TuiInputDate, RouterLink, TuiButton, TuiCardLarge, MainHeading, TuiIcon, TuiTextarea, TuiTextfield,TuiLabel, TuiCheckbox],
   templateUrl: './view-request.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -272,6 +273,7 @@ export class ViewRequest {
           date: d.date ? d.date.slice(0, 10) : '',
           requestedClockIn: this.toTimeInputValue(d.requestedClockIn),
           requestedClockOut: this.toTimeInputValue(d.requestedClockOut),
+          clockOutNextDay: d.clockOutNextDay ?? false,
           requestedBreakIn: this.toTimeInputValue(d.requestedBreakIn),
           requestedBreakOut: this.toTimeInputValue(d.requestedBreakOut),
           remarks: d.remarks ?? '',
@@ -289,7 +291,7 @@ export class ViewRequest {
   protected addLineItem(): void {
     this.editLineItems.update((items) => [
       ...items,
-      { date: '', requestedClockIn: '', requestedClockOut: '', requestedBreakIn: '', requestedBreakOut: '', remarks: '' },
+      { date: '', requestedClockIn: '', requestedClockOut: '', clockOutNextDay: false, requestedBreakIn: '', requestedBreakOut: '', remarks: '' },
     ]);
   }
 
@@ -329,6 +331,7 @@ export class ViewRequest {
                   date: item.date,
                   requestedClockIn: this.fromTimeInputValue(item.requestedClockIn),
                   requestedClockOut: this.fromTimeInputValue(item.requestedClockOut),
+                  clockOutNextDay: item.clockOutNextDay,
                   requestedBreakIn: this.fromTimeInputValue(item.requestedBreakIn),
                   requestedBreakOut: this.fromTimeInputValue(item.requestedBreakOut),
                   remarks: item.remarks,

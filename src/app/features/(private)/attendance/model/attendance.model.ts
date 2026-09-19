@@ -100,6 +100,9 @@ export interface PunchResponseDto {
   punchTime: string;
   punchType: string | PunchType;
   punchChannel: string | AttendanceChannelType;
+  // The attendance "slot" date the backend actually attributed this punch to - only populated on
+  // the live punch() response, not on punches read back inside a day's history/detail record.
+  attendanceDate?: string;
 }
 
 export interface DailyAttendance {

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { TuiButton, TuiCell, TuiTitle, TuiIcon } from '@taiga-ui/core';
 import { TuiBadge, TuiPagination, TuiStatus } from '@taiga-ui/kit';
 import { TuiTable } from '@taiga-ui/addon-table';
@@ -20,6 +20,7 @@ import { AuthService } from '../../../../(public)/auth/services/auth.service';
 import { ToastService } from '../../../../../core/services/toast.service';
 import { TuiCardLarge } from "@taiga-ui/layout";
 import { Router } from '@angular/router';
+import { DurationPipe } from '../../../../../shared/pipes/duration.pipe';
 
 export interface DisplayAttendanceRecord extends Partial<AttendanceRecord> {
   attendanceDate: string;
@@ -40,8 +41,8 @@ export interface DisplayAttendanceRecord extends Partial<AttendanceRecord> {
     AttendanceHistoryFilterBar,
     TuiCardLarge,
     TuiIcon,
-    DecimalPipe,
     TuiPagination,
+    DurationPipe,
 ],
   templateUrl: './attendance-history.html',
   styleUrl: './attendance-history.less',

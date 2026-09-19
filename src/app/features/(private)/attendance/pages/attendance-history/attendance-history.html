@@ -72,17 +72,16 @@
 
                     <!-- Total Hours Worked -->
                     <td tuiTd>
-                        {{ record.totalHoursWorked != null ? (record.totalHoursWorked | number: '1.1-2') + ' hrs' :
-                        'N/A' }}
+                        {{ record.totalHoursWorked != null ? (record.totalHoursWorked | duration: 'hours') : 'N/A' }}
                     </td>
 
                     <!-- Late & Early Exit Minutes -->
-                    <td tuiTd>{{ record.lateMinutes ?? 0 }} min</td>
-                    <td tuiTd>{{ record.earlyExitMinutes ?? 0 }} min</td>
+                    <td tuiTd>{{ record.lateMinutes | duration }}</td>
+                    <td tuiTd>{{ record.earlyExitMinutes | duration }}</td>
 
                     <!-- Overtime & Early In Minutes -->
-                    <td tuiTd>{{ record.overtimeMinutes ?? 0 }} min</td>
-                    <td tuiTd>{{ record.earlyInMinutes ?? 0 }} min</td>
+                    <td tuiTd>{{ record.overtimeMinutes | duration }}</td>
+                    <td tuiTd>{{ record.earlyInMinutes | duration }}</td>
 
                     <!-- Status -->
                     <td tuiTd>

@@ -214,9 +214,6 @@
     <div class="flex items-center justify-between mb-3">
       <div class="flex flex-col">
         <span class="text-lg font-semibold">Bulk-assign via CSV</span>
-        <span class="text-(--primary)/50 text-sm"
-          >Allocated days come from each leave type's own default - no need to specify them.</span
-        >
       </div>
       <button tuiButton type="button" class="btn-lift bg-(--theme1)!" size="s" iconStart="@tui.download"
         [disabled]="isDownloadingTemplate()" (click)="downloadTemplate()">

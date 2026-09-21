@@ -1,84 +1,223 @@
-<div class="w-full flex flex-col gap-5 max-w-7xl mx-auto p-4 md:p-5">
-  <app-main-heading title="Assign Leave" description="Assign leave allocations to Academic employees" />
+<div class="flex flex-col w-full mx-auto max-w-7xl gap-5 p-4 md:p-5">
+  <app-main-heading
+    title="Assign Leave"
+    description="Select an employee to see their current leave allocations or assign a new one."
+  />
 
-  <!-- SINGLE ASSIGN -->
-  <div tuiCardLarge
-    class="flex flex-col gap-4 p-4 w-full bg-(--secondary)! drop-shadow-sm glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
-    <h2 class="text-base font-semibold text-(--primary) m-0">Assign to one employee</h2>
-
-    <form [formGroup]="form" (submit)="submit()" class="flex flex-col gap-4">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
-            [tuiTextfieldCleaner]="false">
-            <label tuiLabel>Employee (Academic) <span class="text-red-500">*</span></label>
-            <input tuiSelect placeholder="Select employee" [formControl]="form.controls.employeeId" />
-            <tui-data-list *tuiDropdown>
-              @for (emp of academicEmployees(); track emp.id) {
-              <button tuiOption [value]="emp.id">
-                {{ emp.fullName }} ({{ emp.staffNo }})
-              </button>
-              } @empty {
-              <span class="text-sm text-(--primary)/50 px-3 py-2 block">No active Academic employees found.</span>
-              }
-            </tui-data-list>
-          </tui-textfield>
-        </div>
-
-        <div>
-          <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
-            [tuiTextfieldCleaner]="false">
-            <label tuiLabel>Leave Type <span class="text-red-500">*</span></label>
-            <input tuiSelect placeholder="Select leave type" [formControl]="form.controls.leaveTypeId" />
-            <tui-data-list *tuiDropdown>
-              @for (type of activeLeaveTypes(); track type.id) {
-              <button tuiOption [value]="type.id">
-                {{ type.name }}
-              </button>
-              } @empty {
-              <span class="text-sm text-(--primary)/50 px-3 py-2 block">No active leave types found.</span>
-              }
-            </tui-data-list>
-          </tui-textfield>
-        </div>
-
-        <div>
-          <tui-textfield tuiTextfieldSize="m">
-            <label tuiLabel>Year <span class="text-red-500">*</span></label>
-            <input formControlName="year" tuiInputNumber placeholder="e.g. 2026" />
-          </tui-textfield>
-          <tui-error formControlName="year" />
-        </div>
-
-        <div>
-          <tui-textfield tuiTextfieldSize="m">
-            <label tuiLabel>Allocated Days <span class="text-red-500">*</span></label>
-            <input formControlName="allocatedDays" tuiInputNumber placeholder="e.g. 20" />
-          </tui-textfield>
-          <tui-error formControlName="allocatedDays" />
-        </div>
-      </div>
-
-      <div>
-        <tui-textfield tuiTextfieldSize="m">
-          <label tuiLabel>Reason <span class="text-red-500">*</span></label>
-          <textarea formControlName="reason" tuiTextarea placeholder="Reason for this leave allocation"></textarea>
-        </tui-textfield>
-        <tui-error formControlName="reason" />
-      </div>
-
-      <div class="flex justify-end">
-        <button tuiButton type="submit" size="m" class="btn-lift bg-(--theme1)!" [disabled]="isSubmitting()">
-          {{ isSubmitting() ? 'Assigning…' : 'Assign Leave' }}
-        </button>
-      </div>
-    </form>
+  <!-- Employee search -->
+  <div
+    tuiCardLarge
+    class="flex flex-row! flex-nowrap items-center gap-3 overflow-x-auto shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card"
+  >
+    <tui-textfield
+      tuiTextfieldSize="m"
+      class="flex-1 bg-(--background_light)/40! rounded-lg"
+      iconStart="@tui.search"
+      [tuiTextfieldCleaner]="true"
+    >
+      <label tuiLabel>Search Employee</label>
+      <input
+        tuiInput
+        placeholder="Name or staff no."
+        [ngModel]="employeeSearch()"
+        (ngModelChange)="employeeSearch.set($event)"
+      />
+    </tui-textfield>
   </div>
+
+  @if (filteredEmployees().length) {
+    <div class="flex flex-col lg:flex-row gap-5 lg:h-[28rem]">
+      <!-- Left: employee list -->
+      <div
+        tuiCardLarge
+        class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card overflow-hidden lg:w-72 shrink-0 max-h-80 lg:max-h-none"
+      >
+        <div
+          class="px-4 py-3 text-sm font-semibold text-(--primary) border-b border-(--primary)/10 shrink-0"
+        >
+          Employees (Administrative)
+        </div>
+        <div class="flex flex-col divide-y divide-(--primary)/10 flex-1 min-h-0 overflow-y-auto">
+          @for (emp of filteredEmployees(); track emp.id) {
+            <button
+              type="button"
+              (click)="selectEmployee(emp.id)"
+              class="flex items-center justify-between gap-3 px-4 py-3 text-left cursor-pointer transition-colors border-0"
+              [class]="
+                selectedEmployee()?.id === emp.id
+                  ? 'bg-(--theme1)/10! border-l-4! border-l-(--theme1)!'
+                  : 'bg-transparent hover:bg-(--theme1)/5!'
+              "
+            >
+              <div class="flex items-center gap-3 min-w-0">
+                <div
+                  class="size-8 rounded-full bg-(--theme1)/15 border border-(--theme1)/25 flex items-center justify-center text-xs font-semibold text-(--theme1) shrink-0"
+                >
+                  {{ emp.fullName.charAt(0) }}
+                </div>
+                <span class="text-sm font-medium text-(--primary) truncate">{{
+                  emp.fullName
+                }}</span>
+              </div>
+              <span class="text-xs text-(--primary)/50 shrink-0">{{ emp.staffNo }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Right: selected employee's leave allocations -->
+      <div
+        tuiCardLarge
+        class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card overflow-hidden flex-1 min-w-0 rounded-xl! min-h-72"
+      >
+        @if (selectedEmployee(); as emp) {
+          <!-- Selected employee header + assign toggle -->
+          <div
+            class="flex items-center justify-between gap-3 px-5 py-3 border-b border-(--primary)/10 shrink-0"
+          >
+            <div class="flex flex-col min-w-0">
+              <span class="text-sm font-semibold truncate">{{ emp.fullName }}</span>
+              <span class="text-xs text-(--primary)/50">{{ emp.staffNo }}</span>
+            </div>
+            <button
+              type="button"
+              tuiButton
+              size="s"
+              class="btn-lift cursor-pointer shrink-0"
+              [appearance]="showAssignForm() ? 'secondary' : 'primary'"
+              (click)="toggleAssignForm()"
+            >
+              {{ showAssignForm() ? 'Cancel' : 'Assign Leave' }}
+            </button>
+          </div>
+
+          <!-- Inline assign form -->
+          @if (showAssignForm()) {
+            <form
+              [formGroup]="form"
+              (ngSubmit)="submit()"
+              class="flex flex-col gap-4 px-5 py-4 border-b border-(--primary)/10 bg-(--theme1)/5 shrink-0"
+            >
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-(--theme1)">Leave Type *</label>
+                  <tui-textfield
+                    tuiTextfieldSize="m"
+                    class="bg-(--background_light)/40!"
+                    tuiChevron
+                    [tuiTextfieldCleaner]="false"
+                  >
+                    <input
+                      tuiSelect
+                      placeholder="Select leave type"
+                      [ngModel]="selectedLeaveTypeOption()"
+                      [ngModelOptions]="{ standalone: true }"
+                      (ngModelChange)="onLeaveTypeChange($event)"
+                    />
+                    <tui-data-list-wrapper *tuiDropdown [items]="leaveTypeOptions()" />
+                  </tui-textfield>
+                  @if (alreadyAssignedThisYear()) {
+                    <span class="text-[11px] text-red-500"
+                      >Already assigned to this employee for {{ currentYear }}.</span
+                    >
+                  }
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-(--theme1)">Year</label>
+                  <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+                    <input formControlName="year" tuiInput />
+                  </tui-textfield>
+                  <span class="text-[11px] text-(--primary)/50">Always the current year.</span>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="text-xs font-medium text-(--theme1)">Allocated Days</label>
+                  <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+                    <input formControlName="allocatedDays" tuiInputNumber placeholder="Pick a leave type first" />
+                  </tui-textfield>
+                  <span class="text-[11px] text-(--primary)/50"
+                    >Taken from the selected leave type's default.</span
+                  >
+                </div>
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  tuiButton
+                  size="s"
+                  [disabled]="isSubmitting() || alreadyAssignedThisYear()"
+                  class="btn-lift cursor-pointer bg-(--theme1)! text-white hover:bg-(--theme1)/80! disabled:opacity-40!"
+                >
+                  {{ isSubmitting() ? 'Assigning...' : 'Assign Leave' }}
+                </button>
+              </div>
+            </form>
+          }
+
+          <!-- Current leaves -->
+          @if (isLoadingBalances()) {
+            <div class="text-center py-10 text-(--primary)/60 text-sm">Loading current leaves…</div>
+          } @else if (hasLoadedBalances()) {
+            <div
+              class="grid grid-cols-[1.3fr_0.7fr_0.8fr_0.8fr_0.8fr_0.9fr] gap-4 px-5 py-3 shrink-0 bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md"
+            >
+              <span class="text-xs font-semibold uppercase tracking-wide text-white">Leave Type</span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-white">Year</span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-white">Allocated</span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-white">Used</span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-white">Adjusted</span>
+              <span class="text-xs font-semibold uppercase tracking-wide text-white text-right"
+                >Remaining</span
+              >
+            </div>
+
+            <div class="flex flex-col divide-y divide-(--primary)/10 flex-1 min-h-0 overflow-y-auto">
+              @for (row of balances(); track row.id) {
+                <div
+                  class="grid grid-cols-[1.3fr_0.7fr_0.8fr_0.8fr_0.8fr_0.9fr] gap-4 px-5 py-3 items-center"
+                >
+                  <span class="text-sm font-medium text-(--primary) truncate">{{
+                    row.leaveTypeName
+                  }}</span>
+                  <span class="text-sm text-(--primary)/70">{{ row.year }}</span>
+                  <span class="text-sm text-(--primary)/70">{{ row.allocatedDays }}</span>
+                  <span class="text-sm text-(--primary)/70">{{ row.usedDays }}</span>
+                  <span class="text-sm text-(--primary)/70">{{ row.adjustedDays }}</span>
+                  <div class="text-right">
+                    <span tuiBadge appearance="positive">{{ row.remainingBalance }}</span>
+                  </div>
+                </div>
+              } @empty {
+                <div class="text-center py-8 text-(--primary)/60 text-sm">
+                  No leave allocations for this employee yet.
+                </div>
+              }
+            </div>
+          }
+        } @else {
+          <div class="text-center py-10 text-(--primary)/60 text-sm h-full">
+            Select an employee to view their current leaves.
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div tuiCardLarge class="text-center py-10 text-(--primary)/60 bg-(--secondary)/20! glass-card">
+      No Administrative employees found.
+    </div>
+  }
 
   <!-- BULK ASSIGN -->
   <div>
     <div class="flex items-center justify-between mb-3">
-      <h2 class="text-base font-semibold text-(--primary) m-0">Bulk-assign via CSV</h2>
+      <div class="flex flex-col">
+        <span class="text-lg font-semibold">Bulk-assign via CSV</span>
+        <span class="text-(--primary)/50 text-sm"
+          >Allocated days come from each leave type's own default - no need to specify them.</span
+        >
+      </div>
       <button tuiButton type="button" class="btn-lift bg-(--theme1)!" size="s" iconStart="@tui.download"
         [disabled]="isDownloadingTemplate()" (click)="downloadTemplate()">
         Download Template CSV

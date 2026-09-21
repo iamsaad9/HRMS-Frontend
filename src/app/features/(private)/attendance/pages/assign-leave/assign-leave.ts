@@ -1,27 +1,43 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   TuiButton,
-  TuiDataList,
   TuiDropdown,
-  TuiError,
-  TuiErrorComponent,
-  TuiIcon,
+  TuiInput,
   TuiLabel,
-  TuiOption,
   TuiTextfield,
   TuiTextfieldComponent,
 } from '@taiga-ui/core';
-import { TuiChevron, TuiFiles, TuiInputNumber, TuiSelect, TuiTextarea, type TuiFileLike } from '@taiga-ui/kit';
+import {
+  TuiBadge,
+  TuiChevron,
+  TuiDataListWrapperComponent,
+  TuiFiles,
+  TuiInputNumber,
+  TuiSelect,
+  type TuiFileLike,
+} from '@taiga-ui/kit';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { catchError, finalize, of, Subject, tap } from 'rxjs';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
 import { ToastService } from '../../../../../core/services/toast.service';
 import { EmployeeService } from '../../../employees/services/employee.service';
 import { LeaveRequestsService } from '../../../leave-management/service/leave-requests.service';
-import { LeaveAdjustmentService } from '../../service/leave-adjustment.service';
+import { LeaveAdjustmentService, LeaveAllocationRow } from '../../service/leave-adjustment.service';
 import { BulkUploadResult } from '../../../employees/model/employee.model';
+
+interface PickerEmployee {
+  id: string;
+  fullName: string;
+  staffNo: string;
+}
+
+interface LeaveTypeOption {
+  id: string;
+  defaultAllocatedDays: number;
+  toString: () => string;
+}
 
 @Component({
   selector: 'app-assign-leave',
@@ -29,21 +45,19 @@ import { BulkUploadResult } from '../../../employees/model/employee.model';
   imports: [
     CommonModule,
     AsyncPipe,
+    FormsModule,
     ReactiveFormsModule,
     TuiButton,
-    TuiError,
-    TuiErrorComponent,
+    TuiBadge,
+    TuiInput,
     TuiLabel,
     TuiTextfieldComponent,
     TuiInputNumber,
-    TuiTextarea,
     TuiChevron,
-    TuiDataList,
     TuiDropdown,
-    TuiOption,
     TuiSelect,
     TuiTextfield,
-    TuiIcon,
+    TuiDataListWrapperComponent,
     TuiFiles,
     TuiCardLarge,
     MainHeading,
@@ -57,26 +71,60 @@ export class AssignLeave implements OnInit {
   private readonly leaveAdjustmentService = inject(LeaveAdjustmentService);
   private readonly toast = inject(ToastService);
 
-  // Single-assign form: this page's whole purpose is giving Academic employees an initial leave
-  // allocation, which nothing else in the app can do - self-service apply and the "Adjust Balance"
-  // flow are both Administrative-only - so the employee picker is scoped to Active Academic staff.
-  protected readonly academicEmployees = computed(() =>
-    (this.employeeService.allEmployees() ?? []).filter((e) => e.isActive && e.category === 'Academic'),
+  // ---------- Employee list - this page's whole purpose is giving Administrative employees
+  // their initial leave allocation for a year, so only Active Administrative employees show up.
+  protected employees = computed<PickerEmployee[]>(() =>
+    (this.employeeService.allEmployees() ?? [])
+      .filter((e) => e.isActive && e.category === 'Administrative')
+      .map((e) => ({ id: e.id, fullName: e.fullName, staffNo: e.staffNo })),
   );
 
-  protected readonly activeLeaveTypes = computed(() => this.leaveTypesService.leaveTypes().filter((t) => t.isActive));
-
-  protected readonly form = new FormGroup({
-    employeeId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    leaveTypeId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    year: new FormControl<number | null>(new Date().getFullYear(), { validators: [Validators.required] }),
-    allocatedDays: new FormControl<number | null>(null, { validators: [Validators.required, Validators.min(0)] }),
-    reason: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(5)] }),
+  protected employeeSearch = signal('');
+  protected filteredEmployees = computed(() => {
+    const q = this.employeeSearch().trim().toLowerCase();
+    if (!q) return this.employees();
+    return this.employees().filter(
+      (e) => e.fullName.toLowerCase().includes(q) || e.staffNo.toLowerCase().includes(q),
+    );
   });
 
-  protected readonly isSubmitting = signal(false);
+  protected selectedEmployee = signal<PickerEmployee | null>(null);
 
-  // Bulk-upload state - mirrors the Employee Bulk Upload page's UX exactly.
+  // ---------- Current leave balances (right panel) ----------
+  protected balances = signal<LeaveAllocationRow[]>([]);
+  protected isLoadingBalances = signal(false);
+  protected hasLoadedBalances = signal(false);
+
+  // ---------- Leave types - dropdown label shows each type's default allocated days, and
+  // picking one auto-fills the (locked) Allocated Days field below. ----------
+  protected leaveTypeOptions = computed<LeaveTypeOption[]>(() =>
+    this.leaveTypesService
+      .leaveTypes()
+      // Unpaid leave types skip the balance check entirely when a request is applied (see
+      // AttendanceService.ApplyLeaveAsync) - employees don't need an allocation for them at all,
+      // so they're excluded here rather than offering to assign something that's never checked.
+      .filter((t) => t.isActive && t.isPaid)
+      .map((t) => ({
+        id: t.id,
+        defaultAllocatedDays: t.defaultAllocatedDays,
+        toString: () => `${t.name} (${t.defaultAllocatedDays} days default)`,
+      })),
+  );
+
+  // ---------- Inline assign form ----------
+  protected showAssignForm = signal(false);
+  protected selectedLeaveTypeOption = signal<LeaveTypeOption | null>(null);
+  protected isSubmitting = signal(false);
+  protected readonly currentYear = new Date().getFullYear();
+
+  // Year is always the current year and Allocated Days always comes from the picked leave
+  // type's own default - both are shown disabled/greyed, not editable by the admin.
+  protected form = new FormGroup({
+    year: new FormControl<number>({ value: this.currentYear, disabled: true }, { nonNullable: true }),
+    allocatedDays: new FormControl<number | null>({ value: null, disabled: true }),
+  });
+
+  // ---------- Bulk-upload state - mirrors the Employee Bulk Upload page's UX ----------
   protected readonly control = new FormControl<TuiFileLike | null>(null, Validators.required);
   protected readonly failedFiles$ = new Subject<TuiFileLike | null>();
   protected readonly selectedFile = signal<File | null>(null);
@@ -94,43 +142,99 @@ export class AssignLeave implements OnInit {
     this.leaveTypesService.getAllLeaveTypes().subscribe();
   }
 
+  protected selectEmployee(id: string): void {
+    const emp = this.employees().find((e) => e.id === id) ?? null;
+    this.selectedEmployee.set(emp);
+    this.resetAssignForm();
+    this.showAssignForm.set(false);
+    this.loadBalances();
+  }
+
+  private loadBalances(): void {
+    const employeeId = this.selectedEmployee()?.id;
+    if (!employeeId) return;
+
+    this.isLoadingBalances.set(true);
+    this.leaveAdjustmentService.getEmployeeBalances(employeeId).subscribe({
+      next: (response) => {
+        this.balances.set(response.isSuccess && response.data ? response.data : []);
+        this.hasLoadedBalances.set(true);
+        this.isLoadingBalances.set(false);
+      },
+      error: () => {
+        this.hasLoadedBalances.set(true);
+        this.isLoadingBalances.set(false);
+      },
+    });
+  }
+
+  protected toggleAssignForm(): void {
+    if (this.showAssignForm()) this.resetAssignForm();
+    this.showAssignForm.update((open) => !open);
+  }
+
+  protected onLeaveTypeChange(option: LeaveTypeOption | null): void {
+    this.selectedLeaveTypeOption.set(option);
+    this.form.patchValue({ allocatedDays: option?.defaultAllocatedDays ?? null });
+  }
+
+  // Checked against the current-leaves list already loaded for this employee - catches a
+  // duplicate assignment immediately, before the submit round-trip to the backend (which also
+  // rejects it, since this same check has to hold no matter which route the request came from).
+  protected alreadyAssignedThisYear = computed(() => {
+    const leaveTypeId = this.selectedLeaveTypeOption()?.id;
+    if (!leaveTypeId) return false;
+    return this.balances().some((b) => b.leaveTypeId === leaveTypeId && b.year === this.currentYear);
+  });
+
   protected submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      this.form.updateValueAndValidity();
+    const employeeId = this.selectedEmployee()?.id;
+    const leaveTypeId = this.selectedLeaveTypeOption()?.id;
+    const allocatedDays = this.form.getRawValue().allocatedDays;
+
+    if (!employeeId || !leaveTypeId || allocatedDays == null) {
+      this.toast.error('Select a leave type.', 'Missing Information');
       return;
     }
 
-    const raw = this.form.getRawValue();
+    if (this.alreadyAssignedThisYear()) {
+      this.toast.error(
+        `This employee already has this leave type assigned for ${this.currentYear}.`,
+        'Already Assigned',
+      );
+      return;
+    }
+
     this.isSubmitting.set(true);
 
     this.leaveAdjustmentService
       .adjustBalance({
-        employeeId: raw.employeeId,
-        leaveTypeId: raw.leaveTypeId,
+        employeeId,
+        leaveTypeId,
         adjustmentDays: 0,
-        reason: raw.reason,
-        year: raw.year!,
-        allocatedDays: raw.allocatedDays!,
+        reason: `Leave allocation assigned for ${this.currentYear}`,
+        year: this.currentYear,
+        allocatedDays,
       })
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: (response) => {
           if (response.isSuccess) {
             this.toast.success('Leave allocation assigned successfully.', 'Saved');
-            this.form.reset({
-              employeeId: '',
-              leaveTypeId: '',
-              year: new Date().getFullYear(),
-              allocatedDays: null,
-              reason: '',
-            });
+            this.resetAssignForm();
+            this.showAssignForm.set(false);
+            this.loadBalances();
           } else {
             this.toast.error(response.message || 'Could not assign leave.', 'Save Failed');
           }
         },
         error: (err) => this.toast.error(err?.error?.message || 'Could not assign leave.', 'Save Failed'),
       });
+  }
+
+  private resetAssignForm(): void {
+    this.selectedLeaveTypeOption.set(null);
+    this.form.reset({ year: this.currentYear, allocatedDays: null });
   }
 
   protected removeFile(): void {

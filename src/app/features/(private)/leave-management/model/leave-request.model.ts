@@ -7,6 +7,7 @@ export interface LeaveTypeResponse{
   defaultAllocatedDays:number;
   isEncashable:boolean;
   isActive:boolean;
+  isPaid:boolean;
 }
 
 

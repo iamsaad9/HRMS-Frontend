@@ -30,6 +30,7 @@ import { LeaveRequestsService } from '../../../leave-management/service/leave-re
 import { HalfDayType, NewRequestPayload, RequestType } from '../../model/request.model';
 import { RequestsService } from '../../service/request.service';
 import { AttendanceService } from '../../../attendance/service/attendance.service';
+import { DashboardService } from '../../../dashboard/service/dashboard.service';
 
 interface ActualDayAttendance {
   clockIn: string | null;
@@ -59,9 +60,20 @@ export class NewRequest implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly attendanceService = inject(AttendanceService);
+  private readonly dashboardService = inject(DashboardService);
 
   /** Actual clock in/out + break times for each regularization date, keyed by yyyy-MM-dd. */
   protected actualAttendanceByDate = signal<Map<string, ActualDayAttendance>>(new Map());
+
+  /** Tracks the leave-type control's raw value reactively, since form controls aren't signals. */
+  protected selectedLeaveTypeName = signal<string>('');
+
+  /** Remaining balance for whichever leave type is currently selected, shown as a hint under the field. */
+  protected selectedLeaveBalance = computed(() => {
+    const name = this.selectedLeaveTypeName();
+    if (!name) return null;
+    return this.dashboardService.data()?.leaveBalances.find((b) => b.leaveTypeName === name) ?? null;
+  });
 
   currentUser = this.authService.currentUser;
   isSubmitting = signal(false);
@@ -79,6 +91,7 @@ protected leaveTypesOptions = computed(() =>
 
   ngOnInit(): void {
     this.leaveService.getAllLeaveTypes().subscribe();
+    this.dashboardService.load().subscribe();
     this.buildForm();
     this.applyQueryPreset();
   }
@@ -114,22 +127,6 @@ protected leaveTypesOptions = computed(() =>
     }
   }
 
-  // Shifts/attendance dates are defined in UK time (see backend ToUkTime()/ToUkDate()), so the
-  // clock-out's calendar date must be read in the UK timezone too, not the browser's local one -
-  // used to flag when the actual clock-out fell on the day after the regularization row's date.
-  private toUkDateStr(date: Date): string {
-    const parts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Europe/London',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).formatToParts(date);
-    const year = parts.find((p) => p.type === 'year')?.value ?? '1970';
-    const month = parts.find((p) => p.type === 'month')?.value ?? '01';
-    const day = parts.find((p) => p.type === 'day')?.value ?? '01';
-    return `${year}-${month}-${day}`;
-  }
-
   protected get lineItems(): FormArray {
     return this.form.get('lineItems') as FormArray;
   }
@@ -145,7 +142,7 @@ protected leaveTypesOptions = computed(() =>
         startDate: this.fb.control('', Validators.required),
         endDate: this.fb.control('', Validators.required),
         manualBreakdown: this.fb.control(false),
-        reason: this.fb.control('', [Validators.required, Validators.minLength(10)]),
+        reason: this.fb.control(''),
         lineItems: this.fb.array([]),
       },
       { validators: this.dateRangeValidator },
@@ -171,6 +168,8 @@ protected leaveTypesOptions = computed(() =>
 
     this.form.get('startDate')!.valueChanges.subscribe(() => this.regenerateLineItems());
     this.form.get('endDate')!.valueChanges.subscribe(() => this.regenerateLineItems());
+
+    this.form.get('leaveType')!.valueChanges.subscribe((val: string) => this.selectedLeaveTypeName.set(val ?? ''));
   }
 
   /**
@@ -244,6 +243,13 @@ protected leaveTypesOptions = computed(() =>
           breakOut: findTime('BreakEnd'),
         };
         this.actualAttendanceByDate.update((map) => new Map(map).set(dateStr, actual));
+
+        // The row's clock-out-before-clock-in validator falls back to this actual clock-in when
+        // requestedClockIn is blank - re-run it now that the actual has arrived (async, after
+        // the row was already built), otherwise form.invalid would stay stale until some field
+        // on the row is touched.
+        const row = this.lineItems.controls.find((r) => this.toDateStr(r.get('date')?.value) === dateStr);
+        row?.updateValueAndValidity();
       },
     });
   }
@@ -253,11 +259,99 @@ protected leaveTypesOptions = computed(() =>
     return this.actualAttendanceByDate().get(this.toDateStr(date)) ?? null;
   }
 
-  /** True when that date's actual clock-out fell on the calendar day after it (overnight shift). */
-  protected actualClockOutIsNextDay(date: TuiDay): boolean {
-    const clockOut = this.actualFor(date)?.clockOut;
-    if (!clockOut) return false;
-    return this.toUkDateStr(new Date(clockOut)) !== this.toDateStr(date);
+  /**
+   * Formats an actual punch instant in UK time for the "Actual (at time of request)" reference -
+   * requestedClockIn/Out are plain hours:minutes with no timezone of their own, and the backend
+   * interprets them as UK wall-clock time (the same convention shifts use, since this project is
+   * built for a UK-based operation - the "+5" a viewer sees elsewhere is just their own browser's
+   * local timezone, not a stored-value issue). Using the browser's own locale here instead could
+   * show a different clock than the one the requester's typed correction gets interpreted against.
+   */
+  protected formatActualUk(iso: string | null): string {
+    if (!iso) return '—';
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return '—';
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/London',
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }).formatToParts(date);
+    const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+    return `${get('day')}/${get('month')}/${get('year')}, ${get('hour')}:${get('minute')} ${get('dayPeriod')}`;
+  }
+
+  /**
+   * True when Clock Out's time-of-day is at or before Clock In's and "Next day" isn't checked -
+   * that combination can only mean the shift actually ran past midnight and the checkbox was
+   * simply forgotten, so the requester is warned/blocked here rather than unknowingly submitting
+   * a regularization that (without the flag) would compute negative worked hours. When the row
+   * leaves Clock In blank (only adjusting Clock Out), the actual punch's clock-in time is used
+   * as the effective reference instead, since that's what the approval will fall back to.
+   */
+  protected clockOutBeforeClockIn(row: AbstractControl): boolean {
+    const outVal = row.get('requestedClockOut')?.value;
+    const nextDay = row.get('clockOutNextDay')?.value;
+    if (!outVal || nextDay) return false;
+
+    const inVal = row.get('requestedClockIn')?.value;
+    let inHours: number, inMinutes: number;
+    if (inVal) {
+      inHours = inVal.hours;
+      inMinutes = inVal.minutes;
+    } else {
+      const actual = this.actualFor(row.get('date')?.value);
+      if (!actual?.clockIn) return false;
+      const ukTime = this.toUkHm(actual.clockIn);
+      if (!ukTime) return false;
+      inHours = ukTime.hours;
+      inMinutes = ukTime.minutes;
+    }
+
+    const inMinutesTotal = inHours * 60 + inMinutes;
+    const outMinutesTotal = outVal.hours * 60 + outVal.minutes;
+    return outMinutesTotal <= inMinutesTotal;
+  }
+
+  private clockOutRowValidator = (row: AbstractControl): ValidationErrors | null => {
+    return this.clockOutBeforeClockIn(row) ? { clockOutBeforeClockIn: true } : null;
+  };
+
+  /**
+   * Mirrors the backend rule: a regularization row doesn't need every field filled in - only
+   * one of Clock In / Clock Out / Break In / Break Out needs to be provided (e.g. just fixing a
+   * forgotten Clock Out while leaving the real Clock In punch untouched).
+   */
+  private atLeastOnePunchValidator = (row: AbstractControl): ValidationErrors | null => {
+    const hasAny =
+      !!row.get('requestedClockIn')?.value ||
+      !!row.get('requestedClockOut')?.value ||
+      !!row.get('requestedBreakIn')?.value ||
+      !!row.get('requestedBreakOut')?.value;
+    return hasAny ? null : { noPunchProvided: true };
+  };
+
+  protected noPunchProvided(row: AbstractControl): boolean {
+    return row.hasError('noPunchProvided');
+  }
+
+  // Shifts/punches are read in UK time (see performance-section.ts's toHm()), not the browser's
+  // local timezone, so the actual-clock-in fallback above must be read the same way.
+  private toUkHm(iso: string): { hours: number; minutes: number } | null {
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return null;
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/London',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).formatToParts(date);
+    const hours = Number(parts.find((p) => p.type === 'hour')?.value ?? '0');
+    const minutes = Number(parts.find((p) => p.type === 'minute')?.value ?? '0');
+    return { hours, minutes };
   }
 
   private buildHalfDayRow(date: TuiDay): FormGroup {
@@ -280,18 +374,21 @@ protected leaveTypesOptions = computed(() =>
   }
 
   private buildRegularizationRow(date: TuiDay): FormGroup {
-    return this.fb.group({
-      date: [date],
-      requestedClockIn: ['', Validators.required],
-      requestedClockOut: ['', Validators.required],
-      // Clock-in is always on this row's date, but for an overnight shift the clock-out can be
-      // on the next calendar day - capped at +1 day (a checkbox, not a free date picker) so a
-      // regularization can never silently drift the record onto some distant future date.
-      clockOutNextDay: [false],
-      requestedBreakIn: [''],
-      requestedBreakOut: [''],
-      remarks: [''],
-    });
+    return this.fb.group(
+      {
+        date: [date],
+        requestedClockIn: [''],
+        requestedClockOut: [''],
+        // Clock-in is always on this row's date, but for an overnight shift the clock-out can be
+        // on the next calendar day - capped at +1 day (a checkbox, not a free date picker) so a
+        // regularization can never silently drift the record onto some distant future date.
+        clockOutNextDay: [false],
+        requestedBreakIn: [''],
+        requestedBreakOut: [''],
+        remarks: [''],
+      },
+      { validators: [this.atLeastOnePunchValidator, this.clockOutRowValidator] },
+    );
   }
 
   private getDateRange(start: TuiDay, end: TuiDay): TuiDay[] {
@@ -327,6 +424,32 @@ protected leaveTypesOptions = computed(() =>
 }
 
 protected onSubmit(): void {
+  if (this.selectedType() === 'regularization') {
+    const hasEmptyRow = this.lineItems.controls.some((row) => this.noPunchProvided(row));
+    if (hasEmptyRow) {
+      this.toast.error(
+        'Provide at least one of Clock In, Clock Out, Break In or Break Out for each date.',
+        'Missing Timings',
+      );
+      return;
+    }
+
+    const hasBadClockOut = this.lineItems.controls.some((row) => this.clockOutBeforeClockIn(row));
+    if (hasBadClockOut) {
+      this.toast.error(
+        'Clock Out is before Clock In on one or more dates. Check "Next day" if the shift ran past midnight.',
+        'Invalid Timings',
+      );
+      return;
+    }
+  }
+
+  if (this.form.invalid) {
+    this.form.markAllAsTouched();
+    this.toast.error('Please fill all required fields correctly.', 'Incomplete Request');
+    return;
+  }
+
   const raw = this.form.getRawValue();
   const type: RequestType = raw.requestType;
   const selectedLeaveType = this.leaveService.leaveTypes().find((t) => t.name === raw.leaveType);

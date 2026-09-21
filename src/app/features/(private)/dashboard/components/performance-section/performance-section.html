@@ -167,7 +167,8 @@
       </div>
 
       <app-attendance-bar-chart [punches]="barChartPunches()" [shiftStart]="currentShift()?.startTime ?? '09:00'"
-        [shiftEnd]="currentShift()?.endTime ?? '18:00'" />
+        [shiftEnd]="currentShift()?.endTime ?? '18:00'"
+        [attendanceDate]="attendanceService.activeShiftRecord()?.date ?? null" />
     </div>
 
     <!-- 7 Days Clock-in / Clock-out History Card -->

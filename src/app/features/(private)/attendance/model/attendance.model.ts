@@ -11,6 +11,13 @@ export interface DepartmentDailyLogEntry {
   firstIn: string | null;
   lastOut: string | null;
   lateMinutes: number;
+  earlyExitMinutes?: number;
+  overtimeMinutes?: number;
+  earlyInMinutes?: number;
+  shiftName?: string | null;
+  remarks?: string | null;
+  breakIn?: string | null;
+  breakOut?: string | null;
 }
 
 // Mirrors backend ShiftHistoryDto (Modules.Attendance/Application/DTOs/DashboardDTOs.cs)
@@ -143,6 +150,11 @@ export interface AttendanceRecord {
   adjustmentId: string | null;
   leaveTypeId?: string | null;
   leaveTypeName?: string | null;
+  // Resolved on the backend from DailyAttendance itself (real punch or regularization override) -
+  // read these directly rather than deriving from punches, since a regularized break has no real
+  // punch behind it and wouldn't show up there.
+  breakIn?: string | null;
+  breakOut?: string | null;
 }
 
 export interface TeamAttendanceRecord {
@@ -400,6 +412,12 @@ export interface DepartmentAttendanceRecord {
   lateMinutes: number;
   earlyExitMinutes: number;
   overtimeHours: number;
+  overtimeMinutes?: number;
+  earlyInMinutes?: number;
+  shiftName?: string | null;
+  remarks?: string | null;
+  breakIn?: string | null;
+  breakOut?: string | null;
   status: string;
 }
 

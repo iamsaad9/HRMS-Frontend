@@ -34,8 +34,14 @@ export class DepartmentAttendanceLogService {
                   ) / 100
                 : null,
             lateMinutes: entry.lateMinutes,
-            earlyExitMinutes: 0,
+            earlyExitMinutes: entry.earlyExitMinutes ?? 0,
             overtimeHours: 0,
+            overtimeMinutes: entry.overtimeMinutes ?? 0,
+            earlyInMinutes: entry.earlyInMinutes ?? 0,
+            shiftName: entry.shiftName ?? null,
+            remarks: entry.remarks ?? null,
+            breakIn: entry.breakIn ?? null,
+            breakOut: entry.breakOut ?? null,
             status: entry.status,
           }),
         );

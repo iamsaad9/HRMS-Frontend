@@ -198,12 +198,13 @@ export class AttendanceHistory implements OnInit {
     });
   }
 
-  /** Break Start/End for the table - derived from the day's punches (BreakStart/BreakEnd pair). */
+  // Read directly from the record's own breakIn/breakOut (resolved server-side from
+  // DailyAttendance, real punch or regularization override) rather than deriving from punches - a
+  // regularized break has no real punch behind it and wouldn't show up there.
   protected breakTimes(record: DisplayAttendanceRecord): { start: string | null; end: string | null } {
-    const punches = record.punches ?? [];
     return {
-      start: punches.find((p) => p.punchType === 'BreakStart')?.punchTime ?? null,
-      end: punches.find((p) => p.punchType === 'BreakEnd')?.punchTime ?? null,
+      start: record.breakIn ?? null,
+      end: record.breakOut ?? null,
     };
   }
 

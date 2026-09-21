@@ -68,20 +68,27 @@
             class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card overflow-hidden flex-1 min-w-0 rounded-xl!">
 
 
-            <div class="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr] gap-4 px-5 py-3
+            <div class="grid grid-cols-[1fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr_0.8fr_0.8fr_0.8fr_0.8fr_1.2fr] gap-3 px-5 py-3
                         bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Date</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Shift</span>
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Clock In</span>
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Clock Out</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Break Start</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Break End</span>
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Total Hours</span>
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Late (min)</span>
-                <span class="text-xs font-semibold uppercase tracking-wide text-white text-right">Status</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Early Exit (min)</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Overtime (min)</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white">Early In (min)</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white text-right">Status / Remarks</span>
             </div>
 
             <div class="flex flex-col divide-y divide-(--primary)/10 max-h-[32rem] overflow-y-auto">
                 @for (record of selectedEmployeeRecords(); track record.id) {
-                <div class="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr] gap-4 px-5 py-3 items-center">
+                <div class="grid grid-cols-[1fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr_0.8fr_0.8fr_0.8fr_0.8fr_1.2fr] gap-3 px-5 py-3 items-center">
                     <span class="text-sm text-(--primary) font-medium">{{ record.date | date: 'EEE, MMM d' }}</span>
+                    <span class="text-sm text-(--primary)/70">{{ record.shiftName ?? 'N/A' }}</span>
                     <span class="text-sm text-(--primary)/70">
                         {{ record.firstIn ? (record.firstIn | date: 'shortTime') : 'N/A' }}
                     </span>
@@ -89,12 +96,23 @@
                         {{ record.lastOut ? (record.lastOut | date: 'shortTime') : 'N/A' }}
                     </span>
                     <span class="text-sm text-(--primary)/70">
-                        {{ record.totalHoursWorked != null ? (record.totalHoursWorked | number: '1.1-2') + ' hrs' :
-                        'N/A' }}
+                        {{ record.breakIn ? (record.breakIn | date: 'shortTime') : 'N/A' }}
                     </span>
-                    <span class="text-sm text-(--primary)/70">{{ record.lateMinutes ?? 0 }} min</span>
+                    <span class="text-sm text-(--primary)/70">
+                        {{ record.breakOut ? (record.breakOut | date: 'shortTime') : 'N/A' }}
+                    </span>
+                    <span class="text-sm text-(--primary)/70">
+                        {{ record.totalHoursWorked != null ? (record.totalHoursWorked | duration: 'hours') : 'N/A' }}
+                    </span>
+                    <span class="text-sm text-(--primary)/70">{{ record.lateMinutes | duration }}</span>
+                    <span class="text-sm text-(--primary)/70">{{ record.earlyExitMinutes | duration }}</span>
+                    <span class="text-sm text-(--primary)/70">{{ record.overtimeMinutes ?? 0 | duration }}</span>
+                    <span class="text-sm text-(--primary)/70">{{ record.earlyInMinutes ?? 0 | duration }}</span>
                     <div class="text-right">
                         <span tuiBadge [appearance]="statusAppearance(record.status)">{{ record.status }}</span>
+                        @if (record.remarks) {
+                        <p class="text-[10px] text-(--primary)/50 mt-0.5">{{ record.remarks }}</p>
+                        }
                     </div>
                 </div>
                 } @empty {

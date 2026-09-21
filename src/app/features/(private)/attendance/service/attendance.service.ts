@@ -72,13 +72,22 @@ export class AttendanceService {
   }
 
   // Local calendar date, not UTC (`toISOString()` would roll over to "tomorrow" hours before
-  // local midnight for any viewer east of UTC), so this matches the same local "today" the
-  // history request itself was fetched with (see toLocalDateStr() above).
+  // local midnight for any viewer east of UTC) - only used below for the no-real-data fallback.
   const todayStr = toLocalDateStr(new Date());
   console.log(`[activeShiftRecord] Evaluating active shift. Today: ${todayStr}, Total Records: ${records.length}`);
 
+  // A "real" record here specifically means a genuinely PUNCHED slot (firstIn set) - not just any
+  // row with a non-empty id, since an approved leave/WFH day also gets a real DailyAttendance row
+  // (with firstIn left null) as soon as it's approved, even for a future date. Requiring firstIn
+  // keeps a future approved leave from ever outranking today's actual punched session, while
+  // still never second-guessing a punched slot's date against the browser's own "today": a
+  // bumped-to-next-day slot (shift ended, employee clocked in again past the shift's end) is
+  // dated in UK time and can legitimately be a day ahead of the viewer's own local calendar date
+  // for a few hours around midnight - the old `r.date <= todayStr` guard excluded exactly that
+  // slot, leaving the card stuck on the previous, already-closed one until the browser's own
+  // clock caught up.
   const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
-  const realRecords = records.filter((r) => r.id && r.id !== EMPTY_GUID && r.date <= todayStr);
+  const realRecords = records.filter((r) => r.id && r.id !== EMPTY_GUID && !!r.firstIn);
 
   if (realRecords.length > 0) {
     const latestReal = realRecords.reduce((latest, r) => (r.date > latest.date ? r : latest));

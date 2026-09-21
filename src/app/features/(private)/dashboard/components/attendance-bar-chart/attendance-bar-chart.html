@@ -20,7 +20,7 @@
         <div class="bars">
             @for (day of days(); track day.date; let i = $index) {
             <div class="bar-col" [class.weekend]="day.isWeekend" [class.active]="selectedDay()?.date === day.date"
-                [class.today]="day.date === todayDateStr" (click)="toggleDayPopover(day, $event)">
+                [class.today]="day.date === todayDateStr()" (click)="toggleDayPopover(day, $event)">
                 <div class="bar-track" [attr.aria-label]="day.tooltip">
                     @if (day.status === 'leave') {
                     <div class="segment leave" style="height: 100%"></div>

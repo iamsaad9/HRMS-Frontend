@@ -181,26 +181,33 @@ checkSession(): Observable<boolean> {
     }
   }
 
-  /** Routine self-service change - verifies currentPassword server-side before applying newPassword. */
+  /**
+   * Routine self-service change - verifies currentPassword server-side before applying
+   * newPassword. The new password only affects future logins (the JWT itself doesn't encode the
+   * password) - no need to sign the user out of their current session for it to take effect.
+   */
   changePassword(command:changePasswordCommand):Observable<ApiResponse<any>>{
     return this.http.post<any>(`${this.apiUrl}/change-password`,command).pipe(
-      tap((response)=>{
-        if(response.isSuccess){
-          this.logout().subscribe();
-        }
-      }),
       catchError((err)=>{
         return throwError(()=>err);
       })
     )
   }
 
-  /** Forced first-login reset - no currentPassword needed/known by the caller, since the only thing being proven is that the user holds a valid session (they just logged in with the default password). */
+  /**
+   * Forced first-login reset - no currentPassword needed/known by the caller, since the only
+   * thing being proven is that the user holds a valid session (they just logged in with the
+   * default password). Stays signed in on success, same reasoning as changePassword() above -
+   * MainLayout just needs isDefaultPassword to flip so it stops re-prompting.
+   */
   changePasswordFirstLogin(command:changePasswordCommand): Observable<ApiResponse<any>> {
     return this.http.post<any>(`${this.apiUrl}/change-password-first-login`,  command ).pipe(
       tap((response) => {
         if (response.isSuccess) {
-          this.logout().subscribe();
+          const user = this.#currentUser();
+          if (user) {
+            this.#currentUser.set({ ...user, isDefaultPassword: false });
+          }
         }
       }),
       catchError((err) => {

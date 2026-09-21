@@ -1,9 +1,26 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { TuiButton, TuiCheckbox, TuiIcon, TuiInput, TuiLabel, TuiTextfield } from '@taiga-ui/core';
+import {
+  TuiButton,
+  TuiCheckbox,
+  TuiIcon,
+  TuiInput,
+  TuiLabel,
+  TuiTextfield,
+  TuiDataListComponent,
+  TuiDataList,
+  TuiDropdown,
+} from '@taiga-ui/core';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { TuiInputDate, TuiInputTime, TuiTextarea } from '@taiga-ui/kit';
+import {
+  TuiInputDate,
+  TuiInputTime,
+  TuiTextarea,
+  TuiDataListWrapperComponent,
+  TuiSelect,
+  TuiChevron,
+} from '@taiga-ui/kit';
 import { FormsModule } from '@angular/forms';
 import { catchError, finalize, of, switchMap, tap } from 'rxjs';
 import { MainHeading } from '../../../../../shared/components/main-heading/main-heading';
@@ -22,6 +39,7 @@ import {
   WorkFromHomeDetail,
   toRequestType,
 } from '../../model/request.model';
+import { TuiStringHandler } from '@taiga-ui/cdk';
 
 interface EditableLineItem {
   date: string;
@@ -36,7 +54,25 @@ interface EditableLineItem {
 @Component({
   selector: 'app-view-request',
   standalone: true,
-  imports: [CommonModule, FormsModule,TuiInputTime,TuiInputDate, RouterLink, TuiButton, TuiCardLarge, MainHeading, TuiIcon, TuiTextarea, TuiTextfield,TuiLabel, TuiCheckbox],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TuiInputTime,
+    TuiInputDate,
+    TuiButton,
+    TuiCardLarge,
+    MainHeading,
+    TuiIcon,
+    TuiTextarea,
+    TuiTextfield,
+    TuiLabel,
+    TuiCheckbox,
+    TuiSelect,
+    TuiChevron,
+    TuiDataList,
+    TuiDropdown,
+    TuiDataListComponent,
+  ],
   templateUrl: './view-request.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -55,6 +91,10 @@ export class ViewRequest {
   protected readonly remarks = signal('');
 
   protected readonly leaveTypeOptions = this.leaveService.leaveTypes;
+  leaveTypeStringify: TuiStringHandler<number | string> = (id) => {
+    const found = this.leaveTypeOptions().find((item) => String(item.id) === String(id));
+    return found ? found.name : '';
+  };
 
   protected readonly isEditing = signal(false);
   protected readonly editStartDate = signal('');
@@ -66,7 +106,8 @@ export class ViewRequest {
   protected readonly currentEmployeeId = this.authService.currentUser()?.employeeInfo?.id ?? null;
 
   protected readonly isOwnRequest = computed(
-    () => !!this.currentEmployeeId && this.request()?.requesterEmployeeId === this.currentEmployeeId,
+    () =>
+      !!this.currentEmployeeId && this.request()?.requesterEmployeeId === this.currentEmployeeId,
   );
 
   protected readonly isPending = computed(() => this.request()?.overallStatus === 1);
@@ -79,7 +120,7 @@ export class ViewRequest {
   protected readonly canEdit = this.canCancel;
 
   protected readonly canApproveOrReject = computed(() => !this.isOwnRequest() && this.isPending());
- 
+
   protected readonly title = computed(() => {
     switch (this.request()?.requestType) {
       case 'WorkFromHome':
@@ -92,17 +133,37 @@ export class ViewRequest {
         return 'Request Details';
     }
   });
- 
-  // Expose type guards directly with clear matching names
+
   protected readonly isLeaveDetail = isLeaveDetail;
   protected readonly isWorkFromHomeDetail = isWorkFromHomeDetail;
   protected readonly isAttendanceRegularizationDetail = isAttendanceRegularizationDetail;
 
-  // Helper type guard for properties shared by Leave and WFH
   protected hasHalfDay(detail: RequestDetail): detail is LeaveDetail | WorkFromHomeDetail {
     return isLeaveDetail(detail) || isWorkFromHomeDetail(detail);
   }
- 
+
+  protected readonly sortedDetails = computed(() => {
+    const details = this.request()?.details ?? [];
+    return [...details].sort((a, b) => a.date.localeCompare(b.date));
+  });
+
+  protected formatActualUk(iso: string | null): string {
+    if (!iso) return '—';
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return '—';
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/London',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }).formatToParts(date);
+    const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+    return `${get('day')}/${get('month')}/${get('year')}, ${get('hour')}:${get('minute')} ${get('dayPeriod')}`;
+  }
+
   private currentId: string | null = null;
 
   constructor() {
@@ -159,30 +220,26 @@ export class ViewRequest {
     this.isSubmittingAction.set(true);
     this.requestService
       .approve(type, this.currentId, { remarks: this.remarks() || null })
-      .pipe(
-        tap((res) => {
-          if (res.isSuccess) {
-            this.requestService.sendApprovalEmail(r.requesterEmployeeId, r.requestType, this.remarks() || undefined).subscribe({
-              next: () => {
-                this.toast.success('Request approved and email sent.', 'Approved');
-                this.router.navigate(['/requests/approvals']);
-              },
-              error: () => {
-                this.toast.success('Request approved (email notification failed).', 'Approved');
-                this.router.navigate(['/requests/approvals']);
-              },
-            });
-          }
-        }),
-        finalize(() => this.isSubmittingAction.set(false))
-      )
+      .pipe(finalize(() => this.isSubmittingAction.set(false)))
       .subscribe({
         next: (res) => {
-          if (!res.isSuccess) {
+          if (res.isSuccess) {
+            this.toast.success('Request approved.', 'Approved');
+            this.router.navigate(['/requests/approvals']);
+            // Fire-and-forget: the approval itself already succeeded and the page has already
+            // moved on - a slow or failing notification email must never hold up either.
+            this.requestService
+              .sendApprovalEmail(r.requesterEmployeeId, r.requestType, this.remarks() || undefined)
+              .subscribe({ error: () => {} });
+          } else {
             this.toast.error(res.message || 'Could not approve this request.', 'Approve Failed');
           }
         },
-        error: (err) => this.toast.error(err?.error?.message || 'Could not approve this request.', 'Approve Failed'),
+        error: (err) =>
+          this.toast.error(
+            err?.error?.message || 'Could not approve this request.',
+            'Approve Failed',
+          ),
       });
   }
 
@@ -200,30 +257,26 @@ export class ViewRequest {
     this.isSubmittingAction.set(true);
     this.requestService
       .reject(type, this.currentId, { remarks: this.remarks() })
-      .pipe(
-        tap((res) => {
-          if (res.isSuccess) {
-            this.requestService.sendRejectionEmail(r.requesterEmployeeId, r.requestType, this.remarks()).subscribe({
-              next: () => {
-                this.toast.success('Request rejected and email sent.', 'Rejected');
-                this.router.navigate(['/requests/approvals']);
-              },
-              error: () => {
-                this.toast.success('Request rejected (email notification failed).', 'Rejected');
-                this.router.navigate(['/requests/approvals']);
-              },
-            });
-          }
-        }),
-        finalize(() => this.isSubmittingAction.set(false))
-      )
+      .pipe(finalize(() => this.isSubmittingAction.set(false)))
       .subscribe({
         next: (res) => {
-          if (!res.isSuccess) {
+          if (res.isSuccess) {
+            this.toast.success('Request rejected.', 'Rejected');
+            this.router.navigate(['/requests/approvals']);
+            // Fire-and-forget: the rejection itself already succeeded and the page has already
+            // moved on - a slow or failing notification email must never hold up either.
+            this.requestService
+              .sendRejectionEmail(r.requesterEmployeeId, r.requestType, this.remarks())
+              .subscribe({ error: () => {} });
+          } else {
             this.toast.error(res.message || 'Could not reject this request.', 'Reject Failed');
           }
         },
-        error: (err) => this.toast.error(err?.error?.message || 'Could not reject this request.', 'Reject Failed'),
+        error: (err) =>
+          this.toast.error(
+            err?.error?.message || 'Could not reject this request.',
+            'Reject Failed',
+          ),
       });
   }
 
@@ -246,7 +299,11 @@ export class ViewRequest {
             this.toast.error(res.message || 'Could not cancel this request.', 'Cancel Failed');
           }
         },
-        error: (err) => this.toast.error(err?.error?.message || 'Could not cancel this request.', 'Cancel Failed'),
+        error: (err) =>
+          this.toast.error(
+            err?.error?.message || 'Could not cancel this request.',
+            'Cancel Failed',
+          ),
       });
   }
 
@@ -291,7 +348,15 @@ export class ViewRequest {
   protected addLineItem(): void {
     this.editLineItems.update((items) => [
       ...items,
-      { date: '', requestedClockIn: '', requestedClockOut: '', clockOutNextDay: false, requestedBreakIn: '', requestedBreakOut: '', remarks: '' },
+      {
+        date: '',
+        requestedClockIn: '',
+        requestedClockOut: '',
+        clockOutNextDay: false,
+        requestedBreakIn: '',
+        requestedBreakOut: '',
+        remarks: '',
+      },
     ]);
   }
 
@@ -299,7 +364,11 @@ export class ViewRequest {
     this.editLineItems.update((items) => items.filter((_, i) => i !== index));
   }
 
-  protected updateLineItem<K extends keyof EditableLineItem>(index: number, field: K, value: EditableLineItem[K]): void {
+  protected updateLineItem<K extends keyof EditableLineItem>(
+    index: number,
+    field: K,
+    value: EditableLineItem[K],
+  ): void {
     this.editLineItems.update((items) =>
       items.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     );
@@ -350,7 +419,8 @@ export class ViewRequest {
           this.toast.error(res.message || 'Could not update this request.', 'Update Failed');
         }
       },
-      error: (err) => this.toast.error(err?.error?.message || 'Could not update this request.', 'Update Failed'),
+      error: (err) =>
+        this.toast.error(err?.error?.message || 'Could not update this request.', 'Update Failed'),
     });
   }
 
@@ -364,7 +434,7 @@ export class ViewRequest {
     };
     return map[status] ?? `Status ${status}`;
   }
- 
+
   protected statusClass(status: number): string {
     const map: Record<number, string> = {
       1: 'bg-amber-100 text-amber-800',
@@ -374,12 +444,15 @@ export class ViewRequest {
     };
     return map[status] ?? 'bg-slate-100 text-slate-700';
   }
- 
- halfDayLabel(type: number): string {
+
+  halfDayLabel(type: number): string {
     switch (type) {
-      case 1: return 'First Half (0.5 day)';
-      case 2: return 'Second Half (0.5 day)';
-      default: return 'Half Day';
+      case 1:
+        return 'First Half (0.5 day)';
+      case 2:
+        return 'Second Half (0.5 day)';
+      default:
+        return 'Half Day';
     }
   }
 }

@@ -10,16 +10,22 @@
     <!-- Filter Bar -->
     <div tuiCardLarge
         class="flex flex-row! flex-nowrap items-end gap-3 overflow-x-auto shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card">
-        <label class="flex flex-col gap-1 text-sm text-(--primary) shrink-0 min-w-48">
-            Department
-            <select class="tui-select rounded-md border border-(--secondary)/40 bg-transparent px-2 py-1.5"
-                [ngModel]="filter().departmentId" (ngModelChange)="onDepartmentChange($event)">
-                <option value="" disabled>Select department</option>
+        <tui-textfield tuiChevron tuiTextfieldSize="m" class="shrink-0 min-w-48" [stringify]="stringifyDept">
+            <label tuiLabel>Department</label>
+
+            <input tuiSelect placeholder="Select department" [ngModel]="filter().departmentId"
+                (ngModelChange)="onDepartmentChange($event)" />
+
+            <tui-data-list *tuiDropdown>
                 @for (dept of departments(); track dept.id) {
-                <option [value]="dept.id">{{ dept.name }}</option>
+                <button tuiOption new type="button" [value]="dept.id">
+                    {{ dept.name }}
+                </button>
                 }
-            </select>
-        </label>
+            </tui-data-list>
+        </tui-textfield>
+
+
 
         <tui-textfield tuiTextfieldSize="m" class="flex-1 shrink-0 bg-(--background_light)/40! rounded-lg">
             <label tuiLabel>Start Date</label>
@@ -48,38 +54,65 @@
     @if (hasSearched()) {
     <!-- Quick Info Cards -->
     @if (daySummary(); as summary) {
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+
+        <!-- Total Employees -->
         <div tuiCardLarge
-            class="flex flex-col gap-1 shadow-[0_0_5px_rgba(0,0,0,0.15)]! bg-(--secondary)/20! glass-card">
-            <span class="text-xs text-(--primary)/70">Employees</span>
-            <span class="text-xl font-semibold text-(--primary)">{{ summary.totalEmployees }}</span>
+            class="gap-0! relative flex flex-col p-4 rounded-xl border border-(--secondary)/20 bg-(--secondary)/10 backdrop-blur-sm shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 glass-card">
+            <span class="text-xs font-semibold uppercase tracking-wider text-(--primary)/60 mb-1">Employees</span>
+            <span class="text-2xl font-bold text-(--primary) mt-0!">{{ summary.totalEmployees }}</span>
         </div>
+
+        <!-- Present -->
         <div tuiCardLarge
-            class="flex flex-col gap-1 shadow-[0_0_5px_rgba(0,0,0,0.15)]! bg-(--secondary)/20! glass-card">
-            <span class="text-xs text-(--primary)/70">Present</span>
-            <span class="text-xl font-semibold text-green-600">{{ summary.present }}</span>
+            class="gap-0! relative flex flex-col p-4 rounded-xl border border-green-500/20 bg-green-50/40 backdrop-blur-sm shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 glass-card">
+            <div class="flex items-center gap-1.5 mb-1">
+                <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]"></span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-(--primary)/60">Present</span>
+            </div>
+            <span class="text-2xl font-bold text-green-600 mt-0!">{{ summary.present }}</span>
         </div>
+
+        <!-- Late -->
         <div tuiCardLarge
-            class="flex flex-col gap-1 shadow-[0_0_5px_rgba(0,0,0,0.15)]! bg-(--secondary)/20! glass-card">
-            <span class="text-xs text-(--primary)/70">Late</span>
-            <span class="text-xl font-semibold text-amber-600">{{ summary.late }}</span>
+            class="gap-0! relative flex flex-col p-4 rounded-xl border border-amber-500/20 bg-amber-50/40 backdrop-blur-sm shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 glass-card">
+            <div class="flex items-center gap-1.5 mb-1">
+                <span class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_5px_rgba(245,158,11,0.5)]"></span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-(--primary)/60">Late</span>
+            </div>
+            <span class="text-2xl font-bold text-amber-600 mt-0!">{{ summary.late }}</span>
         </div>
+
+        <!-- Absent -->
         <div tuiCardLarge
-            class="flex flex-col gap-1 shadow-[0_0_5px_rgba(0,0,0,0.15)]! bg-(--secondary)/20! glass-card">
-            <span class="text-xs text-(--primary)/70">Absent</span>
-            <span class="text-xl font-semibold text-red-600">{{ summary.absent }}</span>
+            class="gap-0! relative flex flex-col p-4 rounded-xl border border-red-500/20 bg-red-50/40 backdrop-blur-sm shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 glass-card">
+            <div class="flex items-center gap-1.5 mb-1">
+                <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></span>
+                <span class="text-xs font-semibold uppercase tracking-wider text-(--primary)/60">Absent</span>
+            </div>
+            <span class="text-2xl font-bold text-red-600 mt-0!">{{ summary.absent }}</span>
         </div>
+
+        <!-- Avg Working Hrs -->
         <div tuiCardLarge
-            class="flex flex-col gap-1 shadow-[0_0_5px_rgba(0,0,0,0.15)]! bg-(--secondary)/20! glass-card">
-            <span class="text-xs text-(--primary)/70">Avg. Working Hrs</span>
-            <span class="text-xl font-semibold text-(--primary)">{{ summary.avgWorkingHours | number: '1.1-2' }}</span>
+            class="gap-0! relative flex flex-col p-4 rounded-xl border border-(--secondary)/20 bg-(--secondary)/10 backdrop-blur-sm shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 glass-card">
+            <span class="text-xs font-semibold uppercase tracking-wider text-(--primary)/60 mb-1">Avg. Hours</span>
+            <span class="text-2xl font-bold text-(--primary)">
+                {{ summary.avgWorkingHours | number: '1.1-2' }}
+                <span class="text-sm font-medium text-(--primary)/50 mt-0!">hrs</span>
+            </span>
         </div>
+
+        <!-- Overtime Hrs -->
         <div tuiCardLarge
-            class="flex flex-col gap-1 shadow-[0_0_5px_rgba(0,0,0,0.15)]! bg-(--secondary)/20! glass-card">
-            <span class="text-xs text-(--primary)/70">Overtime Hrs</span>
-            <span class="text-xl font-semibold text-(--primary)">{{ summary.totalOvertimeHours | number: '1.1-2'
-                }}</span>
+            class="gap-0! relative flex flex-col p-4 rounded-xl border border-(--secondary)/20 bg-(--secondary)/10 backdrop-blur-sm shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 glass-card">
+            <span class="text-xs font-semibold uppercase tracking-wider text-(--primary)/60 mb-1">Overtime</span>
+            <span class="text-2xl font-bold text-(--primary)">
+                {{ summary.totalOvertimeHours | number: '1.1-2' }}
+                <span class="text-sm font-medium text-(--primary)/50 mt-0!">hrs</span>
+            </span>
         </div>
+
     </div>
     }
 
@@ -116,9 +149,9 @@
         <div tuiCardLarge
             class="p-0! gap-0! shadow-[0_0_5px_rgba(0,0,0,0.2)]! bg-(--secondary)! glass-card overflow-hidden flex-1 min-w-0 rounded-xl!">
 
-            <div class="grid grid-cols-[1fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr_0.8fr_0.8fr_0.8fr_0.8fr_1.2fr] gap-3 px-5 py-3
-                        bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
-                <span class="text-xs font-semibold uppercase tracking-wide text-white">Date</span>
+            <div
+                class="grid grid-cols-[1fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr_0.8fr_0.8fr_0.8fr_0.8fr_1.2fr] gap-3 px-5 py-3 bg-linear-to-r from-(--theme1) via-(--theme2) to-(--theme3) text-shadow-md">
+                <span class="text-xs font-semibold uppercase tracking-wide text-white min-w-24">Date</span>
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Shift</span>
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Clock In</span>
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Clock Out</span>
@@ -129,13 +162,16 @@
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Early Exit (min)</span>
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Overtime (min)</span>
                 <span class="text-xs font-semibold uppercase tracking-wide text-white">Early In (min)</span>
-                <span class="text-xs font-semibold uppercase tracking-wide text-white text-right">Status / Remarks</span>
+                <span class="text-xs font-semibold uppercase tracking-wide text-white text-right">Status /
+                    Remarks</span>
             </div>
 
-            <div class="flex flex-col divide-y divide-(--primary)/10 max-h-[32rem] overflow-y-auto">
+            <div class="flex flex-col divide-y divide-(--primary)/10 h-full overflow-y-auto">
                 @for (record of selectedEmployeeRecords(); track record.id) {
-                <div class="grid grid-cols-[1fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr_0.8fr_0.8fr_0.8fr_0.8fr_1.2fr] gap-3 px-5 py-3 items-center">
-                    <span class="text-sm text-(--primary) font-medium">{{ record.date | date: 'EEE, MMM d' }}</span>
+                <div
+                    class="grid grid-cols-[1fr_0.9fr_0.9fr_0.9fr_0.9fr_0.9fr_0.8fr_0.8fr_0.8fr_0.8fr_0.8fr_1.2fr] gap-3 px-5 py-3 items-center">
+                    <span class="text-sm text-(--primary) font-medium min-w-24">{{ record.date | date: 'EEE, MMM d'
+                        }}</span>
                     <span class="text-sm text-(--primary)/70">{{ record.shiftName ?? 'N/A' }}</span>
                     <span class="text-sm text-(--primary)/70">
                         {{ record.firstIn ? (record.firstIn | date: 'shortTime') : 'N/A' }}

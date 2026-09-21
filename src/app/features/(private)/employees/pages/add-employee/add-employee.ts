@@ -149,8 +149,13 @@ export class AddEmployee implements OnInit {
   });
   protected managersOptions = computed(() => {
     const deptId = this.selectedDepartmentId();
+    const selfId = this.employeeId();
     const all = this.employeeService.allManagers() ?? [];
-    return (deptId ? all.filter((m) => m.departmentId === deptId) : all).map((m) => m.fullName);
+    return (deptId ? all.filter((m) => m.departmentId === deptId) : all)
+      // An employee can't be their own manager - only relevant in edit mode, since a brand-new
+      // employee has no id yet to match against.
+      .filter((m) => m.id !== selfId)
+      .map((m) => m.fullName);
   });
 
   protected rolesOptions = computed(
@@ -239,10 +244,7 @@ export class AddEmployee implements OnInit {
       departmentId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
       designationId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
       branchId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-      managerId: new FormControl<string | null>(null, {
-        nonNullable: true,
-        validators: [Validators.required],
-      }),
+      managerId: new FormControl<string | null>(null),
       startDate: new FormControl<TuiDay | null>(null, {
         nonNullable: true,
         validators: [Validators.required],

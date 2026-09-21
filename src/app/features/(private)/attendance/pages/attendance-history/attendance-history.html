@@ -1,15 +1,15 @@
 <div class="flex flex-col gap-5 max-w-7xl mx-auto">
     <app-main-heading title="My Attendance Logs" description="View your attendance history">
         <div class="flex gap-2">
-            <button type="button" iconStart="@tui.refresh-cw" tuiButton size="s" [disabled]="!hasSearched()"
-                (click)="onRefresh()"
-                class="cursor-pointer bg-(--theme3)! text-white hover:bg-(--theme3)/80! disabled:opacity-40!">
+            <button type="button" tuiButton size="s" [disabled]="!hasSearched()" (click)="onRefresh()"
+                class="btn-lift text-sm text-white hover:text-(--background_dark)! bg-(--theme1)! hover:bg-transparent! border! border-(--theme1)! group">
+                <tui-icon icon="@tui.refresh-cw" class="group-hover:animate-spin"></tui-icon>
                 Refresh
             </button>
 
             <button type="button" iconStart="@tui.download" tuiButton size="s" [disabled]="allRecords().length === 0"
                 (click)="onExport()"
-                class="cursor-pointer bg-(--secondary)! text-(--primary)! hover:bg-(--secondary)/80! disabled:opacity-40!">
+                class="btn-lift cursor-pointer bg-(--secondary)! text-(--primary)! hover:bg-(--secondary)/80! disabled:opacity-40!">
                 Export
             </button>
         </div>
@@ -135,12 +135,12 @@
 
         <div class="flex items-center gap-2 ">
             <button type="button" tuiButton size="s" [disabled]="isLoadingMore" (click)="previousWeek()"
-                class="cursor-pointer disabled:opacity-40">
+                class="btn-lift cursor-pointer disabled:opacity-40">
                 <tui-icon icon="@tui.chevron-left" class="separator ml-2" /> Previous
             </button>
 
             <button type="button" tuiButton size="s" [disabled]="weekOffset() === 0 || isLoadingMore"
-                (click)="nextWeek()" class="cursor-pointer disabled:opacity-40">
+                (click)="nextWeek()" class="btn-lift cursor-pointer disabled:opacity-40">
                 <tui-icon icon="@tui.chevron-right" class="separator ml-2" /> Next
 
             </button>

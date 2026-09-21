@@ -1,7 +1,8 @@
 <div class="flex flex-col gap-5 max-w-6xl mx-auto">
     <app-main-heading title="Department Attendance Log" description="View department attendance by employee">
         <button type="button" tuiButton size="s" [disabled]="isLoading()" (click)="onRefresh()"
-            class="cursor-pointer bg-(--theme3)! text-white hover:bg-(--theme3)/80! disabled:opacity-40!">
+            class="btn-lift text-sm text-white hover:text-(--background_dark)! bg-(--theme1)! hover:bg-transparent! border! border-(--theme1)! group">
+            <tui-icon icon="@tui.refresh-cw" class="group-hover:animate-spin"></tui-icon>
             Refresh
         </button>
     </app-main-heading>
@@ -35,7 +36,7 @@
         </tui-textfield>
 
         <button type="button" tuiButton size="m" [disabled]="isLoading()" (click)="onSearch()"
-            class="w-40 cursor-pointer shrink-0 bg-(--theme1)! text-white hover:bg-(--theme1)/80! disabled:opacity-40!">
+            class="btn-lift w-40 cursor-pointer shrink-0 bg-(--theme1)! text-white hover:bg-(--theme1)/80! disabled:opacity-40!">
             {{ isLoading() ? 'Loading...' : 'Search' }}
         </button>
     </div>

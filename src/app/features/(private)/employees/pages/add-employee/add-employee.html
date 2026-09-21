@@ -1,7 +1,7 @@
 <div class="flex flex-col w-full mx-auto max-w-7xl gap-5">
   <app-main-heading [title]="pageTitle()" [description]="pageDescription()">
     <button type="button" tuiButton iconStart="@tui.folder-up" size="s"
-      class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
+      class="btn-lift cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
       (click)="router.navigate(['/employee/new/bulk-upload'])">
       Bulk Upload
     </button>
@@ -360,7 +360,7 @@
     </div>
 
     <footer class="relative z-0 flex justify-end gap-3 pt-4 border-t border-(--background_dark)/10">
-      <button tuiButton type="submit" class="gap-0!" size="m" [disabled]="isSubmiting()">
+      <button tuiButton type="submit" class="btn-lift gap-0!" size="m" [disabled]="isSubmiting()">
         @if (isSubmiting() && isEditMode()) {
         <div class="flex items-center justify-center gap-2">
           <span

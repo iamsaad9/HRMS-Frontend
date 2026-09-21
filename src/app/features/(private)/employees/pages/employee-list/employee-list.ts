@@ -89,6 +89,7 @@ export class EmployeeList implements OnInit {
   // designation/status/search all apply on the backend, not by slicing the cached full list).
   protected serverFilteredEmployees = signal<Employee[] | null>(null);
   protected isFiltering = signal(false);
+  protected isRefreshing = signal(false);
 
   @Output()
   readonly edit = new EventEmitter<Employee>();
@@ -115,6 +116,15 @@ export class EmployeeList implements OnInit {
 
   ngOnInit(): void {
     this.employeeService.getAllEmployees().subscribe({});
+  }
+
+  protected onRefresh(): void {
+    this.isRefreshing.set(true);
+    this.employeeService.invalidateEmployeesCache();
+    this.employeeService.getAllEmployees().subscribe({
+      complete: () => this.isRefreshing.set(false),
+      error: () => this.isRefreshing.set(false),
+    });
   }
 
   protected onEdit(employee: Employee): void {

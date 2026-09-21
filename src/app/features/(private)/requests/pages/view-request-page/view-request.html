@@ -103,14 +103,14 @@
             <div class="flex justify-end gap-2">
                 @if (canApproveOrReject()) {
                 <button tuiButton type="button" size="s" [disabled]="isSubmittingAction()" (click)="approve()"
-                    class="bg-emerald-500! text-white cursor-pointer">
+                    class="btn-lift bg-emerald-500! text-white cursor-pointer">
                     @if (isSubmittingAction()) {
                     <span class="inline-block size-3 rounded-full border-2 border-white/40 border-t-white animate-spin mr-1"></span>
                     }
                     {{ isSubmittingAction() ? 'Approving…' : 'Approve' }}
                 </button>
                 <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
-                    (click)="reject()" class="text-red-500! border-red-500! cursor-pointer">
+                    (click)="reject()" class="btn-lift text-red-500! border-red-500! cursor-pointer">
                     @if (isSubmittingAction()) {
                     <span class="inline-block size-3 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin mr-1"></span>
                     }
@@ -119,13 +119,13 @@
                 }
                 @if (canEdit()) {
                 <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
-                    (click)="startEdit()" class="cursor-pointer">
+                    (click)="startEdit()" class="btn-lift cursor-pointer">
                     Update Request
                 </button>
                 }
                 @if (canCancel()) {
                 <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
-                    (click)="cancel()" class="cursor-pointer">
+                    (click)="cancel()" class="btn-lift cursor-pointer">
                     @if (isSubmittingAction()) {
                     <span class="inline-block size-3 rounded-full border-2 border-(--primary)/30 border-t-(--primary) animate-spin mr-1"></span>
                     }
@@ -176,7 +176,7 @@
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold uppercase tracking-wide text-(--theme2)">Line Items</span>
                     <button tuiButton type="button" size="s" appearance="outline" (click)="addLineItem()"
-                        class="cursor-pointer">
+                        class="btn-lift cursor-pointer">
                         + Add Day
                     </button>
                 </div>
@@ -191,7 +191,7 @@
                         </tui-textfield>
                         <button tuiButton type="button" size="m" appearance="outline" iconStart="@tui.trash-2"
                             (click)="removeLineItem($index)"
-                            class="text-red-500! border-red-500! cursor-pointer shrink-0"></button>
+                            class="btn-lift text-red-500! border-red-500! cursor-pointer shrink-0"></button>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <tui-textfield tuiTextfieldSize="m">
@@ -235,11 +235,11 @@
 
             <div class="flex gap-2 pt-1">
                 <button tuiButton type="button" size="s" [disabled]="isSubmittingAction()" (click)="saveEdit()"
-                    class="bg-(--theme1)! cursor-pointer">
+                    class="btn-lift bg-(--theme1)! cursor-pointer">
                     Save Changes
                 </button>
                 <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
-                    (click)="cancelEditMode()" class="cursor-pointer">
+                    (click)="cancelEditMode()" class="btn-lift cursor-pointer">
                     Discard
                 </button>
             </div>

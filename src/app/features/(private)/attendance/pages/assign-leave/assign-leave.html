@@ -1,0 +1,179 @@
+<div class="w-full flex flex-col gap-5 max-w-7xl mx-auto p-4 md:p-5">
+  <app-main-heading title="Assign Leave" description="Assign leave allocations to Academic employees" />
+
+  <!-- SINGLE ASSIGN -->
+  <div tuiCardLarge
+    class="flex flex-col gap-4 p-4 w-full bg-(--secondary)! drop-shadow-sm glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+    <h2 class="text-base font-semibold text-(--primary) m-0">Assign to one employee</h2>
+
+    <form [formGroup]="form" (submit)="submit()" class="flex flex-col gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
+            [tuiTextfieldCleaner]="false">
+            <label tuiLabel>Employee (Academic) <span class="text-red-500">*</span></label>
+            <input tuiSelect placeholder="Select employee" [formControl]="form.controls.employeeId" />
+            <tui-data-list *tuiDropdown>
+              @for (emp of academicEmployees(); track emp.id) {
+              <button tuiOption [value]="emp.id">
+                {{ emp.fullName }} ({{ emp.staffNo }})
+              </button>
+              } @empty {
+              <span class="text-sm text-(--primary)/50 px-3 py-2 block">No active Academic employees found.</span>
+              }
+            </tui-data-list>
+          </tui-textfield>
+        </div>
+
+        <div>
+          <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!" tuiChevron
+            [tuiTextfieldCleaner]="false">
+            <label tuiLabel>Leave Type <span class="text-red-500">*</span></label>
+            <input tuiSelect placeholder="Select leave type" [formControl]="form.controls.leaveTypeId" />
+            <tui-data-list *tuiDropdown>
+              @for (type of activeLeaveTypes(); track type.id) {
+              <button tuiOption [value]="type.id">
+                {{ type.name }}
+              </button>
+              } @empty {
+              <span class="text-sm text-(--primary)/50 px-3 py-2 block">No active leave types found.</span>
+              }
+            </tui-data-list>
+          </tui-textfield>
+        </div>
+
+        <div>
+          <tui-textfield tuiTextfieldSize="m">
+            <label tuiLabel>Year <span class="text-red-500">*</span></label>
+            <input formControlName="year" tuiInputNumber placeholder="e.g. 2026" />
+          </tui-textfield>
+          <tui-error formControlName="year" />
+        </div>
+
+        <div>
+          <tui-textfield tuiTextfieldSize="m">
+            <label tuiLabel>Allocated Days <span class="text-red-500">*</span></label>
+            <input formControlName="allocatedDays" tuiInputNumber placeholder="e.g. 20" />
+          </tui-textfield>
+          <tui-error formControlName="allocatedDays" />
+        </div>
+      </div>
+
+      <div>
+        <tui-textfield tuiTextfieldSize="m">
+          <label tuiLabel>Reason <span class="text-red-500">*</span></label>
+          <textarea formControlName="reason" tuiTextarea placeholder="Reason for this leave allocation"></textarea>
+        </tui-textfield>
+        <tui-error formControlName="reason" />
+      </div>
+
+      <div class="flex justify-end">
+        <button tuiButton type="submit" size="m" class="btn-lift bg-(--theme1)!" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Assigning…' : 'Assign Leave' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- BULK ASSIGN -->
+  <div>
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-base font-semibold text-(--primary) m-0">Bulk-assign via CSV</h2>
+      <button tuiButton type="button" class="btn-lift bg-(--theme1)!" size="s" iconStart="@tui.download"
+        [disabled]="isDownloadingTemplate()" (click)="downloadTemplate()">
+        Download Template CSV
+      </button>
+    </div>
+
+    <div tuiCardLarge
+      class="flex flex-col gap-5 p-4 w-full bg-(--secondary)! drop-shadow-sm glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
+      <!-- FILE INPUT -->
+      @if (!control.value) {
+      <label tuiInputFiles class="h-50!">
+        <input accept=".csv,text/csv" tuiInputFiles [formControl]="control" class="border! border-(--theme1)!" />
+      </label>
+      }
+
+      <!-- TAIGA UI FILE LIST -->
+      <tui-files class="tui-space_top-1">
+        @if (control.value | tuiFileRejected: { accept: '.csv,text/csv' } | async; as file) {
+        <tui-file state="error" [file]="file" (remove)="removeFile()" />
+        }
+
+        @if (selectedFile(); as file) {
+        <tui-file size="l" [file]="file" [state]="isError() ? 'error' : (isUploading() ? 'loading' : 'normal')"
+          (remove)="removeFile()" />
+        }
+
+        @if (failedFiles$ | async; as file) {
+        <tui-file state="error" [file]="file" (remove)="removeFile()" />
+        }
+      </tui-files>
+
+      <!-- ACTIONS AND STATUS -->
+      @if (selectedFile()) {
+      <div class="flex items-center justify-between mt-4">
+        <span class="text-sm p-1 px-2 rounded-full bg-(--success)/50">
+          @if (isError()) { Error } @else { Ready to upload }
+        </span>
+
+        <div class="flex gap-5 items-center">
+          @if (isError() && result()?.errorCsvBytes) {
+          <button type="button" tuiButton size="s" iconStart="@tui.download" (click)="downloadErrorCsv()"
+            class="btn-lift cursor-pointer bg-(--theme2)! text-white hover:bg-(--theme2)/80!">
+            Download Error CSV
+          </button>
+          }
+
+          <button tuiButton type="button" size="m" class="btn-lift bg-(--theme1)!"
+            [iconStart]="isError() ? '@tui.rotate-ccw' : ''" (click)="isError() ? resetAll() : startUpload()"
+            [disabled]="isUploading()">
+            <div class="flex items-center justify-center gap-2">
+              @if (isUploading()) {
+              <span class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+              <span>Uploading…</span>
+              } @else if (isError()) {
+              <span>Retry</span>
+              } @else {
+              <span>Start Upload</span>
+              }
+            </div>
+          </button>
+        </div>
+      </div>
+      }
+
+      <!-- RESULT SUMMARY -->
+      @if (result(); as r) {
+      <div class="flex flex-col gap-3 mt-2">
+        <div class="flex flex-wrap gap-2">
+          <span class="text-sm px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-medium">
+            Total: {{ r.totalRecords }}
+          </span>
+          <span class="text-sm px-3 py-1 rounded-full bg-green-100 text-green-800 font-medium">
+            Succeeded: {{ r.successCount }}
+          </span>
+          <span class="text-sm px-3 py-1 rounded-full bg-red-100 text-red-800 font-medium">
+            Failed: {{ r.failureCount }}
+          </span>
+        </div>
+
+        @if (r.failureCount === 0 && r.successCount > 0) {
+        <div class="p-3 text-sm rounded-lg bg-(--success)/20 text-(--background-dark) border border-(--secondary)">
+          All {{ r.successCount }} allocation{{ r.successCount === 1 ? '' : 's' }} assigned successfully!
+        </div>
+        } @else if (r.successCount > 0 && r.failureCount > 0) {
+        <div class="p-3 text-sm rounded-lg bg-amber-100 text-amber-800 border border-amber-200">
+          Partially completed: {{ r.successCount }} succeeded, {{ r.failureCount }} failed. See error CSV for
+          details.
+        </div>
+        } @else if (r.failureCount > 0) {
+        <div class="p-3 text-sm rounded-lg bg-(--error)/20 text-(--background_dark) border border-red-800">
+          Upload failed for all {{ r.failureCount }} record{{ r.failureCount === 1 ? '' : 's' }}.
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+</div>

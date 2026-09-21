@@ -161,12 +161,12 @@
                     </div>
 
                     <footer class="flex justify-end gap-2">
-                        <button tuiButton type="button" size="s" class="bg-(--secondary)! text-(--primary)!"
+                        <button tuiButton type="button" size="s" class="btn-lift bg-(--secondary)! text-(--primary)!"
                             [disabled]="isSubmittingAction()" (click)="cancelAction()">
                             Cancel
                         </button>
                         @if (actionType() === 'approve') {
-                        <button tuiButton type="submit" size="s" class="bg-emerald-500!"
+                        <button tuiButton type="submit" size="s" class="btn-lift bg-emerald-500!"
                             [disabled]="isSubmittingAction()">
                             @if(isSubmittingAction()){
                             <div class="flex items-center justify-center gap-2">
@@ -181,7 +181,7 @@
                             }
                         </button>
                         } @else {
-                        <button tuiButton type="submit" size="s" [disabled]="isSubmittingAction()">
+                        <button tuiButton type="submit" size="s" class="btn-lift" [disabled]="isSubmittingAction()">
 
                             @if(isSubmittingAction()){
                             <div class="flex items-center justify-center gap-2">
@@ -201,11 +201,11 @@
                 } @else {
                 <!-- ===== ACTION TRIGGERS ===== -->
                 <footer class="flex justify-end gap-2 pt-2 border-t border-(--background_dark)/10">
-                    <button tuiButton type="button" size="s" iconStart="@tui.x"
+                    <button tuiButton type="button" size="s" class="btn-lift" iconStart="@tui.x"
                         [disabled]="isBlockedByOtherAction(record)" (click)="startAction(record, 'reject')">
                         Reject
                     </button>
-                    <button tuiButton type="button" size="s" class="bg-emerald-500!" iconStart="@tui.check"
+                    <button tuiButton type="button" size="s" class="btn-lift bg-emerald-500!" iconStart="@tui.check"
                         [disabled]="isBlockedByOtherAction(record)" (click)="startAction(record, 'approve')">
                         Approve
                     </button>

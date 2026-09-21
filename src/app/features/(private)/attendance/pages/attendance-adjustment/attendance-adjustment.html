@@ -78,7 +78,7 @@
             }@else{
             @if (!isEditing()) {
             <button tuiButton type="button" size="s" iconStart="@tui.pencil" (click)="startEdit(rec)"
-              class="bg-(--theme1)!"></button>
+              class="btn-lift bg-(--theme1)!"></button>
             }
             }
 
@@ -148,11 +148,11 @@
 
             <!-- Form Save/Cancel Footer -->
             <footer class="flex justify-end gap-2 pt-3 border-t border-(--background_dark)/10 mt-1">
-              <button tuiButton type="button" class="bg-(--secondary)! text-(--primary)!" size="m"
+              <button tuiButton type="button" class="btn-lift bg-(--secondary)! text-(--primary)!" size="m"
                 (click)="cancelEdit()">
                 Cancel
               </button>
-              <button tuiButton type="submit" size="m" class="bg-(--theme1)!" [disabled]="isSaving()"
+              <button tuiButton type="submit" size="m" class="btn-lift bg-(--theme1)!" [disabled]="isSaving()"
                 iconStart="@tui.check">
                 Save
               </button>

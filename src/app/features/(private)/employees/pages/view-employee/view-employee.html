@@ -2,7 +2,7 @@
   <app-main-heading title="Employee Profile" description="View employee details and employment information.">
     @if (canEdit()) {
     <button type="button" tuiButton iconStart="@tui.pencil" size="s"
-      class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
+      class="btn-lift cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
       [routerLink]="['/employee', employee()?.id, 'edit']">
       Edit
     </button>
@@ -194,7 +194,7 @@
         }
 
         <div class="flex justify-end">
-          <button type="submit" tuiButton size="s" class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
+          <button type="submit" tuiButton size="s" class="btn-lift cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
             [disabled]="passwordForm.invalid || isSubmittingPassword()">
             {{ isSubmittingPassword() ? 'Updating…' : 'Update Password' }}
           </button>

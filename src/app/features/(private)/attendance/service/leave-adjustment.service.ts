@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiResponse } from '../../../../core/models/api-response.model';
+import { BulkUploadResult } from '../../employees/model/employee.model';
 
 // Mirrors backend LeaveAllocationDto
 export interface LeaveAllocationRow {
@@ -33,6 +34,8 @@ export interface AdjustLeaveBalanceCommand {
   leaveTypeId: string;
   adjustmentDays: number;
   reason: string;
+  year?: number;
+  allocatedDays?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -62,5 +65,17 @@ export class LeaveAdjustmentService {
 
   adjustBalance(command: AdjustLeaveBalanceCommand): Observable<ApiResponse<boolean>> {
     return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/leave-balances/adjust`, command);
+  }
+
+  downloadLeaveAllocationTemplate(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/leave-balances/bulk-assign/download-template`, {
+      responseType: 'blob',
+    });
+  }
+
+  bulkAssignLeaveAllocations(file: File): Observable<BulkUploadResult> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<BulkUploadResult>(`${this.apiUrl}/leave-balances/bulk-assign`, formData);
   }
 }

@@ -47,6 +47,10 @@ export class EmployeeService {
     return employees !== null && employees.length > 0;
   });
 
+  invalidateEmployeesCache(): void {
+    this.#allEmployees.set(null);
+  }
+
   addEmployee(command: CreateEmployeeCommand): Observable<ApiResponse<CreateEmployeeResponse>> {
     return this.http.post<ApiResponse<CreateEmployeeResponse>>(`${this.apiUrl}`, command).pipe(
       tap((response) => {

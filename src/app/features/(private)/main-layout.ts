@@ -44,9 +44,10 @@ export default class MainLayout implements OnInit {
           this.authService
             .changePasswordFirstLogin(payload)
             .subscribe({
-              // changePasswordFirstLogin() already logs out (and redirects to /login) on success.
+              // Stays signed in on success - isDefaultPassword flips to false so this modal
+              // doesn't re-prompt, and the new password just takes effect on the next login.
               next: () => {
-                this.toast.success('Password changed successfully. Please login again.', 'Password Updated');
+                this.toast.success('Password changed successfully.', 'Password Updated');
               },
               error: (err) => {
                 const msg = err?.error?.message || 'Failed to change password';

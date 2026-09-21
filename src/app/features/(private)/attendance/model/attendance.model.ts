@@ -150,6 +150,11 @@ export interface AttendanceRecord {
   adjustmentId: string | null;
   leaveTypeId?: string | null;
   leaveTypeName?: string | null;
+  // Resolved on the backend from DailyAttendance itself (real punch or regularization override) -
+  // read these directly rather than deriving from punches, since a regularized break has no real
+  // punch behind it and wouldn't show up there.
+  breakIn?: string | null;
+  breakOut?: string | null;
 }
 
 export interface TeamAttendanceRecord {

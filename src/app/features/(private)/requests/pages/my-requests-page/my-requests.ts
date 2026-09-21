@@ -82,8 +82,8 @@ export class AllMyRequestsComponent implements OnInit {
 
   private readonly filteredRequests = computed(() => {
     const status = this.statusFilter();
-    const all = this.requests();
-    return status === 'All' ? all : all.filter((r) => r.overallStatus === status);
+    const typeFiltered = this.typeFilteredRequests();
+    return status === 'All' ? typeFiltered : typeFiltered.filter((r) => r.overallStatus === status);
   });
 
   protected monthGroups = computed<MonthGroup[]>(() => {

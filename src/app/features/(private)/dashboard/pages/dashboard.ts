@@ -50,5 +50,10 @@ export class Dashboard implements OnInit {
 
   protected refresh(): void {
     this.dashboardService.load().subscribe();
+
+    const currentUserId = this.authService.currentUser()?.employeeInfo?.id;
+    if (currentUserId) {
+      this.attendanceService.getCurrentMonth().subscribe();
+    }
   }
 }

@@ -72,6 +72,11 @@
                             class="bg-(--background_light)/40!" />
                     </tui-textfield>
                     <tui-error formControlName="leaveType" />
+                    @if (selectedLeaveBalance(); as balance) {
+                    <p class="text-xs text-(--primary)/60 m-0">
+                        {{ balance.remainingDays }} day(s) of {{ balance.leaveTypeName }} remaining
+                    </p>
+                    }
                 </div>
             </section>
             }
@@ -217,10 +222,10 @@
                         @let actual = actualFor(row.get('date')?.value);
                         @if (actual) {
                         <div class="flex flex-col text-[11px] leading-tight text-(--primary)/60">
-                            <span>In: {{ actual.clockIn ? (actual.clockIn | date: 'dd/MM/yy, h:mm a') : '—' }}</span>
-                            <span>Out: {{ actual.clockOut ? (actual.clockOut | date: 'dd/MM/yy, h:mm a') : '—' }}</span>
-                            <span>Break In: {{ actual.breakIn ? (actual.breakIn | date: 'dd/MM/yy, h:mm a') : '—' }}</span>
-                            <span>Break Out: {{ actual.breakOut ? (actual.breakOut | date: 'dd/MM/yy, h:mm a') : '—' }}</span>
+                            <span>In: {{ formatActualUk(actual.clockIn) }}</span>
+                            <span>Out: {{ formatActualUk(actual.clockOut) }}</span>
+                            <span>Break In: {{ formatActualUk(actual.breakIn) }}</span>
+                            <span>Break Out: {{ formatActualUk(actual.breakOut) }}</span>
                         </div>
                         }
                     </div>
@@ -251,6 +256,12 @@
                         <input tuiInput formControlName="remarks" placeholder="Optional note" />
                     </tui-textfield>
                 </div>
+                @if (noPunchProvided(row)) {
+                <div class="px-4 pb-2 -mt-1">
+                    <span class="text-[10px] text-red-500 leading-tight">Provide at least one of Clock In, Clock
+                        Out, Break In or Break Out for this date.</span>
+                </div>
+                }
                 }
             </div>
         </div>

@@ -102,6 +102,37 @@ export class ViewRequest {
   protected hasHalfDay(detail: RequestDetail): detail is LeaveDetail | WorkFromHomeDetail {
     return isLeaveDetail(detail) || isWorkFromHomeDetail(detail);
   }
+
+  // Backend returns details in DB/insertion order, not date order - the breakdown should read
+  // chronologically regardless of how they were saved.
+  protected readonly sortedDetails = computed(() => {
+    const details = this.request()?.details ?? [];
+    return [...details].sort((a, b) => a.date.localeCompare(b.date));
+  });
+
+  /**
+   * Formats an actual punch instant in UK time - requestedClockIn/Out are plain hours:minutes
+   * with no timezone of their own, and the backend interprets them as UK wall-clock time (the
+   * same convention shifts use). Showing the actual punch in the approver's browser-local time
+   * instead would make it look like the requester's correction doesn't match what actually
+   * happened, when really it's just two different clocks being compared.
+   */
+  protected formatActualUk(iso: string | null): string {
+    if (!iso) return '—';
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return '—';
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/London',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }).formatToParts(date);
+    const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+    return `${get('day')}/${get('month')}/${get('year')}, ${get('hour')}:${get('minute')} ${get('dayPeriod')}`;
+  }
  
   private currentId: string | null = null;
 

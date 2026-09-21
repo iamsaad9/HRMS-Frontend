@@ -178,8 +178,10 @@ getErrorMessage(controlName: string, groupName?: 'employeeDetails' | 'employment
             // the user is actually inside the app, not here on top of the login page.
             this.router.navigate(['/dashboard']);
           },
-          error: () => {
-            const msg = 'Invalid email or password';
+          error: (error) => {
+            // Backend returns a specific reason (e.g. "User is inactive") in the response body -
+            // show that instead of a generic message whenever it's actually present.
+            const msg = error.error?.message || 'Invalid email or password';
             this.toast.error(msg, 'Login Unsuccessful!');
             this.errorMessage.set(msg);
           },

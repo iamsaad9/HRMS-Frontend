@@ -291,14 +291,14 @@
         </h3>
 
         <div class="flex flex-col">
-            @for (detail of r.details; track detail.detailId; let first = $first) {
+            @for (detail of sortedDetails(); track detail.detailId; let first = $first) {
             <div class="flex flex-col gap-2 py-2" [class.border-t]="!first" [class.border-(--primary)/10]="!first">
 
                 <!-- Date Row -->
                 <div class="flex items-center gap-1.5">
                     <tui-icon icon="@tui.calendar-clock" class="text-sm! text-(--theme2)" />
                     <span class="text-sm font-semibold text-(--primary)">
-                        {{ detail.date | date: 'mediumDate' }}
+                        {{ detail.date | date: 'EEEE, MMM d, y' }}
                     </span>
                 </div>
 
@@ -347,16 +347,16 @@
                         <span class="text-[9px] uppercase tracking-wide text-(--primary)/40">Actual (at time of request)</span>
                     </div>
                     <div>
-                        <p class="text-xs text-(--primary)/70 m-0">{{ detail.actualClockIn ? (detail.actualClockIn | date: 'short') : '—' }}</p>
+                        <p class="text-xs text-(--primary)/70 m-0">{{ formatActualUk(detail.actualClockIn) }}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-(--primary)/70 m-0">{{ detail.actualClockOut ? (detail.actualClockOut | date: 'short') : '—' }}</p>
+                        <p class="text-xs text-(--primary)/70 m-0">{{ formatActualUk(detail.actualClockOut) }}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-(--primary)/70 m-0">{{ detail.actualBreakIn ? (detail.actualBreakIn | date: 'short') : '—' }}</p>
+                        <p class="text-xs text-(--primary)/70 m-0">{{ formatActualUk(detail.actualBreakIn) }}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-(--primary)/70 m-0">{{ detail.actualBreakOut ? (detail.actualBreakOut | date: 'short') : '—' }}</p>
+                        <p class="text-xs text-(--primary)/70 m-0">{{ formatActualUk(detail.actualBreakOut) }}</p>
                     </div>
                 </div>
                 }

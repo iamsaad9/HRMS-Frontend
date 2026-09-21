@@ -53,7 +53,7 @@
       </span>
 
       <!-- Dark Mode -->
-      <button tuiButton type="button" appearance="secondary" size="s" class="" (click)="themeService.toggleTheme()">
+      <button tuiButton type="button" appearance="secondary" size="s" class="btn-lift" (click)="themeService.toggleTheme()">
         @if (themeService.currentTheme() === 'light') {
         <tui-icon class="scale-90 cursor-pointer" icon="@tui.moon" />
         } @else {

@@ -121,68 +121,35 @@
             }
 
             <div class="flex justify-end gap-2">
-              @if (canApproveOrReject()) {
-                <button
-                  tuiButton
-                  type="button"
-                  size="s"
-                  [disabled]="isSubmittingAction()"
-                  (click)="approve()"
-                  class="bg-emerald-500! text-white cursor-pointer"
-                >
-                  @if (isSubmittingAction()) {
-                    <span
-                      class="inline-block size-3 rounded-full border-2 border-white/40 border-t-white animate-spin mr-1"
-                    ></span>
-                  }
-                  {{ isSubmittingAction() ? 'Approving…' : 'Approve' }}
+                @if (canApproveOrReject()) {
+                <button tuiButton type="button" size="s" [disabled]="isSubmittingAction()" (click)="approve()"
+                    class="btn-lift bg-emerald-500! text-white cursor-pointer">
+                    @if (isSubmittingAction()) {
+                    <span class="inline-block size-3 rounded-full border-2 border-white/40 border-t-white animate-spin mr-1"></span>
+                    }
+                    {{ isSubmittingAction() ? 'Approving…' : 'Approve' }}
                 </button>
-                <button
-                  tuiButton
-                  type="button"
-                  size="s"
-                  appearance="outline"
-                  [disabled]="isSubmittingAction()"
-                  (click)="reject()"
-                  class="text-red-500! border-red-500! cursor-pointer"
-                >
-                  @if (isSubmittingAction()) {
-                    <span
-                      class="inline-block size-3 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin mr-1"
-                    ></span>
-                  }
-                  {{ isSubmittingAction() ? 'Rejecting…' : 'Reject' }}
+                <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
+                    (click)="reject()" class="btn-lift text-red-500! border-red-500! cursor-pointer">
+                    @if (isSubmittingAction()) {
+                    <span class="inline-block size-3 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin mr-1"></span>
+                    }
+                    {{ isSubmittingAction() ? 'Rejecting…' : 'Reject' }}
                 </button>
-              }
-              @if (canEdit()) {
-                <button
-                  tuiButton
-                  type="button"
-                  size="s"
-                  appearance="outline"
-                  [disabled]="isSubmittingAction()"
-                  (click)="startEdit()"
-                  class="cursor-pointer"
-                >
-                  Update Request
+                }
+                @if (canEdit()) {
+                <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
+                    (click)="startEdit()" class="btn-lift cursor-pointer">
+                    Update Request
                 </button>
-              }
-              @if (canCancel()) {
-                <button
-                  tuiButton
-                  type="button"
-                  size="s"
-                  appearance="outline"
-                  [disabled]="isSubmittingAction()"
-                  (click)="cancel()"
-                  class="cursor-pointer"
-                >
-                  @if (isSubmittingAction()) {
-                    <span
-                      class="inline-block size-3 rounded-full border-2 border-(--primary)/30 border-t-(--primary) animate-spin mr-1"
-                    ></span>
-                  }
-                  {{ isSubmittingAction() ? 'Cancelling…' : 'Cancel Request' }}
+                }
+                @if (canCancel()) {
+                <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
+                    (click)="cancel()" class="btn-lift cursor-pointer">
+                    @if (isSubmittingAction()) {
+                    <span class="inline-block size-3 rounded-full border-2 border-(--primary)/30 border-t-(--primary) animate-spin mr-1"></span>
+                    }
+                    {{ isSubmittingAction() ? 'Cancelling…' : 'Cancel Request' }}
                 </button>
               }
             </div>
@@ -261,7 +228,7 @@
                   size="s"
                   appearance="outline"
                   (click)="addLineItem()"
-                  class="cursor-pointer"
+                  class="btn-lift cursor-pointer"
                 >
                   + Add Day
                 </button>
@@ -286,7 +253,7 @@
                       appearance="outline"
                       iconStart="@tui.trash-2"
                       (click)="removeLineItem($index)"
-                      class="text-red-500! border-red-500! cursor-pointer shrink-0"
+                      class="btn-lift text-red-500! border-red-500! cursor-pointer shrink-0"
                     ></button>
                   </div>
                   <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -358,7 +325,7 @@
               size="s"
               [disabled]="isSubmittingAction()"
               (click)="saveEdit()"
-              class="bg-(--theme1)! cursor-pointer"
+              class="btn-lift bg-(--theme1)! cursor-pointer"
             >
               Save Changes
             </button>
@@ -369,7 +336,7 @@
               appearance="outline"
               [disabled]="isSubmittingAction()"
               (click)="cancelEditMode()"
-              class="cursor-pointer"
+              class="btn-lift cursor-pointer"
             >
               Discard
             </button>

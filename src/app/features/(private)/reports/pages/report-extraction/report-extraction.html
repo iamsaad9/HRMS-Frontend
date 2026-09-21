@@ -3,7 +3,7 @@
     description="Select a report, apply filters, and extract it as CSV.">
     @if (selectedReport()) {
     <button type="button" tuiButton iconStart="@tui.arrow-left" size="s"
-      class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
+      class="btn-lift cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
       (click)="changeReport()">
       Change Report
     </button>
@@ -55,7 +55,7 @@
 
     <div class="flex justify-end">
       <button type="button" tuiButton iconStart="@tui.download" size="m"
-        class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
+        class="btn-lift cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
         [disabled]="!canExtract() || isExtracting()"
         (click)="extract()">
         {{ isExtracting() ? 'Extracting…' : 'Extract CSV' }}

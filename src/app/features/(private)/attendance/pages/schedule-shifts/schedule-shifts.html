@@ -163,7 +163,7 @@
               type="button"
               tuiButton
               size="s"
-              class="cursor-pointer shrink-0"
+              class="btn-lift cursor-pointer shrink-0"
               [appearance]="showAssignForm() ? 'secondary' : 'primary'"
               (click)="toggleAssignForm()"
             >
@@ -225,7 +225,7 @@
                   size="s"
                   [disabled]="isAssigning()"
                   (click)="assignShift()"
-                  class="cursor-pointer bg-(--theme1)! text-white hover:bg-(--theme1)/80! disabled:opacity-40!"
+                  class="btn-lift cursor-pointer bg-(--theme1)! text-white hover:bg-(--theme1)/80! disabled:opacity-40!"
                 >
                   {{ isAssigning() ? 'Assigning...' : 'Assign Shift' }}
                 </button>

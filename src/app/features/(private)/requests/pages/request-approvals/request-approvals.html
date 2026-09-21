@@ -1,5 +1,11 @@
 <div class="flex flex-col gap-5 w-full p-4 md:p-5 text-(--theme2) max-w-7xl mx-auto">
-  <app-main-heading title="Request Approvals" [description]="scopeLabel()" />
+  <app-main-heading title="Request Approvals" [description]="scopeLabel()">
+    <button type="button" tuiButton size="s" [disabled]="isLoading()" (click)="load()"
+      class="btn-lift text-sm text-white hover:text-(--background_dark)! bg-(--theme1)! hover:bg-transparent! border! border-(--theme1)! group">
+      <tui-icon icon="@tui.refresh-cw" class="group-hover:animate-spin"></tui-icon>
+      Refresh
+    </button>
+  </app-main-heading>
 
   <!-- Pending-queue breakdown by type -->
   <div class="grid grid-cols-1 sm:grid-cols-4 gap-5 text-(--primary)">
@@ -65,7 +71,7 @@
       type="button"
       tuiButton
       size="s"
-      class="cursor-pointer"
+      class="btn-lift cursor-pointer"
       [appearance]="typeFilter() === 'All' ? 'primary' : 'secondary'"
       (click)="typeFilter.set('All')"
     >
@@ -75,7 +81,7 @@
       type="button"
       tuiButton
       size="s"
-      class="cursor-pointer"
+      class="btn-lift cursor-pointer"
       [appearance]="typeFilter() === 'leave' ? 'primary' : 'secondary'"
       (click)="typeFilter.set('leave')"
     >
@@ -85,7 +91,7 @@
       type="button"
       tuiButton
       size="s"
-      class="cursor-pointer"
+      class="btn-lift cursor-pointer"
       [appearance]="typeFilter() === 'workfromhome' ? 'primary' : 'secondary'"
       (click)="typeFilter.set('workfromhome')"
     >
@@ -95,7 +101,7 @@
       type="button"
       tuiButton
       size="s"
-      class="cursor-pointer"
+      class="btn-lift cursor-pointer"
       [appearance]="typeFilter() === 'attendanceregularization' ? 'primary' : 'secondary'"
       (click)="typeFilter.set('attendanceregularization')"
     >

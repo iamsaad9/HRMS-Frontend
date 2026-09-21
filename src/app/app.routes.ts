@@ -1,6 +1,7 @@
 // app.routes.ts
 import { Routes } from '@angular/router';
 import { Login } from './features/(public)/auth/login/login';
+import { ForgotPassword } from './features/(public)/auth/forgot-password/forgot-password';
 import MainLayout from './features/(private)/main-layout';
 import { Dashboard } from './features/(private)/dashboard/pages/dashboard';
 import { AddEmployee } from './features/(private)/employees/pages/add-employee/add-employee';
@@ -22,6 +23,7 @@ import { EmployeeShiftHistory } from './features/(private)/attendance/pages/empl
 import { MyShiftHistory } from './features/(private)/attendance/pages/my-shift-history/my-shift-history';
 import { LeaveAdjustment } from './features/(private)/attendance/pages/leave-adjustment/leave-adjustment';
 import { LeaveAdjustmentDetail } from './features/(private)/attendance/pages/leave-adjustment-detail/leave-adjustment-detail';
+import { AssignLeave } from './features/(private)/attendance/pages/assign-leave/assign-leave';
 import { TeamAttendanceLog } from './features/(private)/attendance/pages/team-attendance-log/team-attendance-log';
 import { ReportsExtraction } from './features/(private)/reports/pages/report-extraction/report-extraction';
 import { LeaveRequest } from './features/(private)/leave-management/pages/new-leave-request/new-leave-request';
@@ -34,6 +36,7 @@ import { selfOrPermissionGuard } from './core/guards/self-or-permission.guard';
 
 export const routes: Routes = [
   { path: 'login', canActivate: [guestGuard], component: Login },
+  { path: 'reset-password', canActivate: [guestGuard], component: ForgotPassword },
   {
     path: '',
     canActivate: [authGuard],
@@ -152,6 +155,11 @@ export const routes: Routes = [
       {
         path: 'schedule/leave-adjustment/:employeeId',
         component: LeaveAdjustmentDetail,
+        canActivate: [permissionGuard], data: { permissions: ['calendar:manage'] },
+      },
+      {
+        path: 'schedule/assign-leave',
+        component: AssignLeave,
         canActivate: [permissionGuard], data: { permissions: ['calendar:manage'] },
       },
       {

@@ -16,7 +16,7 @@
             </div>
             @if (selectedCategory() !== null) {
             <button tuiButton type="button" iconStart="@tui.plus" size="s"
-                class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!" (click)="addHolidayToday()">
+                class="btn-lift cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!" (click)="addHolidayToday()">
                 Add Holiday
             </button>
             }
@@ -63,7 +63,7 @@
                             <tui-icon icon="@tui.chevron-left" /></button>
                         <button tuiIconButton type="button" appearance="outline" size="s"
                             (click)="nextMonth()"><tui-icon icon="@tui.chevron-right" /></button>
-                        <button tuiButton type="button" appearance="outline" size="s" (click)="goToToday()">
+                        <button tuiButton type="button" appearance="outline" size="s" class="btn-lift" (click)="goToToday()">
                             Today
                         </button>
                         <span class="font-semibold text-base ml-1">{{ monthLabel() }}</span>
@@ -79,18 +79,18 @@
                             Show inactive
                         </label>
                         <div tuiGroup [collapsed]="true">
-                            <button tuiButton type="button" size="s"
+                            <button tuiButton type="button" size="s" class="btn-lift"
                                 [appearance]="viewMode() === 'month' ? 'primary' : 'outline'"
                                 (click)="setViewMode('month')">
                                 Month
                             </button>
-                            <button tuiButton type="button" size="s"
+                            <button tuiButton type="button" size="s" class="btn-lift"
                                 [appearance]="viewMode() === 'list' ? 'primary' : 'outline'"
                                 (click)="setViewMode('list')">
                                 List
                             </button>
                         </div>
-                        <button tuiButton type="button" appearance="outline" size="s" iconStart="@tui.list"
+                        <button tuiButton type="button" appearance="outline" size="s" class="btn-lift" iconStart="@tui.list"
                             (click)="toggleLegend()">
                             Legend
                         </button>

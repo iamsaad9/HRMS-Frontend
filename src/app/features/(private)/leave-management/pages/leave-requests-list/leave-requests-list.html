@@ -71,7 +71,7 @@
 
             <!-- Month header (toggle) -->
             <button tuiButton tuiChevron size="m" [tuiChevron]="isExpanded(group.key)" (click)="toggleMonth(group.key)"
-                class="w-full justify-between! rounded-none! bg-(--background_light)/20! hover:bg-(--secondary)/10! text-(--theme1)! h-full p-5! ">
+                class="btn-lift w-full justify-between! rounded-none! bg-(--background_light)/20! hover:bg-(--secondary)/10! text-(--theme1)! h-full p-5! ">
                 <span class="flex items-center gap-2.5">
                     <mat-icon class="text-(--theme1)!">calendar_month</mat-icon>
                     <span class="text-base font-semibold">{{ group.label }}</span>
@@ -112,7 +112,7 @@
                                         @if(req.status === 'Pending'){
                                         <button tuiButton type="button" size="s" iconStart="@tui.pencil"
                                             [routerLink]="['/leave-requests', req.id, 'edit']"
-                                            class="bg-(--theme1)!"></button>
+                                            class="btn-lift bg-(--theme1)!"></button>
                                         }
                                     </div>
                                 </div>

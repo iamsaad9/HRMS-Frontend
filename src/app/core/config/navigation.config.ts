@@ -110,6 +110,15 @@ export const DropdownItems: DropDownItem[] = [
         category: 'Schedule / Shift Tab',
         permission: 'calendar:manage',
       },
+      {
+        id: '2.6',
+        icon: 'assignment_add',
+        title: 'Assign Leave',
+        description: 'Assign leave allocations to Academic employees, single or bulk via CSV',
+        routeTo: '/schedule/assign-leave',
+        category: 'Schedule / Shift Tab',
+        permission: 'calendar:manage',
+      },
     ],
   },
 

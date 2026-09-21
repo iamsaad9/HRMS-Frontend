@@ -4,16 +4,11 @@
     description="View employee details and employment information."
   >
     @if (canEdit()) {
-      <button
-        type="button"
-        tuiButton
-        iconStart="@tui.pencil"
-        size="s"
-        class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
-        [routerLink]="['/employee', employee()?.id, 'edit']"
-      >
-        Edit
-      </button>
+    <button type="button" tuiButton iconStart="@tui.pencil" size="s"
+      class="btn-lift cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
+      [routerLink]="['/employee', employee()?.id, 'edit']">
+      Edit
+    </button>
     }
   </app-main-heading>
 

@@ -195,6 +195,39 @@ protected leaveTypesOptions = computed(() =>
     this.manualBreakdown.set(false);
   }
 
+  /** Days-selected summary shown under the date range, so the requester knows what they're
+   * actually asking for before submitting - not tied to the regularization/manual-breakdown line
+   * items below, which only show up for some request types. */
+  protected rangeDaySummary = signal<{
+    totalDays: number;
+    weekends: number;
+    holidays: number;
+    workingDays: number;
+  } | null>(null);
+
+  private computeRangeDaySummary(start: TuiDay, end: TuiDay) {
+    const dates = this.getDateRange(start, end);
+    const holidays = this.dashboardService.data()?.holidayCalendar ?? [];
+
+    let weekends = 0;
+    let holidayDays = 0;
+    for (const date of dates) {
+      const dayOfWeek = date.toLocalNativeDate().getDay(); // 0 = Sun, 6 = Sat
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        weekends++;
+        continue;
+      }
+      const dateStr = this.toDateStr(date);
+      const isHoliday = holidays.some(
+        (h) => dateStr >= h.startDate.slice(0, 10) && dateStr <= h.endDate.slice(0, 10),
+      );
+      if (isHoliday) holidayDays++;
+    }
+
+    const totalDays = dates.length;
+    return { totalDays, weekends, holidays: holidayDays, workingDays: totalDays - weekends - holidayDays };
+  }
+
   /** Rebuilds the per-date line items whenever type / range / toggle changes */
   private regenerateLineItems(): void {
     const type = this.selectedType();
@@ -202,7 +235,12 @@ protected leaveTypesOptions = computed(() =>
     const end = this.form.get('endDate')?.value;
     this.lineItems.clear();
 
-    if (!(start instanceof TuiDay) || !(end instanceof TuiDay)) return;
+    if (!(start instanceof TuiDay) || !(end instanceof TuiDay)) {
+      this.rangeDaySummary.set(null);
+      return;
+    }
+
+    this.rangeDaySummary.set(this.computeRangeDaySummary(start, end));
 
     const showBreakdown = type === 'regularization' || this.manualBreakdown();
     if (!showBreakdown) return;
@@ -297,21 +335,10 @@ protected leaveTypesOptions = computed(() =>
     const nextDay = row.get('clockOutNextDay')?.value;
     if (!outVal || nextDay) return false;
 
-    const inVal = row.get('requestedClockIn')?.value;
-    let inHours: number, inMinutes: number;
-    if (inVal) {
-      inHours = inVal.hours;
-      inMinutes = inVal.minutes;
-    } else {
-      const actual = this.actualFor(row.get('date')?.value);
-      if (!actual?.clockIn) return false;
-      const ukTime = this.toUkHm(actual.clockIn);
-      if (!ukTime) return false;
-      inHours = ukTime.hours;
-      inMinutes = ukTime.minutes;
-    }
+    const inHm = this.effectiveClockInHm(row);
+    if (!inHm) return false;
 
-    const inMinutesTotal = inHours * 60 + inMinutes;
+    const inMinutesTotal = inHm.hours * 60 + inHm.minutes;
     const outMinutesTotal = outVal.hours * 60 + outVal.minutes;
     return outMinutesTotal <= inMinutesTotal;
   }
@@ -319,6 +346,75 @@ protected leaveTypesOptions = computed(() =>
   private clockOutRowValidator = (row: AbstractControl): ValidationErrors | null => {
     return this.clockOutBeforeClockIn(row) ? { clockOutBeforeClockIn: true } : null;
   };
+
+  /** True when Break Out's time-of-day is at or before Break In's - a break can't end before it starts. */
+  protected breakOutBeforeBreakIn(row: AbstractControl): boolean {
+    const inVal = row.get('requestedBreakIn')?.value;
+    const outVal = row.get('requestedBreakOut')?.value;
+    if (!inVal || !outVal) return false;
+
+    const inMinutesTotal = inVal.hours * 60 + inVal.minutes;
+    const outMinutesTotal = outVal.hours * 60 + outVal.minutes;
+    return outMinutesTotal <= inMinutesTotal;
+  }
+
+  private breakOutRowValidator = (row: AbstractControl): ValidationErrors | null => {
+    return this.breakOutBeforeBreakIn(row) ? { breakOutBeforeBreakIn: true } : null;
+  };
+
+  /**
+   * True when a requested Break In/Out falls outside the Clock In/Clock Out window - a break
+   * can't start before the shift began or end after it ended. Mirrors the backend's
+   * ValidateRegularizationBreakWindow, including the overnight-shift midnight wrap ("Next day"
+   * checked): valid break times are then either at/after Clock In (evening side) or at/before
+   * Clock Out (the following morning side).
+   */
+  protected breakOutsideClockWindow(row: AbstractControl): boolean {
+    const breakInVal = row.get('requestedBreakIn')?.value;
+    const breakOutVal = row.get('requestedBreakOut')?.value;
+    if (!breakInVal && !breakOutVal) return false;
+
+    const clockIn = this.effectiveClockInHm(row);
+    const clockOut = this.effectiveClockOutHm(row);
+    if (!clockIn || !clockOut) return false;
+
+    const nextDay = !!row.get('clockOutNextDay')?.value;
+    const clockInMin = clockIn.hours * 60 + clockIn.minutes;
+    const clockOutMin = clockOut.hours * 60 + clockOut.minutes;
+
+    const inWindow = (t: { hours: number; minutes: number }): boolean => {
+      const tMin = t.hours * 60 + t.minutes;
+      return nextDay ? tMin >= clockInMin || tMin <= clockOutMin : tMin >= clockInMin && tMin <= clockOutMin;
+    };
+
+    if (breakInVal && !inWindow(breakInVal)) return true;
+    if (breakOutVal && !inWindow(breakOutVal)) return true;
+    return false;
+  }
+
+  private breakWindowRowValidator = (row: AbstractControl): ValidationErrors | null => {
+    return this.breakOutsideClockWindow(row) ? { breakOutsideClockWindow: true } : null;
+  };
+
+  /** requestedClockIn if provided, else the actual punch's clock-in (UK time) as a fallback. */
+  private effectiveClockInHm(row: AbstractControl): { hours: number; minutes: number } | null {
+    const inVal = row.get('requestedClockIn')?.value;
+    if (inVal) return { hours: inVal.hours, minutes: inVal.minutes };
+
+    const actual = this.actualFor(row.get('date')?.value);
+    if (!actual?.clockIn) return null;
+    return this.toUkHm(actual.clockIn);
+  }
+
+  /** requestedClockOut if provided, else the actual punch's clock-out (UK time) as a fallback. */
+  private effectiveClockOutHm(row: AbstractControl): { hours: number; minutes: number } | null {
+    const outVal = row.get('requestedClockOut')?.value;
+    if (outVal) return { hours: outVal.hours, minutes: outVal.minutes };
+
+    const actual = this.actualFor(row.get('date')?.value);
+    if (!actual?.clockOut) return null;
+    return this.toUkHm(actual.clockOut);
+  }
 
   /**
    * Mirrors the backend rule: a regularization row doesn't need every field filled in - only
@@ -387,7 +483,14 @@ protected leaveTypesOptions = computed(() =>
         requestedBreakOut: [''],
         remarks: [''],
       },
-      { validators: [this.atLeastOnePunchValidator, this.clockOutRowValidator] },
+      {
+        validators: [
+          this.atLeastOnePunchValidator,
+          this.clockOutRowValidator,
+          this.breakOutRowValidator,
+          this.breakWindowRowValidator,
+        ],
+      },
     );
   }
 
@@ -438,6 +541,21 @@ protected onSubmit(): void {
     if (hasBadClockOut) {
       this.toast.error(
         'Clock Out is before Clock In on one or more dates. Check "Next day" if the shift ran past midnight.',
+        'Invalid Timings',
+      );
+      return;
+    }
+
+    const hasBadBreakOut = this.lineItems.controls.some((row) => this.breakOutBeforeBreakIn(row));
+    if (hasBadBreakOut) {
+      this.toast.error('Break Out is before Break In on one or more dates.', 'Invalid Timings');
+      return;
+    }
+
+    const hasBreakOutsideClock = this.lineItems.controls.some((row) => this.breakOutsideClockWindow(row));
+    if (hasBreakOutsideClock) {
+      this.toast.error(
+        'Break In/Out must be between Clock In and Clock Out on one or more dates.',
         'Invalid Timings',
       );
       return;

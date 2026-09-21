@@ -216,6 +216,17 @@ checkSession(): Observable<boolean> {
     );
   }
 
+  /**
+   * Emails a brand-new random password to the given address if (and only if) it belongs to an
+   * active user with an active employee record - the response message is deliberately the same
+   * either way, so it can't be used to check whether an email is registered.
+   */
+  forgotPassword(email: string): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.apiUrl}/forgot-password`, { email }).pipe(
+      catchError((err) => throwError(() => err)),
+    );
+  }
+
   /** Keeps the navbar / dashboard "My Profile" card in sync immediately after the signed-in user uploads their own picture, without waiting on a full /me refetch. */
   updateOwnProfilePicture(pictureUrl: string): void {
     const user = this.#currentUser();

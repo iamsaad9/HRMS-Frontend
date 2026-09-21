@@ -108,7 +108,7 @@ export class AllMyRequestsComponent implements OnInit {
     this.loadRequests();
   }
 
-  private loadRequests(): void {
+  protected loadRequests(): void {
     this.isLoading.set(true);
 
     this.requestsService

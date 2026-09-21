@@ -8,6 +8,8 @@
         type="button"
         tuiButton
         size="s"
+        [disabled]="isRefreshing()"
+        (click)="onRefresh()"
         class="btn-lift text-sm text-white hover:text-(--background_dark)! bg-(--theme1)! hover:bg-transparent! border! border-(--theme1)! group"
       >
         <tui-icon icon="@tui.refresh-cw" class="group-hover:animate-spin"></tui-icon>

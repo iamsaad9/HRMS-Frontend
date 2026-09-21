@@ -1,7 +1,7 @@
 <div class="w-full flex flex-col gap-5 max-w-7xl mx-auto">
   <header>
     <app-main-heading title="Employee Bulk Upload" description="Add multiple employees using a CSV file">
-      <button tuiButton type="button" class="bg-(--theme1)!" size="s" iconStart="@tui.download"
+      <button tuiButton type="button" class="btn-lift bg-(--theme1)!" size="s" iconStart="@tui.download"
         [disabled]="isDownloadingTemplate()" (click)="downloadTemplate()">
         Download Template CSV
       </button>
@@ -69,12 +69,12 @@
       <div class="flex gap-5 items-center">
         @if (isError() && result()?.errorCsvBytes) {
         <button type="button" tuiButton size="s" iconStart="@tui.download" (click)="downloadErrorCsv()"
-          class="cursor-pointer bg-(--theme2)! text-white hover:bg-(--theme2)/80!">
+          class="btn-lift cursor-pointer bg-(--theme2)! text-white hover:bg-(--theme2)/80!">
           Download Error CSV
         </button>
         }
 
-        <button tuiButton type="button" size="m" class="bg-(--theme1)!" [iconStart]="isError() ? '@tui.rotate-ccw':''"
+        <button tuiButton type="button" size="m" class="btn-lift bg-(--theme1)!" [iconStart]="isError() ? '@tui.rotate-ccw':''"
           (click)="isError() ? resetAll() : startUpload()" [disabled]="isUploading()">
           <div class="flex items-center justify-center gap-2">
 

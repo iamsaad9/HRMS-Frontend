@@ -4,6 +4,11 @@
     description="All your submitted requests, grouped by month"
   >
     <div class="flex items-center gap-2.5 shrink-0">
+      <button type="button" tuiButton size="s" [disabled]="isLoading()" (click)="loadRequests()"
+        class="btn-lift text-sm text-white hover:text-(--background_dark)! bg-(--theme1)! hover:bg-transparent! border! border-(--theme1)! group">
+        <tui-icon icon="@tui.refresh-cw" class="group-hover:animate-spin"></tui-icon>
+        Refresh
+      </button>
       @if (currentUser()?.employeeInfo; as info) {
         <div class="text-right leading-tight hidden sm:block">
           <p class="text-base font-medium m-0 text-(--theme1)">
@@ -86,7 +91,7 @@
         type="button"
         tuiButton
         size="s"
-        class="cursor-pointer"
+        class="btn-lift cursor-pointer"
         [appearance]="typeFilter() === 'All' ? 'primary' : 'secondary'"
         (click)="typeFilter.set('All')"
       >
@@ -96,7 +101,7 @@
         type="button"
         tuiButton
         size="s"
-        class="cursor-pointer"
+        class="btn-lift cursor-pointer"
         [appearance]="typeFilter() === 'leave' ? 'primary' : 'secondary'"
         (click)="typeFilter.set('leave')"
       >
@@ -106,7 +111,7 @@
         type="button"
         tuiButton
         size="s"
-        class="cursor-pointer"
+        class="btn-lift cursor-pointer"
         [appearance]="typeFilter() === 'workfromhome' ? 'primary' : 'secondary'"
         (click)="typeFilter.set('workfromhome')"
       >
@@ -116,7 +121,7 @@
         type="button"
         tuiButton
         size="s"
-        class="cursor-pointer"
+        class="btn-lift cursor-pointer"
         [appearance]="typeFilter() === 'attendanceregularization' ? 'primary' : 'secondary'"
         (click)="typeFilter.set('attendanceregularization')"
       >
@@ -130,7 +135,7 @@
       iconStart="@tui.plus"
       size="s"
       routerLink="/requests/new"
-      class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
+      class="btn-lift cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
     >
       Create Request
     </button>
@@ -175,7 +180,7 @@
           size="m"
           [tuiChevron]="isExpanded(group.key)"
           (click)="toggleMonth(group.key)"
-          class="w-full justify-between! rounded-none! bg-(--background_light)/20! hover:bg-(--secondary)/10! text-(--theme1)! h-full p-5!"
+          class="btn-lift w-full justify-between! rounded-none! bg-(--background_light)/20! hover:bg-(--secondary)/10! text-(--theme1)! h-full p-5!"
         >
           <span class="flex items-center gap-2.5">
             <mat-icon class="text-(--theme1)!">calendar_month</mat-icon>

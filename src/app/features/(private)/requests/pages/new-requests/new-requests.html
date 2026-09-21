@@ -129,6 +129,18 @@
                     }
                 </div>
 
+                @if (rangeDaySummary(); as summary) {
+                <p class="text-xs text-(--primary)/70 m-0">
+                    <span class="font-semibold text-(--primary)">{{ summary.totalDays }}</span> day(s) selected —
+                    <span class="font-semibold text-(--primary)">{{ summary.workingDays }}</span> working day(s)
+                    @if (summary.weekends > 0) {
+                    <span>, {{ summary.weekends }} weekend day(s)</span>
+                    }
+                    @if (summary.holidays > 0) {
+                    <span>, {{ summary.holidays }} holiday(s)</span>
+                    }
+                </p>
+                }
 
             </section>
 
@@ -246,12 +258,26 @@
                             Clock In</span>
                         }
                     </div>
-                    <tui-textfield tuiTextfieldSize="s" class="bg-(--background_light)/40!">
-                        <input formControlName="requestedBreakIn" tuiInputTime />
-                    </tui-textfield>
-                    <tui-textfield tuiTextfieldSize="s" class="bg-(--background_light)/40!">
-                        <input formControlName="requestedBreakOut" tuiInputTime />
-                    </tui-textfield>
+                    <div class="flex flex-col gap-1">
+                        <tui-textfield tuiTextfieldSize="s" class="bg-(--background_light)/40!">
+                            <input formControlName="requestedBreakIn" tuiInputTime />
+                        </tui-textfield>
+                        @if (breakOutsideClockWindow(row)) {
+                        <span class="text-[9px] text-red-500 leading-tight">Must be between Clock In and Clock
+                            Out</span>
+                        }
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <tui-textfield tuiTextfieldSize="s" class="bg-(--background_light)/40!">
+                            <input formControlName="requestedBreakOut" tuiInputTime />
+                        </tui-textfield>
+                        @if (breakOutBeforeBreakIn(row)) {
+                        <span class="text-[9px] text-red-500 leading-tight">Break Out is before Break In</span>
+                        } @else if (breakOutsideClockWindow(row)) {
+                        <span class="text-[9px] text-red-500 leading-tight">Must be between Clock In and Clock
+                            Out</span>
+                        }
+                    </div>
                     <tui-textfield tuiTextfieldSize="s" class="bg-(--background_light)/40!">
                         <input tuiInput formControlName="remarks" placeholder="Optional note" />
                     </tui-textfield>
@@ -268,7 +294,7 @@
         }
 
         <footer class="flex justify-end gap-2 pt-3 border-t border-(--background_dark)/10">
-            <button tuiButton type="button" class="bt-secondary" iconStart="@tui.rotate-ccw" size="m"
+            <button tuiButton type="button" class="btn-lift bt-secondary" iconStart="@tui.rotate-ccw" size="m"
                 (click)="onReset()">Reset</button>
             <button tuiButton type="submit" size="m" class="btn-lift" [disabled]="isSubmitting()">
                 @if (isSubmitting()) {

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { TuiButton, TuiTextfield } from '@taiga-ui/core';
+import { TuiButton, TuiIcon, TuiTextfield } from '@taiga-ui/core';
 import { TuiBadge, TuiInputDate } from '@taiga-ui/kit';
 import { TuiTable } from '@taiga-ui/addon-table';
 import { TuiCardLarge } from '@taiga-ui/layout';
@@ -24,7 +24,7 @@ function toDateStr(d: Date): string {
   selector: 'app-team-attendance-log',
   standalone: true,
   imports: [
-    FormsModule, DatePipe, TuiButton, TuiBadge, TuiTable, TuiTextfield, TuiInputDate, TuiCardLarge,
+    FormsModule, DatePipe, TuiButton, TuiIcon, TuiBadge, TuiTable, TuiTextfield, TuiInputDate, TuiCardLarge,
     MainHeading, DurationPipe,
   ],
   templateUrl: './team-attendance-log.html',

@@ -53,7 +53,7 @@ import {
 } from '@taiga-ui/kit';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { PasswordValidator } from '../../../../(public)/auth/components/password-validator/password-validator';
-import { finalize, forkJoin } from 'rxjs';
+import { finalize, forkJoin, of } from 'rxjs';
 import {
   CategoryType,
   CreateEmployeeCommand,
@@ -169,8 +169,12 @@ export class AddEmployee implements OnInit {
 
   ngOnInit(): void {
     this.buildForm();
-    this.checkRouteMode();
-    this.loadDropdownData();
+
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.employeeId.set(id);
+    }
+    this.loadFormData(id);
 
     this.form.get('departmentId')!.valueChanges.subscribe((name) => {
       this.selectedDepartmentName.set(name ?? '');
@@ -181,45 +185,37 @@ export class AddEmployee implements OnInit {
     });
   }
 
-  private loadDropdownData(): void {
+  // Dropdown options (Department/Designation/Branch/Manager) and, in edit mode, the employee
+  // record itself are fetched together and patchForm() only runs once everything has arrived -
+  // patching from the employee record before the option lists were loaded left those 4 fields
+  // blank (since their form value is looked up by name/title against the not-yet-loaded lists),
+  // and only looked correct on a later visit once the lists were already cached.
+  private loadFormData(id: string | null): void {
     forkJoin({
       departments: this.employeeService.getDepartments(),
       designations: this.employeeService.getDesignations(),
       managers: this.employeeService.getManagers(),
       roles: this.employeeService.getRoles(),
       branches: this.employeeService.getBranches(),
+      employee: id ? this.employeeService.getEmployeeById(id) : of(null),
     }).subscribe({
+      next: ({ employee }) => {
+        if (!id) return;
+        if (employee?.isSuccess && employee.data) {
+          this.patchForm(employee.data);
+        } else {
+          this.toast.error(employee?.message || 'Failed to load employee.', 'Load Failed');
+          this.router.navigate(['/employee/all']);
+        }
+      },
       error: (err) => {
-        console.error('Failed to load form dropdown options:', err);
+        console.error('Failed to load form data:', err);
+        if (id) {
+          this.toast.error('Failed to load employee.', 'Load Failed');
+          this.router.navigate(['/employee/all']);
+        }
       },
     });
-  }
-
-  private checkRouteMode(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.employeeId.set(id);
-      console.log('Id Present');
-      this.loadLeaveRequest(id);
-    }
-  }
-
-  private loadLeaveRequest(id: string): void {
-    this.employeeService
-      .getEmployeeById(id)
-      .pipe()
-      .subscribe({
-        next: (response) => {
-          if (response.isSuccess && response.data) {
-            this.patchForm(response.data);
-          }
-        },
-        error: (error) => {
-          const msg = error.error?.message || 'Failed to load leave request.';
-          this.toast.error(msg, 'Load Failed');
-          this.router.navigate(['/leave-requests/all']);
-        },
-      });
   }
 
   private buildForm(): void {

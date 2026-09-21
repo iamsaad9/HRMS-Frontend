@@ -46,20 +46,21 @@ export class EmployeeFilterBarComponent implements OnChanges {
   readonly filterChange = new EventEmitter<EmployeeFilter>();
 
   protected readonly statuses: string[] = ['Active', 'Inactive'];
+  protected readonly categories: string[] = ['Academic', 'Administrative'];
 
   // Local draft filter values - every change below auto-applies, there is no separate "Apply" step.
   protected searchQuery = signal('');
   protected selectedDepartment = signal<string | null>(null);
   protected selectedBranch = signal<string | null>(null);
-  protected selectedManager = signal<string | null>(null);
+  protected selectedCategory = signal<string | null>(null);
   protected selectedRole = signal<string | null>(null);
   protected selectedStatus = signal<string | null>(null);
 
   private readonly employeesSig = signal<readonly Employee[]>([]);
 
-  // Cascading options: once a Department is picked, Branch/Manager/Designation option lists
-  // narrow to only the values that actually occur within that department, instead of always
-  // listing every value across the whole company.
+  // Cascading options: once a Department is picked, Branch/Designation option lists narrow to
+  // only the values that actually occur within that department, instead of always listing every
+  // value across the whole company.
   private readonly scopedEmployees = computed(() => {
     const deptId = this.toId(this.departmentIdByName(), this.selectedDepartment());
     const all = this.employeesSig();
@@ -68,7 +69,6 @@ export class EmployeeFilterBarComponent implements OnChanges {
 
   protected readonly departments = computed(() => this.distinctSorted(this.employeesSig(), (e) => e.departmentName));
   protected readonly branches = computed(() => this.distinctSorted(this.scopedEmployees(), (e) => e.branchName));
-  protected readonly managers = computed(() => this.distinctSorted(this.scopedEmployees(), (e) => e.managerName));
   protected readonly roles = computed(() => this.distinctSorted(this.scopedEmployees(), (e) => e.designationTitle));
 
   private readonly departmentIdByName = computed(() =>
@@ -76,9 +76,6 @@ export class EmployeeFilterBarComponent implements OnChanges {
   );
   private readonly branchIdByName = computed(() =>
     this.buildNameIdMap(this.employeesSig(), (e) => e.branchName, (e) => e.branchId),
-  );
-  private readonly managerIdByName = computed(() =>
-    this.buildNameIdMap(this.employeesSig(), (e) => e.managerName, (e) => e.managerId),
   );
   private readonly designationIdByName = computed(() =>
     this.buildNameIdMap(this.employeesSig(), (e) => e.designationTitle, (e) => e.designationId),
@@ -98,9 +95,8 @@ export class EmployeeFilterBarComponent implements OnChanges {
 
   protected onDepartmentChange(value: string | null): void {
     this.selectedDepartment.set(value);
-    // Previously-picked Branch/Manager/Designation may no longer belong to the new department.
+    // Previously-picked Branch/Designation may no longer belong to the new department.
     this.selectedBranch.set(null);
-    this.selectedManager.set(null);
     this.selectedRole.set(null);
     this.applyFilter();
   }
@@ -110,8 +106,8 @@ export class EmployeeFilterBarComponent implements OnChanges {
     this.applyFilter();
   }
 
-  protected onManagerChange(value: string | null): void {
-    this.selectedManager.set(value);
+  protected onCategoryChange(value: string | null): void {
+    this.selectedCategory.set(value);
     this.applyFilter();
   }
 
@@ -131,8 +127,9 @@ export class EmployeeFilterBarComponent implements OnChanges {
       search: this.searchQuery().trim(),
       departmentId: this.toId(this.departmentIdByName(), this.selectedDepartment()),
       branchId: this.toId(this.branchIdByName(), this.selectedBranch()),
-      managerId: this.toId(this.managerIdByName(), this.selectedManager()),
+      managerId: null,
       designationId: this.toId(this.designationIdByName(), this.selectedRole()),
+      category: this.selectedCategory(),
       role: this.selectedRole() || null,
       status,
       isActive: status === 'Active' ? true : status === 'Inactive' ? false : null,
@@ -145,7 +142,7 @@ export class EmployeeFilterBarComponent implements OnChanges {
     this.searchQuery.set('');
     this.selectedDepartment.set(null);
     this.selectedBranch.set(null);
-    this.selectedManager.set(null);
+    this.selectedCategory.set(null);
     this.selectedRole.set(null);
     this.selectedStatus.set(null);
     this.filterChange.emit({ ...EMPTY_EMPLOYEE_FILTER });
@@ -181,7 +178,7 @@ export class EmployeeFilterBarComponent implements OnChanges {
       this.searchQuery() ||
       this.selectedDepartment() ||
       this.selectedBranch() ||
-      this.selectedManager() ||
+      this.selectedCategory() ||
       this.selectedRole() ||
       this.selectedStatus(),
     );

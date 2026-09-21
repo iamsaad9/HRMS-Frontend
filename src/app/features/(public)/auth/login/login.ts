@@ -12,7 +12,7 @@ import {  FormGroup, AbstractControl } from '@angular/forms';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatIconModule, PasswordValidator],
+  imports: [CommonModule, ReactiveFormsModule, MatIconModule, PasswordValidator, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })

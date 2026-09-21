@@ -60,7 +60,7 @@ export class EmployeeView {
   private readonly authSerivce = inject(AuthService);
   private readonly employeeService = inject(EmployeeService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly fb = inject(FormBuilder).nonNullable;;
+  private readonly fb = inject(FormBuilder).nonNullable;
 
   // Editing (even your own record) goes through Admin/HR - this page is otherwise self-servable
   // (any employee can view their own profile), but the Edit button should only ever show for
@@ -69,7 +69,8 @@ export class EmployeeView {
 
   /** Any employee may upload/replace their own profile picture; Admin/HR may do it for anyone. */
   protected canEditPicture = computed(
-    () => this.canEdit() || this.employee()?.id === this.authSerivce.currentUser()?.employeeInfo?.id,
+    () =>
+      this.canEdit() || this.employee()?.id === this.authSerivce.currentUser()?.employeeInfo?.id,
   );
 
   protected employee = signal<Employee | null>(null);
@@ -78,6 +79,8 @@ export class EmployeeView {
   protected isSubmittingPassword = signal(false);
   protected passwordSuccessMessage = signal<string | null>(null);
   protected passwordErrorMessage = signal<string | null>(null);
+  showNewPassword = signal(false);
+  showConfirmPassword = signal(false);
 
   protected initials = computed(() => {
     const emp = this.employee();
@@ -128,12 +131,10 @@ export class EmployeeView {
     this.router.navigate(['/employee', managerId, 'view']);
   }
 
-  protected passwordForm = this.fb.group(
-    {
-      confirmPassword: ['', [Validators.required]],
-      newPassword: ['', [Validators.required,Validators.minLength(8)]],
-    },
-  );
+  protected passwordForm = this.fb.group({
+    confirmPassword: ['', [Validators.required]],
+    newPassword: ['', [Validators.required, Validators.minLength(8)]],
+  });
 
   protected submitPasswordChange(): void {
     if (this.passwordForm.invalid) {

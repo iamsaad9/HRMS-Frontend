@@ -1,4 +1,12 @@
-import { Component, inject, Input, Output, EventEmitter, signal, WritableSignal } from '@angular/core';
+import {
+  Component,
+  inject,
+  Input,
+  Output,
+  EventEmitter,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastService } from '../../../../../core/services/toast.service';
@@ -12,32 +20,47 @@ import { AuthService } from '../../../../(public)/auth/services/auth.service';
   template: `
     <div class="relative size-16 shrink-0">
       @if (_currentPictureUrl()) {
-      <img [src]="_currentPictureUrl()" alt="Profile"
-        class="size-16 rounded-full object-cover border border-(--theme1)/50">
+        <img
+          [src]="_currentPictureUrl()"
+          alt="Profile"
+          class="size-16 rounded-full object-cover border border-(--theme1)/50"
+        />
       } @else {
-      <div
-        class="size-16 rounded-full bg-(--theme1)/15 border border-(--theme1)/25 flex items-center justify-center text-xl font-semibold text-(--theme1)">
-        {{ initials }}
-      </div>
+        <div
+          class="size-16 rounded-full bg-(--theme1)/15 border border-(--theme1)/25 flex items-center justify-center text-xl font-semibold text-(--theme1)"
+        >
+          {{ initials }}
+        </div>
       }
 
       @if (isUploading()) {
-      <div class="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
-        <span class="size-5 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
-      </div>
+        <div class="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+          <span
+            class="size-5 rounded-full border-2 border-white border-t-transparent animate-spin"
+          ></span>
+        </div>
       }
 
       @if (canEdit) {
-      <label
-        class="absolute -bottom-1 -right-1 bg-(--theme1) hover:bg-(--theme1)/80 text-white rounded-full p-1.5 cursor-pointer transition shadow"
-        title="Change profile picture">
-        <mat-icon class="text-sm!" style="font-size: 14px; width: 14px; height: 14px;">camera_alt</mat-icon>
-        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/jpeg,image/png" hidden />
-      </label>
+        <label
+          class="absolute -bottom-1 -right-1 bg-(--theme1) hover:bg-(--theme1)/80 text-white rounded-full p-1 px-2 cursor-pointer transition shadow"
+          title="Change profile picture"
+        >
+          <mat-icon class="text-sm!" style="font-size: 14px; width: 14px; height: 14px;"
+            >camera_alt</mat-icon
+          >
+          <input
+            type="file"
+            #fileInput
+            (change)="onFileSelected($event)"
+            accept="image/jpeg,image/png"
+            hidden
+          />
+        </label>
       }
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class ProfilePictureUploadComponent {
   @Input() employeeId!: string;

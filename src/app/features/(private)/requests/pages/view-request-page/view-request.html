@@ -1,103 +1,123 @@
 <div class="w-full flex flex-col gap-6 max-w-5xl mx-auto">
-    <header>
-        <app-main-heading [title]="title()" description="Review the details of this request">
-        </app-main-heading>
-    </header>
+  <header>
+    <app-main-heading [title]="title()" description="Review the details of this request">
+    </app-main-heading>
+  </header>
 
-    @if (loading()) {
+  @if (loading()) {
     <div class="flex items-center justify-center p-10">
-        <span class="animate-spin rounded-full h-6 w-6 border-2 border-(--theme1) border-t-transparent"></span>
+      <span
+        class="animate-spin rounded-full h-6 w-6 border-2 border-(--theme1) border-t-transparent"
+      ></span>
     </div>
-    } @else if (error()) {
-    <div class="p-4 text-sm rounded-lg bg-(--error)/20 text-(--background_dark) border border-red-800">
-        {{ error() }}
+  } @else if (error()) {
+    <div
+      class="p-4 text-sm rounded-lg bg-(--error)/20 text-(--background_dark) border border-red-800"
+    >
+      {{ error() }}
     </div>
-    } @else if (request(); as r) {
-
+  } @else if (request(); as r) {
     <!-- Overview Card (Header Details Bar with Period & Total Days) -->
-    <div tuiCardLarge
-        class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! flex flex-col gap-2! p-4 rounded-xl">
-        <!-- Header with Status & Created At -->
-        <header class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-(--primary)/10">
-            <div class="flex items-center gap-2">
-                <tui-icon icon="@tui.file-text" class="text-xl! text-(--theme2)" />
-                <div class="flex flex-col">
-                    <span class="uppercase text-sm font-semibold text-(--theme2)">Request Overview</span>
-                    <span tuiSubtitle class="text-(--primary)/50 text-xs">{{ r.requestType }} Details & Progress</span>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <span class="text-xs text-(--primary)/60">
-                    {{ r.createdAtUtc | date: 'shortDate' }}
-                </span>
-                <span class="text-xs px-2.5 py-0.5 rounded-full font-medium" [ngClass]="statusClass(r.overallStatus)">
-                    {{ statusLabel(r.overallStatus) }}
-                </span>
-            </div>
-        </header>
-
-        <!-- Details Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2!">
-            <div>
-                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Requester</p>
-                <p class="text-sm font-medium text-(--primary) m-0">{{ r.requesterName || '—' }}</p>
-            </div>
-            <div>
-                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Department</p>
-                <p class="text-sm font-medium text-(--primary) m-0">{{ r.departmentName || '—' }}</p>
-            </div>
-            @if (r.leaveTypeName) {
-            <div>
-                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Leave Type</p>
-                <p class="text-sm font-medium text-(--primary) m-0">{{ r.leaveTypeName }}</p>
-            </div>
-            }
-            @if (r.approvedByName) {
-            <div>
-                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Approved By</p>
-                <p class="text-sm font-medium text-emerald-500 m-0">{{ r.approvedByName }}</p>
-            </div>
-            }
-            @if (r.rejectedByName) {
-            <div>
-                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Rejected By</p>
-                <p class="text-sm font-medium text-red-500 m-0">{{ r.rejectedByName }}</p>
-            </div>
-            }
-
-            @if (r.details && r.details.length > 0 && !isEditing()) {
-            <div>
-                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Period / Duration</p>
-                <p class="text-sm font-medium text-(--primary) m-0">
-                    {{ r.startDate | date: 'mediumDate' }}
-                    @if (r.totalDays > 1) {
-                    – {{ r.endDate | date: 'mediumDate' }}
-                    }
-                </p>
-            </div>
-            <div>
-                <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Total Days</p>
-                <p class="text-sm font-medium text-(--primary) m-0">{{ r.totalDays }}</p>
-            </div>
-            }
+    <div
+      tuiCardLarge
+      class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! flex flex-col gap-2! p-4 rounded-xl"
+    >
+      <!-- Header with Status & Created At -->
+      <header
+        class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-(--primary)/10"
+      >
+        <div class="flex items-center gap-2">
+          <tui-icon icon="@tui.file-text" class="text-xl! text-(--theme2)" />
+          <div class="flex flex-col">
+            <span class="uppercase text-sm font-semibold text-(--theme2)">Request Overview</span>
+            <span tuiSubtitle class="text-(--primary)/50 text-xs"
+              >{{ r.requestType }} Details & Progress</span
+            >
+          </div>
         </div>
 
-        @if (!isEditing()) {
-        <div class="p-2 text-xs rounded-lg bg-(--accent)/10 border border-(--accent)/30 text-(--primary)">
-            <span class="font-semibold uppercase tracking-wide text-[10px] text-(--theme2) block mb-0.5">Request
-                Reason</span>
-            {{ r.requestReason || '—' }}
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-(--primary)/60">
+            {{ r.createdAtUtc | date: 'shortDate' }}
+          </span>
+          <span
+            class="text-xs px-2.5 py-0.5 rounded-full font-medium"
+            [ngClass]="statusClass(r.overallStatus)"
+          >
+            {{ statusLabel(r.overallStatus) }}
+          </span>
+        </div>
+      </header>
+
+      <!-- Details Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2!">
+        <div>
+          <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Requester</p>
+          <p class="text-sm font-medium text-(--primary) m-0">{{ r.requesterName || '—' }}</p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Department</p>
+          <p class="text-sm font-medium text-(--primary) m-0">{{ r.departmentName || '—' }}</p>
+        </div>
+        @if (r.leaveTypeName) {
+          <div>
+            <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Leave Type</p>
+            <p class="text-sm font-medium text-(--primary) m-0">{{ r.leaveTypeName }}</p>
+          </div>
+        }
+        @if (r.approvedByName) {
+          <div>
+            <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Approved By</p>
+            <p class="text-sm font-medium text-emerald-500 m-0">{{ r.approvedByName }}</p>
+          </div>
+        }
+        @if (r.rejectedByName) {
+          <div>
+            <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Rejected By</p>
+            <p class="text-sm font-medium text-red-500 m-0">{{ r.rejectedByName }}</p>
+          </div>
+        }
+
+        @if (r.details && r.details.length > 0 && !isEditing()) {
+          <div>
+            <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Period / Duration</p>
+            <p class="text-sm font-medium text-(--primary) m-0">
+              {{ r.startDate | date: 'mediumDate' }}
+              @if (r.totalDays > 1) {
+                – {{ r.endDate | date: 'mediumDate' }}
+              }
+            </p>
+          </div>
+          <div>
+            <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Total Days</p>
+            <p class="text-sm font-medium text-(--primary) m-0">{{ r.totalDays }}</p>
+          </div>
+        }
+      </div>
+
+      @if (!isEditing()) {
+        <div
+          class="p-2 text-xs rounded-lg bg-(--accent)/10 border border-(--accent)/30 text-(--primary)"
+        >
+          <span
+            class="font-semibold uppercase tracking-wide text-[10px] text-(--theme2) block mb-0.5"
+            >Request Reason</span
+          >
+          {{ r.requestReason || '—' }}
         </div>
 
         @if (canCancel() || canApproveOrReject() || canEdit()) {
-        <div class="pt-2 border-t border-(--primary)/10 flex gap-2 items-center">
+          <div class="pt-2 border-t border-(--primary)/10 flex gap-2 items-center">
             @if (canApproveOrReject()) {
-            <label tuiLabel class="font-medium! text-xs!">Remarks</label>
-            <tui-textfield tuiTextfieldSize="s" class="flex-1">
-                <textarea [ngModel]="remarks()" (ngModelChange)="remarks.set($event)" tuiTextarea
-                    placeholder="Optional for approve, required for reject"></textarea>
-            </tui-textfield>
+              <label tuiLabel class="font-medium! text-xs!">Remarks</label>
+              <tui-textfield tuiTextfieldSize="m" class="flex-1">
+                <textarea
+                  [ngModel]="remarks()"
+                  (ngModelChange)="remarks.set($event)"
+                  tuiTextarea
+                  placeholder="Optional for approve, required for reject"
+                ></textarea>
+              </tui-textfield>
             }
 
             <div class="flex justify-end gap-2">
@@ -131,249 +151,388 @@
                     }
                     {{ isSubmittingAction() ? 'Cancelling…' : 'Cancel Request' }}
                 </button>
-                }
+              }
             </div>
-        </div>
+          </div>
         }
-        } @else {
+      } @else {
         <!-- Edit mode -->
         <div class="pt-2 border-t border-(--primary)/10 flex flex-col gap-3">
-            @if (r.requestType !== 'AttendanceRegularization') {
+          @if (r.requestType !== 'AttendanceRegularization') {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <tui-textfield tuiTextfieldSize="s">
-                    <label tuiLabel>Start Date</label>
-                    <input type="date" [ngModel]="editStartDate()" (ngModelChange)="editStartDate.set($event)"
-                        tuiTextfield />
-                </tui-textfield>
-                <tui-textfield tuiTextfieldSize="s">
-                    <label tuiLabel>End Date</label>
-                    <input type="date" [ngModel]="editEndDate()" (ngModelChange)="editEndDate.set($event)"
-                        tuiTextfield />
-                </tui-textfield>
+              <tui-textfield tuiTextfieldSize="s">
+                <input
+                  type="date"
+                  tuiInputDate
+                  [ngModel]="editStartDate()"
+                  (ngModelChange)="editStartDate.set($event)"
+                  placeholder="Start Date"
+                  tuiTextfield
+                />
+              </tui-textfield>
+              <tui-textfield tuiTextfieldSize="s">
+                <input
+                  type="date"
+                  tuiInputDate
+                  [ngModel]="editEndDate()"
+                  placeholder="End Date"
+                  (ngModelChange)="editEndDate.set($event)"
+                  tuiTextfield
+                />
+              </tui-textfield>
             </div>
-            }
+          }
 
-            @if (r.requestType === 'Leave') {
-            <tui-textfield tuiTextfieldSize="s">
-                <label tuiLabel>Leave Type</label>
-                <select [ngModel]="editLeaveTypeId()" (ngModelChange)="editLeaveTypeId.set($event)"
-                    class="w-full bg-transparent p-1.5 text-xs rounded-lg border border-(--primary)/20">
-                    @for (lt of leaveTypeOptions(); track lt.id) {
-                    <option [value]="lt.id">{{ lt.name }}</option>
-                    }
-                </select>
-            </tui-textfield>
-            }
+          @if (r.requestType === 'Leave') {
+            <tui-textfield
+              tuiTextfieldSize="s"
+              class="bg-(--background_light)/40!"
+              tuiChevron
+              [stringify]="leaveTypeStringify"
+            >
+              <input
+                [ngModel]="editLeaveTypeId()"
+                (ngModelChange)="editLeaveTypeId.set($event)"
+                placeholder="Select Leave Type"
+                tuiSelect
+              />
 
-            <tui-textfield tuiTextfieldSize="s">
-                <label tuiLabel>Reason</label>
-                <textarea [ngModel]="editReason()" (ngModelChange)="editReason.set($event)" tuiTextarea
-                    placeholder="Reason for this request"></textarea>
-            </tui-textfield>
-
-            @if (r.requestType === 'AttendanceRegularization') {
-            <div class="flex flex-col gap-2">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wide text-(--theme2)">Line Items</span>
-                    <button tuiButton type="button" size="s" appearance="outline" (click)="addLineItem()"
-                        class="btn-lift cursor-pointer">
-                        + Add Day
-                    </button>
-                </div>
-
-                @for (item of editLineItems(); track $index) {
-                <div class="rounded-lg border border-(--primary)/10 p-2 flex flex-col gap-2">
-                    <div class="flex items-center justify-between gap-2">
-                        <tui-textfield tuiTextfieldSize="m" class="flex-1">
-                            <label tuiLabel>Date</label>
-                            <input tuiInputDate [ngModel]="item.date"
-                                (ngModelChange)="updateLineItem($index, 'date', $event)" tuiTextfield />
-                        </tui-textfield>
-                        <button tuiButton type="button" size="m" appearance="outline" iconStart="@tui.trash-2"
-                            (click)="removeLineItem($index)"
-                            class="btn-lift text-red-500! border-red-500! cursor-pointer shrink-0"></button>
-                    </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        <tui-textfield tuiTextfieldSize="m">
-                            <label tuiLabel>Clock In</label>
-                            <input tuiInputTime [ngModel]="item.requestedClockIn"
-                                (ngModelChange)="updateLineItem($index, 'requestedClockIn', $event)" tuiTextfield />
-                        </tui-textfield>
-                        <div class="flex flex-col gap-1">
-                            <tui-textfield tuiTextfieldSize="m">
-                                <label tuiLabel>Clock Out</label>
-                                <input tuiInputTime [ngModel]="item.requestedClockOut"
-                                    (ngModelChange)="updateLineItem($index, 'requestedClockOut', $event)"
-                                    tuiTextfield />
-                            </tui-textfield>
-                            <label class="flex items-center gap-1.5 text-xs text-(--primary)/80 pl-0.5">
-                                <input type="checkbox" [ngModel]="item.clockOutNextDay"
-                                    (ngModelChange)="updateLineItem($index, 'clockOutNextDay', $event)" tuiCheckbox />
-                                Next day
-                            </label>
-                        </div>
-                        <tui-textfield tuiTextfieldSize="m">
-                            <label tuiLabel>Break In</label>
-                            <input tuiInputTime [ngModel]="item.requestedBreakIn"
-                                (ngModelChange)="updateLineItem($index, 'requestedBreakIn', $event)" tuiTextfield />
-                        </tui-textfield>
-                        <tui-textfield tuiTextfieldSize="m">
-                            <label tuiLabel>Break Out</label>
-                            <input tuiInputTime [ngModel]="item.requestedBreakOut"
-                                (ngModelChange)="updateLineItem($index, 'requestedBreakOut', $event)" tuiTextfield />
-                        </tui-textfield>
-                    </div>
-                    <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
-                        <label tuiLabel>Remarks</label>
-                        <input [ngModel]="item.remarks" (ngModelChange)="updateLineItem($index, 'remarks', $event)"
-                            tuiInput />
-                    </tui-textfield>
-                </div>
+              <tui-data-list *tuiDropdown class="bg-(--background_light)/40!">
+                @for (lt of leaveTypeOptions(); track lt.id) {
+                  <button tuiOption type="button" [value]="lt.id">
+                    {{ lt.name }}
+                  </button>
                 }
-            </div>
-            }
+              </tui-data-list>
+            </tui-textfield>
+          }
 
-            <div class="flex gap-2 pt-1">
-                <button tuiButton type="button" size="s" [disabled]="isSubmittingAction()" (click)="saveEdit()"
-                    class="btn-lift bg-(--theme1)! cursor-pointer">
-                    Save Changes
+          <tui-textfield tuiTextfieldSize="s">
+            <textarea
+              [ngModel]="editReason()"
+              (ngModelChange)="editReason.set($event)"
+              tuiTextarea
+              placeholder="Reason for this request"
+            ></textarea>
+          </tui-textfield>
+
+          @if (r.requestType === 'AttendanceRegularization') {
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wide text-(--theme2)"
+                  >Line Items</span
+                >
+                <button
+                  tuiButton
+                  type="button"
+                  size="s"
+                  appearance="outline"
+                  (click)="addLineItem()"
+                  class="btn-lift cursor-pointer"
+                >
+                  + Add Day
                 </button>
-                <button tuiButton type="button" size="s" appearance="outline" [disabled]="isSubmittingAction()"
-                    (click)="cancelEditMode()" class="btn-lift cursor-pointer">
-                    Discard
-                </button>
+              </div>
+
+              @for (item of editLineItems(); track $index) {
+                <div class="rounded-lg border border-(--primary)/10 p-2 flex flex-col gap-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <tui-textfield tuiTextfieldSize="m" class="flex-1">
+                      <label tuiLabel>Date</label>
+                      <input
+                        tuiInputDate
+                        [ngModel]="item.date"
+                        (ngModelChange)="updateLineItem($index, 'date', $event)"
+                        tuiTextfield
+                      />
+                    </tui-textfield>
+                    <button
+                      tuiButton
+                      type="button"
+                      size="m"
+                      appearance="outline"
+                      iconStart="@tui.trash-2"
+                      (click)="removeLineItem($index)"
+                      class="btn-lift text-red-500! border-red-500! cursor-pointer shrink-0"
+                    ></button>
+                  </div>
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <tui-textfield tuiTextfieldSize="m">
+                      <label tuiLabel>Clock In</label>
+                      <input
+                        tuiInputTime
+                        [ngModel]="item.requestedClockIn"
+                        (ngModelChange)="updateLineItem($index, 'requestedClockIn', $event)"
+                        tuiTextfield
+                      />
+                    </tui-textfield>
+                    <div class="flex flex-col gap-1">
+                      <tui-textfield tuiTextfieldSize="m">
+                        <label tuiLabel>Clock Out</label>
+                        <input
+                          tuiInputTime
+                          [ngModel]="item.requestedClockOut"
+                          (ngModelChange)="updateLineItem($index, 'requestedClockOut', $event)"
+                          tuiTextfield
+                        />
+                      </tui-textfield>
+                      <label class="flex items-center gap-1.5 text-xs text-(--primary)/80 pl-0.5">
+                        <input
+                          type="checkbox"
+                          [ngModel]="item.clockOutNextDay"
+                          (ngModelChange)="updateLineItem($index, 'clockOutNextDay', $event)"
+                          tuiCheckbox
+                        />
+                        Next day
+                      </label>
+                    </div>
+                    <tui-textfield tuiTextfieldSize="m">
+                      <label tuiLabel>Break In</label>
+                      <input
+                        tuiInputTime
+                        [ngModel]="item.requestedBreakIn"
+                        (ngModelChange)="updateLineItem($index, 'requestedBreakIn', $event)"
+                        tuiTextfield
+                      />
+                    </tui-textfield>
+                    <tui-textfield tuiTextfieldSize="m">
+                      <label tuiLabel>Break Out</label>
+                      <input
+                        tuiInputTime
+                        [ngModel]="item.requestedBreakOut"
+                        (ngModelChange)="updateLineItem($index, 'requestedBreakOut', $event)"
+                        tuiTextfield
+                      />
+                    </tui-textfield>
+                  </div>
+                  <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)!">
+                    <label tuiLabel>Remarks</label>
+                    <input
+                      [ngModel]="item.remarks"
+                      (ngModelChange)="updateLineItem($index, 'remarks', $event)"
+                      tuiInput
+                    />
+                  </tui-textfield>
+                </div>
+              }
             </div>
+          }
+
+          <div class="flex gap-2 pt-1">
+            <button
+              tuiButton
+              type="button"
+              size="s"
+              [disabled]="isSubmittingAction()"
+              (click)="saveEdit()"
+              class="btn-lift bg-(--theme1)! cursor-pointer"
+            >
+              Save Changes
+            </button>
+            <button
+              tuiButton
+              type="button"
+              size="s"
+              appearance="outline"
+              [disabled]="isSubmittingAction()"
+              (click)="cancelEditMode()"
+              class="btn-lift cursor-pointer"
+            >
+              Discard
+            </button>
+          </div>
         </div>
-        }
+      }
     </div>
 
     <!-- Approval Trail -->
     @if (!isEditing() && r.approvals && r.approvals.length > 0) {
-    <div tuiCardLarge
-        class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! p-3.5 rounded-xl flex flex-col gap-2!">
+      <div
+        tuiCardLarge
+        class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! p-3.5 rounded-xl flex flex-col gap-2!"
+      >
         <h3
-            class="text-xs uppercase font-semibold text-(--theme2) tracking-wide m-0 pb-1 border-b border-(--primary)/10">
-            Approval Trail
+          class="text-xs uppercase font-semibold text-(--theme2) tracking-wide m-0 pb-1 border-b border-(--primary)/10"
+        >
+          Approval Trail
         </h3>
         <div class="flex flex-col">
-            @for (step of r.approvals; track step.stepOrder; let first = $first) {
-            <div class="flex items-center justify-between gap-2 py-1.5" [class.border-t]="!first"
-                [class.border-(--primary)/10]="!first">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-medium text-(--primary)">Step {{ step.stepOrder }}</span>
-                    <span class="text-sm text-(--primary)">{{ step.approverName || '—' }}</span>
-                    <span class="text-xs px-2 py-0.5 rounded-full font-medium"
-                        [class.bg-emerald-500]="step.stepAction === 'Approved'"
-                        [class.text-white]="step.stepAction === 'Approved'"
-                        [class.bg-red-500]="step.stepAction === 'Rejected'"
-                        [class.bg-(--primary)]="step.stepAction !== 'Approved' && step.stepAction !== 'Rejected'"
-                        [class.bg-opacity-10]="step.stepAction !== 'Approved' && step.stepAction !== 'Rejected'">
-                        {{ step.stepAction }}
-                    </span>
-                </div>
-                <span class="text-xs text-(--primary)/50">{{ step.actionAtUtc | date: 'short' }}</span>
+          @for (step of r.approvals; track step.stepOrder; let first = $first) {
+            <div
+              class="flex items-center justify-between gap-2 py-1.5"
+              [class.border-t]="!first"
+              [class.border-(--primary)/10]="!first"
+            >
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-medium text-(--primary)">Step {{ step.stepOrder }}</span>
+                <span class="text-sm text-(--primary)">{{ step.approverName || '—' }}</span>
+                <span
+                  class="text-xs px-2 py-0.5 rounded-full font-medium"
+                  [class.bg-emerald-500]="step.stepAction === 'Approved'"
+                  [class.text-white]="step.stepAction === 'Approved'"
+                  [class.bg-red-500]="step.stepAction === 'Rejected'"
+                  [class.bg-(--primary)]="
+                    step.stepAction !== 'Approved' && step.stepAction !== 'Rejected'
+                  "
+                  [class.bg-opacity-10]="
+                    step.stepAction !== 'Approved' && step.stepAction !== 'Rejected'
+                  "
+                >
+                  {{ step.stepAction }}
+                </span>
+              </div>
+              <span class="text-xs text-(--primary)/50">{{
+                step.actionAtUtc | date: 'short'
+              }}</span>
             </div>
             @if (step.comments) {
-            <p class="text-xs text-(--primary)/60 m-0 pl-1">"{{ step.comments }}"</p>
+              <p class="text-xs text-(--primary)/60 m-0 pl-1">"{{ step.comments }}"</p>
             }
-            }
+          }
         </div>
-    </div>
+      </div>
     }
 
     <!-- Request Line Items (Detailed Breakdown) -->
     @if (!isEditing()) {
-    <div tuiCardLarge
-        class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! p-3.5 rounded-xl flex flex-col gap-2!">
+      <div
+        tuiCardLarge
+        class="drop-shadow-sm bg-(--secondary)! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]! p-3.5 rounded-xl flex flex-col gap-2!"
+      >
         <h3
-            class="text-xs uppercase font-semibold text-(--theme2) tracking-wide m-0 pb-1 border-b border-(--primary)/10">
-            Detailed Breakdown
+          class="text-xs uppercase font-semibold text-(--theme2) tracking-wide m-0 pb-1 border-b border-(--primary)/10"
+        >
+          Detailed Breakdown
         </h3>
 
         <div class="flex flex-col">
-            @for (detail of sortedDetails(); track detail.detailId; let first = $first) {
-            <div class="flex flex-col gap-2 py-2" [class.border-t]="!first" [class.border-(--primary)/10]="!first">
+          @for (detail of sortedDetails(); track detail.detailId; let first = $first) {
+            <div
+              class="flex flex-col gap-2 py-2"
+              [class.border-t]="!first"
+              [class.border-(--primary)/10]="!first"
+            >
+              <!-- Date Row -->
+              <div class="flex items-center gap-1.5">
+                <tui-icon icon="@tui.calendar-clock" class="text-sm! text-(--theme2)" />
+                <span class="text-sm font-semibold text-(--primary)">
+                  {{ detail.date | date: 'EEEE, MMM d, y' }}
+                </span>
+              </div>
 
-                <!-- Date Row -->
-                <div class="flex items-center gap-1.5">
-                    <tui-icon icon="@tui.calendar-clock" class="text-sm! text-(--theme2)" />
-                    <span class="text-sm font-semibold text-(--primary)">
-                        {{ detail.date | date: 'EEEE, MMM d, y' }}
-                    </span>
-                </div>
-
-                <!-- Detail Grid -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-2">
-                    @if (isLeaveDetail(detail) || isWorkFromHomeDetail(detail)) {
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Is Half Day</p>
-                        <p class="text-xs font-medium text-(--primary) m-0">
-                            {{ detail.isHalfDay ? 'Yes' : 'No' }}
-                        </p>
-                    </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">Half Day Type</p>
-                        <p class="text-xs font-medium text-(--primary) m-0">
-                            {{ detail.isHalfDay ? halfDayLabel(detail.halfDayType) : '—' }}
-                        </p>
-                    </div>
-                    }
-
-                    @if (isAttendanceRegularizationDetail(detail)) {
-                    <div>
-                        <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">Clock In</p>
-                        <p class="text-xs font-medium text-(--primary) m-0">{{ detail.requestedClockIn ?? '—' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">Clock Out</p>
-                        <p class="text-xs font-medium text-(--primary) m-0">{{ detail.requestedClockOut ?? '—' }}{{
-                            detail.requestedClockOut && detail.clockOutNextDay ? ' (next day)' : '' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">Break In</p>
-                        <p class="text-xs font-medium text-(--primary) m-0">{{ detail.requestedBreakIn ?? '—' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">Break Out</p>
-                        <p class="text-xs font-medium text-(--primary) m-0">{{ detail.requestedBreakOut ?? '—' }}</p>
-                    </div>
-                    }
-                </div>
-
-                <!-- Actual punches at the time this was requested - audit trail reference -->
-                @if (isAttendanceRegularizationDetail(detail) && (detail.actualClockIn || detail.actualClockOut || detail.actualBreakIn || detail.actualBreakOut)) {
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-1 -mt-1">
-                    <div class="col-span-2 sm:col-span-4">
-                        <span class="text-[9px] uppercase tracking-wide text-(--primary)/40">Actual (at time of request)</span>
-                    </div>
-                    <div>
-                        <p class="text-xs text-(--primary)/70 m-0">{{ formatActualUk(detail.actualClockIn) }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-(--primary)/70 m-0">{{ formatActualUk(detail.actualClockOut) }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-(--primary)/70 m-0">{{ formatActualUk(detail.actualBreakIn) }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-(--primary)/70 m-0">{{ formatActualUk(detail.actualBreakOut) }}</p>
-                    </div>
-                </div>
+              <!-- Detail Grid -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-2">
+                @if (isLeaveDetail(detail) || isWorkFromHomeDetail(detail)) {
+                  <div>
+                    <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">
+                      Is Half Day
+                    </p>
+                    <p class="text-xs font-medium text-(--primary) m-0">
+                      {{ detail.isHalfDay ? 'Yes' : 'No' }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-xs uppercase tracking-wide text-(--primary)/40 m-0">
+                      Half Day Type
+                    </p>
+                    <p class="text-xs font-medium text-(--primary) m-0">
+                      {{ detail.isHalfDay ? halfDayLabel(detail.halfDayType) : '—' }}
+                    </p>
+                  </div>
                 }
 
-                <!-- Remarks -->
                 @if (isAttendanceRegularizationDetail(detail)) {
-                <div
-                    class="p-1.5 text-xs rounded-md bg-(--theme1)/10 border border-(--theme1)/30 text-(--primary) mt-0.5">
-                    <span
-                        class="font-semibold uppercase tracking-wide text-[9px] text-(--theme2) block leading-tight">Reason</span>
-                    <span class="text-xs">{{ detail.remarks || '—' }}</span>
-                </div>
+                  <div>
+                    <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">
+                      Clock In
+                    </p>
+                    <p class="text-xs font-medium text-(--primary) m-0">
+                      {{ detail.requestedClockIn ?? '—' }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">
+                      Clock Out
+                    </p>
+                    <p class="text-xs font-medium text-(--primary) m-0">
+                      {{ detail.requestedClockOut ?? '—'
+                      }}{{
+                        detail.requestedClockOut && detail.clockOutNextDay ? ' (next day)' : ''
+                      }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">
+                      Break In
+                    </p>
+                    <p class="text-xs font-medium text-(--primary) m-0">
+                      {{ detail.requestedBreakIn ?? '—' }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-[10px] uppercase tracking-wide text-(--primary)/40 m-0">
+                      Break Out
+                    </p>
+                    <p class="text-xs font-medium text-(--primary) m-0">
+                      {{ detail.requestedBreakOut ?? '—' }}
+                    </p>
+                  </div>
                 }
+              </div>
+
+              <!-- Actual punches at the time this was requested - audit trail reference -->
+              @if (
+                isAttendanceRegularizationDetail(detail) &&
+                (detail.actualClockIn ||
+                  detail.actualClockOut ||
+                  detail.actualBreakIn ||
+                  detail.actualBreakOut)
+              ) {
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-1 -mt-1">
+                  <div class="col-span-2 sm:col-span-4">
+                    <span class="text-[9px] uppercase tracking-wide text-(--primary)/40"
+                      >Actual (at time of request)</span
+                    >
+                  </div>
+                  <div>
+                    <p class="text-xs text-(--primary)/70 m-0">
+                      {{ formatActualUk(detail.actualClockIn) }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-(--primary)/70 m-0">
+                      {{ formatActualUk(detail.actualClockOut) }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-(--primary)/70 m-0">
+                      {{ formatActualUk(detail.actualBreakIn) }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-(--primary)/70 m-0">
+                      {{ formatActualUk(detail.actualBreakOut) }}
+                    </p>
+                  </div>
+                </div>
+              }
+
+              <!-- Remarks -->
+              @if (isAttendanceRegularizationDetail(detail)) {
+                <div
+                  class="p-1.5 text-xs rounded-md bg-(--theme1)/10 border border-(--theme1)/30 text-(--primary) mt-0.5"
+                >
+                  <span
+                    class="font-semibold uppercase tracking-wide text-[9px] text-(--theme2) block leading-tight"
+                    >Reason</span
+                  >
+                  <span class="text-xs">{{ detail.remarks || '—' }}</span>
+                </div>
+              }
             </div>
-            }
+          }
         </div>
-    </div>
+      </div>
     }
-    }
+  }
 </div>

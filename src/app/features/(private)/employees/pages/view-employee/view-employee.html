@@ -1,5 +1,8 @@
 <div class="flex flex-col w-full mx-auto max-w-7xl gap-5">
-  <app-main-heading title="Employee Profile" description="View employee details and employment information.">
+  <app-main-heading
+    title="Employee Profile"
+    description="View employee details and employment information."
+  >
     @if (canEdit()) {
     <button type="button" tuiButton iconStart="@tui.pencil" size="s"
       class="btn-lift cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
@@ -10,198 +13,274 @@
   </app-main-heading>
 
   @if (isLoading()) {
-  <div class="flex flex-col items-center justify-center gap-2 py-16 text-(--primary)/60">
-    <p class="text-sm">Loading employee…</p>
-  </div>
+    <div class="flex flex-col items-center justify-center gap-2 py-16 text-(--primary)/60">
+      <p class="text-sm">Loading employee…</p>
+    </div>
   } @else if (errorMessage()) {
-  <div class="flex flex-col items-center justify-center gap-2 py-16 text-(--primary)/70">
-    <tui-icon icon="@tui.circle-alert" style="font-size: 2.5rem;" />
-    <p class="text-sm font-medium m-0">{{ errorMessage() }}</p>
-  </div>
+    <div class="flex flex-col items-center justify-center gap-2 py-16 text-(--primary)/70">
+      <tui-icon icon="@tui.circle-alert" style="font-size: 2.5rem" />
+      <p class="text-sm font-medium m-0">{{ errorMessage() }}</p>
+    </div>
   } @else if (employee(); as emp) {
-  <div class="flex flex-col gap-5">
-
-    <!-- Identity summary strip -->
-    <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
-      <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-        <app-profile-picture-upload [employeeId]="emp.id" [currentPictureUrl]="emp.profilePictureUrl ?? null"
-          [initials]="initials()" [canEdit]="canEditPicture()" (pictureUploaded)="onPictureUploaded($event)">
-        </app-profile-picture-upload>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
-            <h1 class="text-2xl font-semibold text-(--theme2) m-0 uppercase">{{ emp.fullName }}</h1>
-            <span class="text-xs font-medium rounded-full px-2 py-0.5" [ngClass]="emp.isActive
-                ? 'bg-emerald-500/10 text-emerald-500'
-                : 'bg-red-500/10 text-red-500'">
-              {{ emp.isActive ? 'Active' : 'Inactive' }}
-            </span>
+    <div class="flex flex-col gap-5">
+      <!-- Identity summary strip -->
+      <div
+        tuiCardLarge
+        class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!"
+      >
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+          <app-profile-picture-upload
+            [employeeId]="emp.id"
+            [currentPictureUrl]="emp.profilePictureUrl ?? null"
+            [initials]="initials()"
+            [canEdit]="canEditPicture()"
+            (pictureUploaded)="onPictureUploaded($event)"
+          >
+          </app-profile-picture-upload>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 class="text-2xl font-semibold text-(--theme2) m-0 uppercase">
+                {{ emp.fullName }}
+              </h1>
+              <span
+                class="text-xs font-medium rounded-full px-2 py-0.5"
+                [ngClass]="
+                  emp.isActive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'
+                "
+              >
+                {{ emp.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+            @if (emp.departmentName) {
+              <p class="text-sm text-(--primary)/50 m-0">{{ emp.departmentName }}</p>
+            }
           </div>
-          @if (emp.departmentName) {
-          <p class="text-sm text-(--primary)/50 m-0">{{ emp.departmentName }}</p>
-          }
         </div>
       </div>
-    </div>
 
-    <!-- Personal Details -->
-    <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
-      <header class="flex flex-row gap-2 items-center">
-        <tui-icon icon="@tui.user" class="text-3xl!" />
-        <div class="flex flex-col">
-          <span class="uppercase text-lg font-semibold text-(--theme2)">Personal Details</span>
-          <span tuiSubtitle class="text-(--primary)/50 text-sm">Contact & Identification Information</span>
-        </div>
-      </header>
+      <!-- Personal Details -->
+      <div
+        tuiCardLarge
+        class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!"
+      >
+        <header class="flex flex-row gap-2 items-center">
+          <tui-icon icon="@tui.user" class="text-3xl!" />
+          <div class="flex flex-col">
+            <span class="uppercase text-lg font-semibold text-(--theme2)">Personal Details</span>
+            <span tuiSubtitle class="text-(--primary)/50 text-sm"
+              >Contact & Identification Information</span
+            >
+          </div>
+        </header>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Staff No.</p>
-          <p class="text-base text-(--primary) m-0">{{ emp.staffNo || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Email</p>
-          <p class="text-base text-(--primary) m-0 truncate" [title]="emp.workEmail">{{ emp.workEmail }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Title</p>
-          <p class="text-base text-(--primary) m-0">{{ emp.title || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">First Name</p>
-          <p class="text-base text-(--primary) m-0">{{ emp.firstName || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Last Name</p>
-          <p class="text-base text-(--primary) m-0">{{ emp.lastName || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Gender</p>
-          <p class="text-base text-(--primary) m-0">{{ emp.gender || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Date of Birth</p>
-          <p class="text-base text-(--primary) m-0">{{ (emp.dateOfBirth | date: 'mediumDate') || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Mobile</p>
-          <p class="text-base text-(--primary) m-0">{{ emp.mobile || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">NI Number</p>
-          <p class="text-base text-(--primary) m-0">{{ emp.niNumber || '—' }}</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Employment Details -->
-    <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
-      <header class="flex flex-row gap-2 items-center">
-        <tui-icon icon="@tui.briefcase" class="text-3xl!" />
-        <div class="flex flex-col">
-          <span class="uppercase text-lg font-semibold text-(--theme2)">Employment Details</span>
-          <span tuiSubtitle class="text-(--primary)/50 text-sm">Role & Organizational Information</span>
-        </div>
-      </header>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
-
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Department</p>
-          <p class="text-base text-(--primary) m-0">{{ emp.departmentName || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Branch</p>
-          <p class="text-base text-(--primary) m-0">{{ emp.branchName || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Designation</p>
-          <p class="text-base text-(--primary) m-0">{{ emp.designationTitle || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Manager</p>
-          @if (emp.managerName && emp.managerId) {
-          <button type="button"
-            class="text-sm text-(--theme1) hover:underline cursor-pointer p-0 bg-transparent border-0"
-            (click)="navigateToManager(emp.managerId)">
-            {{ emp.managerName }}
-          </button>
-          } @else {
-          <p class="text-base text-(--primary) m-0">—</p>
-          }
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Start Date</p>
-          <p class="text-base text-(--primary) m-0">{{ (emp.startDate | date: 'mediumDate') || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Employment Type</p>
-          <p class="text-base text-(--primary) m-0">{{ emp.employmentType || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Shift Code</p>
-          <p class="text-base text-(--primary) m-0">{{ emp.shiftCode || '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Roles</p>
-          <p class="text-base text-(--primary) m-0">{{ (emp.roles && emp.roles.length ? emp.roles.join(', ') : null) ||
-            '—' }}</p>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Employment Category</p>
-          <span class="text-xs font-medium rounded-full px-2 py-0.5 bg-(--accent)/20 text-(--accent)">{{ emp.category
-            }}</span>
-        </div>
-        <div>
-          <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Created</p>
-          <p class="text-base text-(--primary) m-0">{{ emp.createdAtUtc | date: 'mediumDate' }}</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Update Password -->
-    <div tuiCardLarge class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!">
-      <header class="flex flex-row gap-2 items-center">
-        <tui-icon icon="@tui.lock" class="text-3xl!" />
-        <div class="flex flex-col">
-          <span class="uppercase text-lg font-semibold text-(--theme2)">Update Password</span>
-          <span tuiSubtitle class="text-(--primary)/50 text-sm">Reset your login password</span>
-        </div>
-      </header>
-
-      <form [formGroup]="passwordForm" (submit)="submitPasswordChange()" class="flex flex-col gap-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
           <div>
-            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>New Password <span class="text-red-500">*</span></label>
-              <input formControlName="newPassword" type="password" placeholder="Re-enter new password" tuiInput />
-            </tui-textfield>
-            <tui-error formControlName="newPassword" />
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Staff No.</p>
+            <p class="text-base text-(--primary) m-0">{{ emp.staffNo || '—' }}</p>
           </div>
           <div>
-            <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
-              <label tuiLabel>Confirm Password <span class="text-red-500">*</span></label>
-              <input formControlName="confirmPassword" type="password" placeholder="Enter new password" tuiInput />
-            </tui-textfield>
-            <tui-error formControlName="confirmPassword" />
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Email</p>
+            <p class="text-base text-(--primary) m-0 truncate" [title]="emp.workEmail">
+              {{ emp.workEmail }}
+            </p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Title</p>
+            <p class="text-base text-(--primary) m-0">{{ emp.title || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">First Name</p>
+            <p class="text-base text-(--primary) m-0">{{ emp.firstName || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Last Name</p>
+            <p class="text-base text-(--primary) m-0">{{ emp.lastName || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Gender</p>
+            <p class="text-base text-(--primary) m-0">{{ emp.gender || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Date of Birth</p>
+            <p class="text-base text-(--primary) m-0">
+              {{ (emp.dateOfBirth | date: 'mediumDate') || '—' }}
+            </p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Mobile</p>
+            <p class="text-base text-(--primary) m-0">{{ emp.mobile || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">NI Number</p>
+            <p class="text-base text-(--primary) m-0">{{ emp.niNumber || '—' }}</p>
           </div>
         </div>
+      </div>
 
-        @if (passwordSuccessMessage()) {
-        <p class="text-sm text-emerald-500 m-0">{{ passwordSuccessMessage() }}</p>
-        }
-        @if (passwordErrorMessage()) {
-        <p class="text-sm text-red-500 m-0">{{ passwordErrorMessage() }}</p>
-        }
+      <!-- Employment Details -->
+      <div
+        tuiCardLarge
+        class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!"
+      >
+        <header class="flex flex-row gap-2 items-center">
+          <tui-icon icon="@tui.briefcase" class="text-3xl!" />
+          <div class="flex flex-col">
+            <span class="uppercase text-lg font-semibold text-(--theme2)">Employment Details</span>
+            <span tuiSubtitle class="text-(--primary)/50 text-sm"
+              >Role & Organizational Information</span
+            >
+          </div>
+        </header>
 
-        <div class="flex justify-end">
-          <button type="submit" tuiButton size="s" class="btn-lift cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
-            [disabled]="passwordForm.invalid || isSubmittingPassword()">
-            {{ isSubmittingPassword() ? 'Updating…' : 'Update Password' }}
-          </button>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Department</p>
+            <p class="text-base text-(--primary) m-0">{{ emp.departmentName || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Branch</p>
+            <p class="text-base text-(--primary) m-0">{{ emp.branchName || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Designation</p>
+            <p class="text-base text-(--primary) m-0">{{ emp.designationTitle || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Manager</p>
+            @if (emp.managerName && emp.managerId) {
+              <button
+                type="button"
+                class="text-sm text-(--theme1) hover:underline cursor-pointer p-0 bg-transparent border-0"
+                (click)="navigateToManager(emp.managerId)"
+              >
+                {{ emp.managerName }}
+              </button>
+            } @else {
+              <p class="text-base text-(--primary) m-0">—</p>
+            }
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Start Date</p>
+            <p class="text-base text-(--primary) m-0">
+              {{ (emp.startDate | date: 'mediumDate') || '—' }}
+            </p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Employment Type</p>
+            <p class="text-base text-(--primary) m-0">{{ emp.employmentType || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Shift Code</p>
+            <p class="text-base text-(--primary) m-0">{{ emp.shiftCode || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Roles</p>
+            <p class="text-base text-(--primary) m-0">
+              {{ (emp.roles && emp.roles.length ? emp.roles.join(', ') : null) || '—' }}
+            </p>
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">
+              Employment Category
+            </p>
+            <span
+              class="text-xs font-medium rounded-full px-2 py-0.5 bg-(--accent)/20 text-(--accent)"
+              >{{ emp.category }}</span
+            >
+          </div>
+          <div>
+            <p class="text-sm uppercase tracking-wide text-(--primary)/40 m-0">Created</p>
+            <p class="text-base text-(--primary) m-0">
+              {{ emp.createdAtUtc | date: 'mediumDate' }}
+            </p>
+          </div>
         </div>
-      </form>
-    </div>
+      </div>
 
-  </div>
+      <!-- Update Password -->
+      <div
+        tuiCardLarge
+        class="drop-shadow-sm bg-(--secondary)/20! glass-card shadow-[0_0_10px_rgba(0,0,0,0.15)]!"
+      >
+        <header class="flex flex-row gap-2 items-center">
+          <tui-icon icon="@tui.lock" class="text-3xl!" />
+          <div class="flex flex-col">
+            <span class="uppercase text-lg font-semibold text-(--theme2)">Update Password</span>
+            <span tuiSubtitle class="text-(--primary)/50 text-sm">Reset your login password</span>
+          </div>
+        </header>
+
+        <form
+          [formGroup]="passwordForm"
+          (submit)="submitPasswordChange()"
+          class="flex flex-col gap-4"
+        >
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- New Password Field -->
+            <div>
+              <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+                <label tuiLabel>New Password <span class="text-red-500">*</span></label>
+                <input
+                  formControlName="newPassword"
+                  [type]="showNewPassword() ? 'text' : 'password'"
+                  placeholder="Enter new password"
+                  tuiInput
+                />
+                <button
+                  type="button"
+                  tuiButton
+                  size="xs"
+                  [iconEnd]="showNewPassword() ? '@tui.eye-off' : '@tui.eye'"
+                  (click)="showNewPassword.set(!showNewPassword())"
+                  class="cursor-pointer"
+                ></button>
+              </tui-textfield>
+              <tui-error formControlName="newPassword" />
+            </div>
+
+            <!-- Confirm Password Field -->
+            <div>
+              <tui-textfield tuiTextfieldSize="m" class="bg-(--background_light)/40!">
+                <label tuiLabel>Confirm Password <span class="text-red-500">*</span></label>
+                <input
+                  formControlName="confirmPassword"
+                  [type]="showConfirmPassword() ? 'text' : 'password'"
+                  placeholder="Re-enter new password"
+                  tuiInput
+                />
+                <button
+                  type="button"
+                  tuiButton
+                  size="xs"
+                  [iconEnd]="showConfirmPassword() ? '@tui.eye-off' : '@tui.eye'"
+                  (click)="showConfirmPassword.set(!showConfirmPassword())"
+                  class="cursor-pointer"
+                ></button>
+              </tui-textfield>
+              <tui-error formControlName="confirmPassword" />
+            </div>
+          </div>
+
+          @if (passwordSuccessMessage()) {
+            <p class="text-sm text-emerald-500 m-0">{{ passwordSuccessMessage() }}</p>
+          }
+          @if (passwordErrorMessage()) {
+            <p class="text-sm text-red-500 m-0">{{ passwordErrorMessage() }}</p>
+          }
+
+          <div class="flex justify-end">
+            <button
+              type="submit"
+              tuiButton
+              size="s"
+              class="cursor-pointer bg-(--theme1)! hover:bg-(--theme1)/80!"
+              [disabled]="passwordForm.invalid || isSubmittingPassword()"
+            >
+              {{ isSubmittingPassword() ? 'Updating…' : 'Update Password' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   }
 </div>

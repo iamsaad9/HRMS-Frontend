@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { TuiButton, TuiCell, TuiTitle, TuiIcon, TuiTextfield, TuiLabel } from '@taiga-ui/core';
-import { TuiBadge, TuiInputDate, TuiStatus, TuiDataListWrapperComponent, TuiSelect } from '@taiga-ui/kit';
+import { TuiButton, TuiCell, TuiTitle, TuiIcon, TuiTextfield, TuiLabel, TuiDataList, TuiDropdown } from '@taiga-ui/core';
+import { TuiBadge, TuiInputDate, TuiStatus, TuiDataListWrapperComponent, TuiSelect, TuiChevron } from '@taiga-ui/kit';
 import { TuiTable } from '@taiga-ui/addon-table';
 import { TuiCardLarge } from '@taiga-ui/layout';
 import { Router } from '@angular/router';
@@ -29,15 +29,17 @@ import { DurationPipe } from '../../../../../shared/pipes/duration.pipe';
     TuiButton,
     TuiBadge,
     TuiTable,
-    TuiStatus,
     TuiTextfield,
     TuiInputDate,
     TuiCardLarge,
     TuiIcon,
     MainHeading,
     TuiLabel,
-    TuiDataListWrapperComponent,
-    DurationPipe
+    DurationPipe,
+     TuiSelect,
+  TuiChevron,
+  TuiDataList,
+  TuiDropdown,
 ],
   templateUrl: './department-attendance-log.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -113,7 +115,7 @@ readonly stringifyDept = (item: any): string => {
 
     return {
       date: '',
-      totalEmployees: records.length,
+    totalEmployees: new Set(records.map(r => r.employeeId)).size,
       present,
       absent,
       late,

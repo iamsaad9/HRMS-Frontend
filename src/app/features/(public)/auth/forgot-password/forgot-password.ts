@@ -11,7 +11,6 @@ import { ToastService } from '../../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './forgot-password.html',
-  styleUrl: './forgot-password.css',
 })
 export class ForgotPassword {
   private readonly fb = inject(FormBuilder);

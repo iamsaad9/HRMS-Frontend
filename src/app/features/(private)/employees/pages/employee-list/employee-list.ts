@@ -176,9 +176,13 @@ export class EmployeeList implements OnInit {
     this.page.set(page);
   }
 
-  protected filteredEmployees = computed(
-    () => this.serverFilteredEmployees() ?? this.employees() ?? [],
-  );
+  // Category isn't a backend filter param, so it's applied client-side on top of whatever the
+  // server-filtered (or full cached) list already resolved to.
+  protected filteredEmployees = computed(() => {
+    const base = this.serverFilteredEmployees() ?? this.employees() ?? [];
+    const category = this.filter().category;
+    return category ? base.filter((e) => e.category === category) : base;
+  });
 
   protected readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.filteredEmployees().length / this.pageSize)),

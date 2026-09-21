@@ -21,6 +21,17 @@
 
   <!-- BOTTOM ROW: Dropdown Filters Grid - each one applies immediately on selection -->
   <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    <!-- Category Filter -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium">Category</label>
+      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
+        [tuiTextfieldCleaner]="true">
+        <input placeholder="All Categories" tuiSelect [ngModel]="selectedCategory()"
+          (ngModelChange)="onCategoryChange($event)" />
+        <tui-data-list-wrapper *tuiDropdown [items]="categories" class="bg-(--background_light)/40!" />
+      </tui-textfield>
+    </div>
+
     <!-- Department Filter -->
     <div class="flex flex-col gap-1">
       <label class="text-xs font-medium">Department</label>
@@ -32,26 +43,6 @@
       </tui-textfield>
     </div>
 
-    <div class="flex flex-col gap-1">
-      <label class="text-xs font-medium">Branch</label>
-      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
-        [tuiTextfieldCleaner]="true">
-        <input placeholder="All Branches" tuiSelect [ngModel]="selectedBranch()"
-          (ngModelChange)="onBranchChange($event)" />
-        <tui-data-list-wrapper *tuiDropdown [items]="branches()" class="bg-(--background_light)/40!" />
-      </tui-textfield>
-    </div>
-
-    <div class="flex flex-col gap-1">
-      <label class="text-xs font-medium">Manager</label>
-      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
-        [tuiTextfieldCleaner]="true">
-        <input placeholder="All Managers" tuiSelect [ngModel]="selectedManager()"
-          (ngModelChange)="onManagerChange($event)" />
-        <tui-data-list-wrapper *tuiDropdown [items]="managers()" class="bg-(--background_light)/40!" />
-      </tui-textfield>
-    </div>
-
     <!-- Designation Filter -->
     <div class="flex flex-col gap-1">
       <label class="text-xs font-medium">Designation</label>
@@ -60,6 +51,16 @@
         <input placeholder="All Designations" tuiSelect [ngModel]="selectedRole()"
           (ngModelChange)="onRoleChange($event)" />
         <tui-data-list-wrapper *tuiDropdown [items]="roles()" class="bg-(--background_light)/40!" />
+      </tui-textfield>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium">Branch</label>
+      <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full bg-(--background_light)/40! rounded-lg"
+        [tuiTextfieldCleaner]="true">
+        <input placeholder="All Branches" tuiSelect [ngModel]="selectedBranch()"
+          (ngModelChange)="onBranchChange($event)" />
+        <tui-data-list-wrapper *tuiDropdown [items]="branches()" class="bg-(--background_light)/40!" />
       </tui-textfield>
     </div>
 

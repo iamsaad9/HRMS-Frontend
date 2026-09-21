@@ -168,6 +168,7 @@ export interface EmployeeFilter {
   branchId: string | null;
   managerId: string | null;
   designationId: string | null;
+  category: string | null;
   // null = no status filter applied (show both active and inactive)
   isActive: boolean | null;
   status: string | null;
@@ -180,6 +181,7 @@ export const EMPTY_EMPLOYEE_FILTER: EmployeeFilter = {
   branchId: null,
   managerId: null,
   designationId: null,
+  category: null,
   isActive: null,
   status: null,
   role: '',
